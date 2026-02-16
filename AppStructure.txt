@@ -2,7 +2,7 @@
 
 Frånvaro:
     Johan:
-    Kristofer:
+    Kristofer: Nätverksträff med Consid från klockan 12 till 16 den 12/3 eller 19/3. Måste dubbelkolla datum.  
 
 - Trello?
 
@@ -27,8 +27,8 @@ Frånvaro:
     - JSON-objekt
     
 - MVP:
-    - Om vi inte hittar ett vettigt sätt: 10 spel
-    - Annars försöker vi få med alla spel
+    - Om vi inte hittar ett vettigt sätt: 10  - Note: Hög prioritet att hitta sökväg till Unreal Engine spel.
+    - Annars försöker vi få med alla 
     
     - Ska kunna installera RenoDX
     - Ska kunna installera ReShade
@@ -42,6 +42,8 @@ Frånvaro:
     - Installerad RenoDX och ReShade ska kännas av automatiskt för installerade spel med stöd för RenoDX (till att börja med)
     
     - API, om vi inte hittar för Github så får vi hitta något annat
+    - Undo/Repair knapp för återställning?
+    - Indentifiera x64/x86 för Reshader?
     
 - Extra features:
     - Linux stöd (Lite högre prio)
@@ -53,3 +55,7 @@ Frånvaro:
     - Gameify:
         - RPG Inventory system
         - Olika färger för status, normal (white) - legendary (guld)
+    - Preset Profiler beroende på skärm?
+    - Dark/Light mode 
+    - Favoritspel bakgrund: Game wallpaper?
+    - Profil för alla Unreal Engine spel?  
