@@ -1,0 +1,51 @@
+﻿- Core tider: 09 - 16. Standup kl 09. Kan komma att ändras i framtiden när vi jobbar mer självständigt med olika delar.
+
+- Trello?
+
+- Mobprogrammering för att sätta upp skalet, basen:
+    - Mockup design
+    - Klasser
+    - Models
+    - Basic UI (Avalonia)
+    
+- Moment som ska vara med:
+    - Programstruktur
+    - Refaktorering
+    - Asynkrona
+    - API
+    - Grafiska applikationer
+    - Begrepp: DRY, KISS, SOLID m.m.
+    - Designmönster
+    - Felhantering
+    - Delegater
+    - Lambdauttryck
+    - LINQ
+    - JSON-objekt
+    
+- MVP:
+    - Om vi inte hittar ett vettigt sätt: 10 spel
+    - Annars försöker vi få med alla spel
+    
+    - Ska kunna installera RenoDX
+    - Ska kunna installera ReShade
+    - Ska kunna se nuvarande installerade RenoDX version
+    - Ska kunna se nuvarande installerade ReShade version
+    - Ska kunna se om det finns uppdateringar för ovanstående
+    - Kunna uppdatera RenoDX och ReShade
+    - Ska inte kunna installera RenoDX om ReShade inte finns
+    - Få feedback i UI när man tryckt på något eller någonting händer (UX)
+    - Knapp med funktionalitet för att stänga av standard ReShade Addons
+    - Installerad RenoDX och ReShade ska kännas av automatiskt för installerade spel med stöd för RenoDX (till att börja med)
+    
+    - API, om vi inte hittar för Github så får vi hitta något annat
+    
+- Extra features:
+    - Linux stöd (Lite högre prio)
+    - Hantering av ReShade genom SpecialK
+        - Separat flik?
+    - Flik för ReShade INI settings?
+    - Kunna installera tredjeparts ReShade Addons
+    - Display Commander fullt stöd?
+    - Gameify:
+        - RPG Inventory system
+        - Olika färger för status, normal (white) - legendary (guld)
