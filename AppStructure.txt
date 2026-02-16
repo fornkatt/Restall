@@ -1,5 +1,9 @@
 ﻿- Core tider: 09 - 16. Standup kl 09. Kan komma att ändras i framtiden när vi jobbar mer självständigt med olika delar.
 
+Frånvaro:
+    Johan:
+    Kristofer:
+
 - Trello?
 
 - Mobprogrammering för att sätta upp skalet, basen:
