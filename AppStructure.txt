@@ -44,6 +44,8 @@ Frånvaro:
     - Få feedback i UI när man tryckt på något eller någonting händer (UX)
     - Knapp med funktionalitet för att stänga av standard ReShade Addons
     - Installerad RenoDX och ReShade ska kännas av automatiskt för installerade spel med stöd för RenoDX (till att börja med)
+
+    - Hitta Game Path programmatiskt utan att hårdkoda paths up till game folder
     
     - API, om vi inte hittar för Github så får vi hitta något annat
     - Undo/Repair knapp för återställning?
