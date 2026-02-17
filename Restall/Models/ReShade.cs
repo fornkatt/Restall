@@ -1,6 +1,6 @@
 namespace Restall.Models;
 
-public class Reshade
+public class ReShade
 {
     
 }
