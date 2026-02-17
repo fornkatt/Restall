@@ -15,7 +15,7 @@ Frånvaro:
 - Moment som ska vara med:
     - Programstruktur
     - Refaktorering
-    - Asynkrona
+    - Asynkrona metoder
     - API
     - Grafiska applikationer
     - Begrepp: DRY, KISS, SOLID m.m.
@@ -29,7 +29,11 @@ Frånvaro:
 - MVP:
     - Om vi inte hittar ett vettigt sätt: 10  - Note: Hög prioritet att hitta sökväg till Unreal Engine spel.
     - Annars försöker vi få med alla 
-    
+
+    - Cover image av spelet
+    - Kunna spara user preferences (Fönsterstorlek, Tema)
+    - RenoDX inställningar: Peak Nits (Läsa av EDID, eller calibration profile), Game Brightness, UI Brightness
+        - Profil för användarens inmatning
     - Ska kunna installera RenoDX
     - Ska kunna installera ReShade
     - Ska kunna se nuvarande installerade RenoDX version
@@ -44,6 +48,19 @@ Frånvaro:
     - API, om vi inte hittar för Github så får vi hitta något annat
     - Undo/Repair knapp för återställning?
     - Indentifiera x64/x86 för Reshader?
+
+    - Defaultvärden skrivs till ReShade.ini
+
+        [ADDON]
+        DisabledAddons=Generic Depth,Effect Runtime Sync (Knapp för att stänga av standard Addons by default för nya installationer. Annan knapp för att sätta på/stänga av standard Addons (En för varje Addon?))
+        
+        [OVERLAY]
+        TutorialProgress=4 (Knapp för att stänga av tutorials by default för nya installationer)
+        
+        [renodx-preset1]
+        ToneMapGameNits=110 (Användaren kan ställa in)
+        ToneMapPeakNits=490 (Användaren kan ställa in)
+        ToneMapUINits=300 (Användaren kan ställa in)
     
 - Extra features:
     - Linux stöd (Lite högre prio)
@@ -51,11 +68,13 @@ Frånvaro:
         - Separat flik?
     - Flik för ReShade INI settings?
     - Kunna installera tredjeparts ReShade Addons
-    - Display Commander fullt stöd?
+        - Display Commander fullt stöd? Kunna se och ladda ner versioner
     - Gameify:
         - RPG Inventory system
         - Olika färger för status, normal (white) - legendary (guld)
     - Preset Profiler beroende på skärm?
-    - Dark/Light mode 
-    - Favoritspel bakgrund: Game wallpaper?
+    - Dark/Light/Dynamic mode
+    - Ställa in favoritspel
+    - Användaren kan ändra cover image
     - Profil för alla Unreal Engine spel?  
+    - Unreal Engine generic RenoDX mod
