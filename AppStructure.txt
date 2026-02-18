@@ -50,7 +50,7 @@ Frånvaro:
     - API, om vi inte hittar för Github så får vi hitta något annat
     - Undo/Repair knapp för återställning?
     - Indentifiera x64/x86 för Reshader?
-
+    - SteamGridDb, SteamID, EpicID osv..
     - Defaultvärden skrivs till ReShade.ini
 
         [ADDON]

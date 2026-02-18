@@ -1,4 +1,6 @@
 
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace Restall.Models;
 
 public class Game
