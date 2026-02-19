@@ -12,17 +12,19 @@ public class Game : ObservableObject
     public string? ExecutableName { get; set; }
     public string? ExecutablePath { get; set; }
     public string? InstallFolder { get; set; }
+    public int? SteamGridDbId { get; }
 
     private string? _thumbnailPath;
     private string? _bannerPath;
     private string? _logoPath;
-
+    
     public string? RenoDXVersion => HasRenoDX ? "2026-02-18" : "Not installed";
     public string? ReShadeVersion => HasReShade ? "6.7.2" : "Not installed";
 
     private bool _hasReShade;
     private bool _hasRenoDX;
     private bool _isInstalled;
+    
 
     public string? LogoPath
     {
