@@ -10,9 +10,6 @@
         Title="Restall"
         Width="600"
         Height="800">
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
     
     <Grid>
         <Grid.ColumnDefinitions>

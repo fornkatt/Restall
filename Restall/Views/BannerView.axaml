@@ -2,8 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Restall.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Restall.Views.BannerView">
+             x:Class="Restall.Views.BannerView"
+             x:DataType="viewModels:BannerViewModel">
 
 
     <!-- <Grid ShowGridLines="True" Margin="5" ColumnDefinitions="Auto, Auto, 50" RowDefinitions="50, Auto"> -->
@@ -14,8 +16,8 @@
     <!-- </Grid>  -->
 
     <Grid>
-        <Image Source="/Assets/testImage.png" Stretch="Uniform" Margin="5,5,5,5" />
-        <Image Source="/Assets/icon.png"
+        <Image Source="{Binding SelectedGame.BannerPath}" Stretch="Uniform" Margin="5,5,5,5" />
+        <Image Source="{Binding SelectedGame.LogoPath}"
                Width="150" Height="180"
                HorizontalAlignment="Right"
                VerticalAlignment="Top"

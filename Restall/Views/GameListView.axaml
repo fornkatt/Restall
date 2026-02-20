@@ -2,21 +2,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:Restall.ViewModels"
+             xmlns:vm="clr-namespace:Restall.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Restall.Views.GameListView"
-             x:DataType="viewModels:GameListViewModel">
-    
+             x:DataType="vm:GameListViewModel">
+
+
     <ScrollViewer>
-    <StackPanel Background="Red">
-        <ListBox ItemsSource="{Binding Games}" x:Name="GameListview">
+        <ListBox ItemsSource="{Binding Games}" x:Name="GameList" Background="BurlyWood" SelectedItem="{Binding SelectedGame}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                        <TextBlock Text="{Binding Name}" Foreground="AliceBlue"></TextBlock>    
+                    <TextBlock Text="{Binding Name}" Foreground="Black"></TextBlock>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-            
         </ListBox>
-    </StackPanel>
     </ScrollViewer>
+
 </UserControl>

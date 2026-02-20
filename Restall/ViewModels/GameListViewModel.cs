@@ -5,38 +5,30 @@ namespace Restall.ViewModels;
 
 public class GameListViewModel : ViewModelBase
 {
-    private Game? _selectedGame;
-
-    //TODO: INSTALLED GAMES AND NOT INSTALLED GAMES OBSERVABLE COLLECTION?
-    public ObservableCollection<Game> Games { get; } = [];
+    private readonly AppState _appState;
+    private readonly MainWindowViewModel _mainWindowViewModel;
 
     public Game? SelectedGame
     {
-        get => _selectedGame;
-        set => SetProperty(ref _selectedGame, value);
+        get => _mainWindowViewModel.SelectedGame;
+        set => _mainWindowViewModel.SelectedGame = value;
     }
+    public ObservableCollection<Game> Games => _mainWindowViewModel.Games;
 
-    public GameListViewModel()
+    public GameListViewModel(MainWindowViewModel mainWindowViewModel, AppState appState)
     {
-        Games.Add(new Game { Name = "asdf" });
-        Games.Add(new Game { Name = "qwerty" });
-        Games.Add(new Game { Name = "1234" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
+        _mainWindowViewModel = mainWindowViewModel;
+        _appState = appState;
+        
+        _mainWindowViewModel.PropertyChanged += (s, e) =>
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(_mainWindowViewModel.Games):
+                case nameof(_mainWindowViewModel.SelectedGame):
+                    OnPropertyChanged(nameof(SelectedGame));
+                    break;
+            }
+        };
     }
 }
