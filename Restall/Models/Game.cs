@@ -19,12 +19,16 @@ public class Game : ObservableObject
     private string? _logoPath;
     private string? _thumbnailPath;
     
-    public string? RenoDXVersion => HasRenoDX ? "2026-02-18" : "Not installed";
-    public string? ReShadeVersion => HasReShade ? "6.7.2" : "Not installed";
+    //public string? RenoDXVersion => HasRenoDX ? "2026-02-18" : "Not installed";
+    //public string? ReShadeVersion => HasReShade ? "6.7.2" : "Not installed";
 
+    public RenoDX? RenoDX { get; set; }
+    public ReShade? ReShade { get; set; }
+    
+    
     private bool _hasReShade;
     private bool _canInstallReShade;
-    private bool _canUpdateReShade;
+    private bool _canUpdateReShade; 
     private bool _hasRenoDX;
     private bool _canInstallRenoDX;
     private bool _canUpdateRenoDX;
@@ -50,42 +54,17 @@ public class Game : ObservableObject
         set => SetProperty(ref _thumbnailPath, value);
     }
     public Bitmap? ThumbnailPath => !string.IsNullOrWhiteSpace(_thumbnailPath) ? new Bitmap(_thumbnailPath) : null;
-    
-    public bool HasReShade
-    {
-        get => _hasReShade;
-        set => SetProperty(ref _hasReShade, value);
-    }
 
-    public bool CanInstallReShade
-    {
-        get => _canInstallReShade;
-        set => SetProperty(ref _canInstallReShade, value);
-    }
+    public bool HasRenoDX => RenoDX != null;
+    public bool HasReShade => ReShade != null;
+    public bool CanInstallRenoDX => RenoDX == null;
+    public bool CanInstallReShade => ReShade == null;
+    // KOLLA AVAILABLE VERSION. KONVERTERA 
+    public bool CanUpdateReShade => _hasReShade;
+    public bool CanUpdateRenoDX => _hasRenoDX;
     
-    public bool CanUpdateReShade
-    {
-        get => _canUpdateReShade;
-        set => SetProperty(ref _canUpdateReShade, value);
-    }
-
-    public bool HasRenoDX
-    {
-        get => _hasRenoDX;
-        set => SetProperty(ref _hasRenoDX, value);
-    }
+    //TODO: MANUAL BUTTON THAT DISABLES UPDATE AVAILABLE
     
-    public bool CanInstallRenoDX
-    {
-        get => _canInstallRenoDX;
-        set => SetProperty(ref _canInstallRenoDX, value);
-    }
-    
-    public bool CanUpdateRenoDX
-    {
-        get => _canUpdateRenoDX;
-        set => SetProperty(ref _canUpdateRenoDX, value);
-    }
     
     public bool IsInstalled
     {

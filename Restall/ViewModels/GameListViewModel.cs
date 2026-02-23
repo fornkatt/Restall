@@ -11,7 +11,13 @@ public class GameListViewModel : ViewModelBase
     public Game? SelectedGame
     {
         get => _mainWindowViewModel.SelectedGame;
-        set => _mainWindowViewModel.SelectedGame = value;
+        set
+        {
+            if (_mainWindowViewModel.SelectedGame != value)
+            {
+                _mainWindowViewModel.SelectedGame = value;
+            }
+        }
     }
     public ObservableCollection<Game> Games => _mainWindowViewModel.Games;
 

@@ -52,7 +52,7 @@ Frånvaro:
     - Indentifiera x64/x86 för Reshader?
     - SteamGridDb, SteamID, EpicID osv..
     - Defaultvärden skrivs till ReShade.ini
-
+        
         [ADDON]
         DisabledAddons=Generic Depth,Effect Runtime Sync (Knapp för att stänga av standard Addons by default för nya installationer. Annan knapp för att sätta på/stänga av standard Addons (En för varje Addon?))
         

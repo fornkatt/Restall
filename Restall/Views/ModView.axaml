@@ -2,11 +2,37 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Restall.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Restall.Views.ModView">
+             x:Class="Restall.Views.ModView"
+             x:DataType="vm:ModViewModel">
     
-    <Panel Background="Blue">
+    
+    
+        <Grid ColumnDefinitions="*,Auto" 
+              RowDefinitions="*,Auto,Auto">
         
-    </Panel>
+        
+            <Panel Grid.Row="0" Grid.Column="0" Background="Blue">
+                
+                <Grid ColumnDefinitions=".5*,.5*">
+                    <StackPanel Grid.Column="0">
+                        <TextBox Text="{Binding SelectedGame.Name}"/>
+                        <TextBox Text="{Binding SelectedGame.PlatformName}"/>
+                        <TextBox Text="{Binding SelectedGame.RenoDX.Version}"/>
+                        <TextBox Text="{Binding SelectedGame.ReShade.Version}"/>     
+                    </StackPanel>
+                       
+                </Grid>
+                
+                
+            </Panel>
+            
+         </Grid>
+    
+    
+    
+    
+   
     
 </UserControl>

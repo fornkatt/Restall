@@ -7,11 +7,8 @@ public class BannerViewModel : ViewModelBase
     private readonly AppState _appState;
     private readonly MainWindowViewModel _mainWindowViewModel;
 
-    public Game? SelectedGame
-    {
-        get => _mainWindowViewModel.SelectedGame;
-        set => _mainWindowViewModel.SelectedGame = value;
-    }
+    public Game? SelectedGame => _mainWindowViewModel.SelectedGame;
+    
     
     public BannerViewModel(MainWindowViewModel mainWindowViewModel, AppState appState)
     {
