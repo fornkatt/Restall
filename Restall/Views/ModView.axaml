@@ -47,6 +47,8 @@
                     <Button Grid.Row="3" Grid.Column="0" Background="Aqua" IsEnabled="{Binding SelectedGame.HasReShade}"
                             Margin="10">
                             DELETE</Button>
+                
+                
                     
                 <!-- RENODX -->
                 <StackPanel Grid.Row="0" Grid.Column="1">
