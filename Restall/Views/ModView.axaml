@@ -11,9 +11,10 @@
     
         <Grid ColumnDefinitions="*" 
               RowDefinitions=".25*,.75*" Background="White">
+                
         
         
-            <Border Grid.Row="0" Background="Black" Opacity="0.8" CornerRadius="20" Margin="10">
+                <Border Grid.Row="0" Background="Black" Opacity="0.8" CornerRadius="20" Margin="10">
                 
                 <Grid ColumnDefinitions=".5*,.5*" RowDefinitions="Auto,.20*,.20*,.20*" >
                     
