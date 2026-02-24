@@ -5,11 +5,36 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Restall.Models;
 
-public class Game : ObservableObject
-{
-    public string? Name { get; init; }
-    public string? PlatformName { get; init; }
 
+public class Game : ObservableObject
+{  
+    // PLATFORM
+    public enum Platform
+    {
+        Unknown,
+        EA,
+        Steam,
+        GOG,
+        Epic,
+        Ubisoft
+    }
+    
+    //ENGINE
+    public enum Engine
+    {
+        Unknown,
+        Unreal,
+        Unity
+    }
+    
+    public string? Name { get; init; }
+    //public string? PlatformName { get; init; }
+    
+    //ENUM
+    public Platform PlatformName { get; set; } = Platform.Unknown;
+    public Engine EngineName {get;set;} = Engine.Unknown;
+    
+    
     public string? ExecutableName { get; set; }
     public string? ExecutablePath { get; set; }
     public string? InstallFolder { get; set; }

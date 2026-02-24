@@ -20,7 +20,7 @@
                     
                         <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="10" Text="{Binding SelectedGame.Name}"
                                    FontSize="25" FontWeight="Bold" Foreground="White" />
-                        <TextBlock Grid.Column="0" Grid.Row="1" Margin="10" Text="{Binding SelectedGame.PlatformName}" Foreground="White"/>
+                        <TextBlock Grid.Column="0" Grid.Row="1" Margin="10" Text="{Binding SelectedGame.Platform}" Foreground="White"/>
                         <TextBlock Grid.Column="0" Grid.Row="2" Margin="10" Text="{Binding SelectedGame.RenoDX.Version}" Foreground="White"/>
                         <TextBlock Grid.Column="0" Grid.Row="3" Margin="10" Text="{Binding SelectedGame.ReShade.Version}" Foreground="White"/>     
                 </Grid>
