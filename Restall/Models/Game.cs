@@ -86,7 +86,7 @@ public class Game : ObservableObject
     public bool CanInstallRenoDX => RenoDX == null;
     public bool CanInstallReShade => ReShade == null;
     
-    // KOLLA AVAILABLE VERSION. KONVERTERA 
+    // KOLLA AVAILABLE VERSION. KONVERTERA MED IVALUECONVERTER
     public bool CanUpdateReShade => HasReShade;
     public bool CanUpdateRenoDX => HasRenoDX;
     
