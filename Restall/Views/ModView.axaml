@@ -9,24 +9,70 @@
     
     
     
-        <Grid ColumnDefinitions="*,Auto" 
-              RowDefinitions="*,Auto,Auto">
+        <Grid ColumnDefinitions="*" 
+              RowDefinitions=".25*,.75*" Background="White">
         
         
-            <Panel Grid.Row="0" Grid.Column="0" Background="Blue">
+            <Border Grid.Row="0" Background="Black" Opacity="0.8" CornerRadius="20" Margin="10">
                 
-                <Grid ColumnDefinitions=".5*,.5*">
-                    <StackPanel Grid.Column="0">
-                        <TextBox Text="{Binding SelectedGame.Name}"/>
-                        <TextBox Text="{Binding SelectedGame.PlatformName}"/>
-                        <TextBox Text="{Binding SelectedGame.RenoDX.Version}"/>
-                        <TextBox Text="{Binding SelectedGame.ReShade.Version}"/>     
-                    </StackPanel>
-                       
+                <Grid ColumnDefinitions=".5*,.5*" RowDefinitions="Auto,.20*,.20*,.20*" >
+                    
+                        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="10" Text="{Binding SelectedGame.Name}"
+                                   FontSize="25" FontWeight="Bold" Foreground="White" />
+                        <TextBlock Grid.Column="0" Grid.Row="1" Margin="10" Text="{Binding SelectedGame.PlatformName}" Foreground="White"/>
+                        <TextBlock Grid.Column="0" Grid.Row="2" Margin="10" Text="{Binding SelectedGame.RenoDX.Version}" Foreground="White"/>
+                        <TextBlock Grid.Column="0" Grid.Row="3" Margin="10" Text="{Binding SelectedGame.ReShade.Version}" Foreground="White"/>     
+                </Grid>
+            </Border>
+            <Border Grid.Row="1" Background="Black" Opacity="0.8" Margin="5" CornerRadius="20">
+                
+                <Grid ColumnDefinitions=".5*,.5*" RowDefinitions="Auto,Auto,Auto,Auto">
+                    
+                <!-- RESHADE -->
+                <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock  Text="Reshade" FontWeight="Bold" FontSize="25" Foreground="White" Margin="10,10,0,0">
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Version: " FontSize="12" Foreground="White" Margin="10,0,0,0">
+                                </TextBlock>
+                                <TextBlock Text="{Binding SelectedGame.ReShade.Version }" FontSize="12" Foreground="White" >
+                                </TextBlock>
+                        </StackPanel>
+                </StackPanel>
+                
+                <Button Grid.Row="1" Grid.Column="0" Click="OnClickedInstallReShade" Background="Aqua" Margin="10" 
+                        IsEnabled="{Binding SelectedGame.CanInstallReShade}">INSTALL</Button>
+                    <Button Grid.Row="2" Grid.Column="0" IsEnabled="{Binding SelectedGame.CanUpdateReShade}" 
+                            Background="Aqua" Margin="10">UPDATE</Button>
+                    <Button Grid.Row="3" Grid.Column="0" Background="Aqua" IsEnabled="{Binding SelectedGame.HasReShade}"
+                            Margin="10">
+                            DELETE</Button>
+                    
+                <!-- RENODX -->
+                <StackPanel Grid.Row="0" Grid.Column="1">
+                <TextBlock  Text="RenoDX" FontWeight="Bold" FontSize="25" Foreground="White" Margin="10,10,0,0">
+                </TextBlock>
+                <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Version: " FontSize="12" Foreground="White" Margin="10,0,0,0">
+                                </TextBlock>
+                        <TextBlock Text="{Binding SelectedGame.RenoDX.Version }" FontSize="12" Foreground="White" >
+                </TextBlock>
+                </StackPanel>
+                </StackPanel>
+                <Button Grid.Row="1" Grid.Column="1" Click="OnClickedInstallRenoDX" Background="Aqua" Margin="10" 
+                        IsEnabled="{Binding SelectedGame.CanInstallRenoDX}">INSTALL</Button>
+                <Button Grid.Row="2" Grid.Column="1" IsEnabled="{Binding SelectedGame.CanUpdateRenoDX}" 
+                        Background="Aqua" Margin="10">UPDATE</Button>
+                <Button Grid.Row="3" Grid.Column="1" Background="Aqua" IsEnabled="{Binding SelectedGame.HasRenoDX}"
+                        Margin="10">
+                    DELETE</Button>
+                    
+                    
                 </Grid>
                 
                 
-            </Panel>
+                
+            </Border>
             
          </Grid>
     

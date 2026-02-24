@@ -25,6 +25,8 @@ public class Game : ObservableObject
     public RenoDX? RenoDX { get; set; }
     public ReShade? ReShade { get; set; }
     
+    //IF THE GAME IS INSTALLED?
+    private bool _isInstalled;
     
     private bool _hasReShade;
     private bool _canInstallReShade;
@@ -32,7 +34,6 @@ public class Game : ObservableObject
     private bool _hasRenoDX;
     private bool _canInstallRenoDX;
     private bool _canUpdateRenoDX;
-    private bool _isInstalled;
     
     public string? BannerPathString
     {
@@ -59,13 +60,14 @@ public class Game : ObservableObject
     public bool HasReShade => ReShade != null;
     public bool CanInstallRenoDX => RenoDX == null;
     public bool CanInstallReShade => ReShade == null;
+    
     // KOLLA AVAILABLE VERSION. KONVERTERA 
-    public bool CanUpdateReShade => _hasReShade;
-    public bool CanUpdateRenoDX => _hasRenoDX;
+    public bool CanUpdateReShade => HasReShade;
+    public bool CanUpdateRenoDX => HasRenoDX;
     
     //TODO: MANUAL BUTTON THAT DISABLES UPDATE AVAILABLE
     
-    
+    //IF THE GAME IS INSTALLED
     public bool IsInstalled
     {
         get => _isInstalled;

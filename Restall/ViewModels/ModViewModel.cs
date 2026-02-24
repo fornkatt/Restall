@@ -37,6 +37,6 @@ public class ModViewModel : ViewModelBase
                     break;
             }
         };
-        
     }
+    
 }
