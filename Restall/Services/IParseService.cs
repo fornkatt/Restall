@@ -1,14 +1,11 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Restall.Models;
 
 namespace Restall.Services;
 
 public interface IParseService
 {
-    const string RenoDXUrl = "https://github.com/clshortfuse/renodx/releases/tags/";
-    const string GithubUrl = "https://github.com/";
-    
-    Task FetchAllRenoDXVersionsAsync();
-    
-    Task FetchAllReShadeVersionsAsync();
-    
+    Task<(List<string> Versions, Dictionary<string, string> UEGenericDescription)> FetchAllRenoDXVersionsAsync();
+    Task<List<string>> FetchAllReShadeVersionsAsync();
 }

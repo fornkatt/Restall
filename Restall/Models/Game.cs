@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 // ReSharper disable InconsistentNaming
@@ -32,7 +31,7 @@ public class Game : ObservableObject
     
     //ENUM
     public Platform PlatformName { get; set; } = Platform.Unknown;
-    public Engine EngineName {get;set;} = Engine.Unknown;
+    public Engine EngineName { get; set; } = Engine.Unknown;
     
     
     public string? ExecutableName { get; set; }

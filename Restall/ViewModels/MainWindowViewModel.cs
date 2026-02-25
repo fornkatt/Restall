@@ -44,13 +44,13 @@ public partial class MainWindowViewModel : ViewModelBase
         var renoDX002 = new RenoDX{Name = "renodx-silenthill2remake", Version = "3.2.1",AvailableVersions = {"","" },IsInstalled = false };
         var renoDX003 = new RenoDX{Name = "renodx-clairobscur_expedition33", Version = "5.3.2",AvailableVersions = {"","" },IsInstalled = false };
         
-        Games.Add(new Game { Name = "Cronos: The New Dawn", BannerPathString = Path.Combine("Assets", "test_game_01", "test_banner.jpg"),
+        Games.Add(new Game { PlatformName = Game.Platform.GOG, Name = "Cronos: The New Dawn", BannerPathString = Path.Combine("Assets", "test_game_01", "test_banner.jpg"),
             ThumbnailPathString = Path.Combine("Assets", "test_game_01", "test_icon.png"),
             LogoPathString = Path.Combine("Assets", "test_game_01", "test_logo.png"),
             ReShade = reshade001, RenoDX = renoDX001
         });
         
-        Games.Add(new Game { Name = "Silent Hill 2 Remake", BannerPathString = Path.Combine("Assets", "test_game_02", "test_banner.png"),
+        Games.Add(new Game { PlatformName = Game.Platform.Steam, Name = "Silent Hill 2 Remake", BannerPathString = Path.Combine("Assets", "test_game_02", "test_banner.png"),
             ThumbnailPathString = Path.Combine("Assets", "test_game_02", "test_icon.png"), 
             LogoPathString = Path.Combine("Assets", "test_game_02", "test_logo.png"),
             ReShade = reshade002, RenoDX = renoDX002,
