@@ -2,5 +2,5 @@
 
 public interface IFileExtractionService
 {
-    void ExtractFile();
+    string? ExtractFiles(string? targetPath = null, string[]? targetFiles = null, string? destinationPath = null);
 }

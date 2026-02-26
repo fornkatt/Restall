@@ -79,6 +79,9 @@ public partial class MainWindowViewModel : ViewModelBase
         Games.Add(new Game { Name = "5678" });
         Games.Add(new Game { Name = "5678" });
         Games.Add(new Game { Name = "5678" });
+
+        var fileExtractionService = new Services.FileExtractionService();
+        fileExtractionService.ExtractFiles();
         
         System.Diagnostics.Debug.WriteLine("Game list view model loaded");
     }
