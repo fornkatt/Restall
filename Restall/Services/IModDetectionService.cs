@@ -4,6 +4,6 @@ namespace Restall.Services;
 
 public interface IModDetectionService
 {
-    Task DetectInstallReShadeAsync();
-    Task DetectInstallRenoDXAsync();
+    Task DetectInstalledReShadeAsync();
+    Task DetectInstalledRenoDXAsync();
 }

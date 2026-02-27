@@ -10,7 +10,7 @@ public class FileExtractionService : IFileExtractionService
     public string? ExtractFiles(string? targetPath = null, string[]? targetFiles = null, string? destinationPath = null)
     {
         const string errorMessage = "Unable to start 7zip process or extract files. Please ensure 7z.exe (Windows) or 7ssz (Linux) is present in Tools/7z";
-        
+
         targetFiles ??= ["ReShade64.dll", "ReShade32.dll"];
         destinationPath ??= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache");
         targetPath ??= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DownloadCache",
@@ -32,9 +32,9 @@ public class FileExtractionService : IFileExtractionService
         {
             return "Only Windows and Linux are supported.";
         }
-        
+
         var fileList = string.Join(" ", targetFiles.Select(f => $"\"{f}\""));
-    
+
         var startInfo = new ProcessStartInfo
         {
             FileName = sevenZipPath,
@@ -50,22 +50,25 @@ public class FileExtractionService : IFileExtractionService
         {
             return errorMessage;
         }
-        
+
         process.WaitForExit();
 
         if (process.ExitCode != 0)
         {
-            return  errorMessage;
+            return errorMessage;
         }
 
         return "Successfully extracted files.";
     }
-    
+
     private string? GetSevenZipPath()
     {
+        string windowsSevenZipPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z", "7za.exe");
+        string linuxSevenZipPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z", "7zzs");
+        
         if (OperatingSystem.IsWindows())
         {
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z", "7za.exe");
+            return !File.Exists(windowsSevenZipPath) ? null : Path.Combine(windowsSevenZipPath);
         }
 
         if (OperatingSystem.IsLinux())
@@ -76,14 +79,19 @@ public class FileExtractionService : IFileExtractionService
                 return systemPath;
             }
             
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z", "7zzs");
-            EnsureExecutable(path);
-            return path;
+            if (!File.Exists(linuxSevenZipPath))
+            {
+                return null;
+            }
+            
+            EnsureExecutable(linuxSevenZipPath);
+            return linuxSevenZipPath;
         }
 
         return null;
     }
 
+    /* Linux methods */
     private string? FindSystemSevenZip()
     {
         string[] candidates = ["7zz", "7z", "7za"];
@@ -102,7 +110,7 @@ public class FileExtractionService : IFileExtractionService
                 });
 
                 if (process == null) continue;
-                
+
                 var output = process.StandardOutput.ReadToEnd().Trim();
                 process.WaitForExit();
 
@@ -113,14 +121,14 @@ public class FileExtractionService : IFileExtractionService
             }
             catch { }
         }
-        
+
         return null;
     }
 
     private void EnsureExecutable(string path)
     {
         if (!File.Exists(path)) return;
-        
+
         if (IsExecutable(path)) return;
 
         try
@@ -136,7 +144,7 @@ public class FileExtractionService : IFileExtractionService
         }
         catch { }
     }
-    
+
     private bool IsExecutable(string path)
     {
         try
