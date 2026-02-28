@@ -2,20 +2,19 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Restall.Services;
 
-public class FileExtractionService : IFileExtractionService
+public class FileExtractionService(ILogService logService) : IFileExtractionService
 {
-    public string? ExtractFiles(string? targetPath = null, string[]? targetFiles = null, string? destinationPath = null)
+    public async Task<bool> ExtractFiles(string? targetPath = null, string[]? targetFiles = null, string? destinationPath = null)
     {
-        const string errorMessage = "Unable to start 7zip process or extract files. Please ensure 7z.exe (Windows) or 7ssz (Linux) is present in Tools/7z";
-
         targetFiles ??= ["ReShade64.dll", "ReShade32.dll"];
         destinationPath ??= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache");
         targetPath ??= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DownloadCache",
             "ReShade_Setup_6.7.2_Addon.exe");
-
+        
         if (!Directory.Exists(destinationPath))
         {
             Directory.CreateDirectory(destinationPath!);
@@ -23,14 +22,18 @@ public class FileExtractionService : IFileExtractionService
 
         if (!File.Exists(targetPath))
         {
-            return "File for extraction not found. Try again.";
+            await logService.LogInfoAsync("File for extraction not found.");
+            return false;
         }
 
         var sevenZipPath = GetSevenZipPath();
 
         if (sevenZipPath == null)
         {
-            return "Only Windows and Linux are supported.";
+            await logService.LogInfoAsync($"7-Zip executable not found. Install it to" +
+                                          $" {Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z")}" +
+                                          $" or reinstall the program.");
+            return false;
         }
 
         var fileList = string.Join(" ", targetFiles.Select(f => $"\"{f}\""));
@@ -45,20 +48,34 @@ public class FileExtractionService : IFileExtractionService
             RedirectStandardError = true
         };
 
-        using var process = Process.Start(startInfo);
-        if (process == null)
+
+        try
         {
-            return errorMessage;
+            using var process = Process.Start(startInfo);
+            if (process == null)
+            {
+                await logService.LogInfoAsync("Unable to start 7-Zip process or unsupported operating system.");
+                return false;
+            }
+
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                var stderr = await process.StandardError.ReadToEndAsync();
+                await logService.LogErrorAsync($"7-Zip extraction failed with exit code " +
+                                               $"{process.ExitCode}: {stderr}");
+                return false;
+            }
+
+            await logService.LogInfoAsync($"Successfully extracted ({fileList}) to {destinationPath}");
+            return true;
         }
-
-        process.WaitForExit();
-
-        if (process.ExitCode != 0)
+        catch (Exception ex)
         {
-            return errorMessage;
+            await logService.LogErrorAsync("Failed to extract files", ex);
+            return false;
         }
-
-        return "Successfully extracted files.";
     }
 
     private string? GetSevenZipPath()
@@ -119,7 +136,10 @@ public class FileExtractionService : IFileExtractionService
                     return candidate;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                logService.LogErrorAsync("Could not find suitable system 7-Zip candidate.", ex);
+            }
         }
 
         return null;
@@ -127,9 +147,17 @@ public class FileExtractionService : IFileExtractionService
 
     private void EnsureExecutable(string path)
     {
-        if (!File.Exists(path)) return;
+        if (!File.Exists(path))
+        {
+            logService.LogInfoAsync($"File {path} not found.");
+            return;
+        }
 
-        if (IsExecutable(path)) return;
+        if (IsExecutable(path))
+        {
+            logService.LogInfoAsync($"File {path} is already executable.");
+            return;
+        }
 
         try
         {
@@ -142,7 +170,10 @@ public class FileExtractionService : IFileExtractionService
             });
             process?.WaitForExit();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            logService.LogErrorAsync($"Could not find executable at {path}", ex);
+        }
     }
 
     private bool IsExecutable(string path)
@@ -154,6 +185,7 @@ public class FileExtractionService : IFileExtractionService
         }
         catch
         {
+            logService.LogErrorAsync($"Failed to asses executable status of {path}, please ensure the file exists.");
             return false;
         }
     }

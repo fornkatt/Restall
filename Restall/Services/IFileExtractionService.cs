@@ -1,6 +1,8 @@
-﻿namespace Restall.Services;
+﻿using System.Threading.Tasks;
+
+namespace Restall.Services;
 
 public interface IFileExtractionService
 {
-    string? ExtractFiles(string? targetPath = null, string[]? targetFiles = null, string? destinationPath = null);
+    Task<bool> ExtractFiles(string? targetPath = null, string[]? targetFiles = null, string? destinationPath = null);
 }

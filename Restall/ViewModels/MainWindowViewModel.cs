@@ -2,6 +2,7 @@
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Models;
+using Restall.Services;
 
 namespace Restall.ViewModels;
 
@@ -80,7 +81,7 @@ public partial class MainWindowViewModel : ViewModelBase
         Games.Add(new Game { Name = "5678" });
         Games.Add(new Game { Name = "5678" });
 
-        var fileExtractionService = new Services.FileExtractionService();
+        var fileExtractionService = new Services.FileExtractionService(new LogService());
         fileExtractionService.ExtractFiles();
         
         System.Diagnostics.Debug.WriteLine("Game list view model loaded");
