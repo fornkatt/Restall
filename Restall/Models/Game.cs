@@ -27,7 +27,6 @@ public class Game : ObservableObject
     }
     
     public string? Name { get; init; }
-    //public string? PlatformName { get; init; }
     
     //ENUM
     public Platform PlatformName { get; set; } = Platform.Unknown;

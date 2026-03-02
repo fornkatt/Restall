@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Models;
 using Restall.Services;
@@ -38,6 +39,10 @@ public partial class MainWindowViewModel : ViewModelBase
         BannerViewModel = new(this, AppState);
         GameListViewModel = new(this, AppState);
         ModViewModel = new(this, AppState);
+        
+        //TODO: JUST TESTING PURPOSES WITH ASYNC METHODS, FIRE AND FORGET WILL BE REMOVED!
+        _ = InitializeAsync();
+        
         var reshade001 = new ReShade {Version = "6.7.2", AvailableVersions =  { "1.0.0",  "1.0.1" }, IsInstalled = true};
         var reshade002 = new ReShade {Version = "6.7.0", AvailableVersions = { "3.0.1", "3.1.3" },IsInstalled = false};
         var reshade003 = new ReShade {Version = "6.6.8", AvailableVersions = {"0.9.3", "0.9.8"}, IsInstalled = false};
@@ -63,42 +68,38 @@ public partial class MainWindowViewModel : ViewModelBase
             ReShade = reshade003, RenoDX = renoDX003,
         });
         
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
-        Games.Add(new Game { Name = "5678" });
+        
 
         var fileExtractionService = new FileExtractionService(new LogService());
         fileExtractionService.ExtractFiles();
         
         System.Diagnostics.Debug.WriteLine("Game list view model loaded");
         
-        Game testGame = new()
+        // Game testGame = new()
+        // {
+        //     Name = "Batman™: Arkham Knight",
+        //     EngineName = Game.Engine.Unreal,
+        //     ExecutableName = "BatmanAK.exe",
+        //     ExecutablePath = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\Binaries\Win64\",
+        //     InstallFolder = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\",
+        //     IsInstalled = true,
+        //     PlatformName = Game.Platform.Steam,
+        //     RenoDX = null,
+        //     ReShade = null,
+        // };
+        
+        
+    }
+
+
+    private async Task InitializeAsync()
+    {
+        var detectionService = new GameDetectionService();
+        var games = await detectionService.FindGames();
+
+        foreach (var game in games)
         {
-            Name = "Batman™: Arkham Knight",
-            EngineName = Game.Engine.Unreal,
-            ExecutableName = "BatmanAK.exe",
-            ExecutablePath = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\Binaries\Win64\",
-            InstallFolder = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\",
-            IsInstalled = true,
-            PlatformName = Game.Platform.Steam,
-            RenoDX = null,
-            ReShade = null,
-        };
-        
-        
+            Games.Add(game);
+        }
     }
 }

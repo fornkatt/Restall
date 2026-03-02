@@ -6,5 +6,5 @@ namespace Restall.Services;
 
 public interface IGameDetectionService
 {
-    Task<List<Game>> FindGames();
+    Task<List<Game?>> FindGames();
 }
