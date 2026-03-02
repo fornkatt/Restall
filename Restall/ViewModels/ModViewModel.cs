@@ -39,4 +39,20 @@ public class ModViewModel : ViewModelBase
         };
     }
     
+    /* Implement this to prompt for a call on a deepscan if the expected ReShade file held by the Game.ReShade object was not found */
+    
+    // var result = await modInstallService.UninstallModAsync(SelectedGame, SelectedGame.ReShade);
+    //
+    //     if (result.ShouldPromptForDeepScan)
+    // {
+    //     var userConfirmed = await ShowConfirmationDialog(
+    //         "ReShade file not found at expected location. Would you like to scan for and remove other ReShade installations?");
+    //
+    //     if (userConfirmed)
+    //     {
+    //         result.UpdatedGame = await modInstallService.RemoveOtherReShadeFiles(result.UpdatedGame);
+    //     }
+    // }
+    //
+    // SelectedGame = result.UpdatedGame;
 }

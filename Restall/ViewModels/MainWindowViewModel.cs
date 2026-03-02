@@ -81,9 +81,24 @@ public partial class MainWindowViewModel : ViewModelBase
         Games.Add(new Game { Name = "5678" });
         Games.Add(new Game { Name = "5678" });
 
-        var fileExtractionService = new Services.FileExtractionService(new LogService());
+        var fileExtractionService = new FileExtractionService(new LogService());
         fileExtractionService.ExtractFiles();
         
         System.Diagnostics.Debug.WriteLine("Game list view model loaded");
+        
+        Game testGame = new()
+        {
+            Name = "Batman™: Arkham Knight",
+            EngineName = Game.Engine.Unreal,
+            ExecutableName = "BatmanAK.exe",
+            ExecutablePath = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\Binaries\Win64\",
+            InstallFolder = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\",
+            IsInstalled = true,
+            PlatformName = Game.Platform.Steam,
+            RenoDX = null,
+            ReShade = null,
+        };
+        
+        
     }
 }

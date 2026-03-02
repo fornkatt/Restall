@@ -16,7 +16,6 @@ public class ReShade : ObservableObject
     public enum FileName
     {
         Dxgi,
-        ReShade,
         D3d12,
         D3d11,
         Version
@@ -27,13 +26,20 @@ public class ReShade : ObservableObject
         Dll,
         Asi
     }
+    
+    public enum Architecture
+    {
+        x32 = 32,
+        x64 = 64
+    }
+
+    public Architecture Arch { get; set; } = Architecture.x64;
 
     public Dictionary<FileName, string> FullFileName => new()
     {
         [FileName.Dxgi] = "dxgi",
-        [FileName.D3d12] = "D3D12",
-        [FileName.D3d11] = "D3D11",
-        [FileName.ReShade] = "ReShade",
+        [FileName.D3d12] = "d3d12",
+        [FileName.D3d11] = "d3d11",
         [FileName.Version] = "version"
     };
 
@@ -44,7 +50,8 @@ public class ReShade : ObservableObject
     };
 
     public Branch BranchName { get; set; } = Branch.Unknown;
-    
+    public string OriginalFileName => $"ReShade{(int)Arch}.dll";
+    public string SelectedFileName { get; set; } = string.Empty;
     public string? Version { get; set; }
     public string? StableUrl { get; set; }
     public string? NightlyUrl { get; set; }
@@ -58,5 +65,10 @@ public class ReShade : ObservableObject
     {
         get => _isInstalled;
         set => SetProperty(ref _isInstalled, value);
+    }
+    
+    public string GetFileName(FileName fileType, FileExtension extension)
+    {
+        return $"{FullFileName[fileType]}{Extension[extension]}";
     }
 }
