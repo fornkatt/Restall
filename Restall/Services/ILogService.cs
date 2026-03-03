@@ -5,13 +5,13 @@ namespace Restall.Services;
 
 public interface ILogService
 {
-    void LogInfo(string message);
-    void LogWarning(string message);
-    void LogError(string message, Exception? exception = null);
+    void LogInfo(string message, string logFileName = "log.txt");
+    void LogWarning(string message, string logFileName = "log.txt");
+    void LogError(string message, Exception? exception = null, string logFileName = "log.txt");
     
-    Task LogInfoAsync(string message);
-    Task LogWarningAsync(string message);
-    Task LogErrorAsync(string message, Exception? exception = null);
+    Task LogInfoAsync(string message, string logFileName = "log.txt");
+    Task LogWarningAsync(string message, string logFileName = "log.txt");
+    Task LogErrorAsync(string message, Exception? exception = null, string logFileName = "log.txt");
 }
 
 public enum MessageType

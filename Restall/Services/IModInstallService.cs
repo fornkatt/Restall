@@ -12,6 +12,6 @@ public interface IModInstallService
     
     Task<Game> InstallModAsync<T>(Game game, T modToInstall) where T: class;
     Task<ModInstallService.UninstallResult> UninstallModAsync<T>(Game game, T modToUninstall) where T: class;
-    Task UpdateModAsync<T>();
+    Task<T> UpdateModAsync<T>(T modToUpdate) where T: class;
     Task<Game> RemoveOtherReShadeFiles(Game game);
 }

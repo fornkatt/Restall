@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Restall.Models;
 
@@ -27,8 +28,7 @@ public class ModInstallService(ILogService logService) : IModInstallService
             {
                 case ReShade reShade:
                 {
-                    string cacheFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                        "Cache", "ReShade", reShade.Version!, $"ReShade{(int)reShade.Arch}.dll");
+                    string cacheFilePath = Path.Combine(reShade.GetCachePath(), reShade.OriginalFileName);
 
                     if (!File.Exists(cacheFilePath))
                     {
@@ -50,8 +50,7 @@ public class ModInstallService(ILogService logService) : IModInstallService
                 }
                 case RenoDX renoDx:
                 {
-                    string cacheFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                        "Cache", "RenoDX", renoDx.Version!, renoDx.Name!);
+                    string cacheFilePath = renoDx.GetCachePath();
 
                     if (!File.Exists(cacheFilePath))
                     {
@@ -157,14 +156,16 @@ public class ModInstallService(ILogService logService) : IModInstallService
         return result;
     }
 
-    public async Task UpdateModAsync<T>()
+    public async Task<T> UpdateModAsync<T>(T modToUpdate) where T : class
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public async Task<Game> RemoveOtherReShadeFiles(Game game)
     {
-        var dllFiles =  Directory.GetFiles(game.ExecutablePath!, "*.dll");
+        var dllFiles = Directory.GetFiles(game.ExecutablePath!, "*.dll")
+            .Concat(Directory.GetFiles(game.ExecutablePath!, "*.asi"))
+            .ToArray();
         int removedCount = 0;
 
         foreach (var dllFile in dllFiles)

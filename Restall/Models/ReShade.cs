@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Restall.Models;
@@ -57,7 +59,7 @@ public class ReShade : ObservableObject
     public string? NightlyUrl { get; set; }
     public string? RenoDXUrl { get; set; }
     
-    public List<string> AvailableVersions { get; set; } = [];
+    public Dictionary<Branch, string> AvailableVersions { get; set; } = [];
     
     
     private bool _isInstalled;
@@ -70,5 +72,13 @@ public class ReShade : ObservableObject
     public string GetFileName(FileName fileType, FileExtension extension)
     {
         return $"{FullFileName[fileType]}{Extension[extension]}";
+    }
+    
+    public string GetCachePath()
+    {
+        return Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "Cache", "ReShade", BranchName.ToString(), Version!
+        );
     }
 }

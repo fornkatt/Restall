@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Restall.Models;
@@ -32,12 +34,20 @@ public class RenoDX : ObservableObject
     
     //DATEONLY AND CONVERT IT TO STRING, OR THE OTHER WAY AROUND
     public string? Version { get; set; }
-    public List<string> AvailableVersions { get; set; } = [];
+    public Dictionary<Branch, string> AvailableVersions { get; set; } = [];
     
     private bool _isInstalled;
     public bool IsInstalled
     {
         get => _isInstalled;
         set => SetProperty(ref _isInstalled, value);
+    }
+    
+    public string GetCachePath()
+    {
+        return Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "Cache", "RenoDX", BranchName.ToString(), Name!
+        );
     }
 }

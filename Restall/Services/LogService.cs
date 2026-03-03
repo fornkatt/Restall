@@ -15,7 +15,7 @@ public class LogService : ILogService
     {
         string logFilePath = GetLogFilePath(logFileName);
         
-        string logFormat = FormatLogMessage(logFilePath, messageType, exception);
+        string logFormat = FormatLogMessage(message, messageType, exception);
         
         _semaphore.Wait();
         try
@@ -38,12 +38,12 @@ public class LogService : ILogService
     {
         string logFilePath = GetLogFilePath(logFileName);
         
-        string logFormat = FormatLogMessage(logFilePath, messageType, exception);
+        string logFormat = FormatLogMessage(message, messageType, exception);
         
         await _semaphore.WaitAsync();
         try
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(logFilePath)!);
+            // Directory.CreateDirectory(Path.GetDirectoryName(logFilePath)!);
             await File.AppendAllTextAsync(logFilePath, logFormat);
         }
         catch (Exception ex)
@@ -67,10 +67,16 @@ public class LogService : ILogService
         return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs", logFileName);
     }
     
-    public void LogInfo(string message) => Log(message, MessageType.Info);
-    public void LogWarning(string message) => Log(message, MessageType.Warning);
-    public void LogError(string message, Exception? exception = null) => Log(message, MessageType.Error, exception);
-    public async Task LogInfoAsync(string message) => await LogAsync(message, MessageType.Info);
-    public async Task LogWarningAsync(string message) => await LogAsync(message, MessageType.Warning);
-    public async Task LogErrorAsync(string message, Exception? exception = null) => await LogAsync(message, MessageType.Error, exception);
+    public void LogInfo(string message, string logFileName = "log.txt") =>
+        Log(message, MessageType.Info, null, logFileName);
+    public void LogWarning(string message, string logFileName = "log.txt") =>
+        Log(message, MessageType.Warning, null, logFileName);
+    public void LogError(string message, Exception? exception = null, string logFileName = "log.txt") =>
+        Log(message, MessageType.Error, exception, logFileName);
+    public async Task LogInfoAsync(string message, string logFileName = "log.txt") =>
+        await LogAsync(message, MessageType.Info, null, logFileName);
+    public async Task LogWarningAsync(string message, string logFileName = "log.txt") =>
+        await LogAsync(message, MessageType.Warning,  null, logFileName);
+    public async Task LogErrorAsync(string message, Exception? exception = null, string logFileName = "log.txt") =>
+        await LogAsync(message, MessageType.Error, exception, logFileName);
 }

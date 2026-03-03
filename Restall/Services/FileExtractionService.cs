@@ -7,19 +7,15 @@ namespace Restall.Services;
 
 public class FileExtractionService(ILogService logService) : IFileExtractionService
 {
-    public bool ExtractFiles(string? targetPath = null, string[]? targetFiles = null, string? destinationPath = null)
+    public bool ExtractFiles(string fileToOpen, string[] filesToExtract, string destinationPath)
     {
-        targetFiles ??= ["ReShade64.dll", "ReShade32.dll"];
-        destinationPath ??= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache", "ReShade", "6.7.2");
-        targetPath ??= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DownloadCache", "ReShade",
-            "ReShade_Setup_6.7.2_Addon.exe");
-        
-        if (!Directory.Exists(destinationPath))
+        if (filesToExtract.All(f => File.Exists(Path.Combine(destinationPath, f))))
         {
-            Directory.CreateDirectory(destinationPath);
+            logService.LogInfo($"Files in {destinationPath} already exist, exiting early.");
+            return true;
         }
 
-        if (!File.Exists(targetPath))
+        if (!File.Exists(fileToOpen))
         {
             logService.LogInfo("File for extraction not found.");
             return false;
@@ -35,12 +31,12 @@ public class FileExtractionService(ILogService logService) : IFileExtractionServ
             return false;
         }
 
-        var fileList = string.Join(" ", targetFiles.Select(f => $"\"{f}\""));
+        var fileList = string.Join(" ", filesToExtract.Select(f => $"\"{f}\""));
 
         var startInfo = new ProcessStartInfo
         {
             FileName = sevenZipPath,
-            Arguments = $"e \"{targetPath}\" -o\"{destinationPath}\" {fileList} -y",
+            Arguments = $"e \"{fileToOpen}\" -o\"{destinationPath}\" {fileList} -y",
             UseShellExecute = false,
             CreateNoWindow = true,
             RedirectStandardOutput = true,
