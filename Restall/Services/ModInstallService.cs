@@ -172,9 +172,9 @@ public class ModInstallService(ILogService logService) : IModInstallService
         {
             try
             {
-                var versionInfo = FileVersionInfo.GetVersionInfo(dllFile);
+                var fileInfo = FileVersionInfo.GetVersionInfo(dllFile);
 
-                if (versionInfo.ProductName?.Equals("ReShade", StringComparison.OrdinalIgnoreCase) == true)
+                if (fileInfo.ProductName?.Equals("ReShade", StringComparison.OrdinalIgnoreCase) == true)
                 {
                     File.Delete(dllFile);
                     removedCount++;

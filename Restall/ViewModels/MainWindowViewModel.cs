@@ -92,9 +92,12 @@ public partial class MainWindowViewModel : ViewModelBase
         };
         
         testGame.ReShade = testReShade;
-        
-        var modInstallService = new ModInstallService(new LogService());
-        _ = modInstallService.InstallModAsync(testGame, testReShade);
+
+        var modDetectionService = new ModDetectionService(new LogService());
+        _ = modDetectionService.FindReShadeFiles(testGame.ExecutablePath);
+
+        // var modInstallService = new ModInstallService(new LogService());
+        // _ = modInstallService.InstallModAsync(testGame, testReShade);
         // _ = modInstallService.RemoveOtherReShadeFiles(testGame);
     }
 
