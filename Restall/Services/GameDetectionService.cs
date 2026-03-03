@@ -85,9 +85,11 @@ public class GameDetectionService : IGameDetectionService
                 Path.Combine(home, ".steam", "steam"),
                 Path.Combine(home, ".local", "share", "Steam"),
             };
+            
 
             foreach (var path in linuxPaths)
             {
+                
                 if (Directory.Exists(path)) return path;
             }
 
@@ -108,7 +110,9 @@ public class GameDetectionService : IGameDetectionService
                 var name = Helper.ExtractVdfValue(content, "name");
                 var installDir = Helper.ExtractVdfValue(content, "installdir");
                 if (name == null || installDir == null) continue;
-
+                
+                if(Helper.NonGame(name)) continue;
+                
                 var rootPath = Path.Combine(steamapps, "common", installDir);
                 if (!Directory.Exists(rootPath)) continue;
 
@@ -116,8 +120,9 @@ public class GameDetectionService : IGameDetectionService
                 {
                     Name = name,
                     InstallFolder = rootPath,
-
-                    PlatformName = Game.Platform.Steam,
+                    //ExecutablePath = 
+                    PlatformName = Game.Platform.Steam
+                    
                 });
             }
             catch { }

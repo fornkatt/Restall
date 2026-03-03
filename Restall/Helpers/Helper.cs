@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
@@ -27,5 +28,19 @@ public class Helper
         }
         catch { return null; }
     }
+
+    public static bool NonGame(string name)
+    {
+        var nonGameArray = new[]
+        {
+            "Proton",
+            "Steam Linux Runtime",
+            "Steamworks Common Redistributables"
+            
+        };
+        return nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
+    }
+    
+    
     
 }
