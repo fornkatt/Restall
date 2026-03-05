@@ -15,21 +15,18 @@ namespace Restall.Services;
 
 /// <summary>
 /// Heroic (Most likely the trickiest beacuse we want to exclude the libraries they come from
+/// IGNORE DOTNET
 /// ILAUNCHERDETECTION?
 /// ADD HEALTH CHECK?
 /// Ubisoft - EA AND REWORK THEM
 /// STEAMGRIDDBID
 /// </summary>
-public class GameDetectionService : IGameDetectionService
+public class GameDetectionService(ILogService logService) : IGameDetectionService
 {
-    private LogService logService;
-
     public async Task<List<Game?>> FindGames()
     {
         try
         {
-            Debug.WriteLine("[FindGames] Starting game detection...");
-
             var tasks = new[]
             {
                 FindSteamGamesAsync(),
@@ -42,8 +39,8 @@ public class GameDetectionService : IGameDetectionService
 
             foreach (var game in allGames)
             {
-                Debug.WriteLine(
-                    ($"[Number Of Games: {allGames.Count}] Found game: {game.Name} - ({game.PlatformName}) | InstallFolder: {game.InstallFolder} ExecutablePath: {game.ExecutablePath}"));
+                await logService.LogInfoAsync(
+                    $"NAME: {game.Name} INSTALLFOLDER: {game.InstallFolder} PATH: {game.ExecutablePath} PLATFORM: {game.PlatformName} ENGINE: {game.EngineName} ");
             }
 
             var sortGames = allGames.GroupBy(g => g.Name)
@@ -57,8 +54,9 @@ public class GameDetectionService : IGameDetectionService
 
             return path;
         }
-        catch
+        catch (Exception ex)
         {
+            logService.LogErrorAsync($"Something went wrong with FindGames: {ex.Message}");
             return new List<Game?>();
         }
     }
@@ -137,7 +135,7 @@ public class GameDetectionService : IGameDetectionService
                 if (!Directory.Exists(rootPath)) continue;
 
                 var executablePath = DetectExecutablePathAndEngine(rootPath, out var engine);
-                
+
                 if (string.IsNullOrEmpty(executablePath)) continue;
 
                 games.Add(new Game
@@ -202,7 +200,7 @@ public class GameDetectionService : IGameDetectionService
 
         return games;
     }
-    
+
     private string? GetEpicInstallPath()
     {
         return Path.Combine(
@@ -221,24 +219,27 @@ public class GameDetectionService : IGameDetectionService
                 var json = File.ReadAllText(file);
                 var name = Helper.ExtractJsonString(json, "DisplayName");
                 var rootPath = Helper.ExtractJsonString(json, "InstallLocation");
-                
+
                 if (rootPath != null)
                 {
-
                     if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(rootPath))
                     {
-                        Debug.WriteLine($" Skipping Epic: empty title or path");
+                        logService.LogWarning($" Skipping Epic: empty title or path");
                         continue;
                     }
 
                     if (!Directory.Exists(rootPath))
                     {
-                        Debug.WriteLine($"Install Path for Epic {rootPath} not found!");
+                        logService.LogWarning($"Could not find install location: {rootPath}");
                         continue;
                     }
-                    
+
                     var executablePath = DetectExecutablePathAndEngine(rootPath, out var engine);
-                    if (string.IsNullOrEmpty(executablePath)) continue;
+                    if (string.IsNullOrEmpty(executablePath))
+                    {
+                        logService.LogWarning($"Could not find executable path: {rootPath}");
+                        continue;
+                    }
 
                     games.Add(new Game
                     {
@@ -277,52 +278,48 @@ public class GameDetectionService : IGameDetectionService
         {
             games.AddRange(ScanGogHeroicLibrary(gogHeroicPath));
         }
-        
+
         return games;
     }
-    
+
     private List<Game> ScanGOGLibrary()
     {
-        
         var games = new List<Game>();
-        
+
         try
         {
-            
             using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\GOG.com\Games")
                             ?? Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\GOG.com\Games");
             if (key == null) return games;
-            
+
             foreach (var sub in key.GetSubKeyNames())
             {
                 using var gameKey = key.OpenSubKey(sub);
-                
+
                 if (gameKey == null) continue;
-                
-                var name = gameKey.GetValue("GAMENAME") as string 
+
+                var name = gameKey.GetValue("GAMENAME") as string
                            ?? gameKey.GetValue("GameName") as string;
-                
-                var path = gameKey.GetValue("PATH") as string 
+
+                var path = gameKey.GetValue("PATH") as string
                            ?? gameKey.GetValue("path") as string;
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path))
                     continue;
                 if (!Directory.Exists(path))
                     continue;
-                
+
                 var executablePath = DetectExecutablePathAndEngine(path, out var engine);
                 if (string.IsNullOrEmpty(executablePath)) continue;
-                
-                    games.Add(new Game
-                    {
-                        Name = name,
-                        InstallFolder = path,
-                        ExecutablePath = executablePath,
-                        EngineName = engine,
-                        PlatformName = Game.Platform.GOG
-                    });
-                
+
+                games.Add(new Game
+                {
+                    Name = name,
+                    InstallFolder = path,
+                    ExecutablePath = executablePath,
+                    EngineName = engine,
+                    PlatformName = Game.Platform.GOG
+                });
             }
-            
         }
         catch
         {
@@ -334,35 +331,33 @@ public class GameDetectionService : IGameDetectionService
 
     #endregion
 
-    
+
     #region HEROIC
-    
-    
+
     private string? GetGogHeroicPath()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        
-        var heroicPath = OperatingSystem.IsWindows() 
-            ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store", "installed.json") : 
-            Path.Combine(home, ".config", "heroic", "gog_store", "installed.json");
-        
-        return File.Exists(heroicPath) ?  heroicPath : null;
-        
+
+        var heroicPath = OperatingSystem.IsWindows()
+            ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store", "installed.json")
+            : Path.Combine(home, ".config", "heroic", "gog_store", "installed.json");
+
+        return File.Exists(heroicPath) ? heroicPath : null;
     }
 
     private List<Game> ScanGogHeroicLibrary(string configDir)
     {
         throw new NotImplementedException();
-    }   
+    }
 
-    
+
     private string? GetEpicHeroicPath()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
-        var heroicPath = OperatingSystem.IsWindows() 
-            ? Path.Combine(home, "AppData", "Roaming", "heroic", "legendaryConfig", "legendary") : 
-            Path.Combine(home, ".config", "heroic", "legendaryConfig", "legendary");
+        var heroicPath = OperatingSystem.IsWindows()
+            ? Path.Combine(home, "AppData", "Roaming", "heroic", "legendaryConfig", "legendary")
+            : Path.Combine(home, ".config", "heroic", "legendaryConfig", "legendary");
 
         return Directory.Exists(heroicPath) ? heroicPath : null;
     }
@@ -372,11 +367,10 @@ public class GameDetectionService : IGameDetectionService
         var games = new List<Game>();
         var installedJsonPath = Path.Combine(configDir, "installed.json");
 
-        Debug.WriteLine($"[Heroic] Looking for: {installedJsonPath}");
 
         if (!File.Exists(installedJsonPath))
         {
-            Debug.WriteLine($"[Heroic] File not found!");
+            logService.LogWarning($"Could not find installed json file: {installedJsonPath}");
             return games;
         }
 
@@ -388,8 +382,8 @@ public class GameDetectionService : IGameDetectionService
              *   ""title""\s*:\s*""([^""]+)""
              *   ""install_path""\s*:\s*""([^""]+)""
              */
-            
-            
+
+
             var titleRegexMatches = Regex.Matches(json, @"""title""\s*:\s*""([^""]+)""");
             var pathRegexMatches = Regex.Matches(json, @"""install_path""\s*:\s*""([^""]+)""");
 
@@ -400,24 +394,25 @@ public class GameDetectionService : IGameDetectionService
                 var title = titleRegexMatches[i].Groups[1].Value;
                 var installPath = pathRegexMatches[i].Groups[1].Value.Replace("\\\\", "\\");
                 installPath = Helper.NormalizePath(installPath);
-                
+
 
                 if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(installPath))
                 {
-                    Debug.WriteLine($" Skipping Heroic: empty title or path");
+                    logService.LogWarning(
+                        $"Could not find the install path nor title. Title: {title} InstallPath:{installPath}");
                     continue;
                 }
 
                 if (!Directory.Exists(installPath))
                 {
-                    Debug.WriteLine($"Install Path for Heroic {installPath} not found!");
+                    logService.LogWarning($"Install Path for Heroic {installPath} not found!");
                     continue;
                 }
 
                 var executablePath = DetectExecutablePathAndEngine(installPath, out var engine);
-                
+
                 if (string.IsNullOrEmpty(executablePath)) continue;
-                
+
                 games.Add(new Game
                 {
                     Name = title,
@@ -427,14 +422,15 @@ public class GameDetectionService : IGameDetectionService
                     PlatformName = Game.Platform.Heroic
                 });
             }
-            
         }
-        catch(Exception ex) { Debug.WriteLine($"Something went wrong {ex.Message}"); }
+        catch (Exception ex)
+        {
+            logService.LogError($"Something went wrong with Epic Heroic: {ex.Message}");
+        }
 
         return games;
     }
 
-    
     #endregion
 
     private string? DetectExecutablePathAndEngine(string rootPath, out Game.Engine engine)

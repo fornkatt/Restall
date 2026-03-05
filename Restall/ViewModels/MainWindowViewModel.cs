@@ -106,7 +106,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task InitializeAsync()
     {
-        var detectionService = new GameDetectionService();
+        var detectionService = new GameDetectionService(new LogService());
         var games = await detectionService.FindGames();
 
         foreach (var game in games)
