@@ -16,10 +16,10 @@ public class ParseService : IParseService
     private const string RenoDxUrl = "https://github.com/clshortfuse/renodx/wiki/Mods/";
     private const string RenoDxTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
     
-    private readonly Dictionary<ReShade.Branch, string> _availableReShadeVersions = [];
-    private readonly Dictionary<RenoDX.Branch, RenoDXTagInfo> _availableRenoDxTags = [];
+    private readonly Dictionary<ReShade.Branch, List<string>> _availableReShadeVersions = [];
+    private readonly Dictionary<RenoDX.Branch, List<RenoDXTagInfo>> _availableRenoDxTags = [];
     // Store by mod name
-    private readonly Dictionary<string, RenoDXModInfo> _availableWikiModsByName = [];
+    private readonly Dictionary<string, List<RenoDXModInfo>> _availableWikiModsByName = [];
     private readonly Dictionary<string, RenoDXModPreference> _modPreferences = [];
 
     public ParseService(LogService logService)
@@ -102,7 +102,7 @@ public class ParseService : IParseService
             }
             
             await _logService.LogInfoAsync($"Successfully parsed snapshot: {date.Value}\n{string.Join(Environment.NewLine, commitNotes)}");
-            _availableRenoDxTags[RenoDX.Branch.Snapshot] = new RenoDXTagInfo(date.Value, RenoDX.Branch.Snapshot, commitNotes);
+            _availableRenoDxTags[RenoDX.Branch.Snapshot] = [new RenoDXTagInfo(date.Value, RenoDX.Branch.Snapshot, commitNotes)];
         }
         catch (Exception ex)
         {
