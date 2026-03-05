@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Restall.UI.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Restall.UI.Views.BannerView"
+             x:DataType="viewModels:BannerViewModel">
+
+
+    <!-- <Grid ShowGridLines="True" Margin="5" ColumnDefinitions="Auto, Auto, 50" RowDefinitions="50, Auto"> -->
+    <!--      -->
+    <!--     <Image Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="3" -->
+    <!--            Source="/Assets/testImage.png" Stretch="Uniform" Margin="5" /> -->
+    <!--     <Image Grid.Row="0" Grid.Column="2" Source="/Assets/icon.png" Stretch="UniformToFill" /> -->
+    <!-- </Grid>  -->
+
+    <Grid>
+        <Image Source="{Binding BannerBitmap}" Stretch="Uniform" Margin="5,5,5,5" />
+        <Image Source="{Binding LogoBitmap}"
+               Width="150" Height="180"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Top"
+               Stretch="Uniform" Margin="0,5,5,0"/>
+    </Grid>
+
+
+</UserControl>

@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="Restall/Restall.csproj" />
+  <Project Path="Restall.Application/Restall.Application.csproj" />
+  <Project Path="Restall.Domain/Restall.Domain.csproj" />
+  <Project Path="Restall.Infrastructure/Restall.Infrastructure.csproj" />
+  <Project Path="Restall.UI/Restall.UI.csproj" />
 </Solution>
