@@ -4,18 +4,19 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Restall.Models;
 
-
+//TODO: HEALTH CHECK?
 public class Game : ObservableObject
 {  
     // PLATFORM
     public enum Platform
     {
         Unknown,
-        EA,
         Steam,
-        GOG,
         Epic,
-        Ubisoft
+        GOG,
+        Heroic,
+        Ubisoft,
+        EA,
     }
     
     //ENGINE
@@ -32,8 +33,6 @@ public class Game : ObservableObject
     public Platform PlatformName { get; set; } = Platform.Unknown;
     public Engine EngineName { get; set; } = Engine.Unknown;
     
-    
-    public string? ExecutableName { get; set; }
     public string? ExecutablePath { get; set; }
     public string? InstallFolder { get; set; }
     public int? SteamGridDbId { get; }

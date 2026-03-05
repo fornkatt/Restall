@@ -1,14 +1,16 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
+using Restall.Models;
 
 namespace Restall.Helpers;
 
 public class Helper
 {
-    public static string NormalizePath(string path) =>
-        OperatingSystem.IsWindows() ? path.Replace('/', '\\') : path.Replace('\\', '/');
+     
+    public static string NormalizePath(string path) => path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
     public static string? ExtractVdfValue(string vdfContent, string key)
         => Regex.Match(vdfContent, $@"""{Regex.Escape(key)}""\s+""([^""]+)""", 

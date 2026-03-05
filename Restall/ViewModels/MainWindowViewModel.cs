@@ -74,7 +74,6 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             Name = "Batman™: Arkham Knight",
             EngineName = Game.Engine.Unreal,
-            ExecutableName = "BatmanAK.exe",
             ExecutablePath = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\Binaries\Win64\",
             InstallFolder = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\",
             IsInstalled = true,
