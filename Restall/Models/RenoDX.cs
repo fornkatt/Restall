@@ -34,7 +34,6 @@ public class RenoDX : ObservableObject
     
     //DATEONLY AND CONVERT IT TO STRING, OR THE OTHER WAY AROUND
     public string? Version { get; set; }
-    public Dictionary<Branch, string> AvailableVersions { get; set; } = [];
     
     private bool _isInstalled;
     public bool IsInstalled

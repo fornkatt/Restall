@@ -59,9 +59,6 @@ public class ReShade : ObservableObject
     public string? NightlyUrl { get; set; }
     public string? RenoDXUrl { get; set; }
     
-    public Dictionary<Branch, string> AvailableVersions { get; set; } = [];
-    
-    
     private bool _isInstalled;
     public bool IsInstalled
     {

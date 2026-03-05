@@ -156,11 +156,6 @@ public class ModInstallService(ILogService logService) : IModInstallService
         return result;
     }
 
-    public async Task<T> UpdateModAsync<T>(T modToUpdate) where T : class
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<Game> RemoveOtherReShadeFiles(Game game)
     {
         var dllFiles = Directory.GetFiles(game.ExecutablePath!, "*.dll")

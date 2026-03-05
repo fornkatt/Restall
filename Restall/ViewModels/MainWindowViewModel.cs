@@ -93,8 +93,11 @@ public partial class MainWindowViewModel : ViewModelBase
         
         testGame.ReShade = testReShade;
 
-        var modDetectionService = new ModDetectionService(new LogService());
-        _ = modDetectionService.FindReShadeFiles(testGame.ExecutablePath);
+        IModDetectionService modDetectionService = new ModDetectionService(new LogService());
+        IParseService parseService = new ParseService(new LogService());
+        // _ = modDetectionService.DetectInstalledReShadeAsync(testGame.ExecutablePath);
+        // _ = modDetectionService.DetectInstalledRenoDXAsync(testGame.ExecutablePath);
+        _ = parseService.FetchAvailableModVersionsAsync();
 
         // var modInstallService = new ModInstallService(new LogService());
         // _ = modInstallService.InstallModAsync(testGame, testReShade);
@@ -109,6 +112,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         foreach (var game in games)
         {
+            if (game == null) continue;
             Games.Add(game);
         }
     }
