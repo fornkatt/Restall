@@ -14,7 +14,7 @@ public class Helper
     
     public static string? ExtractJsonString(string json, string key) =>
         Regex.Match(json, $@"""{Regex.Escape(key)}""\s*:\s*""([^""\\]*(\\.[^""\\]*)*)""")
-            is { Success: true } m ? m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/") : null;
+            is { Success: true } m ? NormalizePath(m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/")) : null;
     
     public static string? ReadRegistry(string keyPath, string valueName)
     {

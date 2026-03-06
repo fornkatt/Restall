@@ -166,7 +166,7 @@ public class GameDetectionService : IGameDetectionService
         if (!File.Exists(vdfPath)) return libraries;
         foreach (Match match in Regex.Matches(File.ReadAllText(vdfPath), @"""path""\s+""([^""]+)"""))
         {
-            var library = Helper.NormalizePath(match.Groups[1].Value);
+            var library = Helper.NormalizePath(match.Groups[1].Value.Replace(@"\\", @"\"));
             if (Directory.Exists(library) && !libraries.Contains(library))
             {
                 libraries.Add(library);
@@ -450,7 +450,7 @@ public class GameDetectionService : IGameDetectionService
         if (unityPlayer != null)
         {
             engine = Game.Engine.Unity;
-            return unityPlayer;
+            return Path.GetDirectoryName(unityPlayer);
         }
 
         var exeFolder = FindShallowExeFolder(rootPath);
