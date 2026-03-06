@@ -8,11 +8,8 @@ using Restall.Infrastructure.Helpers;
 namespace Restall.Infrastructure.Services;
 
 /// <summary>
-/// Heroic (Most likely the trickiest beacuse we want to exclude the libraries they come from
-/// IGNORE DOTNET
 /// ILAUNCHERDETECTION?
 /// ADD HEALTH CHECK?
-/// Ubisoft - EA AND REWORK THEM
 /// STEAMGRIDDBID
 /// </summary>
 public class GameDetectionService : IGameDetectionService
@@ -21,7 +18,7 @@ public class GameDetectionService : IGameDetectionService
 
     public GameDetectionService(
         ILogService logService
-        )
+    )
     {
         _logService = logService;
     }
@@ -34,7 +31,9 @@ public class GameDetectionService : IGameDetectionService
             {
                 FindSteamGamesAsync(),
                 FindEpicGamesAsync(),
-                FindGOGGamesAsync()
+                FindGOGGamesAsync(),
+                FindUbisoftGamesAsync(),
+                FindEAGamesAsync()
             };
             var results = await Task.WhenAll(tasks);
             var allGames = results.SelectMany(t => t).ToList();
@@ -43,7 +42,7 @@ public class GameDetectionService : IGameDetectionService
             foreach (var game in allGames)
             {
                 await _logService.LogInfoAsync(
-                    $"NAME: {game.Name} INSTALLFOLDER: {game.InstallFolder} PATH: {game.ExecutablePath} PLATFORM: {game.PlatformName} ENGINE: {game.EngineName} ");
+                    $"[{game.PlatformName}] NAME: {game.Name}\n INSTALLFOLDER: {game.InstallFolder}\n PATH: {game.ExecutablePath} \nENGINE: {game.EngineName} ");
             }
 
             var sortGames = allGames.GroupBy(g => g.Name)
@@ -64,7 +63,6 @@ public class GameDetectionService : IGameDetectionService
         }
     }
 
-    //TODO: INCLUDE OTHERS
 
     #region Asyncronous Methods
 
@@ -72,6 +70,10 @@ public class GameDetectionService : IGameDetectionService
     private Task<List<Game>> FindEpicGamesAsync() => Task.Run(FindEpicGames);
 
     private Task<List<Game>> FindGOGGamesAsync() => Task.Run(FindGOGGames);
+
+    private Task<List<Game>> FindUbisoftGamesAsync() => Task.Run(FindUbisoftGames);
+
+    private Task<List<Game>> FindEAGamesAsync() => Task.Run(FindEAGames);
 
     #endregion
 
@@ -238,6 +240,12 @@ public class GameDetectionService : IGameDetectionService
                     }
 
                     var executablePath = DetectExecutablePathAndEngine(rootPath, out var engine);
+                    if (executablePath != null && Helper.NonGame(executablePath))
+                    {
+                        _logService.LogInfo($"[EXCLUDED] {Helper.NonGame(executablePath)}");
+                        continue;
+                    }
+
                     if (string.IsNullOrEmpty(executablePath))
                     {
                         _logService.LogWarning($"Could not find executable path: {rootPath}");
@@ -289,6 +297,7 @@ public class GameDetectionService : IGameDetectionService
     {
         var games = new List<Game>();
 
+
         try
         {
             using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\GOG.com\Games")
@@ -306,10 +315,9 @@ public class GameDetectionService : IGameDetectionService
 
                 var path = gameKey.GetValue("PATH") as string
                            ?? gameKey.GetValue("path") as string;
-                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path))
-                    continue;
-                if (!Directory.Exists(path))
-                    continue;
+                
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path)) continue;
+                if (!Directory.Exists(path)) continue;
 
                 var executablePath = DetectExecutablePathAndEngine(path, out var engine);
                 if (string.IsNullOrEmpty(executablePath)) continue;
@@ -334,6 +342,139 @@ public class GameDetectionService : IGameDetectionService
 
     #endregion
 
+    #region UBISOFT
+
+    private List<Game> FindUbisoftGames()
+    {
+        var games = new List<Game>();
+        if (OperatingSystem.IsWindows())
+        {
+            games.AddRange(ScanUbisoftLibrary());
+        }
+        
+        return games;
+    }
+
+
+    private List<Game> ScanUbisoftLibrary()
+    {
+        var games = new List<Game>();
+
+        try
+        {
+            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Ubisoft\Launcher\Installs")
+                            ?? Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Ubisoft\Launcher\Installs");
+
+            if (key == null) return games;
+
+            foreach (var subName in key.GetSubKeyNames())
+            {
+                using var gameKey = key.OpenSubKey(subName);
+                if (gameKey == null) continue;
+
+                var installDir = gameKey.GetValue(Helper.NormalizePath("InstallDir")) as string;
+
+
+                if (string.IsNullOrEmpty(installDir)) continue;
+                if (!Directory.Exists(installDir)) continue;
+
+                var name = Path.GetFileName(installDir);
+                if (string.IsNullOrEmpty(name)) continue;
+
+                var executablePath = DetectExecutablePathAndEngine(installDir, out var engine);
+
+                if (string.IsNullOrEmpty(executablePath)) continue;
+
+                games.Add(new Game
+                {
+                    Name = name,
+                    InstallFolder = installDir,
+                    ExecutablePath = executablePath,
+                    EngineName = engine,
+                    PlatformName = Game.Platform.Ubisoft
+                });
+            }
+        }
+        catch
+        {
+            _logService.LogError($"Could not find Ubisoft games...{games}");
+        }
+
+
+        return games;
+    }
+
+    #endregion
+
+    #region EA
+
+    private List<Game> FindEAGames()
+    {
+        var games = new List<Game>();
+        if (OperatingSystem.IsWindows())
+        {
+            games.AddRange(ScanEALibrary());
+        }
+
+        return games;
+    }
+
+    private List<Game> ScanEALibrary()
+    {
+        var games = new List<Game>();
+        try
+        {
+            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\EA Games")
+                            ?? Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\EA Games");
+
+            if (key == null) return games;
+            foreach (var subName in key.GetSubKeyNames())
+            {
+                using var gameKey = key.OpenSubKey(subName);
+                if (gameKey == null) continue;
+
+                var installDir = gameKey.GetValue(Helper.NormalizePath("Install Dir")) as string
+                                      ?? gameKey.GetValue(Helper.NormalizePath("InstallLocation")) as string
+                                      ?? gameKey.GetValue(Helper.NormalizePath("InstallDir")) as string;
+
+
+                if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir)) continue;
+
+                var displayName = gameKey.GetValue("DisplayName") as string
+                                  ?? subName;
+                
+                if (string.IsNullOrEmpty(displayName)) continue;
+                
+                var executablePath = DetectExecutablePathAndEngine(installDir, out var engine);
+
+                games.Add(new Game
+                {
+                    Name = displayName,
+                    InstallFolder = installDir,
+                    ExecutablePath = executablePath,
+                    EngineName = engine,
+                    PlatformName = Game.Platform.EA
+                });
+            }
+        }
+        catch
+        {
+            _logService.LogError($"Could not find EA games...");
+        }
+
+        return games;
+    }
+
+    #endregion
+
+    #region LUTRIS
+
+    private string? GetUbisoftLutrisPath()
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
 
     #region HEROIC
 
@@ -342,15 +483,56 @@ public class GameDetectionService : IGameDetectionService
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
         var heroicPath = OperatingSystem.IsWindows()
-            ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store", "installed.json")
-            : Path.Combine(home, ".config", "heroic", "gog_store", "installed.json");
+            ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store")
+            : Path.Combine(home, ".config", "heroic", "gog_store");
 
-        return File.Exists(heroicPath) ? heroicPath : null;
+        return Directory.Exists(heroicPath) ? heroicPath : null;
     }
 
     private List<Game> ScanGogHeroicLibrary(string configDir)
     {
-        throw new NotImplementedException();
+        var games = new List<Game>();
+        var installedJsonPath = Path.Combine(configDir, "installed.json");
+
+        if (!File.Exists(installedJsonPath)) return games;
+
+        try
+        {
+            var json = File.ReadAllText(installedJsonPath);
+
+            // Regex Pattern: ""install_path""\s*:\s*""([^""]+)""
+
+            var pathRegexMatches = Regex.Matches(json, @"""install_path""\s*:\s*""([^""]+)""");
+
+            foreach (Match match in pathRegexMatches)
+            {
+                var installPath = match.Groups[1].Value.Replace("\\\\", "\\");
+                installPath = Helper.NormalizePath(installPath);
+
+                if (string.IsNullOrEmpty(installPath)) continue;
+                if (!Directory.Exists(installPath)) continue;
+
+                var title = Path.GetFileName(installPath);
+                var executablePath = DetectExecutablePathAndEngine(installPath, out var engine);
+
+                if (string.IsNullOrEmpty(executablePath)) continue;
+
+                games.Add(new Game
+                {
+                    Name = title,
+                    InstallFolder = installPath,
+                    ExecutablePath = executablePath,
+                    EngineName = engine,
+                    PlatformName = Game.Platform.GOG
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logService.LogError($"Could not find Gog heroic library: {installedJsonPath} {ex.Message}");
+        }
+
+        return games;
     }
 
 
@@ -390,7 +572,6 @@ public class GameDetectionService : IGameDetectionService
             var titleRegexMatches = Regex.Matches(json, @"""title""\s*:\s*""([^""]+)""");
             var pathRegexMatches = Regex.Matches(json, @"""install_path""\s*:\s*""([^""]+)""");
 
-            Debug.WriteLine($"[Heroic] Found {titleRegexMatches.Count} titles, {pathRegexMatches.Count} paths");
 
             for (int i = 0; i < Math.Min(titleRegexMatches.Count, pathRegexMatches.Count); i++)
             {
@@ -422,7 +603,7 @@ public class GameDetectionService : IGameDetectionService
                     InstallFolder = installPath,
                     ExecutablePath = executablePath,
                     EngineName = engine,
-                    PlatformName = Game.Platform.Heroic
+                    PlatformName = Game.Platform.Epic
                 });
             }
         }

@@ -5,8 +5,13 @@ namespace Restall.Infrastructure.Helpers;
 
 public class Helper
 {
-     
-    public static string NormalizePath(string path) => path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+    public static string? NormalizePath(string path)
+    {
+        if(string.IsNullOrEmpty(path)) return null;
+        var normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        return normalized.Trim().TrimEnd(Path.DirectorySeparatorChar);
+    }
 
     public static string? ExtractVdfValue(string vdfContent, string key)
         => Regex.Match(vdfContent, $@"""{Regex.Escape(key)}""\s+""([^""]+)""", 
@@ -33,11 +38,16 @@ public class Helper
         {
             "Proton",
             "Steam Linux Runtime",
-            "Steamworks Common Redistributables"
+            "Steamworks Common Redistributables",
+            "Exodus SDK",
+            "DotNET",
+            "_Installer",
+            "_CommonRedist"
             
         };
         return nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
     }
+    
     
     
     
