@@ -1,9 +1,11 @@
+using Microsoft.Extensions.DependencyInjection;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using Restall.UI.ViewModels;
 using Restall.UI.Views;
+using Restall.Infrastructure.Extensions;
 
 namespace Restall.UI;
 
@@ -16,6 +18,10 @@ public partial class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var services = new ServiceCollection();
+        ConfigureServices(services);
+        var serviceProvider = services.BuildServiceProvider();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -23,11 +29,18 @@ public partial class App : Avalonia.Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(new AppState()),
+                DataContext = serviceProvider.GetRequiredService<MainWindowViewModel>(),
             };
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddInfrastructureServices();
+
+        services.AddTransient<MainWindowViewModel>();
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

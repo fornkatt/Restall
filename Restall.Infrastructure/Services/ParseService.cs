@@ -3,11 +3,12 @@ using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 
-namespace Restall.UI.Services;
+namespace Restall.Infrastructure.Services;
 
 public class ParseService : IParseService
 {
     private readonly ILogService _logService;
+    private readonly HttpClient _httpClient;
     
     private const string RenoDxUrl = "https://github.com/clshortfuse/renodx/wiki/Mods/";
     private const string RenoDxTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
@@ -18,9 +19,14 @@ public class ParseService : IParseService
     private readonly Dictionary<string, List<RenoDXModInfoDto>> _availableWikiModsByName = [];
     private readonly Dictionary<string, RenoDXModPreferenceDto> _modPreferences = [];
 
-    public ParseService(LogService logService)
+    public ParseService(
+        ILogService logService,
+        HttpClient httpClient
+        )
     {
         _logService = logService;
+        _httpClient = httpClient;
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
     }
     
     public async Task FetchAvailableModVersionsAsync()
@@ -47,10 +53,7 @@ public class ParseService : IParseService
     {
         try
         {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
-            
-            var html = await client.GetStringAsync(RenoDxTagUrl + "snapshot");
+            var html = await _httpClient.GetStringAsync(RenoDxTagUrl + "snapshot");
             
             var document = new HtmlDocument();
             document.LoadHtml(html);

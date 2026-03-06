@@ -1,10 +1,7 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace Restall.UI.Helpers;
+namespace Restall.Infrastructure.Helpers;
 
 public class Helper
 {

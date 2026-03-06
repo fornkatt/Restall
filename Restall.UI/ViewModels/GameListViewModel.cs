@@ -1,14 +1,12 @@
 using System.Collections.ObjectModel;
-using Restall.Domain.Entities;
 
 namespace Restall.UI.ViewModels;
 
 public class GameListViewModel : ViewModelBase
 {
-    private readonly AppState _appState;
     private readonly MainWindowViewModel _mainWindowViewModel;
 
-    public Game? SelectedGame
+    public GameModViewModel? SelectedGame
     {
         get => _mainWindowViewModel.SelectedGame;
         set
@@ -19,12 +17,11 @@ public class GameListViewModel : ViewModelBase
             }
         }
     }
-    public ObservableCollection<Game> Games => _mainWindowViewModel.Games;
+    public ObservableCollection<GameModViewModel> Games => _mainWindowViewModel.Games;
 
-    public GameListViewModel(MainWindowViewModel mainWindowViewModel, AppState appState)
+    public GameListViewModel(MainWindowViewModel mainWindowViewModel)
     {
         _mainWindowViewModel = mainWindowViewModel;
-        _appState = appState;
         
         _mainWindowViewModel.PropertyChanged += (s, e) =>
         {

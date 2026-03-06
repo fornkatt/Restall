@@ -34,7 +34,7 @@
                         <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Version: " FontSize="12" Foreground="White" Margin="10,0,0,0">
                                 </TextBlock>
-                                <TextBlock Text="{Binding SelectedGame.ReShade.Version }" FontSize="12" Foreground="White" >
+                                <TextBlock Text="{Binding SelectedGame.ReShadeVersion }" FontSize="12" Foreground="White" >
                                 </TextBlock>
                         </StackPanel>
                 </StackPanel>
@@ -56,7 +56,7 @@
                 <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Version: " FontSize="12" Foreground="White" Margin="10,0,0,0">
                                 </TextBlock>
-                        <TextBlock Text="{Binding SelectedGame.RenoDX.Version }" FontSize="12" Foreground="White" >
+                        <TextBlock Text="{Binding SelectedGame.RenoDxVersion }" FontSize="12" Foreground="White" >
                 </TextBlock>
                 </StackPanel>
                 </StackPanel>

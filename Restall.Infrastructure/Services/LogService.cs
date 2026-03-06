@@ -1,14 +1,11 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Restall.Application.Interfaces;
 
-namespace Restall.UI.Services;
+namespace Restall.Infrastructure.Services;
 
 public class LogService : ILogService
 {
+    private readonly string _defaultLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
     private const string DefaultLogFileName = "restall_log.txt";
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
@@ -22,6 +19,9 @@ public class LogService : ILogService
         _semaphore.Wait();
         try
         {
+            if (!Directory.Exists(_defaultLogPath))
+                Directory.CreateDirectory(_defaultLogPath);
+
             File.AppendAllText(logFilePath, logFormat);
         }
         catch (Exception ex)
@@ -44,6 +44,9 @@ public class LogService : ILogService
         await _semaphore.WaitAsync();
         try
         {
+            if (!Directory.Exists(_defaultLogPath))
+                Directory.CreateDirectory(_defaultLogPath);
+
             await File.AppendAllTextAsync(logFilePath, logFormat);
         }
         catch (Exception ex)

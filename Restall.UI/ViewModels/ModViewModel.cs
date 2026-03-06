@@ -1,14 +1,10 @@
-using Restall.Domain.Entities;
-
 namespace Restall.UI.ViewModels;
 
 public class ModViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _mainWindowViewModel;
-    private readonly AppState _appState;
     
-    
-    public Game? SelectedGame
+    public GameModViewModel? SelectedGame
     {
         get => _mainWindowViewModel.SelectedGame;
         set
@@ -23,9 +19,8 @@ public class ModViewModel : ViewModelBase
     
     //TODO: RELAYCOMMAND TO INSTALL, UPDATE AND DELETE RENODX AND RESHADE
 
-    public ModViewModel(MainWindowViewModel mainWindowViewModel, AppState appState)
+    public ModViewModel(MainWindowViewModel mainWindowViewModel)
     {
-        _appState = appState;
         _mainWindowViewModel = mainWindowViewModel;
         
         _mainWindowViewModel.PropertyChanged += (s, e) =>

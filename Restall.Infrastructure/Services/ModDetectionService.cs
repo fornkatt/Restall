@@ -1,16 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 
-namespace Restall.UI.Services;
+namespace Restall.Infrastructure.Services;
 
-public class ModDetectionService(ILogService logService) : IModDetectionService
+public class ModDetectionService : IModDetectionService
 {
+    private readonly ILogService _logService;
+
+    public ModDetectionService(
+        ILogService logService
+        )
+    {
+        _logService = logService;
+    }
+
     public async Task<HashSet<ReShade>?> DetectInstalledReShadeAsync(string executablePath)
     {
         var fileList = new HashSet<ReShade>();
@@ -29,7 +33,7 @@ public class ModDetectionService(ILogService logService) : IModDetectionService
                         ? ReShade.Architecture.x64
                         : ReShade.Architecture.x32
                 });
-                await logService.LogInfoAsync($"Found ReShade as: {file}");
+                await _logService.LogInfoAsync($"Found ReShade as: {file}");
             }
         });
 
@@ -51,7 +55,7 @@ public class ModDetectionService(ILogService logService) : IModDetectionService
                     Name = fileInfo.OriginalFilename,
                     Version = fileInfo.FileVersion
                 });
-                await logService.LogInfoAsync($"Found RenoDX as: {file}");
+                await _logService.LogInfoAsync($"Found RenoDX as: {file}");
             }
         });
 
@@ -76,7 +80,7 @@ public class ModDetectionService(ILogService logService) : IModDetectionService
             }
             catch (Exception ex)
             {
-                await logService.LogErrorAsync($"Failed to read file {file}: ", ex);
+                await _logService.LogErrorAsync($"Failed to read file {file}: ", ex);
             }
         }
     }

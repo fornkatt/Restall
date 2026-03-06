@@ -1,36 +1,11 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-
 namespace Restall.Domain.Entities;
 
-public class ReShade : ObservableObject
+public class ReShade
 {
-    public enum Branch
-    {
-        Unknown,
-        Stable, // WEBPAGE - DIRECT LINK
-        Nightly, // GITHUB WORKFLOW - ADD TO REGEX
-        RenoDX
-    }
-
-    public enum FileName
-    {
-        Dxgi,
-        D3d12,
-        D3d11,
-        Version
-    }
-
-    public enum FileExtension
-    {
-        Dll,
-        Asi
-    }
-    
-    public enum Architecture
-    {
-        x32 = 32,
-        x64 = 64
-    }
+    public enum Branch { Unknown, Stable, Nightly, RenoDX }
+    public enum FileName { Dxgi, D3d12, D3d11, Version }
+    public enum FileExtension { Dll, Asi }
+    public enum Architecture { x32 = 32, x64 = 64 }
 
     public Architecture Arch { get; set; } = Architecture.x64;
 
@@ -52,27 +27,10 @@ public class ReShade : ObservableObject
     public string OriginalFileName => $"ReShade{(int)Arch}.dll";
     public string SelectedFileName { get; set; } = string.Empty;
     public string? Version { get; set; }
-    public string? StableUrl { get; set; }
-    public string? NightlyUrl { get; set; }
-    public string? RenoDXUrl { get; set; }
-    
-    private bool _isInstalled;
-    public bool IsInstalled
-    {
-        get => _isInstalled;
-        set => SetProperty(ref _isInstalled, value);
-    }
-    
+    public bool IsInstalled { get; set; }
+
     public string GetFileName(FileName fileType, FileExtension extension)
     {
         return $"{FullFileName[fileType]}{Extension[extension]}";
-    }
-    
-    public string GetCachePath()
-    {
-        return Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "Cache", "ReShade", BranchName.ToString(), Version!
-        );
     }
 }

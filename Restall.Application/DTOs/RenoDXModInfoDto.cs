@@ -8,7 +8,8 @@
 public record RenoDXModInfoDto(
     string Name,
     string? DiscordUrl,
-    string? SnapshotUrl,
+    string? SnapshotUrl64,
+    string? SnapshotUrl32,
     string? NexusUrl,
     string? Maintainer,
     string? Notes,

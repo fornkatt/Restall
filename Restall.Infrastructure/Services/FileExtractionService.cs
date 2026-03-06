@@ -1,24 +1,28 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using Restall.Application.Interfaces;
 
-namespace Restall.UI.Services;
+namespace Restall.Infrastructure.Services;
 
-public class FileExtractionService(ILogService logService) : IFileExtractionService
+public class FileExtractionService : IFileExtractionService
 {
+    private readonly ILogService _logService;
+
+    public FileExtractionService(ILogService logService)
+    {
+        _logService = logService;
+    }
+
     public bool ExtractFiles(string fileToOpen, string[] filesToExtract, string destinationPath)
     {
         if (filesToExtract.All(f => File.Exists(Path.Combine(destinationPath, f))))
         {
-            logService.LogInfo($"Files in {destinationPath} already exist, exiting early.");
+            _logService.LogInfo($"Files in {destinationPath} already exist, exiting early.");
             return true;
         }
 
         if (!File.Exists(fileToOpen))
         {
-            logService.LogInfo("File for extraction not found.");
+            _logService.LogInfo("File for extraction not found.");
             return false;
         }
 
@@ -26,7 +30,7 @@ public class FileExtractionService(ILogService logService) : IFileExtractionServ
 
         if (sevenZipPath == null)
         {
-            logService.LogInfo($"7-Zip executable not found. Install it to" +
+            _logService.LogInfo($"7-Zip executable not found. Install it to" +
                                           $" {Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z")}" +
                                           $" or reinstall the program.");
             return false;
@@ -50,7 +54,7 @@ public class FileExtractionService(ILogService logService) : IFileExtractionServ
             using var process = Process.Start(startInfo);
             if (process == null)
             {
-                logService.LogInfo("Unable to start 7-Zip process or unsupported operating system.");
+                _logService.LogInfo("Unable to start 7-Zip process or unsupported operating system.");
                 return false;
             }
 
@@ -59,17 +63,17 @@ public class FileExtractionService(ILogService logService) : IFileExtractionServ
             if (process.ExitCode != 0)
             {
                 var stderr = process.StandardError.ReadToEnd();
-                logService.LogError($"7-Zip extraction failed with exit code " +
+                _logService.LogError($"7-Zip extraction failed with exit code " +
                                                $"{process.ExitCode}: {stderr}");
                 return false;
             }
 
-            logService.LogInfo($"Successfully extracted ({fileList}) to {destinationPath}");
+            _logService.LogInfo($"Successfully extracted ({fileList}) to {destinationPath}");
             return true;
         }
         catch (Exception ex)
         {
-            logService.LogError("Failed to extract files", ex);
+            _logService.LogError("Failed to extract files", ex);
             return false;
         }
     }
@@ -134,7 +138,7 @@ public class FileExtractionService(ILogService logService) : IFileExtractionServ
             }
             catch (Exception ex)
             {
-                logService.LogError("Could not find suitable system 7-Zip candidate.", ex);
+                _logService.LogError("Could not find suitable system 7-Zip candidate.", ex);
             }
         }
 
@@ -145,13 +149,13 @@ public class FileExtractionService(ILogService logService) : IFileExtractionServ
     {
         if (!File.Exists(path))
         {
-            logService.LogInfo($"File {path} not found.");
+            _logService.LogInfo($"File {path} not found.");
             return;
         }
 
         if (IsExecutable(path))
         {
-            logService.LogInfo($"File {path} is already executable.");
+            _logService.LogInfo($"File {path} is already executable.");
             return;
         }
 
@@ -168,7 +172,7 @@ public class FileExtractionService(ILogService logService) : IFileExtractionServ
         }
         catch (Exception ex)
         {
-            logService.LogError($"Could not find executable at {path}", ex);
+            _logService.LogError($"Could not find executable at {path}", ex);
         }
     }
 
@@ -181,7 +185,7 @@ public class FileExtractionService(ILogService logService) : IFileExtractionServ
         }
         catch
         {
-            logService.LogError($"Failed to asses executable status of {path}, please ensure the file exists.");
+            _logService.LogError($"Failed to asses executable status of {path}, please ensure the file exists.");
             return false;
         }
     }

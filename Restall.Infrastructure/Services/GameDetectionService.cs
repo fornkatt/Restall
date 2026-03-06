@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
-using Restall.UI.Helpers;
+using Restall.Infrastructure.Helpers;
 
-namespace Restall.UI.Services;
+namespace Restall.Infrastructure.Services;
 
 /// <summary>
 /// Heroic (Most likely the trickiest beacuse we want to exclude the libraries they come from
@@ -22,8 +15,17 @@ namespace Restall.UI.Services;
 /// Ubisoft - EA AND REWORK THEM
 /// STEAMGRIDDBID
 /// </summary>
-public class GameDetectionService(ILogService logService) : IGameDetectionService
+public class GameDetectionService : IGameDetectionService
 {
+    private readonly ILogService _logService;
+
+    public GameDetectionService(
+        ILogService logService
+        )
+    {
+        _logService = logService;
+    }
+
     public async Task<List<Game?>> FindGames()
     {
         try
@@ -40,7 +42,7 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
 
             foreach (var game in allGames)
             {
-                await logService.LogInfoAsync(
+                await _logService.LogInfoAsync(
                     $"NAME: {game.Name} INSTALLFOLDER: {game.InstallFolder} PATH: {game.ExecutablePath} PLATFORM: {game.PlatformName} ENGINE: {game.EngineName} ");
             }
 
@@ -57,7 +59,7 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
         }
         catch (Exception ex)
         {
-            logService.LogErrorAsync($"Something went wrong with FindGames: {ex.Message}");
+            await _logService.LogErrorAsync($"Something went wrong with FindGames: {ex.Message}");
             return new List<Game?>();
         }
     }
@@ -150,7 +152,7 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
             }
             catch
             {
-                logService.LogError("Could not find Steam library: " + library);
+                _logService.LogError("Could not find Steam library: " + library);
             }
         }
 
@@ -225,20 +227,20 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
                 {
                     if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(rootPath))
                     {
-                        logService.LogWarning($" Skipping Epic: empty title or path");
+                        _logService.LogWarning($" Skipping Epic: empty title or path");
                         continue;
                     }
 
                     if (!Directory.Exists(rootPath))
                     {
-                        logService.LogWarning($"Could not find install location: {rootPath}");
+                        _logService.LogWarning($"Could not find install location: {rootPath}");
                         continue;
                     }
 
                     var executablePath = DetectExecutablePathAndEngine(rootPath, out var engine);
                     if (string.IsNullOrEmpty(executablePath))
                     {
-                        logService.LogWarning($"Could not find executable path: {rootPath}");
+                        _logService.LogWarning($"Could not find executable path: {rootPath}");
                         continue;
                     }
 
@@ -254,7 +256,7 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
             }
             catch
             {
-                logService.LogError("Could not find Epic library: " + file);
+                _logService.LogError("Could not find Epic library: " + file);
             }
         }
 
@@ -324,7 +326,7 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
         }
         catch
         {
-            logService.LogError($"Could not find GOG games...{games}");
+            _logService.LogError($"Could not find GOG games...{games}");
         }
 
         return games;
@@ -371,7 +373,7 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
 
         if (!File.Exists(installedJsonPath))
         {
-            logService.LogWarning($"Could not find installed json file: {installedJsonPath}");
+            _logService.LogWarning($"Could not find installed json file: {installedJsonPath}");
             return games;
         }
 
@@ -399,14 +401,14 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
 
                 if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(installPath))
                 {
-                    logService.LogWarning(
+                    _logService.LogWarning(
                         $"Could not find the install path nor title. Title: {title} InstallPath:{installPath}");
                     continue;
                 }
 
                 if (!Directory.Exists(installPath))
                 {
-                    logService.LogWarning($"Install Path for Heroic {installPath} not found!");
+                    _logService.LogWarning($"Install Path for Heroic {installPath} not found!");
                     continue;
                 }
 
@@ -426,7 +428,7 @@ public class GameDetectionService(ILogService logService) : IGameDetectionServic
         }
         catch (Exception ex)
         {
-            logService.LogError($"Something went wrong with Epic Heroic: {ex.Message}");
+            _logService.LogError($"Something went wrong with Epic Heroic: {ex.Message}");
         }
 
         return games;
