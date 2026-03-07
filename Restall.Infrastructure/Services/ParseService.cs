@@ -263,8 +263,9 @@ public class ParseService : IParseService
         }
     }
 
-    private async Task FetchRenoDxNightlyVersionsAsync()
+    private Task FetchRenoDxNightlyVersionsAsync()
     {
-        throw new System.NotImplementedException();
+        // TODO
+        return Task.CompletedTask;
     }
 }

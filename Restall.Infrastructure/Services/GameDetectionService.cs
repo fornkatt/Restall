@@ -38,11 +38,11 @@ public class GameDetectionService : IGameDetectionService
             var allGames = results.SelectMany(t => t).ToList();
 
 
-            foreach (var game in allGames)
-            {
-                await _logService.LogInfoAsync(
-                    $"[{game.PlatformName}] NAME: {game.Name}\n INSTALLFOLDER: {game.InstallFolder}\n PATH: {game.ExecutablePath} \nENGINE: {game.EngineName} ");
-            }
+            //foreach (var game in allGames)
+            //{
+            //await _logService.LogInfoAsync(
+            //    $"[{game.PlatformName}] NAME: {game.Name}\n INSTALLFOLDER: {game.InstallFolder}\n PATH: {game.ExecutablePath} \nENGINE: {game.EngineName} ");
+            //}
 
             var sortGames = allGames.GroupBy(g => g.Name)
                 .Select(g => g.FirstOrDefault())

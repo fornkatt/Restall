@@ -10,6 +10,7 @@ namespace Restall.UI.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
 {
+    private readonly ILogService _logService;
     private readonly IGameDetectionService _gameDetectionService;
     private readonly IModDetectionService _modDetectionService;
     private readonly IParseService _parseService;
@@ -19,10 +20,10 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
     public BannerViewModel BannerViewModel { get; }
     public GameListViewModel GameListViewModel { get; }
     public ModViewModel ModViewModel { get; }
-    
+
     [ObservableProperty]
     private GameModViewModel? _selectedGame;
-    
+
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
         OnPropertyChanged(nameof(IsGameSelected));
@@ -30,12 +31,13 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
         if (!_suppressMessage)
             Messenger.Send(new SelectedGameChangedMessage(value));
     }
-    
+
     public bool IsGameSelected => SelectedGame != null;
 
     //TODO: INSTALLED GAMES AND NOT INSTALLED GAMES OBSERVABLE COLLECTION?
 
     public MainWindowViewModel(
+        ILogService logService,
         IGameDetectionService gameDetectionService,
         IModDetectionService modDetectionService,
         IParseService parseService,
@@ -45,6 +47,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
         ModViewModel modViewModel
         )
     {
+        _logService = logService;
         _gameDetectionService = gameDetectionService;
         _modDetectionService = modDetectionService;
         _parseService = parseService;
@@ -63,7 +66,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
             Version = "6.7.2",
             Arch = ReShade.Architecture.x64
         };
-        
+
         var testGame = new GameModViewModel(new Game
         {
             Name = "Batman™: Arkham Knight",
@@ -75,17 +78,19 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
             RenoDX = null,
             ReShade = testReShade,
         });
-
+        
         //TODO: JUST TESTING PURPOSES WITH ASYNC METHODS, FIRE AND FORGET WILL BE REMOVED!
-        //_ = InitializeAsync();
+        _ = InitializeAsync();
 
         // _ = modDetectionService.DetectInstalledReShadeAsync(testGame.ExecutablePath);
         // _ = modDetectionService.DetectInstalledRenoDXAsync(testGame.ExecutablePath);
-        _ = _parseService.FetchAvailableModVersionsAsync();
+        
 
         // _ = modInstallService.InstallModAsync(testGame, testReShade);
-         _ = _modInstallService.RemoveAllReShadeFiles(testGame.GetGame());
+        _ = _modInstallService.RemoveAllReShadeFiles(testGame.GetGame());
         _ = _modInstallService.RemoveAllRenoDXFiles(testGame.GetGame());
+
+        
     }
 
     public void Receive(SelectedGameChangedMessage message)
@@ -98,13 +103,26 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
 
     private async Task InitializeAsync()
     {
-        var games = await _gameDetectionService.FindGames();
-        var sortedGames = games.OrderBy(g => g!.Name);
+        var gamesTask = _gameDetectionService.FindGames();
+        var modsTask = _parseService.FetchAvailableModVersionsAsync();
+
+        await Task.WhenAll(gamesTask, modsTask);
+
+        var sortedGames = gamesTask.Result
+            .Where(g => g != null)
+            .OrderBy(g => g!.Name);
 
         foreach (var game in sortedGames)
         {
-            if (game == null) continue;
-            GameListViewModel.Games.Add(new GameModViewModel(game));
+            var vm = new GameModViewModel(game!)
+            {
+                CompatibleRenoDXMod = _parseService.GetCompatibleRenoDXMod(game!.Name)
+            };
+
+            GameListViewModel.Games.Add(vm);
+
+            if (vm.CompatibleRenoDXMod is not null)
+                _logService.LogInfo($"Found compatible RenoDX game: {vm.Name}");
         }
     }
 }
