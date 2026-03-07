@@ -1,37 +1,32 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using Restall.UI.Messages;
 using System.Collections.ObjectModel;
 
 namespace Restall.UI.ViewModels;
 
-public class GameListViewModel : ViewModelBase
+public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
 {
-    private readonly MainWindowViewModel _mainWindowViewModel;
+    private bool _suppressMessage;
 
-    public GameModViewModel? SelectedGame
-    {
-        get => _mainWindowViewModel.SelectedGame;
-        set
-        {
-            if (_mainWindowViewModel.SelectedGame != value)
-            {
-                _mainWindowViewModel.SelectedGame = value;
-            }
-        }
-    }
-    public ObservableCollection<GameModViewModel> Games => _mainWindowViewModel.Games;
+    [ObservableProperty]
+    private ObservableCollection<GameModViewModel> _games = [];
 
-    public GameListViewModel(MainWindowViewModel mainWindowViewModel)
+    [ObservableProperty]
+    private GameModViewModel? _selectedGame;
+
+    partial void OnSelectedGameChanged(GameModViewModel? value)
     {
-        _mainWindowViewModel = mainWindowViewModel;
-        
-        _mainWindowViewModel.PropertyChanged += (s, e) =>
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(_mainWindowViewModel.Games):
-                case nameof(_mainWindowViewModel.SelectedGame):
-                    OnPropertyChanged(nameof(SelectedGame));
-                    break;
-            }
-        };
+        if (!_suppressMessage)
+            Messenger.Send(new SelectedGameChangedMessage(value));
     }
+
+    public void Receive(SelectedGameChangedMessage message)
+    {
+        _suppressMessage = true;
+        SelectedGame = message.Value;
+        _suppressMessage = false;
+    }
+
+    public GameListViewModel() => IsActive = true;
 }

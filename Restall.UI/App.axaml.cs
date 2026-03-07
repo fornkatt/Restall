@@ -40,6 +40,9 @@ public partial class App : Avalonia.Application
     {
         services.AddInfrastructureServices();
 
+        services.AddTransient<BannerViewModel>();
+        services.AddTransient<GameListViewModel>();
+        services.AddTransient<ModViewModel>();
         services.AddTransient<MainWindowViewModel>();
     }
 

@@ -1,41 +1,35 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using Restall.UI.Messages;
+
 namespace Restall.UI.ViewModels;
 
-public class ModViewModel : ViewModelBase
+public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
 {
-    private readonly MainWindowViewModel _mainWindowViewModel;
-    
-    public GameModViewModel? SelectedGame
-    {
-        get => _mainWindowViewModel.SelectedGame;
-        set
-        {
-            if (_mainWindowViewModel.SelectedGame != value)
-            {
-                _mainWindowViewModel.SelectedGame = value;
-                OnPropertyChanged();
-            }
-        }
-    }
-    
+    private bool _suppressMessage;
+
+    [ObservableProperty]
+    private GameModViewModel? _selectedGame;
+
     //TODO: RELAYCOMMAND TO INSTALL, UPDATE AND DELETE RENODX AND RESHADE
 
-    public ModViewModel(MainWindowViewModel mainWindowViewModel)
+    partial void OnSelectedGameChanged(GameModViewModel? value)
     {
-        _mainWindowViewModel = mainWindowViewModel;
-        
-        _mainWindowViewModel.PropertyChanged += (s, e) =>
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(_mainWindowViewModel.SelectedGame):
-                    OnPropertyChanged(nameof(SelectedGame));
-                    break;
-            }
-        };
+        if (!_suppressMessage)
+            Messenger.Send(new SelectedGameChangedMessage(value));
     }
-    
+
+    public void Receive(SelectedGameChangedMessage message)
+    {
+        _suppressMessage = true;
+        SelectedGame = message.Value;
+        _suppressMessage = false;
+    }
+
+    public ModViewModel() => IsActive = true;
+
     /* Implement this to prompt for a call on a deepscan if the expected ReShade file held by the Game.ReShade object was not found */
-    
+
     // var result = await modInstallService.UninstallModAsync(SelectedGame, SelectedGame.ReShade);
     //
     //     if (result.ShouldPromptForDeepScan)

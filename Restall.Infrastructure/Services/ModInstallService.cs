@@ -84,117 +84,221 @@ public class ModInstallService : IModInstallService
         }
     }
 
-    public async Task<UninstallResultDto> UninstallModAsync<T>(Game game, T modToUninstall) where T : class
+    public async Task<UninstallResultDto> UninstallReShadeAsync(Game game)
     {
         var result = new UninstallResultDto { UpdatedGame = game };
-        
-        switch  (modToUninstall)
+
+        if (!Directory.Exists(game.ExecutablePath))
         {
-            case ReShade:
-            {
-                if (!Directory.Exists(game.ExecutablePath))
-                {
-                    await _logService.LogErrorAsync($"Game executable path not found: {game.ExecutablePath}. " +
-                                                   $"Please perform a library rescan.");
-                    return result;
-                }
-                
-                string expectedPath = Path.Combine(game.ExecutablePath, game.ReShade!.SelectedFileName);
-    
-                if (File.Exists(expectedPath))
-                {
-                    File.Delete(expectedPath);
-                    await _logService.LogInfoAsync($"Removed ReShade file: {expectedPath}");
-                    game.ReShade = null;
-                }
-                else
-                {
-                    await _logService.LogWarningAsync($"ReShade file not found at expected location: {expectedPath}");
-                    game.ReShade = null;
-                    result.ShouldPromptForDeepScan = true;
-                }
-
-                break;
-            }
-            case RenoDX:
-            {
-                string expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.Name!);
-                
-                if (!File.Exists(expectedPath))
-                {
-                    await _logService.LogErrorAsync($"RenoDX not found at expected location: {expectedPath}. " +
-                                                   $"Clearing RenoDX anyway.");
-                    game.RenoDX = null;
-                }
-                else
-                {
-                    try
-                    {
-                        var versionInfo = FileVersionInfo.GetVersionInfo(expectedPath);
-                        string? originalFilename = versionInfo.OriginalFilename;
-                        
-                        if (originalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
-                        {
-                            File.Delete(expectedPath);
-                            await _logService.LogInfoAsync($"Removed RenoDX file: {expectedPath}");
-                        }
-                        else
-                        {
-                            await _logService.LogWarningAsync($"File at {expectedPath} does not appear to be a RenoDX addon " +
-                                                             $"(OriginalFilename: '{originalFilename}'). Skipping deletion.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        await _logService.LogErrorAsync($"Failed to verify RenoDX file at {expectedPath}", ex);
-                    }
-
-                    game.RenoDX = null;
-                }
-
-                break;
-            }
+            await _logService.LogErrorAsync($"Game executable path not found: {game.ExecutablePath}. Please perform a library rescan.");
+            return result;
         }
 
+        string expectedPath = Path.Combine(game.ExecutablePath, game.ReShade!.SelectedFileName);
+        bool deleted = await TryDeleteFileAsync(expectedPath);
+
+        if (!deleted)
+            result.ShouldPromptForDeepScan = true;
+
+        game.ReShade = null;
         return result;
     }
 
-    public async Task<Game> RemoveOtherReShadeFiles(Game game)
+    public async Task<UninstallResultDto> UninstallRenoDXAsync(Game game)
     {
-        var dllFiles = Directory.GetFiles(game.ExecutablePath!, "*.dll")
-            .Concat(Directory.GetFiles(game.ExecutablePath!, "*.asi"))
-            .ToArray();
+        var result = new UninstallResultDto { UpdatedGame = game };
+        string expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.Name!);
+        bool deleted = false;
+
+        if (!File.Exists(expectedPath))
+        {
+            await _logService.LogErrorAsync($"RenoDX not found at expected location: {expectedPath}.");
+            deleted = false;
+        }
+        else
+        {
+            deleted = await TryDeleteFileAsync(expectedPath, verifyOriginalFilename: "renodx-");
+        }
+
+        if (!deleted)
+            result.ShouldPromptForDeepScan = true;
+
+        game.RenoDX = null;
+        return result;
+    }
+
+    private async Task<bool> TryDeleteFileAsync(string path, string? verifyOriginalFilename = null)
+    {
+        if (!File.Exists(path))
+        {
+            await _logService.LogWarningAsync($"File not found at expected location: {path}");
+            return false;
+        }
+
+        try
+        {
+            if (verifyOriginalFilename is not null)
+            {
+                var originalFilename = FileVersionInfo.GetVersionInfo(path).OriginalFilename;
+
+                if (originalFilename?.StartsWith(verifyOriginalFilename, StringComparison.OrdinalIgnoreCase) != true)
+                {
+                    await _logService.LogWarningAsync($"File at {path} did not match expected prefix '{verifyOriginalFilename}' (was: '{originalFilename}'). Skipping deletion.");
+                    return false;
+                }
+            }
+
+            File.Delete(path);
+            await _logService.LogInfoAsync($"Removed file: {path}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            await _logService.LogErrorAsync($"Failed to delete file at {path}", ex);
+            return false;
+        }
+    }
+
+    public async Task<Game> RemoveAllReShadeFiles(Game game)
+    {
+        var files = Directory.GetFiles(game.ExecutablePath!, "*.dll")
+            .Concat(Directory.GetFiles(game.ExecutablePath!, "*.asi"));
+
         int removedCount = 0;
 
-        foreach (var dllFile in dllFiles)
+        foreach (var file in files)
         {
             try
             {
-                var fileInfo = FileVersionInfo.GetVersionInfo(dllFile);
+                var fileInfo = FileVersionInfo.GetVersionInfo(file);
 
                 if (fileInfo.ProductName?.Equals("ReShade", StringComparison.OrdinalIgnoreCase) == true)
                 {
-                    File.Delete(dllFile);
+                    File.Delete(file);
                     removedCount++;
-                    await _logService.LogInfoAsync($"Removed ReShade file: {Path.GetFileName(dllFile)}");
+                    await _logService.LogInfoAsync($"Removed ReShade file: {Path.GetFileName(file)}");
                 }
             }
             catch (Exception ex)
             {
-                await _logService.LogErrorAsync($"Failed to remove {Path.GetFileName(dllFile)}", ex);
+                await _logService.LogErrorAsync($"Failed to remove {Path.GetFileName(file)}", ex);
             }
         }
 
-        if (removedCount > 0)
-        {
-            await _logService.LogInfoAsync($"Successfully removed {removedCount} ReShade files.");
-        }
-        else
-        {
-            await _logService.LogInfoAsync("No ReShade files found to uninstall.");
-        }
-        
+        await _logService.LogInfoAsync(removedCount > 0
+            ? $"Successfully removed {removedCount} ReShade files."
+            : "No ReShade files found to uninstall.");
+
         game.ReShade = null;
         return game;
     }
+
+    public async Task<Game> RemoveAllRenoDXFiles(Game game)
+    {
+        var files = Directory.GetFiles(game.ExecutablePath!, "*.addon32")
+            .Concat(Directory.GetFiles(game.ExecutablePath!, "*.addon64"));
+
+        int removedCount = 0;
+
+        foreach (var file in files)
+        {
+            try
+            {
+                var fileInfo = FileVersionInfo.GetVersionInfo(file);
+
+                if (fileInfo.OriginalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    File.Delete(file);
+                    removedCount++;
+                    await _logService.LogInfoAsync($"Removed RenoDX file: {Path.GetFileName(file)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                await _logService.LogErrorAsync($"Failed to remove {Path.GetFileName(file)}", ex);
+            }
+        }
+
+        await _logService.LogInfoAsync(removedCount > 0
+            ? $"Successfully removed {removedCount} RenoDX files."
+            : $"No RenoDX files found to remove.");
+
+        game.RenoDX = null;
+        return game;
+    }
+
+    //public async Task<UninstallResultDto> UninstallModAsync<T>(Game game, T modToUninstall) where T : class
+    //{
+    //    var result = new UninstallResultDto { UpdatedGame = game };
+
+    //    switch  (modToUninstall)
+    //    {
+    //        case ReShade:
+    //        {
+    //            if (!Directory.Exists(game.ExecutablePath))
+    //            {
+    //                await _logService.LogErrorAsync($"Game executable path not found: {game.ExecutablePath}. " +
+    //                                               $"Please perform a library rescan.");
+    //                return result;
+    //            }
+
+    //            string expectedPath = Path.Combine(game.ExecutablePath, game.ReShade!.SelectedFileName);
+
+    //            if (File.Exists(expectedPath))
+    //            {
+    //                File.Delete(expectedPath);
+    //                await _logService.LogInfoAsync($"Removed ReShade file: {expectedPath}");
+    //                game.ReShade = null;
+    //            }
+    //            else
+    //            {
+    //                await _logService.LogWarningAsync($"ReShade file not found at expected location: {expectedPath}");
+    //                game.ReShade = null;
+    //                result.ShouldPromptForDeepScan = true;
+    //            }
+
+    //            break;
+    //        }
+    //        case RenoDX:
+    //        {
+    //            string expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.Name!);
+
+    //            if (!File.Exists(expectedPath))
+    //            {
+    //                await _logService.LogErrorAsync($"RenoDX not found at expected location: {expectedPath}. " +
+    //                                               $"Clearing RenoDX anyway.");
+    //                game.RenoDX = null;
+    //            }
+    //            else
+    //            {
+    //                try
+    //                {
+    //                    var versionInfo = FileVersionInfo.GetVersionInfo(expectedPath);
+    //                    string? originalFilename = versionInfo.OriginalFilename;
+
+    //                    if (originalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
+    //                    {
+    //                        File.Delete(expectedPath);
+    //                        await _logService.LogInfoAsync($"Removed RenoDX file: {expectedPath}");
+    //                    }
+    //                    else
+    //                    {
+    //                        await _logService.LogWarningAsync($"File at {expectedPath} does not appear to be a RenoDX addon " +
+    //                                                         $"(OriginalFilename: '{originalFilename}'). Skipping deletion.");
+    //                    }
+    //                }
+    //                catch (Exception ex)
+    //                {
+    //                    await _logService.LogErrorAsync($"Failed to verify RenoDX file at {expectedPath}", ex);
+    //                }
+
+    //                game.RenoDX = null;
+    //            }
+
+    //            break;
+    //        }
+    //    }
+
+    //    return result;
+    //}
 }

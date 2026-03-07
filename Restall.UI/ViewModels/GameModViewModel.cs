@@ -1,5 +1,7 @@
 ﻿using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Restall.Application.DTOs;
+using Restall.Application.Helpers;
 using Restall.Domain.Entities;
 
 namespace Restall.UI.ViewModels;
@@ -15,8 +17,10 @@ public partial class GameModViewModel : ObservableObject
         _logoPathString = game.LogoPathString;
         _thumbnailPathString = game.ThumbnailPathString;
         _isInstalled = game.IsInstalled;
+        NormalizedName = GameNameHelper.NormalizeName(game.Name!);
     }
-    
+
+    public string NormalizedName { get; }
     public string? Name => _game.Name;
     public Game.Platform PlatformName => _game.PlatformName;
     public Game.Engine EngineName => _game.EngineName;
@@ -24,10 +28,10 @@ public partial class GameModViewModel : ObservableObject
     public string? InstallFolder => _game.InstallFolder;
     public bool HasRenoDX => _game.HasRenoDX;
     public bool HasReShade => _game.HasReShade;
-    public bool CanInstallRenoDX => _game.CanInstallRenoDX;
+    public bool CanInstallRenoDX => _game.CanInstallRenoDX && CompatibleRenoDXMod is not null;
     public bool CanInstallReShade => _game.CanInstallReShade;
     public bool CanUpdateReShade => _game.CanUpdateReShade;
-    public bool CanUpdateRenoDX => _game.CanUpdateRenoDX;
+    public bool CanUpdateRenoDX => _game.CanUpdateRenoDX && CompatibleRenoDXMod is not null;
 
     public string? ReShadeVersion => _game.ReShade?.Version;
     public ReShade.Branch ReShadeBranch => _game.ReShade?.BranchName ?? ReShade.Branch.Unknown;
@@ -35,11 +39,14 @@ public partial class GameModViewModel : ObservableObject
 
     internal ReShade? GetReShade() => _game.ReShade;
     internal RenoDX? GetRenoDX() => _game.RenoDX;
+    internal Game GetGame() => _game;
 
     public string? RenoDxName => _game.RenoDX?.Name;
     public string? RenoDxVersion => _game.RenoDX?.Version;
     public RenoDX.Branch RenoDxBranch => _game.RenoDX?.BranchName ?? RenoDX.Branch.Unknown;
 
+    [ObservableProperty]
+    private RenoDXModInfoDto? _compatibleRenoDXMod;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BannerBitmap))]

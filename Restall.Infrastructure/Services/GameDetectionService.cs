@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using Restall.Application.Interfaces;
@@ -50,7 +49,7 @@ public class GameDetectionService : IGameDetectionService
                 .ToList();
 
             var path = sortGames.GroupBy(g => g.InstallFolder)
-                .Select(g => g.OrderBy(g => g.Name).First())
+                .Select(g => g.FirstOrDefault())
                 .ToList();
 
 
