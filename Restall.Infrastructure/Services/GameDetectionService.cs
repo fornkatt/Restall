@@ -14,7 +14,8 @@ namespace Restall.Infrastructure.Services;
 public class GameDetectionService : IGameDetectionService
 {
     private readonly ILogService _logService;
-
+    
+    
     public GameDetectionService(
         ILogService logService
     )
@@ -38,11 +39,6 @@ public class GameDetectionService : IGameDetectionService
             var allGames = results.SelectMany(t => t).ToList();
 
 
-            //foreach (var game in allGames)
-            //{
-            //await _logService.LogInfoAsync(
-            //    $"[{game.PlatformName}] NAME: {game.Name}\n INSTALLFOLDER: {game.InstallFolder}\n PATH: {game.ExecutablePath} \nENGINE: {game.EngineName} ");
-            //}
 
             var sortGames = allGames.GroupBy(g => g.Name)
                 .Select(g => g.FirstOrDefault())
@@ -371,8 +367,7 @@ public class GameDetectionService : IGameDetectionService
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey == null) continue;
 
-                var installDir = gameKey.GetValue(Helper.NormalizePath("InstallDir")) as string;
-
+                var installDir = (gameKey.GetValue("InstallDir") as string)?.Trim().TrimEnd('\\', '/');
 
                 if (string.IsNullOrEmpty(installDir)) continue;
                 if (!Directory.Exists(installDir)) continue;
@@ -468,9 +463,23 @@ public class GameDetectionService : IGameDetectionService
 
     #region LUTRIS
 
-    private string? GetUbisoftLutrisPath()
+    private string? GetLutrisPath()
     {
-        throw new NotImplementedException();
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var lutrisPath = Path.Combine(home, ".config", "lutris", "games");
+        return Directory.Exists(lutrisPath) ? lutrisPath : null;
+    }
+
+    private List<Game> ScanLutrisLibrary()
+    {
+        var games = new List<Game>();
+        var lutrisPath = GetLutrisPath();
+        if(lutrisPath == null) return games;
+        
+        
+        
+        
+        return games;
     }
 
     #endregion
@@ -717,8 +726,9 @@ public class GameDetectionService : IGameDetectionService
                     if (r != null) return r;
                 }
         }
-        catch
+        catch(Exception ex)
         {
+            _logService.LogError($"[ERROR] Couldn't find any Shallow files: {ex.Message}");
         }
 
         return null;
@@ -726,6 +736,22 @@ public class GameDetectionService : IGameDetectionService
 
     private string? FindShallowExeFolder(string root)
     {
+        var subFolders = new[]
+        {
+            Path.Combine("bin", "x64"),
+            Path.Combine("bin", "x86"),
+            Path.Combine("bin", "win64")
+        };
+
+        foreach (var sub in subFolders)
+        {
+            var preferredFolders = Path.Combine(root, sub);
+            if(Directory.Exists(preferredFolders) &&
+               Directory.GetFiles(preferredFolders, "*.exe").Length > 0)
+                return preferredFolders;
+        }
+        
+        
         var queue = new Queue<(string path, int depth)>();
         queue.Enqueue((root, 0));
         while (queue.Count > 0)
@@ -738,8 +764,9 @@ public class GameDetectionService : IGameDetectionService
                 foreach (var sub in Directory.GetDirectories(dir))
                     queue.Enqueue((sub, depth + 1));
             }
-            catch
+            catch(Exception ex)
             {
+                _logService.LogError($"[ERROR] Couldn't find any EXE files in Folders: {ex.Message}");
             }
         }
 
