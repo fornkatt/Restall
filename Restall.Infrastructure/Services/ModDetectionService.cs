@@ -57,7 +57,8 @@ public class ModDetectionService : IModDetectionService
                 fileList.Add(new RenoDX
                 {
                     Name = fileInfo.OriginalFilename,
-                    Version = fileInfo.FileVersion
+                    BranchName = RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
+                    Version = ParseRenoDXVersion(fileInfo.FileVersion)
                 });
                 await _logService.LogInfoAsync($"Found RenoDX as: {file}");
             }

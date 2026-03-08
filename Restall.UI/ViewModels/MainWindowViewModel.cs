@@ -114,6 +114,12 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
 
         foreach (var game in sortedGames)
         {
+            var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath);
+            var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath);
+
+            game.ReShade = reShade.FirstOrDefault();
+            game.RenoDX = renoDx.FirstOrDefault();
+
             var vm = new GameModViewModel(game!)
             {
                 CompatibleRenoDXMod = _parseService.GetCompatibleRenoDXMod(game!.Name)
