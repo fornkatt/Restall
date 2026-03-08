@@ -8,14 +8,13 @@ namespace Restall.Infrastructure.Services;
 
 /// <summary>
 /// ILAUNCHERDETECTION?
-/// ADD HEALTH CHECK?
 /// STEAMGRIDDBID
 /// </summary>
 public class GameDetectionService : IGameDetectionService
 {
     private readonly ILogService _logService;
-    
-    
+
+
     public GameDetectionService(
         ILogService logService
     )
@@ -37,7 +36,6 @@ public class GameDetectionService : IGameDetectionService
             };
             var results = await Task.WhenAll(tasks);
             var allGames = results.SelectMany(t => t).ToList();
-
 
 
             var sortGames = allGames.GroupBy(g => g.Name)
@@ -92,12 +90,8 @@ public class GameDetectionService : IGameDetectionService
 
     private string? GetSteamInstallPath()
     {
-        if (OperatingSystem.IsWindows())
-        {
-            return Helper.ReadRegistry(@"SOFTWARE\Valve\Steam", "SteamPath")
-                   ?? Helper.ReadRegistry(@"SOFTWARE\WOW6432Node\Valve\Steam", "SteamPath");
-        }
-
+        if (OperatingSystem.IsWindows()) return Helper.ReadRegistry(@"Valve\Steam", "SteamPath");
+        
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
         var linuxPaths = new[]
@@ -295,9 +289,10 @@ public class GameDetectionService : IGameDetectionService
 
         try
         {
-            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\GOG.com\Games")
-                            ?? Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\GOG.com\Games");
+            using var key = Helper.GetOpenRegistryKey(@"GOG.com\Games");
+
             if (key == null) return games;
+
 
             foreach (var sub in key.GetSubKeyNames())
             {
@@ -310,7 +305,7 @@ public class GameDetectionService : IGameDetectionService
 
                 var path = gameKey.GetValue("PATH") as string
                            ?? gameKey.GetValue("path") as string;
-                
+
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path)) continue;
                 if (!Directory.Exists(path)) continue;
 
@@ -346,7 +341,7 @@ public class GameDetectionService : IGameDetectionService
         {
             games.AddRange(ScanUbisoftLibrary());
         }
-        
+
         return games;
     }
 
@@ -357,8 +352,7 @@ public class GameDetectionService : IGameDetectionService
 
         try
         {
-            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Ubisoft\Launcher\Installs")
-                            ?? Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Ubisoft\Launcher\Installs");
+            using var key = Helper.GetOpenRegistryKey(@"\Ubisoft\Launcher\Installs");
 
             if (key == null) return games;
 
@@ -367,8 +361,7 @@ public class GameDetectionService : IGameDetectionService
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey == null) continue;
 
-                var installDir = (gameKey.GetValue("InstallDir") as string)?.Trim().TrimEnd('\\', '/');
-
+                var installDir = Helper.NormalizePath(gameKey.GetValue("InstallDir") as string ?? string.Empty);
                 if (string.IsNullOrEmpty(installDir)) continue;
                 if (!Directory.Exists(installDir)) continue;
 
@@ -418,8 +411,7 @@ public class GameDetectionService : IGameDetectionService
         var games = new List<Game>();
         try
         {
-            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\EA Games")
-                            ?? Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\EA Games");
+            using var key = Helper.GetOpenRegistryKey(@"\EA Games");
 
             if (key == null) return games;
             foreach (var subName in key.GetSubKeyNames())
@@ -428,17 +420,17 @@ public class GameDetectionService : IGameDetectionService
                 if (gameKey == null) continue;
 
                 var installDir = gameKey.GetValue(Helper.NormalizePath("Install Dir")) as string
-                                      ?? gameKey.GetValue(Helper.NormalizePath("InstallLocation")) as string
-                                      ?? gameKey.GetValue(Helper.NormalizePath("InstallDir")) as string;
+                                 ?? gameKey.GetValue(Helper.NormalizePath("InstallLocation")) as string
+                                 ?? gameKey.GetValue(Helper.NormalizePath("InstallDir")) as string;
 
 
                 if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir)) continue;
 
                 var displayName = gameKey.GetValue("DisplayName") as string
                                   ?? subName;
-                
+
                 if (string.IsNullOrEmpty(displayName)) continue;
-                
+
                 var executablePath = DetectExecutablePathAndEngine(installDir, out var engine);
 
                 games.Add(new Game
@@ -474,11 +466,9 @@ public class GameDetectionService : IGameDetectionService
     {
         var games = new List<Game>();
         var lutrisPath = GetLutrisPath();
-        if(lutrisPath == null) return games;
-        
-        
-        
-        
+        if (lutrisPath == null) return games;
+
+
         return games;
     }
 
@@ -726,7 +716,7 @@ public class GameDetectionService : IGameDetectionService
                     if (r != null) return r;
                 }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logService.LogError($"[ERROR] Couldn't find any Shallow files: {ex.Message}");
         }
@@ -746,12 +736,12 @@ public class GameDetectionService : IGameDetectionService
         foreach (var sub in subFolders)
         {
             var preferredFolders = Path.Combine(root, sub);
-            if(Directory.Exists(preferredFolders) &&
-               Directory.GetFiles(preferredFolders, "*.exe").Length > 0)
+            if (Directory.Exists(preferredFolders) &&
+                Directory.GetFiles(preferredFolders, "*.exe").Length > 0)
                 return preferredFolders;
         }
-        
-        
+
+
         var queue = new Queue<(string path, int depth)>();
         queue.Enqueue((root, 0));
         while (queue.Count > 0)
@@ -764,7 +754,7 @@ public class GameDetectionService : IGameDetectionService
                 foreach (var sub in Directory.GetDirectories(dir))
                     queue.Enqueue((sub, depth + 1));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logService.LogError($"[ERROR] Couldn't find any EXE files in Folders: {ex.Message}");
             }
