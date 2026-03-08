@@ -1,0 +1,162 @@
+using Restall.Application.Interfaces;
+using Restall.Domain.Entities;
+
+namespace Restall.Infrastructure.Services;
+
+public class EngineDetectionService : IEngineDetectionService
+{
+    private readonly ILogService _logService;
+
+    public EngineDetectionService(ILogService logService)
+    {
+        _logService = logService;
+    }
+    
+    public string? DetectExecutablePathAndEngine(string rootPath, out Game.Engine engine)
+    {
+        var uePath = FindUEBinariesFolder(rootPath);
+        if (uePath != null)
+        {
+            engine = Game.Engine.Unreal;
+
+            return uePath;
+        }
+
+        var unityPlayer = FindFileShallow(rootPath, "UnityPlayer.dll", maxDepth: 2);
+        if (unityPlayer != null)
+        {
+            engine = Game.Engine.Unity;
+            return Path.GetDirectoryName(unityPlayer);
+        }
+
+        var exeFolder = FindShallowExeFolder(rootPath);
+        engine = Game.Engine.Unknown;
+        return exeFolder;
+    }
+
+
+    private string? FindUEBinariesFolder(string? root)
+    {
+        if (string.IsNullOrEmpty(root)) return null;
+        var candidates = new List<string>();
+        CollectUEBinaries(root, 0, candidates);
+        if (candidates.Count == 0) return null;
+
+        // Prefer folders that contain a Shipping exe
+        var withShipping = candidates.FirstOrDefault(c =>
+            Directory.GetFiles(c, "*Shipping.exe").Length > 0 ||
+            Directory.GetFiles(c, "*.exe").Any(f =>
+                Path.GetFileName(f).Contains("Shipping", StringComparison.OrdinalIgnoreCase)));
+
+        return withShipping ?? candidates[0];
+    }
+
+    private void CollectUEBinaries(string dir, int depth, List<string> results)
+    {
+        if (depth > 5 || string.IsNullOrEmpty(dir)) return;
+
+        try
+        {
+            foreach (var sub in Directory.GetDirectories(dir))
+            {
+                var name = Path.GetFileName(sub);
+
+                // Skip Engine folder — its Binaries are for the engine, not the game
+                if (name.Equals("Engine", StringComparison.OrdinalIgnoreCase)) continue;
+
+                // Found a Binaries folder — look inside for Win64/WinGDK
+                if (name.Equals("Binaries", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var binSub in Directory.GetDirectories(sub))
+                    {
+                        var binName = Path.GetFileName(binSub);
+                        if (OperatingSystem.IsWindows())
+                        {
+                            bool isWindowsFolder = binName.Equals("Win64", StringComparison.OrdinalIgnoreCase)
+                                                   || binName.Equals("WinGDK", StringComparison.OrdinalIgnoreCase);
+                            if (isWindowsFolder && Directory.GetFiles(binSub, "*.exe").Length > 0)
+                                results.Add(binSub);
+                        }
+                        else
+                        {
+                            bool isLinuxFolder = binName.Equals("Linux", StringComparison.OrdinalIgnoreCase)
+                                                 || binName.Equals("Linux64", StringComparison.OrdinalIgnoreCase);
+                            if (isLinuxFolder && Directory.GetFiles(binSub).Length > 0)
+                                results.Add(binSub);
+                        }
+                    }
+
+                    // Don't recurse further into Binaries
+                    continue;
+                }
+
+                // Recurse into non-Engine, non-Binaries subfolders
+                CollectUEBinaries(sub, depth + 1, results);
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    private string? FindFileShallow(string dir, string pattern, int maxDepth)
+    {
+        if (maxDepth < 0 || !Directory.Exists(dir)) return null;
+        try
+        {
+            var found = Directory.GetFiles(dir, pattern);
+            if (found.Length > 0) return found[0];
+            if (maxDepth > 0)
+                foreach (var sub in Directory.GetDirectories(dir))
+                {
+                    var r = FindFileShallow(sub, pattern, maxDepth - 1);
+                    if (r != null) return r;
+                }
+        }
+        catch (Exception ex)
+        {
+            _logService.LogError($"[ERROR] Couldn't find any Shallow files: {ex.Message}");
+        }
+
+        return null;
+    }
+
+    private string? FindShallowExeFolder(string root)
+    {
+        var subFolders = new[]
+        {
+            Path.Combine("bin", "x64"),
+            Path.Combine("bin", "x86"),
+            Path.Combine("bin", "win64")
+        };
+
+        foreach (var sub in subFolders)
+        {
+            var preferredFolders = Path.Combine(root, sub);
+            if (Directory.Exists(preferredFolders) &&
+                Directory.GetFiles(preferredFolders, "*.exe").Length > 0)
+                return preferredFolders;
+        }
+
+
+        var queue = new Queue<(string path, int depth)>();
+        queue.Enqueue((root, 0));
+        while (queue.Count > 0)
+        {
+            var (dir, depth) = queue.Dequeue();
+            if (depth > 4) continue;
+            try
+            {
+                if (Directory.GetFiles(dir, "*.exe").Length > 0) return dir;
+                foreach (var sub in Directory.GetDirectories(dir))
+                    queue.Enqueue((sub, depth + 1));
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError($"[ERROR] Couldn't find any EXE files in Folders: {ex.Message}");
+            }
+        }
+
+        return null;
+    }
+}
