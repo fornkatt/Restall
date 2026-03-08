@@ -12,17 +12,18 @@ public class ParseService : IParseService
     private readonly ILogService _logService;
     private readonly HttpClient _httpClient;
 
-    private const string ReShadeTagsUrl = "https://github.com/crosire/reshade/tags";
-    private const string ReShadeSiteUrl = "https://reshade.me";
+    private const string s_reShadeTagsUrl = "https://github.com/crosire/reshade/tags";
+    private const string s_reShadeSiteUrl = "https://reshade.me";
 
-    private const string RenoDxUrl = "https://github.com/clshortfuse/renodx/wiki/Mods/";
-    private const string RenoDxTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
+    private const string s_renoDxUrl = "https://github.com/clshortfuse/renodx/wiki/Mods/";
+    private const string s_renoDxTagsUrl = "https://github.com/clshortfuse/renodx/tags";
+    private const string s_renoDxReleasesTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
     
     private readonly Dictionary<ReShade.Branch, List<string>> _availableReShadeVersions = [];
     private readonly Dictionary<RenoDX.Branch, List<RenoDXTagInfoDto>> _availableRenoDxTags = [];
     // Store by mod name
-    private readonly Dictionary<string, List<RenoDXModInfoDto>> _availableWikiModsByName = [];
-    private readonly Dictionary<string, RenoDXModPreferenceDto> _modPreferences = [];
+    private readonly Dictionary<string, List<RenoDXModInfoDto>> _availableRenoDXWikiModsByName = [];
+    private readonly Dictionary<string, List<RenoDXGenericModInfoDto>> _availableRenoDXGenericModsByName = [];
 
     public ParseService(
         ILogService logService,
@@ -33,6 +34,18 @@ public class ParseService : IParseService
         _httpClient = httpClient;
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
     }
+
+    public RenoDXTagInfoDto? GetLatestRenoDXTag(RenoDX.Branch branch) =>
+        _availableRenoDxTags.TryGetValue(branch, out var tags) ? tags.FirstOrDefault() : null;
+
+    public IReadOnlyList<RenoDXTagInfoDto> GetAllRenoDXNightlies() =>
+        _availableRenoDxTags.TryGetValue(RenoDX.Branch.Nightly, out var tags) ? tags.AsReadOnly() : [];
+
+    public IReadOnlyList<string> GetAvailableReShadeVersions(ReShade.Branch branch) =>
+        _availableReShadeVersions.TryGetValue(branch, out var versions) ? versions.AsReadOnly() : [];
+
+    public string? GetLatestReShadeVersion(ReShade.Branch branch) =>
+        _availableReShadeVersions.TryGetValue(branch, out var versions) ? versions.FirstOrDefault() : null;
     
     public async Task FetchAvailableModVersionsAsync()
     {
@@ -50,13 +63,43 @@ public class ParseService : IParseService
 
         var key = GameNameHelper.NormalizeName(gameName);
 
-        if (_availableWikiModsByName.TryGetValue(key, out var mods))
+        if (_availableRenoDXWikiModsByName.TryGetValue(key, out var mods))
             return mods.FirstOrDefault(m => m.Status != "💀");
 
-        var fallback = _availableWikiModsByName
-            .FirstOrDefault(kv => kv.Key.Contains(key) || key.Contains(kv.Key));
+        var fallback = _availableRenoDXWikiModsByName
+            .FirstOrDefault(kv => FuzzyNameMatch(key, kv.Key));
 
         return fallback.Value?.FirstOrDefault(m => m.Status != "💀");
+    }
+
+    public RenoDXGenericModInfoDto? GetGenericRenoDXInfo(string? gameName)
+    {
+        if (string.IsNullOrWhiteSpace(gameName)) return null;
+
+        var key = GameNameHelper.NormalizeName(gameName);
+
+        if (_availableRenoDXGenericModsByName.TryGetValue(key, out var mods))
+            return mods.FirstOrDefault(m => m.Status != "💀");
+
+        var fallback = _availableRenoDXGenericModsByName
+            .FirstOrDefault(kv => FuzzyNameMatch(key, kv.Key));
+
+        return fallback.Value?.FirstOrDefault(m => m.Status != "💀");
+    }
+
+    private static bool FuzzyNameMatch(string a, string b)
+    {
+        if (!a.Contains(b) && !b.Contains(a))
+            return false;
+
+        var aWords = a.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bWords = b.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bSet = new HashSet<string>(bWords);
+
+        int shared   = aWords.Count(w => bSet.Contains(w));
+        int maxWords = Math.Max(aWords.Length, bWords.Length);
+
+        return maxWords > 0 && (double)shared / maxWords >= 0.5;
     }
 
     private async Task FetchStableReShadeVersionsAsync()
@@ -85,7 +128,7 @@ public class ParseService : IParseService
     {
         try
         {
-            var html = await _httpClient.GetStringAsync(ReShadeSiteUrl);
+            var html = await _httpClient.GetStringAsync(s_reShadeSiteUrl);
             var match = Regex.Match(html, @"ReShade (\d+\.\d+\.\d+)");
             return match.Success ? match.Groups[1].Value : null;
         }
@@ -102,7 +145,7 @@ public class ParseService : IParseService
 
         try
         {
-            var html = await _httpClient.GetStringAsync(ReShadeTagsUrl);
+            var html = await _httpClient.GetStringAsync(s_reShadeTagsUrl);
             var document = new HtmlDocument();
             document.LoadHtml(html);
 
@@ -142,7 +185,7 @@ public class ParseService : IParseService
     {
         try
         {
-            var html = await _httpClient.GetStringAsync(RenoDxUrl);
+            var html = await _httpClient.GetStringAsync(s_renoDxUrl);
             var document = new HtmlDocument();
             document.LoadHtml(html);
 
@@ -187,20 +230,99 @@ public class ParseService : IParseService
 
                 var key = GameNameHelper.NormalizeName(rawName);
 
-                if (!_availableWikiModsByName.TryGetValue(key, out var list))
+                if (!_availableRenoDXWikiModsByName.TryGetValue(key, out var list))
                 {
                     list = [];
-                    _availableWikiModsByName[key] = list;
+                    _availableRenoDXWikiModsByName[key] = list;
                 }
 
                 list.Add(mod);
             }
 
-            await _logService.LogInfoAsync($"Parsed {_availableWikiModsByName.Count} RenoDX compatible games from wiki.");
+            await _logService.LogInfoAsync($"Parsed {_availableRenoDXWikiModsByName.Count} RenoDX compatible games from wiki.");
+
+            await ParseRenoDXGenericModTableAsync(document, "Unreal Engine", Engine.Unreal);
+            await ParseRenoDXGenericModTableAsync(document, "Unity Engine", Engine.Unity);
+
+            await _logService.LogInfoAsync($"Parsed {_availableRenoDXGenericModsByName.Count} generic RenoDX mods from wiki.");
         }
         catch (Exception ex)
         {
             await _logService.LogErrorAsync("Failed to fetch RenoDX wiki mods.", ex);
+        }
+    }
+
+    private async Task ParseRenoDXGenericModTableAsync(HtmlDocument document, string engineHeading, Engine engine)
+    {
+        var h3Nodes = document.DocumentNode.SelectNodes("//h3");
+        var targetH3 = h3Nodes?.FirstOrDefault(n => n.InnerText.Contains(engineHeading));
+
+        if (targetH3 is null)
+        {
+            await _logService.LogWarningAsync($"Could not find {engineHeading} in RenoDX wiki.");
+            return;
+        }
+
+        var anchorNode = targetH3.ParentNode.GetAttributeValue("class", string.Empty)
+            .Contains("markdown-heading")
+            ? targetH3.ParentNode
+            : targetH3;
+
+        static bool IsHeadingElement(HtmlNode n) =>
+            n.Name is "h2" or "h3" ||
+            (n.Name == "div" && n.GetAttributeValue("class", string.Empty).Contains("markdown-heading"));
+
+        var tableNode = anchorNode.ParentNode.ChildNodes
+            .SkipWhile(n => n != anchorNode)
+            .Skip(1)
+            .TakeWhile(n => !IsHeadingElement(n))
+            .FirstOrDefault(n => n.Name == "table");
+
+        if (tableNode is null)
+        {
+            await _logService.LogWarningAsync($"No table found after {engineHeading} in RenoDX wiki.");
+            return;
+        }
+
+        var rows = tableNode.SelectNodes(".//tr[position() > 1]");
+
+        if (rows is null)
+        {
+            await _logService.LogWarningAsync($"No rows found in {engineHeading} RenoDX mod table.");
+            return;
+        }
+
+        foreach (var row in rows)
+        {
+            var cells = row.SelectNodes("./td");
+            if (cells is null || cells.Count < 2) continue;
+
+            var rawName = HtmlEntity.DeEntitize(cells[0].InnerText).Trim();
+            if (string.IsNullOrWhiteSpace(rawName)) continue;
+
+            var statusRaw = cells[1].InnerText.Trim();
+
+            var notes = cells.Count >= 3
+                ? HtmlEntity.DeEntitize(cells[2].InnerText).Trim()
+                : null;
+            if (string.IsNullOrWhiteSpace(notes)) notes = null;
+
+            var mod = new RenoDXGenericModInfoDto(
+                Name:   rawName,
+                Status: statusRaw,
+                Notes:  notes,
+                Engine: engine
+                );
+
+            var key = GameNameHelper.NormalizeName(rawName);
+
+            if (!_availableRenoDXGenericModsByName.TryGetValue(key, out var list))
+            {
+                list = [];
+                _availableRenoDXGenericModsByName[key] = list;
+            }
+
+            list.Add(mod);
         }
     }
     
@@ -208,7 +330,7 @@ public class ParseService : IParseService
     {
         try
         {
-            var html = await _httpClient.GetStringAsync(RenoDxTagUrl + "snapshot");
+            var html = await _httpClient.GetStringAsync(s_renoDxReleasesTagUrl + "snapshot");
             var document = new HtmlDocument();
             document.LoadHtml(html);
 
@@ -263,9 +385,116 @@ public class ParseService : IParseService
         }
     }
 
-    private Task FetchRenoDxNightlyVersionsAsync()
+    private async Task FetchRenoDxNightlyVersionsAsync()
     {
-        // TODO
-        return Task.CompletedTask;
+        try
+        {
+            var nightlyTags = await FetchRenoDXNightlyTagNamesAsync();
+
+            if (nightlyTags.Count <= 0)
+            {
+                await _logService.LogWarningAsync("No nightly RenoDX tags found.");
+                return;
+            }
+
+            var tagInfoResults = await Task.WhenAll(nightlyTags.Select(FetchRenoDXNighlyReleaseInfoAsync));
+
+            var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToList();
+            _availableRenoDxTags[RenoDX.Branch.Nightly] = tagInfos;
+
+            await _logService.LogInfoAsync($"Fetched {tagInfos.Count} nightly RenoDX versions. " +
+                $"Latest: {tagInfos.FirstOrDefault()?.Version}");
+        }
+        catch (Exception ex)
+        {
+            await _logService.LogErrorAsync("Failed to fetch nightly RenoDX versions.", ex);
+        }
+    }
+
+    private async Task<List<string>> FetchRenoDXNightlyTagNamesAsync(string? pageUrl = null)
+    {
+        var tags = new List<string>();
+
+        try
+        {
+            var html = await _httpClient.GetStringAsync(pageUrl ?? s_renoDxTagsUrl);
+            var document = new HtmlDocument();
+            document.LoadHtml(html);
+
+            var tagNodes = document.DocumentNode
+                .SelectNodes("//a[contains(@href, 'clshortfuse/renodx/releases/tag/nightly-')]");
+
+            if (tagNodes is null)
+            {
+                await _logService.LogWarningAsync("No nightly tag links found on RenoDX tags page.");
+                return tags;
+            }
+
+            foreach (var node in tagNodes)
+            {
+                var href = node.GetAttributeValue("href", string.Empty);
+                var tag = href.Split('/').LastOrDefault();
+
+                if (string.IsNullOrWhiteSpace(tag) || !tag.StartsWith("nightly-")) continue;
+                if (!tags.Contains(tag))
+                    tags.Add(tag);
+            }
+        }
+        catch (Exception ex)
+        {
+            await _logService.LogErrorAsync("Failed to fetch RenoDX tags page", ex);
+        }
+
+        return tags;
+    }
+
+    private async Task<RenoDXTagInfoDto?> FetchRenoDXNighlyReleaseInfoAsync(string nightlyTag)
+    {
+        try
+        {
+            var dateStr = nightlyTag["nightly-".Length..];
+            if (!DateOnly.TryParseExact(dateStr, "yyyyMMdd", null,
+                System.Globalization.DateTimeStyles.None, out var date))
+            {
+                await _logService.LogWarningAsync($"Could not parse date from nightly tag: {nightlyTag}");
+                return null;
+            }
+
+            var html = await _httpClient.GetStringAsync(s_renoDxReleasesTagUrl + nightlyTag);
+            var document = new HtmlDocument();
+            document.LoadHtml(html);
+
+            var preNode = document.DocumentNode
+                .SelectSingleNode("//pre[contains(@class, 'text-small') and contains(@class, 'ws-pre-wrap')]");
+
+            List<string>? commitNotes = null;
+
+            if (preNode is not null)
+            {
+                var lines = HtmlEntity.DeEntitize(preNode.InnerText)
+                    .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(l => l.Trim())
+                    .Where(l => !string.IsNullOrWhiteSpace(l))
+                    .Skip(1)
+                    .ToList();
+
+                if (lines.Count > 0)
+                    commitNotes = lines;
+            }
+            else
+            {
+                await _logService.LogInfoAsync($"No release notes found for {nightlyTag}.");
+            }
+
+            await _logService.LogInfoAsync($"Parsed RenoDX nightly: {nightlyTag}" +
+                $"{(commitNotes is not null ? $"\n{string.Join(Environment.NewLine, commitNotes)}" : string.Empty)}");
+
+            return new RenoDXTagInfoDto(date, RenoDX.Branch.Nightly, commitNotes);
+        }
+        catch (Exception ex)
+        {
+            await _logService.LogErrorAsync($"Failed to fetch release info for {nightlyTag}", ex);
+            return null;
+        }
     }
 }

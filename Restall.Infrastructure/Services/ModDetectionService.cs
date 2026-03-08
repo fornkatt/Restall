@@ -1,12 +1,16 @@
-﻿using System.Diagnostics;
-using Restall.Application.Interfaces;
+﻿using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Services;
 
 public class ModDetectionService : IModDetectionService
 {
     private readonly ILogService _logService;
+
+    private static readonly Regex s_renoDxVersionRegex =
+        new(@"^\d+\.(\d{4})\.(\d{4})\.\d+$", RegexOptions.Compiled);
 
     public ModDetectionService(
         ILogService logService
@@ -83,5 +87,26 @@ public class ModDetectionService : IModDetectionService
                 await _logService.LogErrorAsync($"Failed to read file {file}: ", ex);
             }
         }
+    }
+
+    public string? GetRenoDXFileVersion(string filePath)
+    {
+        try
+        {
+            var fileInfo = FileVersionInfo.GetVersionInfo(filePath);
+            return ParseRenoDXVersion(fileInfo.FileVersion);
+        }
+        catch (Exception ex)
+        {
+            _logService.LogError("Failed to parse RenoDX file version.", ex);
+            return null;
+        }
+    }
+
+    private static string? ParseRenoDXVersion(string? fileVersion)
+    {
+        if (string.IsNullOrWhiteSpace(fileVersion)) return null;
+        var match = s_renoDxVersionRegex.Match(fileVersion);
+        return match.Success ? match.Groups[1].Value + match.Groups[2].Value : null;
     }
 }

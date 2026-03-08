@@ -78,19 +78,19 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
             RenoDX = null,
             ReShade = testReShade,
         });
-        
+
         //TODO: JUST TESTING PURPOSES WITH ASYNC METHODS, FIRE AND FORGET WILL BE REMOVED!
         _ = InitializeAsync();
 
         // _ = modDetectionService.DetectInstalledReShadeAsync(testGame.ExecutablePath);
         // _ = modDetectionService.DetectInstalledRenoDXAsync(testGame.ExecutablePath);
-        
+
 
         // _ = modInstallService.InstallModAsync(testGame, testReShade);
         _ = _modInstallService.RemoveAllReShadeFiles(testGame.GetGame());
         _ = _modInstallService.RemoveAllRenoDXFiles(testGame.GetGame());
 
-        
+
     }
 
     public void Receive(SelectedGameChangedMessage message)
@@ -119,10 +119,18 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
                 CompatibleRenoDXMod = _parseService.GetCompatibleRenoDXMod(game!.Name)
             };
 
+            if (vm.CompatibleRenoDXMod is null)
+            {
+                vm.CompatibleRenoDXGenericMod = _parseService.GetGenericRenoDXInfo(game!.Name);
+            }
+
             GameListViewModel.Games.Add(vm);
 
             if (vm.CompatibleRenoDXMod is not null)
                 _logService.LogInfo($"Found compatible RenoDX game: {vm.Name}");
+
+            if (vm.CompatibleRenoDXGenericMod is not null)
+                _logService.LogInfo($"Found compatible engine generic RenoDX game: {vm.Name}");
         }
     }
 }

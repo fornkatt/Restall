@@ -8,5 +8,4 @@ public class RenoDX
     public string? Maintainer { get; set; }
     public Branch BranchName { get; set; } = Branch.Unknown;
     public string? Version { get; set; }
-    public bool IsInstalled { get; set; }
 }

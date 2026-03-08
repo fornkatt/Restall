@@ -18,10 +18,10 @@ public class Game
     public ReShade? ReShade { get; set; }
     public bool IsInstalled { get; set; }
 
-    public bool HasRenoDX => RenoDX != null;
-    public bool HasReShade => ReShade != null;
-    public bool CanInstallRenoDX => RenoDX == null && ReShade != null;
-    public bool CanInstallReShade => ReShade == null;
+    public bool HasRenoDX => RenoDX is not null;
+    public bool HasReShade => ReShade is not null;
+    public bool CanInstallRenoDX => RenoDX is null && ReShade is not null;
+    public bool CanInstallReShade => ReShade is null;
     public bool CanUpdateReShade => HasReShade;
     public bool CanUpdateRenoDX => HasRenoDX;
 }

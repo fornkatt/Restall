@@ -49,6 +49,9 @@ public partial class GameModViewModel : ObservableObject
     private RenoDXModInfoDto? _compatibleRenoDXMod;
 
     [ObservableProperty]
+    private RenoDXGenericModInfoDto? _compatibleRenoDXGenericMod;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BannerBitmap))]
     private string? _bannerPathString;
 

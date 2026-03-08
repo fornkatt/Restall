@@ -4,6 +4,8 @@ namespace Restall.Application.Interfaces;
 
 public interface ICachePathService
 {
-    public string GetRenoDXCachePath(RenoDX renoDx);
-    public string GetReShadeCachePath(ReShade reShade);
+    string GetReShadeCachePath(ReShade reShade);
+    string GetRenoDXCachePath(RenoDX renoDx);
+    string GetReShadeDownloadCachePath(ReShade.Branch branch);
+    string GetRenoDXDownloadCachePath(RenoDX.Branch branch);
 }

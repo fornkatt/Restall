@@ -6,4 +6,5 @@ public interface IModDetectionService
 {
     Task<HashSet<ReShade>?> DetectInstalledReShadeAsync(string executablePath);
     Task<HashSet<RenoDX>?> DetectInstalledRenoDXAsync(string executablePath);
+    string? GetRenoDXFileVersion(string filePath);
 }

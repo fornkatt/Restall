@@ -27,7 +27,6 @@ public class ReShade
     public string OriginalFileName => $"ReShade{(int)Arch}.dll";
     public string SelectedFileName { get; set; } = string.Empty;
     public string? Version { get; set; }
-    public bool IsInstalled { get; set; }
 
     public string GetFileName(FileName fileType, FileExtension extension)
     {
