@@ -127,7 +127,9 @@ public class EngineDetectionService : IEngineDetectionService
         {
             Path.Combine("bin", "x64"),
             Path.Combine("bin", "x86"),
-            Path.Combine("bin", "win64")
+            Path.Combine("bin", "win64"),
+            Path.Combine("Binaries", "Win64"),
+            Path.Combine("Binaries", "WinGDK")
         };
 
         foreach (var sub in subFolders)

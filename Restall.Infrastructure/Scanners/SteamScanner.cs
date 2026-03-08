@@ -70,9 +70,19 @@ public class SteamScanner : IPlatformScannerService
                 var content = File.ReadAllText(acf);
                 var name = Helper.ExtractVdfValue(content, "name");
                 var installDir = Helper.ExtractVdfValue(content, "installdir");
+                
                 if (name == null || installDir == null) continue;
 
-                if (Helper.NonGame(name)) continue;
+                if (Helper.NonGame(name))
+                {
+                    _logService.LogInfo($"[EXCLUDED] Non-game name: {name}");
+                    continue;
+                }
+                if (Helper.NonGame(installDir))
+                {
+                    _logService.LogInfo($"[EXCLUDED] Non-game by path: {installDir}");
+                    continue;
+                }
 
                 var rootPath = Path.Combine(steamapps, "common", installDir);
                 if (!Directory.Exists(rootPath)) continue;
