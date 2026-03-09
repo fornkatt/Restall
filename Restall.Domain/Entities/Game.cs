@@ -16,7 +16,6 @@ public class Game
     public string? ThumbnailPathString { get; set; }
     public RenoDX? RenoDX { get; set; }
     public ReShade? ReShade { get; set; }
-    public bool IsInstalled { get; set; }
 
     public bool HasRenoDX => RenoDX is not null;
     public bool HasReShade => ReShade is not null;

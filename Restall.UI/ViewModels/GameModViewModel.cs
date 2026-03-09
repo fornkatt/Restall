@@ -16,7 +16,6 @@ public partial class GameModViewModel : ObservableObject
         _bannerPathString = game.BannerPathString;
         _logoPathString = game.LogoPathString;
         _thumbnailPathString = game.ThumbnailPathString;
-        _isInstalled = game.IsInstalled;
         NormalizedName = GameNameHelper.NormalizeName(game.Name!);
     }
 

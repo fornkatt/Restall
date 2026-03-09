@@ -73,7 +73,6 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
             EngineName = Game.Engine.Unreal,
             ExecutablePath = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\Binaries\Win64\",
             InstallFolder = @"D:\Games\Steam\steamapps\common\Batman Arkham Knight\",
-            IsInstalled = true,
             PlatformName = Game.Platform.Steam,
             RenoDX = null,
             ReShade = testReShade,

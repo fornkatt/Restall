@@ -1,7 +1,8 @@
 ﻿using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
+using PeNet;
+using PeNet.Header.Resource;
 
 namespace Restall.Infrastructure.Services;
 
@@ -23,17 +24,17 @@ public class ModDetectionService : IModDetectionService
     {
         var fileList = new HashSet<ReShade>();
 
-        await ScanFilesAsync(executablePath, ["*.dll", "*.asi"], async (file, fileInfo) =>
+        await ScanFilesAsync(executablePath, ["*.dll", "*.asi"], async (file, versionInfo) =>
         {
-            if (!string.IsNullOrWhiteSpace(fileInfo.ProductName) &&
-                fileInfo.ProductName.Equals("ReShade", StringComparison.OrdinalIgnoreCase) &&
-                !string.IsNullOrWhiteSpace(fileInfo.ProductVersion))
+            if (!string.IsNullOrWhiteSpace(versionInfo.ProductName) &&
+                versionInfo.ProductName.Equals("ReShade", StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(versionInfo.ProductVersion))
             {
                 fileList.Add(new ReShade
                 {
-                    SelectedFileName = fileInfo.FileName,
-                    Version = fileInfo.ProductVersion,
-                    Arch = fileInfo.OriginalFilename!.Contains("64")
+                    SelectedFileName = file,
+                    Version = versionInfo.ProductVersion,
+                    Arch = versionInfo.OriginalFilename?.Contains("64") == true
                         ? ReShade.Architecture.x64
                         : ReShade.Architecture.x32
                 });
@@ -48,17 +49,20 @@ public class ModDetectionService : IModDetectionService
     {
         var fileList = new HashSet<RenoDX>();
 
-        await ScanFilesAsync(executablePath, ["*.addon64", "*.addon32"], async (file, fileInfo) =>
+        await ScanFilesAsync(executablePath, ["*.addon64", "*.addon32"], async (file, versionInfo) =>
         {
-            if (!string.IsNullOrEmpty(fileInfo.OriginalFilename) &&
-                fileInfo.OriginalFilename.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) &&
-                !string.IsNullOrWhiteSpace(fileInfo.FileVersion))
+            if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
+                versionInfo.OriginalFilename.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
             {
                 fileList.Add(new RenoDX
                 {
-                    Name = fileInfo.OriginalFilename,
+                    Name = versionInfo.OriginalFilename,
                     BranchName = RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
-                    Version = ParseRenoDXVersion(fileInfo.FileVersion)
+                    Version = ParseRenoDXVersion(versionInfo.FileVersion),
+                    Arch = versionInfo.OriginalFilename?.Contains("64") == true
+                        ? RenoDX.Architecture.x64
+                        : RenoDX.Architecture.x32
                 });
                 await _logService.LogInfoAsync($"Found RenoDX as: {file}");
             }
@@ -70,7 +74,7 @@ public class ModDetectionService : IModDetectionService
     private async Task ScanFilesAsync(
         string path,
         string[] patterns,
-        Func<string, FileVersionInfo, Task> handler)
+        Func<string, StringTable, Task> handler)
     {
         var files = patterns
             .SelectMany(p => Directory.GetFiles(path, p))
@@ -80,8 +84,9 @@ public class ModDetectionService : IModDetectionService
         {
             try
             {
-                var fileInfo = FileVersionInfo.GetVersionInfo(file);
-                await handler(file, fileInfo);
+                var versionInfo = GetVersionInfo(file);
+                if (versionInfo is null) continue;
+                await handler(file, versionInfo);
             }
             catch (Exception ex)
             {
@@ -90,12 +95,20 @@ public class ModDetectionService : IModDetectionService
         }
     }
 
+    private static StringTable? GetVersionInfo(string filePath)
+    {
+        var pe = new PeFile(filePath);
+        return pe.Resources?.VsVersionInfo?.StringFileInfo?.StringTable?.FirstOrDefault();
+    }
+
     public string? GetRenoDXFileVersion(string filePath)
     {
         try
         {
-            var fileInfo = FileVersionInfo.GetVersionInfo(filePath);
-            return ParseRenoDXVersion(fileInfo.FileVersion);
+            var versionInfo = GetVersionInfo(filePath);
+            if (versionInfo is null) return null;
+            
+            return ParseRenoDXVersion(versionInfo.FileVersion);
         }
         catch (Exception ex)
         {
