@@ -73,7 +73,7 @@ public class Helper
             "Steamworks Common Redistributables",
             "Exodus SDK",
             "DotNET",
-            "_Installer",
+            "__Installer",
             "_CommonRedist"
             
         };
