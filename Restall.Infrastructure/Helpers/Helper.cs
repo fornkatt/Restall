@@ -3,27 +3,27 @@ using Microsoft.Win32;
 
 namespace Restall.Infrastructure.Helpers;
 
-public class Helper
+internal class Helper
 {
     private const string SoftwareRegistryPath = @"SOFTWARE\";
     private const string Wow64RegistryPath = @"SOFTWARE\Wow6432Node\";
 
-    public static string? NormalizePath(string path)
+    internal static string? NormalizePath(string path)
     {
         if(string.IsNullOrEmpty(path)) return null;
         var normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         return normalized.Trim().TrimEnd(Path.DirectorySeparatorChar);
     }
 
-    public static string? ExtractVdfValue(string vdfContent, string key)
+    internal static string? ExtractVdfValue(string vdfContent, string key)
         => Regex.Match(vdfContent, $@"""{Regex.Escape(key)}""\s+""([^""]+)""", 
             RegexOptions.IgnoreCase) is { Success: true } m ? m.Groups[1].Value : null;
     
-    public static string? ExtractJsonString(string json, string key) =>
+    internal static string? ExtractJsonString(string json, string key) =>
         Regex.Match(json, $@"""{Regex.Escape(key)}""\s*:\s*""([^""\\]*(\\.[^""\\]*)*)""")
             is { Success: true } m ? NormalizePath(m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/")) : null;
     
-    public static string? ReadRegistry(string keyPath, string valueName)
+    internal static string? ReadRegistry(string keyPath, string valueName)
     {
         try
         {
@@ -45,7 +45,7 @@ public class Helper
         catch { return null; }
     }
 
-    public static RegistryKey? GetOpenRegistryKey(string keyPath)
+    internal static RegistryKey? GetOpenRegistryKey(string keyPath)
     {
         try
         {
@@ -64,7 +64,7 @@ public class Helper
     }
     
     
-    public static bool NonGame(string name)
+    internal static bool NonGame(string name)
     {
         var nonGameArray = new[]
         {
@@ -79,8 +79,5 @@ public class Helper
         };
         return nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
     }
-    
-    
-    
     
 }

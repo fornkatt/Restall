@@ -1,5 +1,6 @@
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
+using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
@@ -77,13 +78,7 @@ public class EngineDetectionService : IEngineDetectionService
                             if (isWindowsFolder && Directory.GetFiles(binSub, "*.exe").Length > 0)
                                 results.Add(binSub);
                         }
-                        else
-                        {
-                            bool isLinuxFolder = binName.Equals("Linux", StringComparison.OrdinalIgnoreCase)
-                                                 || binName.Equals("Linux64", StringComparison.OrdinalIgnoreCase);
-                            if (isLinuxFolder && Directory.GetFiles(binSub).Length > 0)
-                                results.Add(binSub);
-                        }
+                        
                     }
 
                     // Don't recurse further into Binaries
@@ -151,7 +146,11 @@ public class EngineDetectionService : IEngineDetectionService
             {
                 if (Directory.GetFiles(dir, "*.exe").Length > 0) return dir;
                 foreach (var sub in Directory.GetDirectories(dir))
-                    queue.Enqueue((sub, depth + 1));
+                {
+                    var folderName = Path.GetFileName(sub);
+                    if (!Helper.NonGame(folderName))
+                        queue.Enqueue((sub, depth + 1));
+                }
             }
             catch (Exception ex)
             {

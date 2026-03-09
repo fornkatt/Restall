@@ -10,6 +10,7 @@ public class Game
     public Engine EngineName { get; set; } = Engine.Unknown;
     public string? ExecutablePath { get; set; }
     public string? InstallFolder { get; set; }
+    public string? PlatformId { get; init; }
     public int? SteamGridDbId { get; init; }
     public string? BannerPathString { get; set; }
     public string? LogoPathString { get; set; }
