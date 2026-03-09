@@ -33,16 +33,19 @@ public partial class GameModViewModel : ObservableObject
     public bool CanUpdateRenoDX => _game.CanUpdateRenoDX && CompatibleRenoDXMod is not null;
 
     public string? ReShadeVersion => _game.ReShade?.Version;
-    public ReShade.Branch ReShadeBranch => _game.ReShade?.BranchName ?? ReShade.Branch.Unknown;
+    public string? ReShadeBranch => _game.ReShade?.BranchName.ToString() ?? "Unknown";
+    public string? ReShadeArch => _game.ReShade?.Arch.ToString();
     public string? ReShadeFileName => _game.ReShade?.SelectedFileName;
 
     internal ReShade? GetReShade() => _game.ReShade;
     internal RenoDX? GetRenoDX() => _game.RenoDX;
     internal Game GetGame() => _game;
 
-    public string? RenoDxName => _game.RenoDX?.Name;
-    public string? RenoDxVersion => _game.RenoDX?.Version;
-    public RenoDX.Branch RenoDxBranch => _game.RenoDX?.BranchName ?? RenoDX.Branch.Unknown;
+    public string? RenoDXName => _game.RenoDX?.SelectedName;
+    public string? RenoDXMaintainer => _game.RenoDX?.Maintainer;
+    public string? RenoDXVersion => _game.RenoDX?.Version;
+    public string? RenoDXBranch => _game.RenoDX?.BranchName.ToString() ?? "Unknown";
+    public string? RenoDXArch => _game.RenoDX?.Arch.ToString();
 
     [ObservableProperty]
     private RenoDXModInfoDto? _compatibleRenoDXMod;

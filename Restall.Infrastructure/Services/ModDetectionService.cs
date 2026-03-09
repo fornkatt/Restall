@@ -32,7 +32,7 @@ public class ModDetectionService : IModDetectionService
             {
                 fileList.Add(new ReShade
                 {
-                    SelectedFileName = file,
+                    SelectedFileName = Path.GetFileName(file),
                     Version = versionInfo.ProductVersion,
                     Arch = versionInfo.OriginalFilename?.Contains("64") == true
                         ? ReShade.Architecture.x64
@@ -57,10 +57,11 @@ public class ModDetectionService : IModDetectionService
             {
                 fileList.Add(new RenoDX
                 {
-                    Name = versionInfo.OriginalFilename,
+                    SelectedName = Path.GetFileName(file),
+                    OriginalName = versionInfo.OriginalFilename,
                     BranchName = RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
                     Version = ParseRenoDXVersion(versionInfo.FileVersion),
-                    Arch = versionInfo.OriginalFilename?.Contains("64") == true
+                    Arch = versionInfo.OriginalFilename.Contains("64") == true
                         ? RenoDX.Architecture.x64
                         : RenoDX.Architecture.x32
                 });

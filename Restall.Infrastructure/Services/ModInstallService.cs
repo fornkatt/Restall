@@ -62,14 +62,14 @@ public class ModInstallService : IModInstallService
                         return game;
                     }
 
-                    string destinationPath = Path.Combine(game.ExecutablePath, renoDx.Name!);
+                    string destinationPath = Path.Combine(game.ExecutablePath, renoDx.SelectedName!);
 
                     File.Copy(cacheFilePath, destinationPath, true);
 
                     game.RenoDX = renoDx;
 
                     await _logService.LogInfoAsync($"Successfully installed RenoDX as " +
-                                                  $"{renoDx.Name} to {game.ExecutablePath}");
+                                                  $"{renoDx.SelectedName} to {game.ExecutablePath}");
 
                     break;
                 }
@@ -107,7 +107,7 @@ public class ModInstallService : IModInstallService
     public async Task<UninstallResultDto> UninstallRenoDXAsync(Game game)
     {
         var result = new UninstallResultDto { UpdatedGame = game };
-        string expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.Name!);
+        string expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.SelectedName!);
         bool deleted = false;
 
         if (!File.Exists(expectedPath))
