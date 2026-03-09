@@ -84,7 +84,7 @@ public class ModDownloadService : IModDownloadService
         try
         {
             if (!Directory.Exists(directory))
-            Directory.CreateDirectory(directory);
+                Directory.CreateDirectory(directory);
 
             var destinationPath = Path.Combine(directory, fileName);
 

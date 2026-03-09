@@ -13,23 +13,15 @@ public class CachePathService : ICachePathService
     private readonly string _reShadeDownloadCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_downloadCacheFolderName, "ReShade");
     private readonly string _renoDXDownloadCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_downloadCacheFolderName, "RenoDX");
 
-    public string GetReShadeCachePath(ReShade reShade)
-    {
-        return Path.Combine(_reShadeCacheBaseDir, reShade.BranchName.ToString(), reShade.Version!);
-    }
+    public string GetReShadeCachePath(ReShade reShade) =>
+        Path.Combine(_reShadeCacheBaseDir, reShade.BranchName.ToString(), reShade.Version!);
 
-    public string GetRenoDXCachePath(RenoDX renoDx)
-    {
-        return Path.Combine(_renoDXCacheBaseDir, renoDx.BranchName.ToString());
-    }
+    public string GetRenoDXCachePath(RenoDX renoDx) =>
+        Path.Combine(_renoDXCacheBaseDir, renoDx.BranchName.ToString());
 
-    public string GetReShadeDownloadCachePath(ReShade.Branch branch)
-    {
-        return Path.Combine(_reShadeDownloadCacheBaseDir, branch.ToString());
-    }
+    public string GetReShadeDownloadCachePath(ReShade.Branch branch) =>
+        Path.Combine(_reShadeDownloadCacheBaseDir, branch.ToString());
 
-    public string GetRenoDXDownloadCachePath(RenoDX.Branch branch)
-    {
-        return Path.Combine(_renoDXDownloadCacheBaseDir, branch.ToString());
-    }
+    public string GetRenoDXDownloadCachePath(RenoDX.Branch branch) =>
+        Path.Combine(_renoDXDownloadCacheBaseDir, branch.ToString());
 }
