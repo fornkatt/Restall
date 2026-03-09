@@ -24,8 +24,10 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IModInstallService, ModInstallService>();
         services.AddTransient<IUpdateModService, UpdateModService>();
         services.AddTransient<IFileExtractionService, FileExtractionService>();
+        services.AddTransient<IModDownloadService, ModDownloadService>();
 
         services.AddHttpClient<IParseService, ParseService>();
+        services.AddHttpClient<IModDownloadService, ModDownloadService>();
 
         return services;
     }

@@ -19,10 +19,12 @@ public record RenoDXModInfoDto(
 
 {
     public string? AddonFileName64 => ExtractFileName(SnapshotUrl64);
-
     public string? AddonFileName32 => ExtractFileName(SnapshotUrl32);
-
     public string? AddonFileName => AddonFileName64 ?? AddonFileName32 ?? OverrideAddonFileName;
+
+    public bool SupportsX64 => SnapshotUrl64 is not null;
+    public bool SupportsX32 => SnapshotUrl32 is not null;
+    public bool IsDualArch => SupportsX64 && SupportsX32;
 
     public bool CanAutoInstall => AddonFileName is not null;
 

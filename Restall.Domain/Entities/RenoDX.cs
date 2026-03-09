@@ -2,7 +2,7 @@ namespace Restall.Domain.Entities;
 
 public class RenoDX
 {
-    public enum Branch { Unknown, Snapshot, Nightly, Discord, Nexus }
+    public enum Branch { Unknown, Wiki, Snapshot, Nightly, Discord, Nexus }
     public enum Architecture { x32 = 32, x64 = 64 }
     
     public string? SelectedName { get; set; }

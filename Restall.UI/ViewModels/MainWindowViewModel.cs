@@ -15,6 +15,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
     private readonly IModDetectionService _modDetectionService;
     private readonly IParseService _parseService;
     private readonly IModInstallService _modInstallService;
+    private readonly IModDownloadService _modDownloadService;
     private bool _suppressMessage;
 
     public BannerViewModel BannerViewModel { get; }
@@ -42,6 +43,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
         IModDetectionService modDetectionService,
         IParseService parseService,
         IModInstallService modInstallService,
+        IModDownloadService modDownloadService,
         BannerViewModel bannerViewModel,
         GameListViewModel gameListViewModel,
         ModViewModel modViewModel
@@ -52,6 +54,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
         _modDetectionService = modDetectionService;
         _parseService = parseService;
         _modInstallService = modInstallService;
+        _modDownloadService = modDownloadService;
 
         BannerViewModel = bannerViewModel;
         GameListViewModel = gameListViewModel;
@@ -116,8 +119,8 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath);
             var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath);
 
-            game.ReShade = reShade.FirstOrDefault();
-            game.RenoDX = renoDx.FirstOrDefault();
+            game.ReShade = reShade!.FirstOrDefault();
+            game.RenoDX = renoDx!.FirstOrDefault();
 
             var vm = new GameModViewModel(game!)
             {

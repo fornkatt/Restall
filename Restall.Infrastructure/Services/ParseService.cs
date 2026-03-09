@@ -219,10 +219,10 @@ public class ParseService : IParseService
 
                 var mod = new RenoDXModInfoDto(
                     Name:           rawName,
-                    DiscordUrl:     discordNode?.GetAttributeValue("href", null),
-                    SnapshotUrl64:  snapshotNode64?.GetAttributeValue("href", null),
-                    SnapshotUrl32:  snapshotNode32?.GetAttributeValue("href", null),
-                    NexusUrl:       nexusNode?.GetAttributeValue("href", null),
+                    DiscordUrl:     discordNode?.GetAttributeValue("href", string.Empty),
+                    SnapshotUrl64:  snapshotNode64?.GetAttributeValue("href", string.Empty),
+                    SnapshotUrl32:  snapshotNode32?.GetAttributeValue("href", string.Empty),
+                    NexusUrl:       nexusNode?.GetAttributeValue("href", string.Empty),
                     Maintainer:     maintainer,
                     Notes:          null,
                     Status:         statusRaw
@@ -338,7 +338,7 @@ public class ParseService : IParseService
             DateOnly? date = null;
             if (timeNode is not null)
             {
-                var datetime = timeNode.GetAttributeValue("datetime", null);
+                var datetime = timeNode.GetAttributeValue("datetime", string.Empty);
                 if (DateTime.TryParse(datetime, out var parsed))
                     date = DateOnly.FromDateTime(parsed.ToUniversalTime());
             }
