@@ -1,16 +1,19 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace Restall.Application.Helpers;
 
-public static class GameNameHelper
+public static partial class GameNameHelper
 {
+    [GeneratedRegex(@"[^\w\s]")]
+    private static partial Regex NonWordCharsRegex();
+
     public static string NormalizeName(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return string.Empty;
 
-        return Regex.Replace(name, @"[^\w\s]", string.Empty)
-                    .Replace("  ", " ")
-                    .Trim()
-                    .ToLowerInvariant();
+        return NonWordCharsRegex().Replace(name, string.Empty)
+                                  .Replace("  ", " ")
+                                  .Trim()
+                                  .ToLowerInvariant();
     }
 }

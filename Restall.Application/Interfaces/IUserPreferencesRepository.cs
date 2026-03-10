@@ -2,4 +2,6 @@
 
 public interface IUserPreferencesRepository
 {
+    void SaveAsync();
+    void LoadAsync();
 }

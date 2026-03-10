@@ -5,9 +5,9 @@ namespace Restall.Application.Interfaces;
 
 public interface IModInstallService
 {
-    Task<Game> InstallModAsync<T>(Game game, T modToInstall) where T: class;
-    Task<UninstallResultDto> UninstallReShadeAsync(Game game);
-    Task<UninstallResultDto> UninstallRenoDXAsync(Game game);
+    Task<ModOperationResultDto> InstallModAsync<T>(Game game, T modToInstall, string sourcePath) where T: class;
+    Task<ModOperationResultDto> UninstallReShadeAsync(Game game);
+    Task<ModOperationResultDto> UninstallRenoDXAsync(Game game);
     Task<Game> RemoveAllReShadeFiles(Game game);
     Task<Game> RemoveAllRenoDXFiles(Game game);
 }

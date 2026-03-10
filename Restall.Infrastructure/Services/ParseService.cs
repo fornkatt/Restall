@@ -3,7 +3,7 @@ using Restall.Application.DTOs;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
-using System.Text.RegularExpressions;
+using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
@@ -129,7 +129,7 @@ public class ParseService : IParseService
         try
         {
             var html = await _httpClient.GetStringAsync(s_reShadeSiteUrl);
-            var match = Regex.Match(html, @"ReShade (\d+\.\d+\.\d+)");
+            var match = RegexHelper.ExtractReShadeVersionFromSite.Match(html);
             return match.Success ? match.Groups[1].Value : null;
         }
         catch ( Exception ex)

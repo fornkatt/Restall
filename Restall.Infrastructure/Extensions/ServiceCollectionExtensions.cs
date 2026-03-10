@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Interfaces;
+using Restall.Application.UseCases;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
 
@@ -22,9 +23,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IGameDetectionService, GameDetectionService>();
         services.AddTransient<IModDetectionService, ModDetectionService>();
         services.AddTransient<IModInstallService, ModInstallService>();
-        services.AddTransient<IUpdateModService, UpdateModService>();
         services.AddTransient<IFileExtractionService, FileExtractionService>();
-        services.AddTransient<IModDownloadService, ModDownloadService>();
+
+        services.AddTransient<IInstallReShadeUseCase, InstallReShadeUseCase>();
 
         services.AddHttpClient<IParseService, ParseService>();
         services.AddHttpClient<IModDownloadService, ModDownloadService>();

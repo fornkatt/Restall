@@ -1,6 +1,6 @@
 ﻿using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
-using System.Text.RegularExpressions;
+using Restall.Infrastructure.Helpers;
 using PeNet;
 using PeNet.Header.Resource;
 
@@ -9,9 +9,6 @@ namespace Restall.Infrastructure.Services;
 public class ModDetectionService : IModDetectionService
 {
     private readonly ILogService _logService;
-
-    private static readonly Regex s_renoDxVersionRegex =
-        new(@"^\d+\.(\d{4})\.(\d{4})\.\d+$", RegexOptions.Compiled);
 
     public ModDetectionService(
         ILogService logService
@@ -121,7 +118,7 @@ public class ModDetectionService : IModDetectionService
     private static string? ParseRenoDXVersion(string? fileVersion)
     {
         if (string.IsNullOrWhiteSpace(fileVersion)) return null;
-        var match = s_renoDxVersionRegex.Match(fileVersion);
+        var match = RegexHelper.RenoDXVersionRegex.Match(fileVersion);
         return match.Success ? match.Groups[1].Value + match.Groups[2].Value : null;
     }
 }

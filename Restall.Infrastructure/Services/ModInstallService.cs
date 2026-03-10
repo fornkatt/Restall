@@ -8,41 +8,29 @@ namespace Restall.Infrastructure.Services;
 public class ModInstallService : IModInstallService
 {
     private readonly ILogService _logService;
-    private readonly ICachePathService _cachePathService;
 
     public ModInstallService(
-        ILogService logService,
-        ICachePathService cachePathService)
+        ILogService logService)
     {
         _logService = logService;
-        _cachePathService = cachePathService;
     }
 
-    public async Task<Game> InstallModAsync<T>(Game game, T modToInstall) where T : class
+    public async Task<ModOperationResultDto> InstallModAsync<T>(Game game, T modToInstall, string sourcePath) where T : class
     {
         try
         {
             if (!Directory.Exists(game.ExecutablePath))
             {
-                return game;
+                return new ModOperationResultDto(false, game);
             }
 
             switch (modToInstall)
             {
                 case ReShade reShade:
                 {
-                    string cacheFilePath = Path.Combine(_cachePathService.GetReShadeCachePath(reShade), reShade.OriginalFileName);
-
-                    if (!File.Exists(cacheFilePath))
-                    {
-                        await _logService.LogErrorAsync(
-                            $"ReShade cache file not found: {cacheFilePath}. Clear the cache and download again.");
-                        return game;
-                    }
-
                     string destinationPath = Path.Combine(game.ExecutablePath, reShade.SelectedFileName);
 
-                    File.Copy(cacheFilePath, destinationPath, true);
+                    File.Copy(sourcePath, destinationPath, true);
 
                     game.ReShade = reShade;
 
@@ -53,18 +41,9 @@ public class ModInstallService : IModInstallService
                 }
                 case RenoDX renoDx:
                 {
-                    string cacheFilePath = _cachePathService.GetRenoDXCachePath(renoDx);
-
-                    if (!File.Exists(cacheFilePath))
-                    {
-                        await _logService.LogErrorAsync(
-                            $"RenoDX cache file not found: {cacheFilePath}. Clear the cache and download again.");
-                        return game;
-                    }
-
                     string destinationPath = Path.Combine(game.ExecutablePath, renoDx.SelectedName!);
 
-                    File.Copy(cacheFilePath, destinationPath, true);
+                    File.Copy(sourcePath, destinationPath, true);
 
                     game.RenoDX = renoDx;
 
@@ -75,56 +54,45 @@ public class ModInstallService : IModInstallService
                 }
             }
 
-            return game;
+            return new ModOperationResultDto(true, game);
         }
         catch (Exception ex)
         {
             await _logService.LogErrorAsync("Could not install mod.", ex);
-            return game;
+            return new ModOperationResultDto(false, game, $"Failed to install mod.");
         }
     }
 
-    public async Task<UninstallResultDto> UninstallReShadeAsync(Game game)
+    public async Task<ModOperationResultDto> UninstallReShadeAsync(Game game)
     {
-        var result = new UninstallResultDto { UpdatedGame = game };
-
         if (!Directory.Exists(game.ExecutablePath))
         {
             await _logService.LogErrorAsync($"Game executable path not found: {game.ExecutablePath}. Please perform a library rescan.");
-            return result;
+            return new ModOperationResultDto(false, game);
         }
 
         string expectedPath = Path.Combine(game.ExecutablePath, game.ReShade!.SelectedFileName);
         bool deleted = await TryDeleteFileAsync(expectedPath);
 
-        if (!deleted)
-            result.ShouldPromptForDeepScan = true;
-
         game.ReShade = null;
-        return result;
+        return new ModOperationResultDto(deleted, game, ShouldPromptForDeepScan: !deleted);
     }
 
-    public async Task<UninstallResultDto> UninstallRenoDXAsync(Game game)
+    public async Task<ModOperationResultDto> UninstallRenoDXAsync(Game game)
     {
-        var result = new UninstallResultDto { UpdatedGame = game };
         string expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.SelectedName!);
-        bool deleted = false;
 
         if (!File.Exists(expectedPath))
         {
             await _logService.LogErrorAsync($"RenoDX not found at expected location: {expectedPath}.");
-            deleted = false;
-        }
-        else
-        {
-            deleted = await TryDeleteFileAsync(expectedPath, verifyOriginalFilename: "renodx-");
+            game.RenoDX = null;
+            return new ModOperationResultDto(false, game, null, true);
         }
 
-        if (!deleted)
-            result.ShouldPromptForDeepScan = true;
+        bool deleted = await TryDeleteFileAsync(expectedPath, verifyOriginalFilename: "renodx-");
 
         game.RenoDX = null;
-        return result;
+        return new ModOperationResultDto(deleted, game, ShouldPromptForDeepScan: !deleted);
     }
 
     private async Task<bool> TryDeleteFileAsync(string path, string? verifyOriginalFilename = null)
@@ -226,79 +194,4 @@ public class ModInstallService : IModInstallService
         game.RenoDX = null;
         return game;
     }
-
-    //public async Task<UninstallResultDto> UninstallModAsync<T>(Game game, T modToUninstall) where T : class
-    //{
-    //    var result = new UninstallResultDto { UpdatedGame = game };
-
-    //    switch  (modToUninstall)
-    //    {
-    //        case ReShade:
-    //        {
-    //            if (!Directory.Exists(game.ExecutablePath))
-    //            {
-    //                await _logService.LogErrorAsync($"Game executable path not found: {game.ExecutablePath}. " +
-    //                                               $"Please perform a library rescan.");
-    //                return result;
-    //            }
-
-    //            string expectedPath = Path.Combine(game.ExecutablePath, game.ReShade!.SelectedFileName);
-
-    //            if (File.Exists(expectedPath))
-    //            {
-    //                File.Delete(expectedPath);
-    //                await _logService.LogInfoAsync($"Removed ReShade file: {expectedPath}");
-    //                game.ReShade = null;
-    //            }
-    //            else
-    //            {
-    //                await _logService.LogWarningAsync($"ReShade file not found at expected location: {expectedPath}");
-    //                game.ReShade = null;
-    //                result.ShouldPromptForDeepScan = true;
-    //            }
-
-    //            break;
-    //        }
-    //        case RenoDX:
-    //        {
-    //            string expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.Name!);
-
-    //            if (!File.Exists(expectedPath))
-    //            {
-    //                await _logService.LogErrorAsync($"RenoDX not found at expected location: {expectedPath}. " +
-    //                                               $"Clearing RenoDX anyway.");
-    //                game.RenoDX = null;
-    //            }
-    //            else
-    //            {
-    //                try
-    //                {
-    //                    var versionInfo = FileVersionInfo.GetVersionInfo(expectedPath);
-    //                    string? originalFilename = versionInfo.OriginalFilename;
-
-    //                    if (originalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
-    //                    {
-    //                        File.Delete(expectedPath);
-    //                        await _logService.LogInfoAsync($"Removed RenoDX file: {expectedPath}");
-    //                    }
-    //                    else
-    //                    {
-    //                        await _logService.LogWarningAsync($"File at {expectedPath} does not appear to be a RenoDX addon " +
-    //                                                         $"(OriginalFilename: '{originalFilename}'). Skipping deletion.");
-    //                    }
-    //                }
-    //                catch (Exception ex)
-    //                {
-    //                    await _logService.LogErrorAsync($"Failed to verify RenoDX file at {expectedPath}", ex);
-    //                }
-
-    //                game.RenoDX = null;
-    //            }
-
-    //            break;
-    //        }
-    //    }
-
-    //    return result;
-    //}
 }

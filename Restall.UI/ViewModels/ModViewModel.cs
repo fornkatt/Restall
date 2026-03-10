@@ -11,6 +11,12 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [ObservableProperty]
     private GameModViewModel? _selectedGame;
 
+    [ObservableProperty]
+    private int _downloadPercent;
+
+    [ObservableProperty]
+    private string? _downloadStatus;
+
     //TODO: RELAYCOMMAND TO INSTALL, UPDATE AND DELETE RENODX AND RESHADE
 
     partial void OnSelectedGameChanged(GameModViewModel? value)

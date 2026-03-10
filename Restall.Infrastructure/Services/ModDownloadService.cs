@@ -1,5 +1,7 @@
-﻿using Restall.Application.Interfaces;
+﻿using Restall.Application.DTOs;
+using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
+using System.Collections.Concurrent;
 
 namespace Restall.Infrastructure.Services;
 
@@ -14,6 +16,8 @@ public class ModDownloadService : IModDownloadService
     private readonly ICachePathService _cachePathService;
     private readonly ILogService _logService;
 
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> s_downloadLocks = new(); 
+
     public ModDownloadService(
         HttpClient httpClient,
         ICachePathService cachePathService,
@@ -27,7 +31,8 @@ public class ModDownloadService : IModDownloadService
 
     // We only handle donwloads from GitHub since Nexus and Discord are problematic. We provide links in the UI for manual download.
     // We need the full download URL stored in the DTO for the wiki branch since they are downloaded from the maintainer's GitHub
-    public async Task<bool> DownloadRenoDXAsync(RenoDX.Branch branch, string? addonFileName = null, string? version = null, string? wikiSnapshotUrl = null)
+    public async Task<bool> DownloadRenoDXAsync(RenoDX.Branch branch, string? addonFileName = null,
+        string? version = null, string? wikiSnapshotUrl = null, IProgress<DownloadProgressReportDto>? progress = null)
     {
         string downloadUrl;
         string fileName;
@@ -67,40 +72,93 @@ public class ModDownloadService : IModDownloadService
         }
 
         var cacheDir = _cachePathService.GetRenoDXDownloadCachePath(branch);
-        return await DownloadFileAsync(downloadUrl, cacheDir, fileName);
+        return await DownloadFileAsync(downloadUrl, cacheDir, fileName, progress);
     }
 
-    public async Task<bool> DownloadReShadeAsync(ReShade.Branch branch, string version)
+    public async Task<bool> DownloadReShadeAsync(ReShade.Branch branch, string version, IProgress<DownloadProgressReportDto>? progress = null)
     {
         var downloadUrl = $"{s_reShadeStartUrl}{version}{s_reShadeEndUrl}";
-        var fileName = $"ReShade_Setup_{version}_Addon.exe";
-        var cacheDir = _cachePathService.GetReShadeDownloadCachePath(branch);
+        var installerPath = _cachePathService.GetReShadeInstallerFilePath(branch, version);
 
-        return await DownloadFileAsync (downloadUrl, cacheDir, fileName);
+        return await DownloadFileAsync(downloadUrl, Path.GetDirectoryName(installerPath)!, Path.GetFileName(installerPath), progress);
     }
 
-    private async Task<bool> DownloadFileAsync(string url, string directory, string fileName)
+    private async Task<bool> DownloadFileAsync(string url, string directory, string fileName, IProgress<DownloadProgressReportDto>? progress)
+    {
+        if (!Directory.Exists(directory))
+            Directory.CreateDirectory(directory);
+
+        var destinationPath = Path.Combine(directory, fileName);
+
+        var fileLock = s_downloadLocks.GetOrAdd(destinationPath, _ => new SemaphoreSlim(1, 1));
+
+        await fileLock.WaitAsync();
+
+        try
+        {
+            if (File.Exists(destinationPath))
+            {
+                await _logService.LogInfoAsync($"{fileName} already downloaded by another task, skipping.");
+                progress?.Report(new DownloadProgressReportDto(fileName, 0, 0, 100));
+                return true;
+            }
+
+            return await PerformDownloadAsync(url, destinationPath, fileName, progress);
+        }
+        finally
+        {
+            fileLock.Release();
+
+            if (fileLock.CurrentCount == 1 && s_downloadLocks.TryRemove(destinationPath, out var removed))
+                removed.Dispose();
+        }
+    }
+
+    private async Task<bool> PerformDownloadAsync(string url, string destinationPath, string fileName, IProgress<DownloadProgressReportDto>? progress)
     {
         try
         {
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            var destinationPath = Path.Combine(directory, fileName);
-
             using var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
 
+            long? totalBytes = response.Content.Headers.ContentLength;
             await using var contentStream = await response.Content.ReadAsStreamAsync();
-            await using var fileStream = new FileStream(destinationPath, FileMode.Create,FileAccess.Write, FileShare.None);
-            await contentStream.CopyToAsync(fileStream);
+            await using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true);
 
-            await _logService.LogInfoAsync($"Successfully downloaded {fileName} to {directory}");
+            int lastReportedPercent = -1;
+            var buffer = new byte[8192];
+            long bytesReceived = 0;
+            int bytesRead;
+
+            while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+            {
+                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                bytesReceived += bytesRead;
+
+                int percent = totalBytes is > 0
+                    ? (int)(bytesReceived * 100 / totalBytes.Value)
+                    : -1;
+
+                if (percent != lastReportedPercent)
+                {
+                    progress?.Report(new DownloadProgressReportDto(fileName, bytesReceived, totalBytes, percent));
+                    lastReportedPercent = percent;
+                }
+            }
+
+            await _logService.LogInfoAsync($"Successfully downloaded {fileName} to {Path.GetDirectoryName(destinationPath)}");
             return true;
         }
         catch (Exception ex)
         {
             await _logService.LogErrorAsync($"Failed to download {fileName} from {url}", ex);
+
+            if (File.Exists(destinationPath))
+            {
+                try { File.Delete(destinationPath); }
+                catch { }
+            } 
+
             return false;
         }
     }

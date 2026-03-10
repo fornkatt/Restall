@@ -24,4 +24,10 @@ public class CachePathService : ICachePathService
 
     public string GetRenoDXDownloadCachePath(RenoDX.Branch branch) =>
         Path.Combine(_renoDXDownloadCacheBaseDir, branch.ToString());
+
+    public string GetReShadeInstallerFilePath(ReShade.Branch branch, string version) =>
+        Path.Combine(GetReShadeDownloadCachePath(branch), $"ReShade_Setup_{version}_Addon.exe");
+
+    public string GetReShadeExtractedFilePath(ReShade reShade) =>
+        Path.Combine(GetReShadeCachePath(reShade), reShade.OriginalFileName);
 }
