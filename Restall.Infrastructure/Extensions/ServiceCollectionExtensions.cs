@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Interfaces;
+using Restall.Application.Services;
 using Restall.Application.UseCases;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
@@ -26,8 +27,17 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IFileExtractionService, FileExtractionService>();
 
         services.AddTransient<IInstallReShadeUseCase, InstallReShadeUseCase>();
+        services.AddTransient<IUninstallReShadeUseCase, UninstallReShadeUseCase>();
+        services.AddTransient<IInstallRenoDXUseCase, InstallRenoDXUseCase>();
+        services.AddTransient<IUninstallRenoDXUseCase, UninstallRenoDXUseCase>();
 
-        services.AddHttpClient<IParseService, ParseService>();
+        services.AddTransient<IAppInitializationService, AppInitializationService>();
+
+        services.AddTransient<IModManagementFacade, ModManagementFacade>();
+
+        services.AddHttpClient("ParseService");
+        services.AddSingleton<IParseService, ParseService>();
+
         services.AddHttpClient<IModDownloadService, ModDownloadService>();
 
         return services;

@@ -5,6 +5,8 @@ namespace Restall.Application.UseCases;
 
 public record InstallRenoDXRequest(
     Game Game,
-    RenoDXModInfoDto ModInfo,
-    RenoDX.Architecture Arch
+    RenoDX.Architecture Arch,
+    RenoDX.Branch Branch,
+    RenoDXModInfoDto? ModInfo = null,
+    RenoDXGenericModInfoDto? GenericModInfo = null
     );

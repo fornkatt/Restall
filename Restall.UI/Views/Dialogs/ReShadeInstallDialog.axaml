@@ -1,0 +1,82 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Restall.UI.ViewModels.Dialogs"
+        x:Class="Restall.UI.Views.Dialogs.ReShadeInstallDialog"
+        x:DataType="vm:ReShadeInstallDialogViewModel"
+        Title="Install ReShade"
+        Width="340"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="None"
+        CanResize="False">
+        <StackPanel>
+            <TextBlock Text="Version" FontWeight="SemiBold" FontSize="14" />
+            <Border BorderBrush="Gray" BorderThickness="1" MaxHeight="180">
+                <ScrollViewer>
+                    <ListBox ItemsSource="{Binding AvailableVersions}"
+                             SelectedItem="{Binding SelectedVersion}"
+                             SelectionMode="Single"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <RadioButton Content="{Binding}"
+                                             IsChecked="{Binding $parent[ListBoxItem].IsSelected}"
+                                             IsHitTestVisible="False"
+                                             Margin="4, 2" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
+            </Border>
+
+            <TextBlock Text="File Name" FontWeight="SemiBold" FontSize="14" />
+            <ListBox ItemsSource="{Binding FileNameOptions}"
+                     SelectedItem="{Binding SelectedFileNameOption}"
+                     SelectionMode="Single"
+                     Background="Transparent"
+                     BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Content="{Binding Display}"
+                                     IsChecked="{Binding $parent[ListBoxItem].IsSelected}"
+                                     IsHitTestVisible="False"
+                                     Margin="4, 2" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <TextBlock Text="Extension" FontWeight="SemiBold" FontSize="14" />
+            <ListBox ItemsSource="{Binding ExtensionOptions}"
+                     SelectedItem="{Binding SelectedExtensionOption}"
+                     SelectionMode="Single"
+                     Background="Transparent"
+                     BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Content="{Binding Display}"
+                                     IsChecked="{Binding $parent[ListBoxItem].IsSelected}"
+                                     IsHitTestVisible="False"
+                                     Margin="4, 2" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8" Margin="0, 4, 0, 0">
+                <Button Content="Confirm"
+                        Opacity="0.5"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Command="{Binding ConfirmCommand}"
+                        MinWidth="80"
+                        CornerRadius="5" />
+                <Button Content="Cancel"
+                        Opacity="0.5"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Command="{Binding CancelCommand}"
+                        MinWidth="80"
+                        CornerRadius="5" />
+            </StackPanel>
+        </StackPanel>
+</Window>

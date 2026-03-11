@@ -25,23 +25,17 @@ public class ModManagementFacade : IModManagementFacade
         _uninstallRenoDXUseCase = uninstallRenoDXUseCase;
     }
 
-    public Task<ModOperationResultDto> InstallOrUpdateRenoDXAsync(InstallRenoDXRequest request, IProgress<DownloadProgressReportDto>? progress = null)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<ModOperationResultDto> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
+        IProgress<DownloadProgressReportDto>? progress = null) =>
+        _installReShadeUseCase.ExecuteAsync(request, progress);
 
-    public Task<ModOperationResultDto> InstallOrUpdateReShadeAsync(InstallReShadeRequest request, IProgress<DownloadProgressReportDto>? progress = null)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<ModOperationResultDto> UninstallReShadeAsync(Game game) =>
+        _uninstallReShadeUseCase.ExecuteAsync(game);
 
-    public Task<ModOperationResultDto> UninstallRenoDXAsync(Game game)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<ModOperationResultDto> InstallOrUpdateRenoDXAsync(InstallRenoDXRequest request,
+        IProgress<DownloadProgressReportDto>? progress = null) =>
+        _installRenoDXUseCase.ExecuteAsync(request, progress);
 
-    public Task<ModOperationResultDto> UninstallReShadeAsync(Game game)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<ModOperationResultDto> UninstallRenoDXAsync(Game game) =>
+        _uninstallRenoDXUseCase.ExecuteAsync(game);
 }

@@ -32,7 +32,7 @@
 
 				<!-- RESHADE -->
 				<StackPanel Grid.Row="0" Grid.Column="0">
-					<TextBlock  Text="Reshade" FontWeight="Bold" FontSize="25" Foreground="White" Margin="10,10,0,0">
+					<TextBlock  Text="Reshade" FontWeight="Bold" FontSize="25" Foreground="White" Margin="10, 10, 0, 0">
 					</TextBlock>
 					<StackPanel Orientation="Horizontal">
 						<TextBlock Text="Name: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
@@ -52,14 +52,11 @@
 					</StackPanel>
 				</StackPanel>
 
-				<Button Grid.Row="1" Grid.Column="0" Click="OnClickedInstallReShade" Background="Aqua" Margin="10"
-                        IsEnabled="{Binding SelectedGame.CanInstallReShade}">INSTALL</Button>
-				<Button Grid.Row="2" Grid.Column="0" IsEnabled="{Binding SelectedGame.CanUpdateReShade}"
-						Background="Aqua" Margin="10">UPDATE</Button>
-				<Button Grid.Row="3" Grid.Column="0" Background="Aqua" IsEnabled="{Binding SelectedGame.HasReShade}"
-						Margin="10">
-					DELETE
-				</Button>
+				<Button Grid.Row="1" Grid.Column="0" Command="{Binding InstallReShadeCommand}" Background="Aqua" Margin="10">INSTALL</Button>
+				
+				<Button Grid.Row="2" Grid.Column="0" Command="{Binding UpdateReShadeCommand}" Background="Aqua" Margin="10">UPDATE</Button>
+				
+				<Button Grid.Row="3" Grid.Column="0" Command="{Binding UninstallReShadeCommand}" Background="Aqua" Margin="10">DELETE</Button>
 
 
 
@@ -88,14 +85,12 @@
 						<TextBlock Text="{Binding SelectedGame.RenoDXMaintainer}" FontSize="12" Foreground="White" />
 					</StackPanel>
 				</StackPanel>
-				<Button Grid.Row="1" Grid.Column="1" Click="OnClickedInstallRenoDX" Background="Aqua" Margin="10"
-                        IsEnabled="{Binding SelectedGame.CanInstallRenoDX}">INSTALL</Button>
-				<Button Grid.Row="2" Grid.Column="1" IsEnabled="{Binding SelectedGame.CanUpdateRenoDX}"
-                        Background="Aqua" Margin="10">UPDATE</Button>
-				<Button Grid.Row="3" Grid.Column="1" Background="Aqua" IsEnabled="{Binding SelectedGame.HasRenoDX}"
-                        Margin="10">
-					DELETE
-				</Button>
+				
+				<Button Grid.Row="1" Grid.Column="1" Command="{Binding InstallRenoDXCommand}" Background="Aqua" Margin="10">INSTALL</Button>
+				
+				<Button Grid.Row="2" Grid.Column="1" Command="{Binding UpdateRenoDXCommand}" Background="Aqua" Margin="10">UPDATE</Button>
+				
+				<Button Grid.Row="3" Grid.Column="1" Command="{Binding UninstallRenoDXCommand}" Background="Aqua" Margin="10">DELETE</Button>
 
 
 			</Grid>

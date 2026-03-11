@@ -6,6 +6,8 @@ using Avalonia.Markup.Xaml;
 using Restall.UI.ViewModels;
 using Restall.UI.Views;
 using Restall.Infrastructure.Extensions;
+using Restall.UI.Interfaces;
+using Restall.UI.Services;
 
 namespace Restall.UI;
 
@@ -39,6 +41,8 @@ public partial class App : Avalonia.Application
     private static void ConfigureServices(IServiceCollection services)
     {
         services.AddInfrastructureServices();
+
+        services.AddTransient<IModSelectionDialogService, ModSelectionDialogService>();
 
         services.AddTransient<BannerViewModel>();
         services.AddTransient<GameListViewModel>();

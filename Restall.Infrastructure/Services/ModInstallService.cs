@@ -28,6 +28,14 @@ public class ModInstallService : IModInstallService
             {
                 case ReShade reShade:
                 {
+                    string? previousFile = string.Empty;
+
+                    if (game.ReShade is not null)
+                    {
+                        previousFile = Path.Combine(game.ExecutablePath, game.ReShade.SelectedFileName);
+                        await TryDeleteFileAsync(previousFile);
+                    }
+                        
                     string destinationPath = Path.Combine(game.ExecutablePath, reShade.SelectedFileName);
 
                     File.Copy(sourcePath, destinationPath, true);
