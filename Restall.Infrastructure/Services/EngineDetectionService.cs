@@ -71,13 +71,12 @@ public class EngineDetectionService : IEngineDetectionService
                     foreach (var binSub in Directory.GetDirectories(sub))
                     {
                         var binName = Path.GetFileName(binSub);
-                        if (OperatingSystem.IsWindows())
-                        {
-                            bool isWindowsFolder = binName.Equals("Win64", StringComparison.OrdinalIgnoreCase)
+                        
+                            bool targetFolder = binName.Equals("Win64", StringComparison.OrdinalIgnoreCase)
                                                    || binName.Equals("WinGDK", StringComparison.OrdinalIgnoreCase);
-                            if (isWindowsFolder && Directory.GetFiles(binSub, "*.exe").Length > 0)
+                            if (targetFolder && Directory.GetFiles(binSub, "*.exe").Length > 0)
                                 results.Add(binSub);
-                        }
+                        
                         
                     }
 

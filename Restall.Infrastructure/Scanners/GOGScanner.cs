@@ -109,30 +109,34 @@ public class GOGScanner : IPlatformScannerService
         try
         {
             var json = File.ReadAllText(installedJsonPath);
-            var pathRegexMatches = Regex.Matches(json, @"""install_path""\s*:\s*""([^""]+)""");
-
-            foreach (Match match in pathRegexMatches)
+            foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
             {
-                var installPath = match.Groups[1].Value.Replace("\\\\", "\\");
+                var blockValue = match.Value;
+
+                var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
+                    is { Success: true } pm ? pm.Groups[1].Value.Replace("\\\\", "\\") : null;
+
                 installPath = Helper.NormalizePath(installPath);
-
-                if (string.IsNullOrEmpty(installPath)) continue;
-                if (!Directory.Exists(installPath)) continue;
-
-                var title = Path.GetFileName(installPath);
+                if (string.IsNullOrEmpty(installPath) || !Directory.Exists(installPath)) continue;
+                
+                var name = Path.GetFileName(installPath);
+                if (string.IsNullOrEmpty(name)) continue;
+                
                 var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(installPath, out var engine);
-
                 if (string.IsNullOrEmpty(executablePath)) continue;
 
                 games.Add(new Game
                 {
-                    Name = title,
+                    Name = name,
                     InstallFolder = installPath,
                     ExecutablePath = executablePath,
                     EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Platform,
+                    
                 });
+
             }
+
         }
         catch (Exception ex)
         {

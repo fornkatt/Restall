@@ -66,7 +66,7 @@ internal class Helper
     
     internal static bool NonGame(string name)
     {
-        var nonGameArray = new[]
+        var nonGameArray = new HashSet<string>
         {
             "Proton",
             "Steam Linux Runtime",

@@ -136,41 +136,37 @@ public class EpicScanner : IPlatformScannerService
         try
         {
             var json = File.ReadAllText(installedJsonPath);
-            var titleRegexMatches = Regex.Matches(json, @"""title""\s*:\s*""([^""]+)""");
-            var pathRegexMatches = Regex.Matches(json, @"""install_path""\s*:\s*""([^""]+)""");
 
-
-            for (int i = 0; i < Math.Min(titleRegexMatches.Count, pathRegexMatches.Count); i++)
+            foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
             {
-                var title = titleRegexMatches[i].Groups[1].Value;
-                var installPath = pathRegexMatches[i].Groups[1].Value.Replace("\\\\", "\\");
+                var blockValue = match.Value;
+                var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
+                    is {Success: true} pm ? pm.Groups[1].Value.Replace("\\\\","\\") : null;
                 installPath = Helper.NormalizePath(installPath);
-
-
-                if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(installPath))
-                {
-                    _logService.LogWarning($"Could not find the install path nor title. Title: {title} InstallPath:{installPath}");
-                    continue;
-                }
-
-                if (!Directory.Exists(installPath))
-                {
-                    _logService.LogWarning($"Install Path for Heroic {installPath} not found!");
-                    continue;
-                }
-
+                if (string.IsNullOrEmpty(installPath)) continue;
+                
+                var title = RegexHelper.HeroicTitleRegex.Match(blockValue)
+                    is {Success: true} tm ? tm.Groups[1].Value : null;
+                
+                var name = !string.IsNullOrWhiteSpace(title)
+                    ? title
+                    : Path.GetFileName(installPath);
+                if(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(installPath)) continue;
+                
+                
                 var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(installPath, out var engine);
-
                 if (string.IsNullOrEmpty(executablePath)) continue;
-
+                
                 games.Add(new Game
                 {
-                    Name = title,
+                    Name = name,
                     InstallFolder = installPath,
                     ExecutablePath = executablePath,
                     EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Platform,
+                    
                 });
+                
             }
         }
         catch (Exception ex)

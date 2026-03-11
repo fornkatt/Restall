@@ -114,7 +114,7 @@ public class SteamScanner : IPlatformScannerService
         var libraries = new List<string>();
         var vdfPath = Path.Combine(path, "steamapps", "libraryfolders.vdf");
         if (!File.Exists(vdfPath)) return libraries;
-        foreach (Match match in Regex.Matches(File.ReadAllText(vdfPath), @"""path""\s+""([^""]+)"""))
+        foreach (Match match in RegexHelper.SteamLibraryRegex.Matches(File.ReadAllText(vdfPath)))
         {
             var library = Helper.NormalizePath(match.Groups[1].Value.Replace(@"\\", @"\"));
             if (Directory.Exists(library) && !libraries.Contains(library))
