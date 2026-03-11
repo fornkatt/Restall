@@ -6,16 +6,14 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Restall.UI.Views.GameListView"
              x:DataType="vm:GameListViewModel">
-
-
-    <ScrollViewer>
-        <ListBox ItemsSource="{Binding Games}" x:Name="GameList" Background="BurlyWood" SelectedItem="{Binding SelectedGame}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" Foreground="Black"></TextBlock>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-    </ScrollViewer>
+    
+    <ListBox ItemsSource="{Binding Games}" x:Name="GameList" Background="BurlyWood"
+             SelectedItem="{Binding SelectedGame}">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Name}" Foreground="Black"></TextBlock>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
 
 </UserControl>
