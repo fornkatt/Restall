@@ -29,10 +29,24 @@ public partial class App : Avalonia.Application
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
+
+            var startupVm = serviceProvider.GetRequiredService<StartupWindowViewModel>();
+            var startupWindow = new StartupWindow { DataContext = startupVm };
+
+            desktop.MainWindow = startupWindow;
+
+            startupVm.InitializationCompleted += result =>
             {
-                DataContext = serviceProvider.GetRequiredService<MainWindowViewModel>(),
+                var mainWindowVm = serviceProvider.GetRequiredService<MainWindowViewModel>();
+                mainWindowVm.LoadGames(result);
+
+                var mainWindow = new MainWindow { DataContext = mainWindowVm };
+                desktop.MainWindow = mainWindow;
+                mainWindow.Show();
+                startupWindow.Close();
             };
+
+            _ = startupVm.InitializeAsync();
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -44,6 +58,7 @@ public partial class App : Avalonia.Application
 
         services.AddTransient<IModSelectionDialogService, ModSelectionDialogService>();
 
+        services.AddTransient<StartupWindowViewModel>();
         services.AddTransient<BannerViewModel>();
         services.AddTransient<GameListViewModel>();
         services.AddTransient<ModViewModel>();

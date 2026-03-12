@@ -8,16 +8,21 @@
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         SystemDecorations="None"
-        CanResize="False">
-        <StackPanel>
-            <TextBlock Text="Version" FontWeight="SemiBold" FontSize="14" />
-            <Border BorderBrush="Gray" BorderThickness="1" MaxHeight="180">
-                <ScrollViewer>
+        CanResize="False"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent">
+        <StackPanel Background="{DynamicResource AppBackground}">
+            <TextBlock Text="Version" 
+                       FontWeight="SemiBold" 
+                       FontSize="14" 
+                       Margin="5, 5, 0, 0"/>
+            <Border MaxHeight="180"
+                    CornerRadius="15"
+                    Margin="5, 5, 0, 0">
                     <ListBox ItemsSource="{Binding AvailableVersions}"
                              SelectedItem="{Binding SelectedVersion}"
                              SelectionMode="Single"
-                             Background="Transparent"
-                             BorderThickness="0">
+                             Background="Transparent">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <RadioButton Content="{Binding}"
@@ -27,10 +32,12 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </ScrollViewer>
             </Border>
 
-            <TextBlock Text="File Name" FontWeight="SemiBold" FontSize="14" />
+            <TextBlock Text="File Name" 
+                       FontWeight="SemiBold" 
+                       FontSize="14" 
+                       Margin="5, 5, 0, 0"/>
             <ListBox ItemsSource="{Binding FileNameOptions}"
                      SelectedItem="{Binding SelectedFileNameOption}"
                      SelectionMode="Single"
@@ -46,7 +53,10 @@
                 </ListBox.ItemTemplate>
             </ListBox>
 
-            <TextBlock Text="Extension" FontWeight="SemiBold" FontSize="14" />
+            <TextBlock Text="Extension" 
+                       FontWeight="SemiBold" 
+                       FontSize="14" 
+                       Margin="5, 5, 0, 0"/>
             <ListBox ItemsSource="{Binding ExtensionOptions}"
                      SelectedItem="{Binding SelectedExtensionOption}"
                      SelectionMode="Single"
@@ -69,14 +79,18 @@
                         VerticalContentAlignment="Center"
                         Command="{Binding ConfirmCommand}"
                         MinWidth="80"
-                        CornerRadius="5" />
+                        CornerRadius="5" 
+                        Background="{DynamicResource ModCardButton}"
+						Foreground="{DynamicResource ModCardButtonText}"/>
                 <Button Content="Cancel"
                         Opacity="0.5"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center"
                         Command="{Binding CancelCommand}"
                         MinWidth="80"
-                        CornerRadius="5" />
+                        CornerRadius="5" 
+                        Background="{DynamicResource ModCardButton}"
+						Foreground="{DynamicResource ModCardButtonText}"/>
             </StackPanel>
         </StackPanel>
 </Window>

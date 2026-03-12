@@ -20,8 +20,4 @@ public class Game
 
     public bool HasRenoDX => RenoDX is not null;
     public bool HasReShade => ReShade is not null;
-    public bool CanInstallRenoDX => RenoDX is null && ReShade is not null;
-    public bool CanInstallReShade => ReShade is null;
-    public bool CanUpdateReShade => HasReShade;
-    public bool CanUpdateRenoDX => HasRenoDX;
 }

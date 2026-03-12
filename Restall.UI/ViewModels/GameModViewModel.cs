@@ -38,10 +38,9 @@ public partial class GameModViewModel : ObservableObject
     public string? InstallFolder => _game.InstallFolder;
     public bool HasRenoDX => _game.HasRenoDX;
     public bool HasReShade => _game.HasReShade;
-    public bool CanInstallRenoDX => _game.CanInstallRenoDX && CompatibleRenoDXMod is not null;
-    public bool CanInstallReShade => _game.CanInstallReShade;
-    public bool CanUpdateReShade => _game.CanUpdateReShade;
-    public bool CanUpdateRenoDX => _game.CanUpdateRenoDX && CompatibleRenoDXMod is not null;
+    public bool CanInstallRenoDX => CompatibleRenoDXMod is not null || CompatibleRenoDXGenericMod is not null;
+    public bool CanUpdateReShade => HasReShade;
+    public bool CanUpdateRenoDX => HasRenoDX;
 
     public string? ReShadeVersion => _game.ReShade?.Version;
     public string? ReShadeBranch => _game.ReShade?.BranchName.ToString() ?? "Unknown";
@@ -63,7 +62,6 @@ public partial class GameModViewModel : ObservableObject
         OnPropertyChanged(nameof(HasRenoDX));
         OnPropertyChanged(nameof(HasReShade));
         OnPropertyChanged(nameof(CanInstallRenoDX));
-        OnPropertyChanged(nameof(CanInstallReShade));
         OnPropertyChanged(nameof(CanUpdateReShade));
         OnPropertyChanged(nameof(CanUpdateRenoDX));
         OnPropertyChanged(nameof(ReShadeVersion));

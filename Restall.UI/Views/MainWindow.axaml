@@ -10,8 +10,9 @@
 		Title="Restall"
 		Width="1000"
 		Height="1200"
-		Background="{DynamicResource AppBackground}">
-
+		Background="{DynamicResource AppBackground}"
+		WindowStartupLocation="CenterScreen">
+	 
 	<Grid>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
@@ -26,8 +27,5 @@
 		<ContentControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding BannerViewModel}"/>
 		<ContentControl Grid.Row="1" Grid.Column="0" Content="{Binding GameListViewModel}"/>
 		<ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding ModViewModel}"/>
-
 	</Grid>
-
-
 </Window>

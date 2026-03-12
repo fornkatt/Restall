@@ -93,7 +93,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [RelayCommand(CanExecute = nameof(CanInstallReShade))]
     private Task InstallReShadeAsync() => ExecuteReShadeInstallAsync("ReShade installed.");
 
-    private bool CanInstallReShade => SelectedGame?.CanInstallReShade ?? false;
+    private bool CanInstallReShade => SelectedGame is not null;
 
     [RelayCommand(CanExecute = nameof(CanUpdateReShade))]
     private Task UpdateReShadeAsync() => ExecuteReShadeInstallAsync("ReShade updated.");
