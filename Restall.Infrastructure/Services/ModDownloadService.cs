@@ -27,6 +27,7 @@ public class ModDownloadService : IModDownloadService
         _httpClient = httpClient;
         _cachePathService = cachePathService;
         _logService = logService;
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
     }
 
     // We only handle donwloads from GitHub since Nexus and Discord are problematic. We provide links in the UI for manual download.

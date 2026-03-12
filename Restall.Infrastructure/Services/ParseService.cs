@@ -128,8 +128,8 @@ public class ParseService : IParseService
     {
         try
         {
-            var html = await _httpClient.GetStringAsync(s_reShadeSiteUrl);
-            var match = RegexHelper.ExtractReShadeVersionFromSite.Match(html);
+            var document = await _httpClient.GetStringAsync(s_reShadeSiteUrl);
+            var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
             return match.Success ? match.Groups[1].Value : null;
         }
         catch ( Exception ex)
@@ -145,9 +145,7 @@ public class ParseService : IParseService
 
         try
         {
-            var html = await _httpClient.GetStringAsync(s_reShadeTagsUrl);
-            var document = new HtmlDocument();
-            document.LoadHtml(html);
+            var document = await LoadHtmlDocumentAsync(s_reShadeTagsUrl);
 
             var tagNodes = document.DocumentNode
                 .SelectNodes("//a[contains(@href, 'crosire/reshade/releases/tag/')]");
@@ -185,9 +183,7 @@ public class ParseService : IParseService
     {
         try
         {
-            var html = await _httpClient.GetStringAsync(s_renoDxUrl);
-            var document = new HtmlDocument();
-            document.LoadHtml(html);
+            var document = await LoadHtmlDocumentAsync(s_renoDxUrl);
 
             var rows = document.DocumentNode.SelectNodes("//table[1]//tr[position() > 1]");
 
@@ -330,9 +326,7 @@ public class ParseService : IParseService
     {
         try
         {
-            var html = await _httpClient.GetStringAsync(s_renoDxReleasesTagUrl + "snapshot");
-            var document = new HtmlDocument();
-            document.LoadHtml(html);
+            var document = await LoadHtmlDocumentAsync(s_renoDxReleasesTagUrl + "snapshot");
 
             var timeNode = document.DocumentNode.SelectSingleNode("//relative-time");
             DateOnly? date = null;
@@ -417,9 +411,7 @@ public class ParseService : IParseService
 
         try
         {
-            var html = await _httpClient.GetStringAsync(pageUrl ?? s_renoDxTagsUrl);
-            var document = new HtmlDocument();
-            document.LoadHtml(html);
+            var document = await LoadHtmlDocumentAsync(pageUrl ?? s_renoDxTagsUrl);
 
             var tagNodes = document.DocumentNode
                 .SelectNodes("//a[contains(@href, 'clshortfuse/renodx/releases/tag/nightly-')]");
@@ -460,9 +452,7 @@ public class ParseService : IParseService
                 return null;
             }
 
-            var html = await _httpClient.GetStringAsync(s_renoDxReleasesTagUrl + nightlyTag);
-            var document = new HtmlDocument();
-            document.LoadHtml(html);
+            var document = await LoadHtmlDocumentAsync(s_renoDxReleasesTagUrl + nightlyTag);
 
             var preNode = document.DocumentNode
                 .SelectSingleNode("//pre[contains(@class, 'text-small') and contains(@class, 'ws-pre-wrap')]");
@@ -496,5 +486,13 @@ public class ParseService : IParseService
             await _logService.LogErrorAsync($"Failed to fetch release info for {nightlyTag}", ex);
             return null;
         }
+    }
+
+    private async Task<HtmlDocument> LoadHtmlDocumentAsync(string url)
+    {
+        await using var stream = await _httpClient.GetStreamAsync(url);
+        var document = new HtmlDocument();
+        document.Load(stream);
+        return document;
     }
 }
