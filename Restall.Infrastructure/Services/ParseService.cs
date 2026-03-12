@@ -1,6 +1,5 @@
 ﻿using HtmlAgilityPack;
 using Restall.Application.DTOs;
-using Restall.Application.Helpers;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -18,12 +17,9 @@ public class ParseService : IParseService
     private const string s_renoDxUrl = "https://github.com/clshortfuse/renodx/wiki/Mods/";
     private const string s_renoDxTagsUrl = "https://github.com/clshortfuse/renodx/tags";
     private const string s_renoDxReleasesTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
-    
+
     private readonly Dictionary<ReShade.Branch, List<string>> _availableReShadeVersions = [];
-    private readonly Dictionary<RenoDX.Branch, List<RenoDXTagInfoDto>> _availableRenoDxTags = [];
-    // Store by mod name
-    private readonly Dictionary<string, List<RenoDXModInfoDto>> _availableRenoDXWikiModsByName = [];
-    private readonly Dictionary<string, List<RenoDXGenericModInfoDto>> _availableRenoDXGenericModsByName = [];
+    private readonly Dictionary<RenoDX.Branch, List<RenoDXTagInfoDto>> _availableRenoDXTags = [];
 
     public ParseService(
         ILogService logService,
@@ -36,70 +32,32 @@ public class ParseService : IParseService
     }
 
     public RenoDXTagInfoDto? GetLatestRenoDXTag(RenoDX.Branch branch) =>
-        _availableRenoDxTags.TryGetValue(branch, out var tags) ? tags.FirstOrDefault() : null;
+        _availableRenoDXTags.TryGetValue(branch, out var tags) ? tags.FirstOrDefault() : null;
 
     public IReadOnlyList<RenoDXTagInfoDto> GetAllRenoDXNightlies() =>
-        _availableRenoDxTags.TryGetValue(RenoDX.Branch.Nightly, out var tags) ? tags.AsReadOnly() : [];
+        _availableRenoDXTags.TryGetValue(RenoDX.Branch.Nightly, out var tags) ? tags.AsReadOnly() : [];
 
     public IReadOnlyList<string> GetAvailableReShadeVersions(ReShade.Branch branch) =>
         _availableReShadeVersions.TryGetValue(branch, out var versions) ? versions.AsReadOnly() : [];
 
     public string? GetLatestReShadeVersion(ReShade.Branch branch) =>
         _availableReShadeVersions.TryGetValue(branch, out var versions) ? versions.FirstOrDefault() : null;
-    
-    public async Task FetchAvailableModVersionsAsync()
+
+    public async Task<WikiParseResultDto> FetchAvailableModsAsync()
     {
-        await Task.WhenAll(
+        var versionTask = Task.WhenAll(
             FetchStableReShadeVersionsAsync(),
             FetchLatestRenoDxSnapshotAsync(),
-            FetchRenoDxNightlyVersionsAsync(),
-            FetchRenoDxWikiModsAsync()
+            FetchRenoDxNightlyVersionsAsync()
         );
-    }
 
-    public RenoDXModInfoDto? GetCompatibleRenoDXMod(string? gameName)
-    {
-        if (string.IsNullOrWhiteSpace(gameName)) return null;
+        var wikiTask = FetchRenoDXWikiModsAsync();
 
-        var key = GameNameHelper.NormalizeName(gameName);
+        await Task.WhenAll(versionTask, wikiTask);
 
-        if (_availableRenoDXWikiModsByName.TryGetValue(key, out var mods))
-            return mods.FirstOrDefault(m => m.Status != "💀");
+        var (wikiMods, genericWikiMods) = wikiTask.Result;
 
-        var fallback = _availableRenoDXWikiModsByName
-            .FirstOrDefault(kv => FuzzyNameMatch(key, kv.Key));
-
-        return fallback.Value?.FirstOrDefault(m => m.Status != "💀");
-    }
-
-    public RenoDXGenericModInfoDto? GetGenericRenoDXInfo(string? gameName)
-    {
-        if (string.IsNullOrWhiteSpace(gameName)) return null;
-
-        var key = GameNameHelper.NormalizeName(gameName);
-
-        if (_availableRenoDXGenericModsByName.TryGetValue(key, out var mods))
-            return mods.FirstOrDefault(m => m.Status != "💀");
-
-        var fallback = _availableRenoDXGenericModsByName
-            .FirstOrDefault(kv => FuzzyNameMatch(key, kv.Key));
-
-        return fallback.Value?.FirstOrDefault(m => m.Status != "💀");
-    }
-
-    private static bool FuzzyNameMatch(string a, string b)
-    {
-        if (!a.Contains(b) && !b.Contains(a))
-            return false;
-
-        var aWords = a.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var bWords = b.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var bSet = new HashSet<string>(bWords);
-
-        int shared   = aWords.Count(w => bSet.Contains(w));
-        int maxWords = Math.Max(aWords.Length, bWords.Length);
-
-        return maxWords > 0 && (double)shared / maxWords >= 0.5;
+        return new WikiParseResultDto(wikiMods, genericWikiMods);
     }
 
     private async Task FetchStableReShadeVersionsAsync()
@@ -118,7 +76,7 @@ public class ParseService : IParseService
             _availableReShadeVersions[ReShade.Branch.Stable] = versions;
             await _logService.LogInfoAsync($"Fetched {versions.Count} stable ReShade versions. Latest: {versions.FirstOrDefault()}");
         }
-        catch ( Exception ex)
+        catch (Exception ex)
         {
             await _logService.LogErrorAsync("Failed to fetch stable ReShade versions.", ex);
         }
@@ -132,7 +90,7 @@ public class ParseService : IParseService
             var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
             return match.Success ? match.Groups[1].Value : null;
         }
-        catch ( Exception ex)
+        catch (Exception ex)
         {
             await _logService.LogErrorAsync("Could not fetch latest ReShade version from reshade.me.", ex);
             return null;
@@ -179,8 +137,11 @@ public class ParseService : IParseService
         return versions;
     }
 
-    private async Task FetchRenoDxWikiModsAsync()
+    private async Task<(List<RenoDXModInfoDto> WikiMods, List<RenoDXGenericModInfoDto> GenericWikiMods)> FetchRenoDXWikiModsAsync()
     {
+        var wikiMods = new List<RenoDXModInfoDto>();
+        var genericWikiMods = new List<RenoDXGenericModInfoDto>();
+
         try
         {
             var document = await LoadHtmlDocumentAsync(s_renoDxUrl);
@@ -190,7 +151,7 @@ public class ParseService : IParseService
             if (rows is null)
             {
                 await _logService.LogWarningAsync("No rows found in RenoDX wiki.");
-                return;
+                return (wikiMods, genericWikiMods);
             }
 
             foreach (var row in rows)
@@ -210,45 +171,42 @@ public class ParseService : IParseService
 
                 var snapshotNode64 = linksCell.SelectSingleNode(".//a[contains(@href, '.addon64')]");
                 var snapshotNode32 = linksCell.SelectSingleNode(".//a[contains(@href, '.addon32')]");
-                var nexusNode      = linksCell.SelectSingleNode(".//a[contains(@href, 'nexusmods.com')]");
-                var discordNode    = linksCell.SelectSingleNode(".//a[contains(@href, 'discord')]");
+                var nexusNode = linksCell.SelectSingleNode(".//a[contains(@href, 'nexusmods.com')]");
+                var discordNode = linksCell.SelectSingleNode(".//a[contains(@href, 'discord')]");
 
                 var mod = new RenoDXModInfoDto(
-                    Name:           rawName,
-                    DiscordUrl:     discordNode?.GetAttributeValue("href", string.Empty),
-                    SnapshotUrl64:  snapshotNode64?.GetAttributeValue("href", string.Empty),
-                    SnapshotUrl32:  snapshotNode32?.GetAttributeValue("href", string.Empty),
-                    NexusUrl:       nexusNode?.GetAttributeValue("href", string.Empty),
-                    Maintainer:     maintainer,
-                    Notes:          null,
-                    Status:         statusRaw
+                    Name: rawName,
+                    DiscordUrl: discordNode?.GetAttributeValue("href", string.Empty),
+                    SnapshotUrl64: snapshotNode64?.GetAttributeValue("href", string.Empty),
+                    SnapshotUrl32: snapshotNode32?.GetAttributeValue("href", string.Empty),
+                    NexusUrl: nexusNode?.GetAttributeValue("href", string.Empty),
+                    Maintainer: maintainer,
+                    Notes: null,
+                    Status: statusRaw
                     );
 
-                var key = GameNameHelper.NormalizeName(rawName);
-
-                if (!_availableRenoDXWikiModsByName.TryGetValue(key, out var list))
-                {
-                    list = [];
-                    _availableRenoDXWikiModsByName[key] = list;
-                }
-
-                list.Add(mod);
+                wikiMods.Add(mod);
             }
 
-            await _logService.LogInfoAsync($"Parsed {_availableRenoDXWikiModsByName.Count} RenoDX compatible games from wiki.");
+            await _logService.LogInfoAsync($"Parsed {wikiMods.Count} RenoDX compatible games from wiki.");
 
-            await ParseRenoDXGenericModTableAsync(document, "Unreal Engine", Engine.Unreal);
-            await ParseRenoDXGenericModTableAsync(document, "Unity Engine", Engine.Unity);
+            await ParseRenoDXGenericModTableAsync(document, "Unreal Engine", Engine.Unreal, genericWikiMods);
+            await ParseRenoDXGenericModTableAsync(document, "Unity Engine", Engine.Unity, genericWikiMods);
 
-            await _logService.LogInfoAsync($"Parsed {_availableRenoDXGenericModsByName.Count} generic RenoDX mods from wiki.");
+            await _logService.LogInfoAsync($"Parsed {genericWikiMods.Count} generic RenoDX mods from wiki.");
         }
         catch (Exception ex)
         {
             await _logService.LogErrorAsync("Failed to fetch RenoDX wiki mods.", ex);
         }
+
+        return (wikiMods, genericWikiMods);
     }
 
-    private async Task ParseRenoDXGenericModTableAsync(HtmlDocument document, string engineHeading, Engine engine)
+    private async Task ParseRenoDXGenericModTableAsync(HtmlDocument document,
+                                                       string engineHeading,
+                                                       Engine engine,
+                                                       List<RenoDXGenericModInfoDto> genericWikiMods)
     {
         var h3Nodes = document.DocumentNode.SelectNodes("//h3");
         var targetH3 = h3Nodes?.FirstOrDefault(n => n.InnerText.Contains(engineHeading));
@@ -303,25 +261,15 @@ public class ParseService : IParseService
                 : null;
             if (string.IsNullOrWhiteSpace(notes)) notes = null;
 
-            var mod = new RenoDXGenericModInfoDto(
-                Name:   rawName,
+            genericWikiMods.Add(new RenoDXGenericModInfoDto(
+                Name: rawName,
                 Status: statusRaw,
-                Notes:  notes,
+                Notes: notes,
                 Engine: engine
-                );
-
-            var key = GameNameHelper.NormalizeName(rawName);
-
-            if (!_availableRenoDXGenericModsByName.TryGetValue(key, out var list))
-            {
-                list = [];
-                _availableRenoDXGenericModsByName[key] = list;
-            }
-
-            list.Add(mod);
+                ));
         }
     }
-    
+
     private async Task FetchLatestRenoDxSnapshotAsync()
     {
         try
@@ -369,9 +317,9 @@ public class ParseService : IParseService
                     }
                 }
             }
-            
+
             await _logService.LogInfoAsync($"Successfully parsed RenoDX snapshot: {date.Value}\n{string.Join(Environment.NewLine, commitNotes)}");
-            _availableRenoDxTags[RenoDX.Branch.Snapshot] = [new RenoDXTagInfoDto(date.Value, RenoDX.Branch.Snapshot, commitNotes)];
+            _availableRenoDXTags[RenoDX.Branch.Snapshot] = [new RenoDXTagInfoDto(date.Value, RenoDX.Branch.Snapshot, commitNotes)];
         }
         catch (Exception ex)
         {
@@ -394,7 +342,7 @@ public class ParseService : IParseService
             var tagInfoResults = await Task.WhenAll(nightlyTags.Select(FetchRenoDXNighlyReleaseInfoAsync));
 
             var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToList();
-            _availableRenoDxTags[RenoDX.Branch.Nightly] = tagInfos;
+            _availableRenoDXTags[RenoDX.Branch.Nightly] = tagInfos;
 
             await _logService.LogInfoAsync($"Fetched {tagInfos.Count} nightly RenoDX versions. " +
                 $"Latest: {tagInfos.FirstOrDefault()?.Version}");

@@ -5,9 +5,7 @@ namespace Restall.Application.Interfaces;
 
 public interface IParseService
 {
-    Task FetchAvailableModVersionsAsync();
-    RenoDXModInfoDto? GetCompatibleRenoDXMod(string? gameName);
-    RenoDXGenericModInfoDto? GetGenericRenoDXInfo(string? gameName);
+    Task<WikiParseResultDto> FetchAvailableModsAsync();
 
     // Get latest RenoDX snapshot or nightly
     RenoDXTagInfoDto? GetLatestRenoDXTag(RenoDX.Branch branch);

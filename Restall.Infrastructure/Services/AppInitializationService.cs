@@ -1,4 +1,5 @@
 ﻿using Restall.Application.DTOs;
+using Restall.Application.Helpers;
 using Restall.Application.Interfaces;
 
 namespace Restall.Infrastructure.Services;
@@ -23,10 +24,11 @@ public class AppInitializationService : IAppInitializationService
     public async Task<AppInitializationResultDto> InitializeAsync(IProgress<GameScanProgressReportDto>? progress = null)
     {
         var gamesTask = _gameDetectionService.FindGames();
-        var parseTask = _parseService.FetchAvailableModVersionsAsync();
+        var parseTask = _parseService.FetchAvailableModsAsync();
 
         await Task.WhenAll(gamesTask, parseTask);
 
+        var wikiResults = parseTask.Result;
         var results = new List<GameInitResultDto>();
 
         var sortedGames = gamesTask.Result
@@ -41,14 +43,49 @@ public class AppInitializationService : IAppInitializationService
             game.ReShade = reShade?.FirstOrDefault();
             game.RenoDX = renoDx?.FirstOrDefault();
 
-            var compatibleMod = _parseService.GetCompatibleRenoDXMod(game.Name);
+            var compatibleMod = FindCompatibleMod(game.Name, wikiResults.WikiMods);
             var compatibleGenericMod = compatibleMod is null
-                ? _parseService.GetGenericRenoDXInfo(game.Name)
+                ? FindGenericMod(game.Name, wikiResults.GenericWikiMods)
                 : null;
 
             results.Add(new GameInitResultDto(game, compatibleMod, compatibleGenericMod));
         }
 
         return new AppInitializationResultDto(results);
+    }
+
+    private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, IReadOnlyList<RenoDXModInfoDto> mods)
+    {
+        if (string.IsNullOrWhiteSpace(gameName)) return null;
+
+        var key = GameNameHelper.NormalizeName(gameName);
+
+        return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
+            ?? mods.FirstOrDefault(m => m.Status != "💀" && FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+    }
+
+    private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName, IReadOnlyList<RenoDXGenericModInfoDto> mods)
+    {
+        if (string.IsNullOrWhiteSpace(gameName)) return null;
+
+        var key = GameNameHelper.NormalizeName(gameName);
+
+        return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
+            ?? mods.FirstOrDefault(m => m.Status != "💀" && FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+    }
+
+    private static bool FuzzyNameMatch(string a, string b)
+    {
+        if (!a.Contains(b) && !b.Contains(a))
+            return false;
+
+        var aWords = a.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bWords = b.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bSet = new HashSet<string>(bWords);
+
+        int shared = aWords.Count(w => bSet.Contains(w));
+        int maxWords = Math.Max(aWords.Length, bWords.Length);
+
+        return maxWords > 0 && (double)shared / maxWords >= 0.5;
     }
 }

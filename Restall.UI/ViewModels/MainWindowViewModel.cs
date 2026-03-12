@@ -97,6 +97,8 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
                     : $"Loaded game: {vm.Name}");
         }
 
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
+
         IsInitializing = false;
         InitializationMessage = string.Empty;
     }
