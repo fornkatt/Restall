@@ -10,8 +10,6 @@ public class SteamScanner : IPlatformScannerService
     private readonly ILogService _logService;
     private readonly IEngineDetectionService _engineDetectionService;
     
-    public Game.Platform Platform => Game.Platform.Steam;
-
     public SteamScanner(
         ILogService logService, 
         IEngineDetectionService engineDetectionService)
@@ -86,18 +84,12 @@ public class SteamScanner : IPlatformScannerService
 
                 var rootPath = Path.Combine(steamapps, "common", installDir);
                 if (!Directory.Exists(rootPath)) continue;
-
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(rootPath, out var engine);
-
-                if (string.IsNullOrEmpty(executablePath)) continue;
-
+                
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = rootPath,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Game.Platform.Steam
                 });
             }
             catch
@@ -114,7 +106,7 @@ public class SteamScanner : IPlatformScannerService
         var libraries = new List<string>();
         var vdfPath = Path.Combine(path, "steamapps", "libraryfolders.vdf");
         if (!File.Exists(vdfPath)) return libraries;
-        foreach (Match match in Regex.Matches(File.ReadAllText(vdfPath), @"""path""\s+""([^""]+)"""))
+        foreach (Match match in RegexHelper.SteamLibraryRegex.Matches(File.ReadAllText(vdfPath)))
         {
             var library = Helper.NormalizePath(match.Groups[1].Value.Replace(@"\\", @"\"));
             if (Directory.Exists(library) && !libraries.Contains(library))

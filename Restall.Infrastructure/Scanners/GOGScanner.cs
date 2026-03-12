@@ -18,8 +18,6 @@ public class GOGScanner : IPlatformScannerService
         _engineDetectionService = engineDetectionService;
     }
     
-    public Game.Platform Platform => Game.Platform.GOG;
-    
     public Task<List<Game>> ScanAsync() => Task.Run(ScanGOG);
 
     private List<Game> ScanGOG()
@@ -67,16 +65,12 @@ public class GOGScanner : IPlatformScannerService
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path)) continue;
                 if (!Directory.Exists(path)) continue;
 
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(path, out var engine);
-                if (string.IsNullOrEmpty(executablePath)) continue;
 
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = path,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Game.Platform.GOG
                 });
             }
         }
@@ -109,30 +103,29 @@ public class GOGScanner : IPlatformScannerService
         try
         {
             var json = File.ReadAllText(installedJsonPath);
-            var pathRegexMatches = Regex.Matches(json, @"""install_path""\s*:\s*""([^""]+)""");
-
-            foreach (Match match in pathRegexMatches)
+            foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
             {
-                var installPath = match.Groups[1].Value.Replace("\\\\", "\\");
+                var blockValue = match.Value;
+
+                var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
+                    is { Success: true } pm ? pm.Groups[1].Value.Replace("\\\\", "\\") : null;
+
                 installPath = Helper.NormalizePath(installPath);
-
-                if (string.IsNullOrEmpty(installPath)) continue;
-                if (!Directory.Exists(installPath)) continue;
-
-                var title = Path.GetFileName(installPath);
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(installPath, out var engine);
-
-                if (string.IsNullOrEmpty(executablePath)) continue;
-
+                if (string.IsNullOrEmpty(installPath) || !Directory.Exists(installPath)) continue;
+                
+                var name = Path.GetFileName(installPath);
+                if (string.IsNullOrEmpty(name)) continue;
+                
                 games.Add(new Game
                 {
-                    Name = title,
+                    Name = name,
                     InstallFolder = installPath,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Game.Platform.GOG,
+                    
                 });
+
             }
+
         }
         catch (Exception ex)
         {
