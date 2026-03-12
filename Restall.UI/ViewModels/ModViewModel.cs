@@ -20,6 +20,9 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     private bool _suppressMessage;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(InstallReShadeButtonText))]
+    [NotifyPropertyChangedFor(nameof(UpdateReShadeButtonText))]
+    [NotifyPropertyChangedFor(nameof(UninstallReShadeButtonText))]
     private GameModViewModel? _selectedGame;
 
     [ObservableProperty]
@@ -71,9 +74,21 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         InstallRenoDXCommand.NotifyCanExecuteChanged();
         UpdateRenoDXCommand.NotifyCanExecuteChanged();
         UninstallRenoDXCommand.NotifyCanExecuteChanged();
+
+        OnPropertyChanged(nameof(InstallReShadeButtonText));
+        OnPropertyChanged(nameof(UpdateReShadeButtonText));
+        OnPropertyChanged(nameof(UninstallReShadeButtonText));
     }
 
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
+
+    public string InstallReShadeButtonText =>
+        SelectedGame?.HasReShade == true ? "Reinstall" : "Install";
+
+    public string UpdateReShadeButtonText =>
+        SelectedGame?.CanUpdateReShade == true ? "Update" : "Placeholder";
+
+    public string UninstallReShadeButtonText => "Uninstall";
 
     [RelayCommand(CanExecute = nameof(CanInstallReShade))]
     private Task InstallReShadeAsync() => ExecuteReShadeInstallAsync("ReShade installed.");

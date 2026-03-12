@@ -50,7 +50,7 @@
 					</Grid>
 				</StackPanel>
 				<Button Grid.Row="1" Grid.Column="0"
-						Content="INSTALL"
+						Content="{Binding InstallReShadeButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"
 						Command="{Binding InstallReShadeCommand}"
@@ -58,7 +58,7 @@
 						Foreground="{DynamicResource ModCardButtonText}"
 						Margin="10"/>
 				<Button Grid.Row="2" Grid.Column="0"
-						Content="UPDATE"
+						Content="{Binding UpdateReShadeButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"
 						Command="{Binding UpdateReShadeCommand}"
@@ -66,7 +66,7 @@
 						Foreground="{DynamicResource ModCardButtonText}"
 						Margin="10"/>
 				<Button Grid.Row="3" Grid.Column="0"
-						Content="UNINSTALL"
+						Content="{Binding UninstallReShadeButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"
 						Command="{Binding UninstallReShadeCommand}"

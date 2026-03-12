@@ -30,10 +30,10 @@
 					<SolidColorBrush x:Key="GameListSelection" Color="#333333"/>
 					<SolidColorBrush x:Key="GameListHover" Color="#3d3d3d"/>
 					<SolidColorBrush x:Key="GameCardBackground" Color="#272727"/>
-					<SolidColorBrush x:Key="GameCardText" Color="White"/>
+					<SolidColorBrush x:Key="GameCardText" Color="#e1e1e1"/>
 					<SolidColorBrush x:Key="GameCardBorder" Color="#2c2c2c"/>
 					<SolidColorBrush x:Key="ModCardButton" Color="#484848"/>
-					<SolidColorBrush x:Key="ModCardButtonText" Color="White"/>
+					<SolidColorBrush x:Key="ModCardButtonText" Color="#e1e1e1"/>
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>
