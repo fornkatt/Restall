@@ -8,6 +8,8 @@ namespace Restall.Infrastructure.Services;
 
 public class ModDetectionService : IModDetectionService
 {
+    private const long s_maxVersionCheckBytes = 10 * 1024 * 1024;
+
     private readonly ILogService _logService;
 
     public ModDetectionService(
@@ -82,6 +84,7 @@ public class ModDetectionService : IModDetectionService
         {
             try
             {
+                if (new FileInfo(file).Length > s_maxVersionCheckBytes) continue;
                 var versionInfo = GetVersionInfo(file);
                 if (versionInfo is null) continue;
                 await handler(file, versionInfo);
@@ -103,6 +106,7 @@ public class ModDetectionService : IModDetectionService
     {
         try
         {
+            if (new FileInfo(filePath).Length > s_maxVersionCheckBytes) return null;
             var versionInfo = GetVersionInfo(filePath);
             if (versionInfo is null) return null;
             

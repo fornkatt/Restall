@@ -14,7 +14,7 @@ public class ParseService : IParseService
     private const string s_reShadeTagsUrl = "https://github.com/crosire/reshade/tags";
     private const string s_reShadeSiteUrl = "https://reshade.me";
 
-    private const string s_renoDxUrl = "https://github.com/clshortfuse/renodx/wiki/Mods/";
+    private const string s_renoDxUrl = "https://raw.githubusercontent.com/wiki/clshortfuse/renodx/Mods.md";
     private const string s_renoDxTagsUrl = "https://github.com/clshortfuse/renodx/tags";
     private const string s_renoDxReleasesTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
 
@@ -144,54 +144,93 @@ public class ParseService : IParseService
 
         try
         {
-            var document = await LoadHtmlDocumentAsync(s_renoDxUrl);
+            var markdown = await _httpClient.GetStringAsync(s_renoDxUrl);
+            var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-            var rows = document.DocumentNode.SelectNodes("//table[1]//tr[position() > 1]");
+            Engine? currentEngine = null;
+            bool inTable = false;
+            bool headerSkipped = false;
 
-            if (rows is null)
+            foreach (var rawLine in lines)
             {
-                await _logService.LogWarningAsync("No rows found in RenoDX wiki.");
-                return (wikiMods, genericWikiMods);
-            }
+                var line = rawLine.Trim();
 
-            foreach (var row in rows)
-            {
-                var cells = row.SelectNodes("./td");
-                if (cells is null || cells.Count < 4) continue;
+                if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentEngine = Engine.Unreal;
+                    inTable = false;
+                    headerSkipped = false;
+                    continue;
+                }
+                if (line.StartsWith("### Unity Engine", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentEngine = Engine.Unity;
+                    inTable = false;
+                    headerSkipped = false;
+                    continue;
+                }
+                if (line.StartsWith('#'))
+                {
+                    currentEngine = null;
+                    inTable = false;
+                    headerSkipped = false;
+                    continue;
+                }
 
-                var rawName = HtmlEntity.DeEntitize(cells[0].InnerText).Trim();
-                if (string.IsNullOrWhiteSpace(rawName)) continue;
+                if (!line.StartsWith('|') || line.StartsWith("| ---") || line.StartsWith("|---"))
+                    continue;
 
-                var maintainer = HtmlEntity.DeEntitize(cells[1].InnerText).Trim();
-                if (string.IsNullOrWhiteSpace(maintainer))
-                    maintainer = "Unknown";
+                if (!inTable)
+                    inTable = true;
 
-                var linksCell = cells[2];
-                var statusRaw = cells[3].InnerText.Trim();
+                if (!headerSkipped)
+                {
+                    headerSkipped = true;
+                    continue;
+                }
 
-                var snapshotNode64 = linksCell.SelectSingleNode(".//a[contains(@href, '.addon64')]");
-                var snapshotNode32 = linksCell.SelectSingleNode(".//a[contains(@href, '.addon32')]");
-                var nexusNode = linksCell.SelectSingleNode(".//a[contains(@href, 'nexusmods.com')]");
-                var discordNode = linksCell.SelectSingleNode(".//a[contains(@href, 'discord')]");
+                var cells = line.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
-                var mod = new RenoDXModInfoDto(
-                    Name: rawName,
-                    DiscordUrl: discordNode?.GetAttributeValue("href", string.Empty),
-                    SnapshotUrl64: snapshotNode64?.GetAttributeValue("href", string.Empty),
-                    SnapshotUrl32: snapshotNode32?.GetAttributeValue("href", string.Empty),
-                    NexusUrl: nexusNode?.GetAttributeValue("href", string.Empty),
+                if (currentEngine is not null)
+                {
+                    if (cells.Length < 2) continue;
+                    var name = HtmlEntity.DeEntitize(cells[0].Trim());
+                    if (string.IsNullOrWhiteSpace(name)) continue;
+                    var status = cells[1].Trim();
+                    var notes = cells.Length >= 3 ? cells[2].Trim() : null;
+                    if (string.IsNullOrWhiteSpace(notes))
+                        notes = null;
+
+                    genericWikiMods.Add(new RenoDXGenericModInfoDto(
+                        Name: name,
+                        Status: status,
+                        Notes: notes,
+                        Engine: currentEngine.Value
+                        ));
+                }
+                else
+                {
+                    if (cells.Length < 4) continue;
+                    var name = HtmlEntity.DeEntitize(cells[0].Trim());
+                    if (string.IsNullOrWhiteSpace(name)) continue;
+                    var maintainer = cells[1].Trim();
+                    if (string.IsNullOrWhiteSpace(maintainer))
+                        maintainer = "Unknown";
+                    var linksCell = cells[2];
+                    var status = cells[3].Trim();
+
+                    wikiMods.Add(new RenoDXModInfoDto(
+                    Name: name,
+                    DiscordUrl: ExtractMarkdownUrl(linksCell, "discord"),
+                    SnapshotUrl64: ExtractMarkdownUrl(linksCell, ".addon64"),
+                    SnapshotUrl32: ExtractMarkdownUrl(linksCell, ".addon32"),
+                    NexusUrl: ExtractMarkdownUrl(linksCell, "nexusmods.com"),
                     Maintainer: maintainer,
                     Notes: null,
-                    Status: statusRaw
-                    );
-
-                wikiMods.Add(mod);
+                    Status: status
+                    ));
+                }
             }
-
-            await _logService.LogInfoAsync($"Parsed {wikiMods.Count} RenoDX compatible games from wiki.");
-
-            await ParseRenoDXGenericModTableAsync(document, "Unreal Engine", Engine.Unreal, genericWikiMods);
-            await ParseRenoDXGenericModTableAsync(document, "Unity Engine", Engine.Unity, genericWikiMods);
 
             await _logService.LogInfoAsync($"Parsed {genericWikiMods.Count} generic RenoDX mods from wiki.");
         }
@@ -203,70 +242,21 @@ public class ParseService : IParseService
         return (wikiMods, genericWikiMods);
     }
 
-    private async Task ParseRenoDXGenericModTableAsync(HtmlDocument document,
-                                                       string engineHeading,
-                                                       Engine engine,
-                                                       List<RenoDXGenericModInfoDto> genericWikiMods)
+    private string? ExtractMarkdownUrl(string markdown, string urlContains)
     {
-        var h3Nodes = document.DocumentNode.SelectNodes("//h3");
-        var targetH3 = h3Nodes?.FirstOrDefault(n => n.InnerText.Contains(engineHeading));
+        var start = 0;
 
-        if (targetH3 is null)
+        while (true)
         {
-            await _logService.LogWarningAsync($"Could not find {engineHeading} in RenoDX wiki.");
-            return;
-        }
-
-        var anchorNode = targetH3.ParentNode.GetAttributeValue("class", string.Empty)
-            .Contains("markdown-heading")
-            ? targetH3.ParentNode
-            : targetH3;
-
-        static bool IsHeadingElement(HtmlNode n) =>
-            n.Name is "h2" or "h3" ||
-            (n.Name == "div" && n.GetAttributeValue("class", string.Empty).Contains("markdown-heading"));
-
-        var tableNode = anchorNode.ParentNode.ChildNodes
-            .SkipWhile(n => n != anchorNode)
-            .Skip(1)
-            .TakeWhile(n => !IsHeadingElement(n))
-            .FirstOrDefault(n => n.Name == "table");
-
-        if (tableNode is null)
-        {
-            await _logService.LogWarningAsync($"No table found after {engineHeading} in RenoDX wiki.");
-            return;
-        }
-
-        var rows = tableNode.SelectNodes(".//tr[position() > 1]");
-
-        if (rows is null)
-        {
-            await _logService.LogWarningAsync($"No rows found in {engineHeading} RenoDX mod table.");
-            return;
-        }
-
-        foreach (var row in rows)
-        {
-            var cells = row.SelectNodes("./td");
-            if (cells is null || cells.Count < 2) continue;
-
-            var rawName = HtmlEntity.DeEntitize(cells[0].InnerText).Trim();
-            if (string.IsNullOrWhiteSpace(rawName)) continue;
-
-            var statusRaw = cells[1].InnerText.Trim();
-
-            var notes = cells.Count >= 3
-                ? HtmlEntity.DeEntitize(cells[2].InnerText).Trim()
-                : null;
-            if (string.IsNullOrWhiteSpace(notes)) notes = null;
-
-            genericWikiMods.Add(new RenoDXGenericModInfoDto(
-                Name: rawName,
-                Status: statusRaw,
-                Notes: notes,
-                Engine: engine
-                ));
+            int linkOpen = markdown.IndexOf("](", start, StringComparison.Ordinal);
+            if (linkOpen < 0) return null;
+            int urlStart = linkOpen + 2;
+            int urlEnd = markdown.IndexOf(')', urlStart);
+            if (urlEnd < 0) return null;
+            var url = markdown[urlStart..urlEnd];
+            if (url.Contains(urlContains, StringComparison.OrdinalIgnoreCase))
+                return url;
+            start = urlEnd + 1;
         }
     }
 

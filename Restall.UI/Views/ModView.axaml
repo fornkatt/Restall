@@ -1,109 +1,135 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:Restall.UI.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Restall.UI.Views.ModView"
-             x:DataType="vm:ModViewModel">
-
-
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="clr-namespace:Restall.UI.ViewModels"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 x:Class="Restall.UI.Views.ModView"
+			 x:DataType="vm:ModViewModel">
 
 	<Grid ColumnDefinitions="*"
-		  RowDefinitions=".25*,.75*" Background="White">
+		  RowDefinitions=".25*,.75*">
 
-
-
-		<Border Grid.Row="0" Background="Black" Opacity="0.8" CornerRadius="20" Margin="10">
-
+		<Border Grid.Row="0" CornerRadius="20" Margin="5" Background="{DynamicResource GameCardBackground}">
 			<Grid ColumnDefinitions=".5*,.5*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" >
-
 				<TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="10, 10, 10, 0" Text="{Binding SelectedGame.Name}"
-						   FontSize="25" FontWeight="Bold" Foreground="White" />
-				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="10, 0, 0, 0" Text="{Binding SelectedGame.PlatformName}" Foreground="White"/>
-				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="10, 0, 0, 0" Text="{Binding SelectedGame.EngineName}" Foreground="White"/>
-				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="10, 0, 0, 0" Text="{Binding SelectedGame.InstallFolder}" Foreground="White"/>
-				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Margin="10, 0, 0, 0" Text="{Binding SelectedGame.ExecutablePath}" Foreground="White"/>
+						   FontSize="20" FontWeight="Bold" Foreground="{DynamicResource GameCardText}" />
+				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" FontSize="12" Margin="10, 0, 0, 0" Text="{Binding SelectedGame.PlatformName}" Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" FontSize="12" Margin="10, 0, 0, 0" Text="{Binding SelectedGame.EngineName}" Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" FontSize="12" Margin="10, 0, 0, 0" Text="{Binding SelectedGame.InstallFolder}" Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" FontSize="12" Margin="10, 0, 0, 0" Text="{Binding SelectedGame.ExecutablePath}" Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
 			</Grid>
 		</Border>
-		<Border Grid.Row="1" Background="Black" Opacity="0.8" Margin="5" CornerRadius="20">
 
+		<Border Grid.Row="1" Margin="5" CornerRadius="20" Background="{DynamicResource GameCardBackground}">
 			<Grid ColumnDefinitions=".5*,.5*" RowDefinitions="Auto,Auto,Auto,Auto">
 
 				<!-- RESHADE -->
 				<StackPanel Grid.Row="0" Grid.Column="0">
-					<TextBlock  Text="Reshade" FontWeight="Bold" FontSize="25" Foreground="White" Margin="10, 10, 0, 0">
-					</TextBlock>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Name: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.ReShadeFileName}" FontSize="12" Foreground="White" />
-					</StackPanel>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Branch: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.ReShadeBranch}" FontSize="12" Foreground="White" />
-					</StackPanel>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Arch: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.ReShadeArch}" FontSize="12" Foreground="White" />
-					</StackPanel>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Version: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.ReShadeVersion}" FontSize="12" Foreground="White" />
-					</StackPanel>
+					<TextBlock Text="Reshade" FontWeight="Bold" FontSize="25"
+							   Foreground="{DynamicResource GameCardText}" Margin="10,10,0,0"/>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Name: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.ReShadeFileName}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Branch: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.ReShadeBranch}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Arch: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.ReShadeArch}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Version: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.ReShadeVersion}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
 				</StackPanel>
-
-				<Button Grid.Row="1" Grid.Column="0" Command="{Binding InstallReShadeCommand}" Background="Aqua" Margin="10">INSTALL</Button>
-				
-				<Button Grid.Row="2" Grid.Column="0" Command="{Binding UpdateReShadeCommand}" Background="Aqua" Margin="10">UPDATE</Button>
-				
-				<Button Grid.Row="3" Grid.Column="0" Command="{Binding UninstallReShadeCommand}" Background="Aqua" Margin="10">DELETE</Button>
-
-
+				<Button Grid.Row="1" Grid.Column="0"
+						Content="INSTALL"
+						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+						MinWidth="120" CornerRadius="6"
+						Command="{Binding InstallReShadeCommand}"
+						Background="{DynamicResource ModCardButton}"
+						Foreground="{DynamicResource ModCardButtonText}"
+						Margin="10"/>
+				<Button Grid.Row="2" Grid.Column="0"
+						Content="UPDATE"
+						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+						MinWidth="120" CornerRadius="6"
+						Command="{Binding UpdateReShadeCommand}"
+						Background="{DynamicResource ModCardButton}"
+						Foreground="{DynamicResource ModCardButtonText}"
+						Margin="10"/>
+				<Button Grid.Row="3" Grid.Column="0"
+						Content="UNINSTALL"
+						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+						MinWidth="120" CornerRadius="6"
+						Command="{Binding UninstallReShadeCommand}"
+						Background="{DynamicResource ModCardButton}"
+						Foreground="{DynamicResource ModCardButtonText}"
+						Margin="10"/>
 
 				<!-- RENODX -->
 				<StackPanel Grid.Row="0" Grid.Column="1">
-					<TextBlock  Text="RenoDX" FontWeight="Bold" FontSize="25" Foreground="White" Margin="10,10,0,0">
-					</TextBlock>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Name: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.RenoDXName}" FontSize="12" Foreground="White" />
-					</StackPanel>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Branch: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.RenoDXBranch}" FontSize="12" Foreground="White" />
-					</StackPanel>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Arch: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.RenoDXArch}" FontSize="12" Foreground="White" />
-					</StackPanel>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Version: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.RenoDXVersion}" FontSize="12" Foreground="White" />
-					</StackPanel>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Maintainer: " FontSize="12" Foreground="White" Margin="10,0,0,0" />
-						<TextBlock Text="{Binding SelectedGame.RenoDXMaintainer}" FontSize="12" Foreground="White" />
-					</StackPanel>
+					<TextBlock Text="RenoDX" FontWeight="Bold" FontSize="25"
+							   Foreground="{DynamicResource GameCardText}" Margin="10,10,0,0"/>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Name: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.RenoDXName}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Branch: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.RenoDXBranch}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Arch: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.RenoDXArch}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Version: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.RenoDXVersion}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
+					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
+						<TextBlock Grid.Column="0" Text="Maintainer: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.RenoDXMaintainer}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
 				</StackPanel>
-				
-				<Button Grid.Row="1" Grid.Column="1" Command="{Binding InstallRenoDXCommand}" Background="Aqua" Margin="10">INSTALL</Button>
-				
-				<Button Grid.Row="2" Grid.Column="1" Command="{Binding UpdateRenoDXCommand}" Background="Aqua" Margin="10">UPDATE</Button>
-				
-				<Button Grid.Row="3" Grid.Column="1" Command="{Binding UninstallRenoDXCommand}" Background="Aqua" Margin="10">DELETE</Button>
-
+				<Button Grid.Row="1" Grid.Column="1"
+						Content="INSTALL"
+						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+						MinWidth="120" CornerRadius="6"
+						Command="{Binding InstallRenoDXCommand}"
+						Background="{DynamicResource ModCardButton}"
+						Foreground="{DynamicResource ModCardButtonText}"
+						Margin="10"/>
+				<Button Grid.Row="2" Grid.Column="1"
+						Content="UPDATE"
+						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+						MinWidth="120" CornerRadius="6"
+						Command="{Binding UpdateRenoDXCommand}"
+						Background="{DynamicResource ModCardButton}"
+						Foreground="{DynamicResource ModCardButtonText}"
+						Margin="10"/>
+				<Button Grid.Row="3" Grid.Column="1"
+						Content="UNINSTALL"
+						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+						MinWidth="120" CornerRadius="6"
+						Command="{Binding UninstallRenoDXCommand}"
+						Background="{DynamicResource ModCardButton}"
+						Foreground="{DynamicResource ModCardButtonText}"
+						Margin="10"/>
 
 			</Grid>
-
-
-
 		</Border>
-
 	</Grid>
-
-
-
-
-
-
 </UserControl>

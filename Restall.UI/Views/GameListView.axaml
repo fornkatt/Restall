@@ -1,19 +1,71 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:Restall.UI.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Restall.UI.Views.GameListView"
-             x:DataType="vm:GameListViewModel">
-    
-    <ListBox ItemsSource="{Binding Games}" x:Name="GameList" Background="BurlyWood"
-             SelectedItem="{Binding SelectedGame}">
-        <ListBox.ItemTemplate>
-            <DataTemplate>
-                <TextBlock Text="{Binding Name}" Foreground="Black"></TextBlock>
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="clr-namespace:Restall.UI.ViewModels"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 x:Class="Restall.UI.Views.GameListView"
+			 x:DataType="vm:GameListViewModel">
+
+	<ListBox ItemsSource="{Binding Games}"
+			 x:Name="GameList"
+			 SelectedItem="{Binding SelectedGame}"
+			 CornerRadius="20"
+			 Margin="5"
+			 Background="{DynamicResource GameCardBackground}"
+			 Foreground="{DynamicResource GameCardText}"
+			 FontWeight="SemiBold">
+		<ListBox.ItemsPanel>
+			<ItemsPanelTemplate>
+				<StackPanel/>
+			</ItemsPanelTemplate>
+		</ListBox.ItemsPanel>
+		<ListBox.Styles>
+			<Style Selector="ListBoxItem">
+				<Setter Property="Padding" Value="0"/>
+				<Setter Property="Background" Value="Transparent"/>
+			</Style>
+			<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+				<Setter Property="Background" Value="Transparent"/>
+			</Style>
+			<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+				<Setter Property="Background" Value="Transparent"/>
+			</Style>
+
+			<Style Selector="ListBoxItem:selected Border.game-list-card">
+				<Setter Property="Background" Value="{DynamicResource GameListSelection}"/>
+				<Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}"/>
+			</Style>
+			<Style Selector="ListBoxItem:pointerover:not(:selected) Border.game-list-card">
+				<Setter Property="Background" Value="{DynamicResource GameListHover}"/>
+			</Style>
+		</ListBox.Styles>
+		<ListBox.ItemTemplate>
+			<DataTemplate>
+				<Border Classes="game-list-card"
+						BorderThickness="1"
+						CornerRadius="2"
+						Padding="8, 6"
+						Margin="4, 3">
+					<StackPanel Orientation="Horizontal"
+								Spacing="10"
+								VerticalAlignment="Center">
+
+						<Border Width="16"
+								Height="16"
+								CornerRadius="4"
+								ClipToBounds="True">
+							<Image Source="{Binding ThumbnailBitmap}"
+								   Stretch="UniformToFill"/>
+						</Border>
+						<TextBlock Text="{Binding Name}"
+								   FontSize="12"
+								   Foreground="{DynamicResource GameCardText}"
+								   VerticalAlignment="Center"/>
+					</StackPanel>
+				</Border>
+			</DataTemplate>
+		</ListBox.ItemTemplate>
+	</ListBox>
 
 </UserControl>

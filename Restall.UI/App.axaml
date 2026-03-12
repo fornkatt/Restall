@@ -1,14 +1,42 @@
 <Application xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Restall.UI.App"
-             xmlns:local="using:Restall.UI"
-             RequestedThemeVariant="Default">
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 x:Class="Restall.UI.App"
+			 xmlns:local="using:Restall.UI"
+			 RequestedThemeVariant="Default">
 
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
-  
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
+	<Application.DataTemplates>
+		<local:ViewLocator/>
+	</Application.DataTemplates>
+
+	<Application.Styles>
+		<FluentTheme />
+	</Application.Styles>
+
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<SolidColorBrush x:Key="AppBackground" Color="#ececec"/>
+					<SolidColorBrush x:Key="GameListSelection" Color="#f2f2f2"/>
+					<SolidColorBrush x:Key="GameListHover" Color="#d6d6d6"/>
+					<SolidColorBrush x:Key="GameCardBackground" Color="#ffffff"/>
+					<SolidColorBrush x:Key="GameCardText" Color="Black"/>
+					<SolidColorBrush x:Key="GameCardBorder" Color="#fafafa"/>
+					<SolidColorBrush x:Key="ModCardButton" Color="#e7e7e7"/>
+					<SolidColorBrush x:Key="ModCardButtonText" Color="Black"/>
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Dark">
+					<SolidColorBrush x:Key="AppBackground" Color="#151515"/>
+					<SolidColorBrush x:Key="GameListSelection" Color="#333333"/>
+					<SolidColorBrush x:Key="GameListHover" Color="#3d3d3d"/>
+					<SolidColorBrush x:Key="GameCardBackground" Color="#272727"/>
+					<SolidColorBrush x:Key="GameCardText" Color="White"/>
+					<SolidColorBrush x:Key="GameCardBorder" Color="#2c2c2c"/>
+					<SolidColorBrush x:Key="ModCardButton" Color="#484848"/>
+					<SolidColorBrush x:Key="ModCardButtonText" Color="White"/>
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+
 </Application>
