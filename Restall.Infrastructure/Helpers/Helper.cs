@@ -77,7 +77,21 @@ internal class Helper
             "_CommonRedist"
             
         };
-        return nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
+        if (nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase)))
+            return true;
+        
+        var nonGameSuffixes = new HashSet<string>
+        {
+            "Demo",
+            "demo",
+            "Beta",
+            "beta",
+            "Playtest",
+            "playtest",
+            "Dedicated Server"
+        };
+        return nonGameSuffixes.Any(s => name.EndsWith(s, StringComparison.OrdinalIgnoreCase));
+        
     }
     
 }

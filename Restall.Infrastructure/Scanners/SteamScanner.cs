@@ -10,8 +10,6 @@ public class SteamScanner : IPlatformScannerService
     private readonly ILogService _logService;
     private readonly IEngineDetectionService _engineDetectionService;
     
-    public Game.Platform Platform => Game.Platform.Steam;
-
     public SteamScanner(
         ILogService logService, 
         IEngineDetectionService engineDetectionService)
@@ -86,18 +84,12 @@ public class SteamScanner : IPlatformScannerService
 
                 var rootPath = Path.Combine(steamapps, "common", installDir);
                 if (!Directory.Exists(rootPath)) continue;
-
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(rootPath, out var engine);
-
-                if (string.IsNullOrEmpty(executablePath)) continue;
-
+                
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = rootPath,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Game.Platform.Steam
                 });
             }
             catch

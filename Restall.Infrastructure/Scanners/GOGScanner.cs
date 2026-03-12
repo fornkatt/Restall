@@ -18,8 +18,6 @@ public class GOGScanner : IPlatformScannerService
         _engineDetectionService = engineDetectionService;
     }
     
-    public Game.Platform Platform => Game.Platform.GOG;
-    
     public Task<List<Game>> ScanAsync() => Task.Run(ScanGOG);
 
     private List<Game> ScanGOG()
@@ -67,16 +65,12 @@ public class GOGScanner : IPlatformScannerService
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path)) continue;
                 if (!Directory.Exists(path)) continue;
 
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(path, out var engine);
-                if (string.IsNullOrEmpty(executablePath)) continue;
 
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = path,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Game.Platform.GOG
                 });
             }
         }
@@ -122,16 +116,11 @@ public class GOGScanner : IPlatformScannerService
                 var name = Path.GetFileName(installPath);
                 if (string.IsNullOrEmpty(name)) continue;
                 
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(installPath, out var engine);
-                if (string.IsNullOrEmpty(executablePath)) continue;
-
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = installPath,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform,
+                    PlatformName = Game.Platform.GOG,
                     
                 });
 

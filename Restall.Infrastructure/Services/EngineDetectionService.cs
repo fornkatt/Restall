@@ -13,28 +13,25 @@ public class EngineDetectionService : IEngineDetectionService
         _logService = logService;
     }
     
-    public string? DetectExecutablePathAndEngine(string rootPath, out Game.Engine engine)
+public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath)
     {
         var uePath = FindUEBinariesFolder(rootPath);
         if (uePath != null)
         {
-            engine = Game.Engine.Unreal;
-
-            return uePath;
+            return (uePath, Game.Engine.Unreal);
         }
-
+    
         var unityPlayer = FindFileShallow(rootPath, "UnityPlayer.dll", maxDepth: 2);
         if (unityPlayer != null)
         {
-            engine = Game.Engine.Unity;
-            return Path.GetDirectoryName(unityPlayer);
+            return (Path.GetDirectoryName(unityPlayer), Game.Engine.Unity);
         }
-
+    
         var exeFolder = FindShallowExeFolder(rootPath);
-        engine = Game.Engine.Unknown;
-        return exeFolder;
+        return (exeFolder, Game.Engine.Unknown);
     }
-
+    
+    
 
     private string? FindUEBinariesFolder(string? root)
     {
@@ -159,4 +156,5 @@ public class EngineDetectionService : IEngineDetectionService
 
         return null;
     }
+
 }

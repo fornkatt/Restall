@@ -9,7 +9,6 @@ public class EAScanner : IPlatformScannerService
     private readonly ILogService _logService;
     private readonly IEngineDetectionService _engineDetectionService;
     
-    public Game.Platform Platform => Game.Platform.EA;
 
     public EAScanner(
         ILogService logService, 
@@ -57,15 +56,13 @@ public class EAScanner : IPlatformScannerService
 
                 if (string.IsNullOrEmpty(displayName)) continue;
 
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(installDir, out var engine);
+                
 
                 games.Add(new Game
                 {
                     Name = displayName,
                     InstallFolder = installDir,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Game.Platform.EA
                 });
             }
         }

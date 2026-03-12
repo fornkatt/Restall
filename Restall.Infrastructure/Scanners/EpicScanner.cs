@@ -10,8 +10,6 @@ public class EpicScanner : IPlatformScannerService
     private readonly ILogService _logService;
     private readonly IEngineDetectionService _engineDetectionService;
 
-    public Game.Platform Platform => Game.Platform.Epic;
-    
     public EpicScanner(
         ILogService logService, 
         IEngineDetectionService engineDetectionService)
@@ -68,37 +66,24 @@ public class EpicScanner : IPlatformScannerService
                 if (rootPath != null)
                 {
                     if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(rootPath))
-                    {
-                        _logService.LogWarning($" Skipping Epic: empty title or path");
                         continue;
-                    }
+                    
 
                     if (!Directory.Exists(rootPath))
-                    {
-                        _logService.LogWarning($"Could not find install location: {rootPath}");
                         continue;
-                    }
+                    
 
-                    var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(rootPath, out var engine);
-                    if (executablePath != null && Helper.NonGame(executablePath))
-                    {
-                        _logService.LogInfo($"[EXCLUDED] {Helper.NonGame(executablePath)}");
+                    
+                    if (Helper.NonGame(rootPath))
+                    
                         continue;
-                    }
-
-                    if (string.IsNullOrEmpty(executablePath))
-                    {
-                        _logService.LogWarning($"Could not find executable path: {rootPath}");
-                        continue;
-                    }
+                    
 
                     games.Add(new Game
                     {
                         Name = name,
                         InstallFolder = rootPath,
-                        ExecutablePath = executablePath,
-                        EngineName = engine,
-                        PlatformName = Platform
+                        PlatformName = Game.Platform.Epic
                     });
                 }
             }
@@ -153,17 +138,11 @@ public class EpicScanner : IPlatformScannerService
                     : Path.GetFileName(installPath);
                 if(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(installPath)) continue;
                 
-                
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(installPath, out var engine);
-                if (string.IsNullOrEmpty(executablePath)) continue;
-                
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = installPath,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform,
+                    PlatformName = Game.Platform.Epic,
                     
                 });
                 

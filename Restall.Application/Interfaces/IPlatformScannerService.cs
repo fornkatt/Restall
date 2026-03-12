@@ -6,5 +6,5 @@ namespace Restall.Application.Interfaces;
 public interface IPlatformScannerService
 {
     Task<List<Game>> ScanAsync();
-    Game.Platform Platform { get; }
+    
 }

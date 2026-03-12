@@ -9,7 +9,6 @@ public class UbisoftScanner : IPlatformScannerService
     private readonly ILogService _logService;
     private readonly IEngineDetectionService _engineDetectionService;
     
-    public Game.Platform Platform => Game.Platform.Ubisoft;
 
     public UbisoftScanner(
         ILogService logService,
@@ -56,18 +55,12 @@ public class UbisoftScanner : IPlatformScannerService
                            ?? Path.GetFileName(installDir);
                 
                 if (string.IsNullOrEmpty(name)) continue;
-
-                var executablePath = _engineDetectionService.DetectExecutablePathAndEngine(installDir, out var engine);
-
-                if (string.IsNullOrEmpty(executablePath)) continue;
-
+                
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = installDir,
-                    ExecutablePath = executablePath,
-                    EngineName = engine,
-                    PlatformName = Platform
+                    PlatformName = Game.Platform.Ubisoft
                 });
             }
         }
