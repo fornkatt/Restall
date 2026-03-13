@@ -109,11 +109,16 @@ public class GOGScanner : IPlatformScannerService
 
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
                     is { Success: true } pm ? pm.Groups[1].Value.Replace("\\\\", "\\") : null;
-
+                
                 installPath = GameScanHelper.NormalizePath(installPath);
                 if (string.IsNullOrEmpty(installPath) || !Directory.Exists(installPath)) continue;
                 
-                var name = Path.GetFileName(installPath);
+                var title = RegexHelper.HeroicTitleRegex.Match(blockValue)
+                    is {Success: true } tm ? tm.Groups[1].Value : null;
+                
+                var name = !string.IsNullOrWhiteSpace(title) 
+                    ? title : Path.GetFileName(installPath);
+                
                 if (string.IsNullOrEmpty(name)) continue;
                 
                 var appName = RegexHelper.HeroicAppNameRegex.Match(blockValue)
@@ -124,7 +129,7 @@ public class GOGScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = installPath,
                     PlatformName = Platform,
-                    PlatformId = $"gog{appName}"
+                    PlatformId = $"gog:{appName}"
                 });
 
             }

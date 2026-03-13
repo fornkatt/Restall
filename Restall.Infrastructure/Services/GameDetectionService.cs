@@ -35,11 +35,9 @@ public class GameDetectionService : IGameDetectionService
               var scanTasks = _platformScannerService.Select(s => s.ScanAsync());
               var results = await Task.WhenAll(scanTasks);
               var allGames = results.SelectMany(g => g).ToList();
-         
-              var deduped = allGames.GroupBy(g => g.Name)
-                  .Select(g => g.First())
-                  .GroupBy(g => g.InstallFolder,StringComparer.OrdinalIgnoreCase)
-                  .Select(g => g.First())
+
+              var deduped = allGames.GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
+                  .Select(g => g.OrderByDescending(g => g.PlatformId)).First()
                   .ToList<Game?>();
 
               
@@ -68,12 +66,7 @@ public class GameDetectionService : IGameDetectionService
                       engineCache[rootKey] = (executablePath, engine);
                   });
               });
-                  
               
-             
-
-              
-
               return deduped
                   .Where(g => !string.IsNullOrEmpty(g.InstallFolder))
                   .Cast<Game>()

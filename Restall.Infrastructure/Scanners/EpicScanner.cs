@@ -138,6 +138,7 @@ public class EpicScanner : IPlatformScannerService
                 var name = !string.IsNullOrWhiteSpace(title)
                     ? title
                     : Path.GetFileName(installPath);
+                
                 if(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(installPath)) continue;
                 
                 var appName = RegexHelper.HeroicAppNameRegex.Match(blockValue)
