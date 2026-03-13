@@ -16,7 +16,9 @@
     <!-- </Grid>  -->
 
     <Grid>
-        <Image Source="{Binding SelectedGame.BannerBitmap}" Stretch="Uniform" Margin="5,5,5,5" />
+        <Image Source="{Binding SelectedGame.BannerBitmap}" 
+               Stretch="UniformToFill" 
+               MinWidth="800" MaxWidth="1000" HorizontalAlignment="Center" />
         <Image Source="{Binding SelectedGame.LogoBitmap}"
                Width="150" Height="180"
                HorizontalAlignment="Right"

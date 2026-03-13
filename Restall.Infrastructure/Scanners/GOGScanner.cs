@@ -8,17 +8,16 @@ namespace Restall.Infrastructure.Scanners;
 public class GOGScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
-    private readonly IEngineDetectionService _engineDetectionService;
+    
 
     public GOGScanner(
-        ILogService logService, 
-        IEngineDetectionService engineDetectionService)
+        ILogService logService)
     {
         _logService = logService;
-        _engineDetectionService = engineDetectionService;
     }
     
     public Task<List<Game>> ScanAsync() => Task.Run(ScanGOG);
+    public Game.Platform Platform => Game.Platform.GOG;
 
     private List<Game> ScanGOG()
     {
@@ -70,7 +69,8 @@ public class GOGScanner : IPlatformScannerService
                 {
                     Name = name,
                     InstallFolder = path,
-                    PlatformName = Game.Platform.GOG
+                    PlatformName = Platform,
+                    PlatformId = $"gog:{sub}"
                 });
             }
         }
@@ -116,12 +116,15 @@ public class GOGScanner : IPlatformScannerService
                 var name = Path.GetFileName(installPath);
                 if (string.IsNullOrEmpty(name)) continue;
                 
+                var appName = RegexHelper.HeroicAppNameRegex.Match(blockValue)
+                    is { Success: true } am ? am.Groups[1].Value : null;
+                
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = installPath,
-                    PlatformName = Game.Platform.GOG,
-                    
+                    PlatformName = Platform,
+                    PlatformId = $"gog{appName}"
                 });
 
             }

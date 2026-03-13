@@ -7,4 +7,6 @@ public interface IPlatformScannerService
 {
     Task<List<Game>> ScanAsync();
     
+    public Game.Platform Platform { get; }
+    
 }

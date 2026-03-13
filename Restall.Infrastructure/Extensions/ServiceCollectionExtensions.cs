@@ -13,12 +13,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<ICachePathService, CachePathService>();
+        services.AddSingleton<ISteamGridDbCacheService, SteamGridDbCacheService>();
+        services.AddSingleton<ISteamGridDbService, SteamGridDbService>();
 
-        services.AddScoped<IPlatformScannerService, SteamScanner>();
-        services.AddScoped<IPlatformScannerService, EpicScanner>();
-        services.AddScoped<IPlatformScannerService, GOGScanner>();
-        services.AddScoped<IPlatformScannerService, UbisoftScanner>();
-        services.AddScoped<IPlatformScannerService, EAScanner>();
+        services.AddPlatformScanners();
+        
         
         services.AddTransient<IEngineDetectionService, EngineDetectionService>();
         services.AddTransient<IGameDetectionService, GameDetectionService>();
@@ -42,4 +41,15 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    private static IServiceCollection AddPlatformScanners(this IServiceCollection services)
+    {
+        services.AddSingleton<IPlatformScannerService, SteamScanner>();
+        services.AddSingleton<IPlatformScannerService, EpicScanner>();
+        services.AddSingleton<IPlatformScannerService, GOGScanner>();
+        services.AddSingleton<IPlatformScannerService, UbisoftScanner>();
+        services.AddSingleton<IPlatformScannerService, EAScanner>();
+        return services;
+    }
+    
 }

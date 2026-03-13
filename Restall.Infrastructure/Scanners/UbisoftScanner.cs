@@ -7,18 +7,15 @@ namespace Restall.Infrastructure.Scanners;
 public class UbisoftScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
-    private readonly IEngineDetectionService _engineDetectionService;
     
-
     public UbisoftScanner(
-        ILogService logService,
-        IEngineDetectionService engineDetectionService)
+        ILogService logService)
     {
         _logService = logService;
-        _engineDetectionService = engineDetectionService;
     }
     
     public Task<List<Game>> ScanAsync() => Task.Run(ScanUbisoft);
+    public Game.Platform Platform => Game.Platform.Ubisoft;
 
     private List<Game> ScanUbisoft()
     {
@@ -60,7 +57,8 @@ public class UbisoftScanner : IPlatformScannerService
                 {
                     Name = name,
                     InstallFolder = installDir,
-                    PlatformName = Game.Platform.Ubisoft
+                    PlatformName = Platform,
+                    PlatformId = $"uplay:{subName}"
                 });
             }
         }

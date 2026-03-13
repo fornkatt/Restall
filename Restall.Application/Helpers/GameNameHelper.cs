@@ -16,4 +16,34 @@ public static partial class GameNameHelper
                                   .Trim()
                                   .ToLowerInvariant();
     }
+    
+    [GeneratedRegex(
+        @"(\s*[-–:]\s*|\s+)(ultimate|complete|definitive|gold|deluxe|premium|anniversary|enhanced|enchanted|directors cut|remastered|goty|game of the year|standard)(\s+edition)?\s*$"
+        ,
+        RegexOptions.IgnoreCase)]
+    private static partial Regex EditionSuffixRegex();
+    
+
+    public static string StripEditionSuffix(string editionSuffix) =>
+        EditionSuffixRegex().Replace(editionSuffix, 
+                string.Empty)
+            .Trim();
+
+
+    public static double ComputeNameSimilarity(string a, string b)
+    {
+        if (!a.Contains(b) && !b.Contains(a)) return 0.0;
+
+        var aWords = a.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bWords = b.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bSet = new HashSet<string>(bWords);
+
+        int shared = aWords.Count(w => bSet.Contains(w));
+        int total = aWords.Length + bWords.Length;
+
+        return total == 0 ? 0.0 : (2.0 * shared) / total;
+
+    }
+    
+    
 }

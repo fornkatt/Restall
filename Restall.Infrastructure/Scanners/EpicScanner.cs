@@ -8,17 +8,17 @@ namespace Restall.Infrastructure.Scanners;
 public class EpicScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
-    private readonly IEngineDetectionService _engineDetectionService;
+    
 
     public EpicScanner(
-        ILogService logService, 
-        IEngineDetectionService engineDetectionService)
+        ILogService logService)
     {
         _logService = logService;
-        _engineDetectionService = engineDetectionService;
+        
     }
     
     public Task<List<Game>> ScanAsync() => Task.Run(ScanEpic);
+    public Game.Platform Platform => Game.Platform.Epic;
 
     private List<Game> ScanEpic()
     {
@@ -62,6 +62,7 @@ public class EpicScanner : IPlatformScannerService
                 var json = File.ReadAllText(file);
                 var name = Helper.ExtractJsonString(json, "DisplayName");
                 var rootPath = Helper.ExtractJsonString(json, "InstallLocation");
+                var catalogItemId = Helper.ExtractJsonString(json, "CatalogItemId");
 
                 if (rootPath != null)
                 {
@@ -83,7 +84,8 @@ public class EpicScanner : IPlatformScannerService
                     {
                         Name = name,
                         InstallFolder = rootPath,
-                        PlatformName = Game.Platform.Epic
+                        PlatformName = Platform,
+                        PlatformId = $"epic:{catalogItemId}"
                     });
                 }
             }
@@ -138,11 +140,15 @@ public class EpicScanner : IPlatformScannerService
                     : Path.GetFileName(installPath);
                 if(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(installPath)) continue;
                 
+                var appName = RegexHelper.HeroicAppNameRegex.Match(blockValue)
+                    is { Success: true } am ? am.Groups[1].Value : null;
+                
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = installPath,
-                    PlatformName = Game.Platform.Epic,
+                    PlatformName = Platform,
+                    PlatformId = $"epic:{appName}"
                     
                 });
                 

@@ -10,6 +10,7 @@ internal static partial class RegexHelper
     internal static Regex HeroicGameBlockRegex => HeroicGameBlock();
     internal static Regex HeroicInstallPathRegex => HeroicInstallPath();
     internal static Regex HeroicTitleRegex => HeroicTitle();
+    internal static Regex HeroicAppNameRegex => HeroicAppName();
     
     [GeneratedRegex(@"^\d+\.(\d{4})\.(\d{4})\.\d+$")]
     private static partial Regex RenoDXVersion();
@@ -19,6 +20,9 @@ internal static partial class RegexHelper
     
     [GeneratedRegex(@"""path""\s+""([^""]+)""")]
     private static partial Regex SteamLibrary();
+
+    [GeneratedRegex(@"""appName""\s*:\s*""([^""]+)""")]
+    private static partial Regex HeroicAppName();
     
     [GeneratedRegex(@"\{[^{}]*""install_path""[^{}]*\}")]
     private static partial Regex HeroicGameBlock();
