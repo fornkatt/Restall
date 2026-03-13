@@ -14,18 +14,6 @@ public class FileExtractionService : IFileExtractionService
 
     public bool ExtractFiles(string fileToOpen, string[] filesToExtract, string destinationPath)
     {
-        if (filesToExtract.All(f => File.Exists(Path.Combine(destinationPath, f))))
-        {
-            _logService.LogInfo($"Files in {destinationPath} already exist, exiting early.");
-            return true;
-        }
-
-        if (!File.Exists(fileToOpen))
-        {
-            _logService.LogInfo("File for extraction not found.");
-            return false;
-        }
-
         var sevenZipPath = GetSevenZipPath();
 
         if (sevenZipPath == null)
