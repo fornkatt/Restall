@@ -9,16 +9,19 @@ public class AppInitializationService : IAppInitializationService
     private readonly IGameDetectionService _gameDetectionService;
     private readonly IModDetectionService _modDetectionService;
     private readonly IParseService _parseService;
+    private readonly ISteamGridDbService _steamGridDbService;
 
     public AppInitializationService(
         IGameDetectionService gameDetectionService,
         IModDetectionService modDetectionService,
-        IParseService parseService
+        IParseService parseService,
+        ISteamGridDbService steamGridDbService
         )
     {
         _gameDetectionService = gameDetectionService;
         _modDetectionService = modDetectionService;
         _parseService = parseService;
+        _steamGridDbService = steamGridDbService;
     }
 
     public async Task<AppInitializationResultDto> InitializeAsync(IProgress<GameScanProgressReportDto>? progress = null)
@@ -39,9 +42,13 @@ public class AppInitializationService : IAppInitializationService
         {
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game!.ExecutablePath!);
             var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game!.ExecutablePath!);
-
+            
+            
             game.ReShade = reShade?.FirstOrDefault();
             game.RenoDX = renoDx?.FirstOrDefault();
+            
+            await _steamGridDbService.EnrichGameArtworkAsync(game);
+
 
             var compatibleMod = FindCompatibleMod(game.Name, wikiResults.WikiMods);
             var compatibleGenericMod = compatibleMod is null

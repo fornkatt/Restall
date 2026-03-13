@@ -7,18 +7,16 @@ namespace Restall.Infrastructure.Scanners;
 public class EAScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
-    private readonly IEngineDetectionService _engineDetectionService;
     
-
     public EAScanner(
-        ILogService logService, 
-        IEngineDetectionService engineDetectionService)
+        ILogService logService)
     {
         _logService = logService;
-        _engineDetectionService = engineDetectionService;
     }
     
     public Task<List<Game>> ScanAsync() => Task.Run(ScanEA);
+    public Game.Platform Platform => Game.Platform.EA;
+
 
     private List<Game> ScanEA()
     {
@@ -62,7 +60,8 @@ public class EAScanner : IPlatformScannerService
                 {
                     Name = displayName,
                     InstallFolder = installDir,
-                    PlatformName = Game.Platform.EA
+                    PlatformName = Platform,
+                    PlatformId = $"origin:{subName}"
                 });
             }
         }

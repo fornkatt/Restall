@@ -8,17 +8,15 @@ namespace Restall.Infrastructure.Scanners;
 public class SteamScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
-    private readonly IEngineDetectionService _engineDetectionService;
     
     public SteamScanner(
-        ILogService logService, 
-        IEngineDetectionService engineDetectionService)
+        ILogService logService)
     {
         _logService = logService;
-        _engineDetectionService = engineDetectionService;
     }
     
     public Task<List<Game>> ScanAsync() => Task.Run(ScanSteam);
+    public Game.Platform Platform => Game.Platform.Steam;
 
     private List<Game> ScanSteam()
     {
@@ -84,12 +82,14 @@ public class SteamScanner : IPlatformScannerService
 
                 var rootPath = Path.Combine(steamapps, "common", installDir);
                 if (!Directory.Exists(rootPath)) continue;
+                var appId = Path.GetFileNameWithoutExtension(acf).Replace("appmanifest_", "");
                 
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = rootPath,
-                    PlatformName = Game.Platform.Steam
+                    PlatformName = Platform,
+                    PlatformId = $"steam:{appId}"
                 });
             }
             catch

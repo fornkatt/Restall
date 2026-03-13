@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.Configuration;
 using Restall.UI.ViewModels;
 using Restall.UI.Views;
 using Restall.Infrastructure.Extensions;
@@ -20,10 +21,17 @@ public partial class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddUserSecrets<App>()
+            .Build();
+        
         var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(configuration);
         ConfigureServices(services);
         var serviceProvider = services.BuildServiceProvider();
 
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
