@@ -29,7 +29,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IUninstallReShadeUseCase, UninstallReShadeUseCase>();
         services.AddTransient<IInstallRenoDXUseCase, InstallRenoDXUseCase>();
         services.AddTransient<IUninstallRenoDXUseCase, UninstallRenoDXUseCase>();
-        services.AddTransient<IGetScannerSummaryUseCase, GetScannerSummaryUseCase>();
 
         services.AddTransient<IAppInitializationService, AppInitializationService>();
 
