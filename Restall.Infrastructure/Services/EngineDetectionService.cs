@@ -144,7 +144,7 @@ public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngin
                 foreach (var sub in Directory.GetDirectories(dir))
                 {
                     var folderName = Path.GetFileName(sub);
-                    if (!Helper.NonGame(folderName))
+                    if (!GameScanHelper.NonGame(folderName))
                         queue.Enqueue((sub, depth + 1));
                 }
             }

@@ -11,6 +11,7 @@ public class ModDownloadService : IModDownloadService
     private const string s_reShadeEndUrl = "_Addon.exe";
     private const string s_renoDxSnapshotDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/snapshot/";
     private const string s_renoDxNightlyDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/";
+    private const string s_renoDxUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
 
     private readonly HttpClient _httpClient;
     private readonly ICachePathService _cachePathService;
@@ -74,6 +75,13 @@ public class ModDownloadService : IModDownloadService
 
         var cacheDir = _cachePathService.GetRenoDXDownloadCachePath(branch);
         return await DownloadFileAsync(downloadUrl, cacheDir, fileName, progress);
+    }
+
+    public async Task<bool> DownloadUnityRenoDXAsync(string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
+    {
+        var downloadUrl = s_renoDxUnityDownloadBaseUrl + addonFileName;
+        var cacheDir = _cachePathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Snapshot);
+        return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
     }
 
     public async Task<bool> DownloadReShadeAsync(ReShade.Branch branch, string version, IProgress<DownloadProgressReportDto>? progress = null)

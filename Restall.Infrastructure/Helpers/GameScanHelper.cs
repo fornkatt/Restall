@@ -3,7 +3,7 @@ using Microsoft.Win32;
 
 namespace Restall.Infrastructure.Helpers;
 
-internal class Helper
+internal class GameScanHelper
 {
     private const string SoftwareRegistryPath = @"SOFTWARE\";
     private const string Wow64RegistryPath = @"SOFTWARE\Wow6432Node\";

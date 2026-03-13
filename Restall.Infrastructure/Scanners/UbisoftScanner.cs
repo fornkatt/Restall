@@ -34,7 +34,7 @@ public class UbisoftScanner : IPlatformScannerService
 
         try
         {
-            using var key = Helper.GetOpenRegistryKey(@"\Ubisoft\Launcher\Installs");
+            using var key = GameScanHelper.GetOpenRegistryKey(@"\Ubisoft\Launcher\Installs");
 
             if (key == null) return games;
 
@@ -43,7 +43,7 @@ public class UbisoftScanner : IPlatformScannerService
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey == null) continue;
 
-                var installDir = Helper.NormalizePath(gameKey.GetValue("InstallDir") as string ?? string.Empty);
+                var installDir = GameScanHelper.NormalizePath(gameKey.GetValue("InstallDir") as string ?? string.Empty);
                 if (string.IsNullOrEmpty(installDir)) continue;
                 if (!Directory.Exists(installDir)) continue;
 

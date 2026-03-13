@@ -60,9 +60,9 @@ public class EpicScanner : IPlatformScannerService
             try
             {
                 var json = File.ReadAllText(file);
-                var name = Helper.ExtractJsonString(json, "DisplayName");
-                var rootPath = Helper.ExtractJsonString(json, "InstallLocation");
-                var catalogItemId = Helper.ExtractJsonString(json, "CatalogItemId");
+                var name = GameScanHelper.ExtractJsonString(json, "DisplayName");
+                var rootPath = GameScanHelper.ExtractJsonString(json, "InstallLocation");
+                var catalogItemId = GameScanHelper.ExtractJsonString(json, "CatalogItemId");
 
                 if (rootPath != null)
                 {
@@ -75,7 +75,7 @@ public class EpicScanner : IPlatformScannerService
                     
 
                     
-                    if (Helper.NonGame(rootPath))
+                    if (GameScanHelper.NonGame(rootPath))
                     
                         continue;
                     
@@ -129,7 +129,7 @@ public class EpicScanner : IPlatformScannerService
                 var blockValue = match.Value;
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
                     is {Success: true} pm ? pm.Groups[1].Value.Replace("\\\\","\\") : null;
-                installPath = Helper.NormalizePath(installPath);
+                installPath = GameScanHelper.NormalizePath(installPath);
                 if (string.IsNullOrEmpty(installPath)) continue;
                 
                 var title = RegexHelper.HeroicTitleRegex.Match(blockValue)

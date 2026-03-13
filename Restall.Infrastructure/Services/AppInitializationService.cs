@@ -49,7 +49,6 @@ public class AppInitializationService : IAppInitializationService
             
             await _steamGridDbService.EnrichGameArtworkAsync(game);
 
-
             var compatibleMod = FindCompatibleMod(game.Name, wikiResults.WikiMods);
             var compatibleGenericMod = compatibleMod is null
                 ? FindGenericMod(game.Name, wikiResults.GenericWikiMods)
@@ -68,7 +67,7 @@ public class AppInitializationService : IAppInitializationService
         var key = GameNameHelper.NormalizeName(gameName);
 
         return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
-            ?? mods.FirstOrDefault(m => m.Status != "💀" && FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+            ?? mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
     }
 
     private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName, IReadOnlyList<RenoDXGenericModInfoDto> mods)
@@ -78,21 +77,6 @@ public class AppInitializationService : IAppInitializationService
         var key = GameNameHelper.NormalizeName(gameName);
 
         return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
-            ?? mods.FirstOrDefault(m => m.Status != "💀" && FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
-    }
-
-    private static bool FuzzyNameMatch(string a, string b)
-    {
-        if (!a.Contains(b) && !b.Contains(a))
-            return false;
-
-        var aWords = a.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var bWords = b.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var bSet = new HashSet<string>(bWords);
-
-        int shared = aWords.Count(w => bSet.Contains(w));
-        int maxWords = Math.Max(aWords.Length, bWords.Length);
-
-        return maxWords > 0 && (double)shared / maxWords >= 0.5;
+            ?? mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
     }
 }

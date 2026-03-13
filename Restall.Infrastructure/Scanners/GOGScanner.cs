@@ -44,7 +44,7 @@ public class GOGScanner : IPlatformScannerService
 
         try
         {
-            using var key = Helper.GetOpenRegistryKey(@"GOG.com\Games");
+            using var key = GameScanHelper.GetOpenRegistryKey(@"GOG.com\Games");
 
             if (key == null) return games;
 
@@ -110,7 +110,7 @@ public class GOGScanner : IPlatformScannerService
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
                     is { Success: true } pm ? pm.Groups[1].Value.Replace("\\\\", "\\") : null;
 
-                installPath = Helper.NormalizePath(installPath);
+                installPath = GameScanHelper.NormalizePath(installPath);
                 if (string.IsNullOrEmpty(installPath) || !Directory.Exists(installPath)) continue;
                 
                 var name = Path.GetFileName(installPath);

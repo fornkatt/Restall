@@ -52,7 +52,7 @@ public class GameDetectionService : IGameDetectionService
                   {
                       if (string.IsNullOrEmpty(game.InstallFolder)) return;
 
-                      var rootKey = (Helper.NormalizePath(game.InstallFolder) ?? game.InstallFolder).ToLowerInvariant();
+                      var rootKey = (GameScanHelper.NormalizePath(game.InstallFolder) ?? game.InstallFolder).ToLowerInvariant();
 
                       if (engineCache.TryGetValue(rootKey, out var cached))
                       {

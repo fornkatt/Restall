@@ -34,7 +34,7 @@ public class EAScanner : IPlatformScannerService
         var games = new List<Game>();
         try
         {
-            using var key = Helper.GetOpenRegistryKey(@"\EA Games");
+            using var key = GameScanHelper.GetOpenRegistryKey(@"\EA Games");
 
             if (key == null) return games;
             foreach (var subName in key.GetSubKeyNames())
@@ -42,9 +42,9 @@ public class EAScanner : IPlatformScannerService
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey == null) continue;
 
-                var installDir = gameKey.GetValue(Helper.NormalizePath("Install Dir")) as string
-                                 ?? gameKey.GetValue(Helper.NormalizePath("InstallLocation")) as string
-                                 ?? gameKey.GetValue(Helper.NormalizePath("InstallDir")) as string;
+                var installDir = gameKey.GetValue(GameScanHelper.NormalizePath("Install Dir")) as string
+                                 ?? gameKey.GetValue(GameScanHelper.NormalizePath("InstallLocation")) as string
+                                 ?? gameKey.GetValue(GameScanHelper.NormalizePath("InstallDir")) as string;
 
 
                 if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir)) continue;

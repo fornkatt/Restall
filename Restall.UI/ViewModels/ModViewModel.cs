@@ -159,10 +159,8 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
     private async Task ExecuteRenoDXInstallAsync(string successStatus)
     {
-        if (SelectedGame!.CompatibleRenoDXMod is null && SelectedGame.CompatibleRenoDXGenericMod is null) return;
-
         var request = new InstallRenoDXRequest(
-            SelectedGame.GetGame(),
+            SelectedGame!.GetGame(),
             SelectedGame.SelectedRenoDXInstallArch,
             SelectedRenoDXBranch,
             ModInfo: SelectedGame.CompatibleRenoDXMod,

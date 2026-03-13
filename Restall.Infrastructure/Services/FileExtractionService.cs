@@ -7,6 +7,8 @@ public class FileExtractionService : IFileExtractionService
 {
     private readonly ILogService _logService;
 
+    private readonly string _tools7zBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z");
+
     public FileExtractionService(ILogService logService)
     {
         _logService = logService;
@@ -14,22 +16,31 @@ public class FileExtractionService : IFileExtractionService
 
     public bool ExtractFiles(string fileToOpen, string[] filesToExtract, string destinationPath)
     {
-        var sevenZipPath = GetSevenZipPath();
+        var toolPath = GetExtractionToolPath();
 
-        if (sevenZipPath == null)
+        if (toolPath == null)
         {
-            _logService.LogInfo($"7-Zip executable not found. Install it to" +
-                                          $" {Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z")}" +
-                                          $" or reinstall the program.");
+            _logService.LogInfo($"No extraction tool found. Ensure Windows tar or 7zip is installed if on Linux. Alternatively install 7zip to" +
+                                          $" {Path.Combine(_tools7zBasePath, "7z")}" +
+                                          $" or reinstall the program to restore bundled executables.");
             return false;
         }
 
         var fileList = string.Join(" ", filesToExtract.Select(f => $"\"{f}\""));
 
+        var isTar = Path.GetFileNameWithoutExtension(toolPath)
+            .Equals("tar", StringComparison.OrdinalIgnoreCase);
+
+        Directory.CreateDirectory(destinationPath);
+
+        var arguments = isTar
+            ? $"-xf \"{fileToOpen}\" -C \"{destinationPath}\" {fileList}"
+            : $"e \"{fileToOpen}\" -o\"{destinationPath}\" {fileList} -y";
+
         var startInfo = new ProcessStartInfo
         {
-            FileName = sevenZipPath,
-            Arguments = $"e \"{fileToOpen}\" -o\"{destinationPath}\" {fileList} -y",
+            FileName = toolPath,
+            Arguments = arguments,
             UseShellExecute = false,
             CreateNoWindow = true,
             RedirectStandardOutput = true,
@@ -42,7 +53,7 @@ public class FileExtractionService : IFileExtractionService
             using var process = Process.Start(startInfo);
             if (process == null)
             {
-                _logService.LogInfo("Unable to start 7-Zip process or unsupported operating system.");
+                _logService.LogInfo("Unable to start extraction process or unsupported operating system.");
                 return false;
             }
 
@@ -51,12 +62,12 @@ public class FileExtractionService : IFileExtractionService
             if (process.ExitCode != 0)
             {
                 var stderr = process.StandardError.ReadToEnd();
-                _logService.LogError($"7-Zip extraction failed with exit code " +
+                _logService.LogError($"Extraction failed with exit code " +
                                                $"{process.ExitCode}: {stderr}");
                 return false;
             }
 
-            _logService.LogInfo($"Successfully extracted ({fileList}) to {destinationPath}");
+            _logService.LogInfo($"Successfully extracted ({fileList}) to {destinationPath} using {toolPath}");
             return true;
         }
         catch (Exception ex)
@@ -66,31 +77,58 @@ public class FileExtractionService : IFileExtractionService
         }
     }
 
-    private string? GetSevenZipPath()
+    private string? GetExtractionToolPath()
     {
-        string windowsSevenZipPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z", "7za.exe");
-        string linuxSevenZipPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z", "7zzs");
+        string windowsSevenZipPath = Path.Combine(_tools7zBasePath, "7za.exe");
+        string linuxSevenZipPath = Path.Combine(_tools7zBasePath, "7zzs");
         
         if (OperatingSystem.IsWindows())
         {
-            return !File.Exists(windowsSevenZipPath) ? null : Path.Combine(windowsSevenZipPath);
+            var tarPath = FindWindowsTar();
+            if (tarPath is not null) return tarPath;
+
+            return !File.Exists(windowsSevenZipPath) ? null : windowsSevenZipPath;
         }
 
         if (OperatingSystem.IsLinux())
         {
             var systemPath = FindSystemSevenZip();
-            if (systemPath != null)
-            {
-                return systemPath;
-            }
+            if (systemPath is not null) return systemPath;
             
-            if (!File.Exists(linuxSevenZipPath))
-            {
-                return null;
-            }
+            if (!File.Exists(linuxSevenZipPath)) return null;
             
             EnsureExecutable(linuxSevenZipPath);
             return linuxSevenZipPath;
+        }
+
+        return null;
+    }
+
+    /* Windows methods */
+    private string? FindWindowsTar()
+    {
+        try
+        {
+            var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "where",
+                Arguments = "tar",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true
+            });
+
+            if (process == null) return null;
+
+            var output = process.StandardOutput.ReadToEnd().Trim();
+            process.WaitForExit();
+
+            if (process.ExitCode == 0 && !string.IsNullOrWhiteSpace(output))
+                return output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        }
+        catch (Exception ex)
+        {
+            _logService.LogError("Could not find system tar.exe", ex);
         }
 
         return null;

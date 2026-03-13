@@ -1,16 +1,15 @@
-﻿using Restall.Application.Interfaces;
+﻿using PeNet.Header.Resource;
+using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
-using PeNet;
-using PeNet.Header.Resource;
 
 namespace Restall.Infrastructure.Services;
 
 public class ModDetectionService : IModDetectionService
 {
-    private const long s_maxVersionCheckBytes = 10 * 1024 * 1024;
-
     private readonly ILogService _logService;
+
+    internal const long DllScanMaxBytes = 10 * 1024 * 1024;
 
     public ModDetectionService(
         ILogService logService
@@ -23,7 +22,7 @@ public class ModDetectionService : IModDetectionService
     {
         var fileList = new HashSet<ReShade>();
 
-        await ScanFilesAsync(executablePath, ["*.dll", "*.asi"], async (file, versionInfo) =>
+        await ScanFilesAsync(executablePath, ["*.dll", "*.asi"], DllScanMaxBytes, async (file, versionInfo) =>
         {
             if (!string.IsNullOrWhiteSpace(versionInfo.ProductName) &&
                 versionInfo.ProductName.Equals("ReShade", StringComparison.OrdinalIgnoreCase) &&
@@ -48,7 +47,7 @@ public class ModDetectionService : IModDetectionService
     {
         var fileList = new HashSet<RenoDX>();
 
-        await ScanFilesAsync(executablePath, ["*.addon64", "*.addon32"], async (file, versionInfo) =>
+        await ScanFilesAsync(executablePath, ["*.addon64", "*.addon32"], long.MaxValue, async (file, versionInfo) =>
         {
             if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
                 versionInfo.OriginalFilename.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) &&
@@ -74,6 +73,7 @@ public class ModDetectionService : IModDetectionService
     private async Task ScanFilesAsync(
         string path,
         string[] patterns,
+        long maxScanBytes,
         Func<string, StringTable, Task> handler)
     {
         var files = patterns
@@ -84,8 +84,7 @@ public class ModDetectionService : IModDetectionService
         {
             try
             {
-                if (new FileInfo(file).Length > s_maxVersionCheckBytes) continue;
-                var versionInfo = GetVersionInfo(file);
+                var versionInfo = PeVersionHelper.GetVersionInfo(file, maxScanBytes);
                 if (versionInfo is null) continue;
                 await handler(file, versionInfo);
             }
@@ -96,18 +95,12 @@ public class ModDetectionService : IModDetectionService
         }
     }
 
-    private static StringTable? GetVersionInfo(string filePath)
-    {
-        var pe = new PeFile(filePath);
-        return pe.Resources?.VsVersionInfo?.StringFileInfo?.StringTable?.FirstOrDefault();
-    }
-
     public string? GetRenoDXFileVersion(string filePath)
     {
         try
         {
-            if (new FileInfo(filePath).Length > s_maxVersionCheckBytes) return null;
-            var versionInfo = GetVersionInfo(filePath);
+
+            var versionInfo = PeVersionHelper.GetVersionInfo(filePath);
             if (versionInfo is null) return null;
             
             return ParseRenoDXVersion(versionInfo.FileVersion);

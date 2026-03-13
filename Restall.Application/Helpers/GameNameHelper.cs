@@ -29,6 +29,20 @@ public static partial class GameNameHelper
                 string.Empty)
             .Trim();
 
+    public static bool FuzzyNameMatch(string a, string b)
+    {
+        if (!a.Contains(b) && !b.Contains(a))
+            return false;
+
+        var aWords = a.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bWords = b.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bSet = new HashSet<string>(bWords);
+
+        int shared = aWords.Count(w => bSet.Contains(w));
+        int maxWords = Math.Max(aWords.Length, bWords.Length);
+
+        return maxWords > 0 && (double)shared / maxWords >= 0.5;
+    }
 
     public static double ComputeNameSimilarity(string a, string b)
     {

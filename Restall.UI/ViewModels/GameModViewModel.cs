@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
 using Restall.Application.Helpers;
 using Restall.Domain.Entities;
+using System;
+using System.IO;
 
 namespace Restall.UI.ViewModels;
 
@@ -10,9 +12,13 @@ public partial class GameModViewModel : ObservableObject
 {
     private readonly Game _game;
 
-    private Bitmap? _bannerBitmap;
-    private Bitmap? _logoBitmap;
-    private Bitmap? _thumbnailBitmap;
+    private const int BannerTargetWidth = 1000;
+    private const int LogoTargetWidth = 300;
+    private const int ThumbnailTargetWidth = 32;
+
+    private Lazy<Bitmap?> _bannerBitmap;
+    private Lazy<Bitmap?> _logoBitmap;
+    private Lazy<Bitmap?> _thumbnailBitmap;
 
     public GameModViewModel(Game game)
     {
@@ -22,13 +28,10 @@ public partial class GameModViewModel : ObservableObject
         _thumbnailPathString = game.ThumbnailPathString;
         NormalizedName = GameNameHelper.NormalizeName(game.Name!);
 
-        _bannerBitmap = CreateBitmap(game.BannerPathString);
-        _logoBitmap = CreateBitmap(game.LogoPathString);
-        _thumbnailBitmap = CreateBitmap(game.ThumbnailPathString);
-    }
-
-    private static Bitmap? CreateBitmap(string? path) =>
-        !string.IsNullOrWhiteSpace(path) ? new Bitmap(path) : null;
+        _bannerBitmap = CreateLazyBitmap(_bannerPathString, BannerTargetWidth);
+        _logoBitmap = CreateLazyBitmap(_logoPathString, LogoTargetWidth);
+        _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, ThumbnailTargetWidth);
+    }    
 
     public string NormalizedName { get; }
     public string? Name => _game.Name;
@@ -38,7 +41,11 @@ public partial class GameModViewModel : ObservableObject
     public string? InstallFolder => _game.InstallFolder;
     public bool HasRenoDX => _game.HasRenoDX;
     public bool HasReShade => _game.HasReShade;
-    public bool CanInstallRenoDX => CompatibleRenoDXMod is not null || CompatibleRenoDXGenericMod is not null;
+    public bool CanInstallRenoDX => (CompatibleRenoDXMod is not null ||
+                                     CompatibleRenoDXGenericMod is not null ||
+                                     EngineName == Game.Engine.Unity ||
+                                     EngineName == Game.Engine.Unreal) && 
+                                     HasReShade;
     public bool CanUpdateReShade => HasReShade;
     public bool CanUpdateRenoDX => HasRenoDX;
 
@@ -87,8 +94,6 @@ public partial class GameModViewModel : ObservableObject
 
     public string? RenoDXAddonFileNameX64 => CompatibleRenoDXMod?.AddonFileName64;
     public string? RenoDXAddonFileNameX32 => CompatibleRenoDXMod?.AddonFileName32;
-    public string? RenoDXWikiDownloadUrlX64 => CompatibleRenoDXMod?.SnapshotUrl64;
-    public string? RenoDXWikiDownloadUrlX32 => CompatibleRenoDXMod?.SnapshotUrl32;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
@@ -103,7 +108,7 @@ public partial class GameModViewModel : ObservableObject
             : RenoDX.Architecture.x64);
 
     public ReShade.Architecture SelectedReShadeInstallArch =>
-        ArchOverride == RenoDX.Architecture.x32
+        SelectedRenoDXInstallArch == RenoDX.Architecture.x32
             ? ReShade.Architecture.x32
             : ReShade.Architecture.x64;
 
@@ -129,8 +134,6 @@ public partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(RenoDXIsDualArch))]
     [NotifyPropertyChangedFor(nameof(RenoDXAddonFileNameX64))]
     [NotifyPropertyChangedFor(nameof(RenoDXAddonFileNameX32))]
-    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrlX64))]
-    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrlX32))]
     private RenoDXModInfoDto? _compatibleRenoDXMod;
 
     partial void OnCompatibleRenoDXModChanged(RenoDXModInfoDto? value) => ArchOverride = null;
@@ -142,44 +145,45 @@ public partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(BannerBitmap))]
     private string? _bannerPathString;
 
-    partial void OnBannerPathStringChanged(string? value)
-    {
-        _bannerBitmap?.Dispose();
-        _bannerBitmap = CreateBitmap(value);
-    }
+    partial void OnBannerPathStringChanged(string? value) =>
+        ResetLazyBitmap(ref _bannerBitmap, value, BannerTargetWidth);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LogoBitmap))]
     private string? _logoPathString;
 
-    partial void OnLogoPathStringChanged(string? value)
-    {
-        _logoBitmap?.Dispose();
-        _logoBitmap = CreateBitmap(value);
-    }
+    partial void OnLogoPathStringChanged(string? value) =>
+        ResetLazyBitmap(ref _logoBitmap, value, LogoTargetWidth);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
     private string? _thumbnailPathString;
 
-    partial void OnThumbnailPathStringChanged(string? value)
-    {
-        _thumbnailBitmap?.Dispose();
-        _thumbnailBitmap = CreateBitmap(value);
-    }
+    partial void OnThumbnailPathStringChanged(string? value) =>
+        ResetLazyBitmap(ref _thumbnailBitmap, value, ThumbnailTargetWidth);
     
-    public Bitmap? BannerBitmap => _bannerBitmap;
-    public Bitmap? LogoBitmap => _logoBitmap;
-    public Bitmap? ThumbnailBitmap => _thumbnailBitmap;
+    public Bitmap? BannerBitmap => _bannerBitmap.Value;
+    public Bitmap? LogoBitmap => _logoBitmap.Value;
+    public Bitmap? ThumbnailBitmap => _thumbnailBitmap.Value;
 
-    // Method to sync back manual user changed made in the UI, later feature?
-    
-    // public Game ToDomain()
-    // {
-    //     _game.BannerPathString = BannerPathString;
-    //     _game.LogoPathString = LogoPathString;
-    //     _game.ThumbnailPathString = ThumbnailPathString;
-    //     _game.IsInstalled = IsInstalled;
-    //     return _game;
-    // }
+    private static Lazy<Bitmap?> CreateLazyBitmap(string? path, int targetWidth) =>
+        new(() => DecodeBitmap(path, targetWidth), System.Threading.LazyThreadSafetyMode.None);
+
+    private static Bitmap? DecodeBitmap(string? path, int targetWidth)
+    {
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            return null;
+
+        using var stream = File.OpenRead(path);
+
+        return Bitmap.DecodeToWidth(stream, targetWidth, BitmapInterpolationMode.HighQuality);
+    }
+
+    private void ResetLazyBitmap(ref Lazy<Bitmap?> lazy, string? newPath, int targetWidth)
+    {
+        if (lazy.IsValueCreated)
+            lazy.Value?.Dispose();
+
+        lazy = CreateLazyBitmap(newPath, targetWidth);
+    }
 }

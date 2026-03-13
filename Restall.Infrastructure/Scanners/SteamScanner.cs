@@ -24,7 +24,7 @@ public class SteamScanner : IPlatformScannerService
         var steamPath = GetInstallPath();
 
         if (steamPath == null) return games;
-        steamPath = Helper.NormalizePath(steamPath);
+        steamPath = GameScanHelper.NormalizePath(steamPath);
         foreach (var library in GetSteamLibraries(steamPath))
         {
             games.AddRange(ScanSteamLibrary(library));
@@ -35,7 +35,7 @@ public class SteamScanner : IPlatformScannerService
 
     private string? GetInstallPath()
     {
-        if (OperatingSystem.IsWindows()) return Helper.ReadRegistry(@"Valve\Steam", "SteamPath");
+        if (OperatingSystem.IsWindows()) return GameScanHelper.ReadRegistry(@"Valve\Steam", "SteamPath");
         
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
@@ -64,17 +64,17 @@ public class SteamScanner : IPlatformScannerService
             try
             {
                 var content = File.ReadAllText(acf);
-                var name = Helper.ExtractVdfValue(content, "name");
-                var installDir = Helper.ExtractVdfValue(content, "installdir");
+                var name = GameScanHelper.ExtractVdfValue(content, "name");
+                var installDir = GameScanHelper.ExtractVdfValue(content, "installdir");
                 
                 if (name == null || installDir == null) continue;
 
-                if (Helper.NonGame(name))
+                if (GameScanHelper.NonGame(name))
                 {
                     _logService.LogInfo($"[EXCLUDED] Non-game name: {name}");
                     continue;
                 }
-                if (Helper.NonGame(installDir))
+                if (GameScanHelper.NonGame(installDir))
                 {
                     _logService.LogInfo($"[EXCLUDED] Non-game by path: {installDir}");
                     continue;
@@ -108,7 +108,7 @@ public class SteamScanner : IPlatformScannerService
         if (!File.Exists(vdfPath)) return libraries;
         foreach (Match match in RegexHelper.SteamLibraryRegex.Matches(File.ReadAllText(vdfPath)))
         {
-            var library = Helper.NormalizePath(match.Groups[1].Value.Replace(@"\\", @"\"));
+            var library = GameScanHelper.NormalizePath(match.Groups[1].Value.Replace(@"\\", @"\"));
             if (Directory.Exists(library) && !libraries.Contains(library))
             {
                 libraries.Add(library);

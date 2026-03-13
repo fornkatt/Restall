@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using Restall.Application.DTOs;
+﻿using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
+using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
@@ -115,7 +115,7 @@ public class ModInstallService : IModInstallService
         {
             if (verifyOriginalFilename is not null)
             {
-                var originalFilename = FileVersionInfo.GetVersionInfo(path).OriginalFilename;
+                var originalFilename = PeVersionHelper.GetVersionInfo(path)?.OriginalFilename;
 
                 if (originalFilename?.StartsWith(verifyOriginalFilename, StringComparison.OrdinalIgnoreCase) != true)
                 {
@@ -146,9 +146,9 @@ public class ModInstallService : IModInstallService
         {
             try
             {
-                var fileInfo = FileVersionInfo.GetVersionInfo(file);
+                var versionInfo = PeVersionHelper.GetVersionInfo(file, long.MaxValue);
 
-                if (fileInfo.ProductName?.Equals("ReShade", StringComparison.OrdinalIgnoreCase) == true)
+                if (versionInfo?.ProductName?.Equals("ReShade", StringComparison.OrdinalIgnoreCase) == true)
                 {
                     File.Delete(file);
                     removedCount++;
@@ -180,9 +180,9 @@ public class ModInstallService : IModInstallService
         {
             try
             {
-                var fileInfo = FileVersionInfo.GetVersionInfo(file);
+                var versionInfo = PeVersionHelper.GetVersionInfo(file, long.MaxValue);
 
-                if (fileInfo.OriginalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
+                if (versionInfo?.OriginalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
                 {
                     File.Delete(file);
                     removedCount++;

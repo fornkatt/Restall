@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Restall.Application.DTOs;
-using Restall.Application.Interfaces;
 using Restall.UI.Messages;
 
 namespace Restall.UI.ViewModels;
@@ -16,12 +15,6 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
 
     [ObservableProperty]
     private GameModViewModel? _selectedGame;
-
-    [ObservableProperty]
-    private bool _isInitializing = true;
-
-    [ObservableProperty]
-    private string _initializationMessage = "Scanning for games...";
 
     public bool IsGameSelected => SelectedGame != null;
 

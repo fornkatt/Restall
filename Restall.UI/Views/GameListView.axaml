@@ -51,8 +51,8 @@
 								Spacing="10"
 								VerticalAlignment="Center">
 
-						<Border Width="16"
-								Height="16"
+						<Border Width="24"
+								Height="24"
 								CornerRadius="4"
 								ClipToBounds="True">
 							<Image Source="{Binding ThumbnailBitmap}"
