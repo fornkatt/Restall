@@ -18,7 +18,6 @@ public static class ServiceCollectionExtensions
 
         services.AddPlatformScanners();
         
-        
         services.AddTransient<IEngineDetectionService, EngineDetectionService>();
         services.AddTransient<IGameDetectionService, GameDetectionService>();
         services.AddTransient<IModDetectionService, ModDetectionService>();
@@ -36,6 +35,7 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpClient("ParseService");
         services.AddSingleton<IParseService, ParseService>();
+        services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
 
         services.AddHttpClient<IModDownloadService, ModDownloadService>();
 

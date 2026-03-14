@@ -31,7 +31,17 @@ public partial class GameModViewModel : ObservableObject
         _bannerBitmap = CreateLazyBitmap(_bannerPathString, BannerTargetWidth);
         _logoBitmap = CreateLazyBitmap(_logoPathString, LogoTargetWidth);
         _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, ThumbnailTargetWidth);
-    }    
+    }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanUpdateReShade))]
+    [NotifyPropertyChangedFor(nameof(ReShadeLatestVersion))]
+    private UpdateCheckResultDto? _reShadeUpdateResult;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanUpdateRenoDX))]
+    [NotifyPropertyChangedFor(nameof(RenoDXLatestVersion))]
+    private UpdateCheckResultDto? _renoDXUpdateResult;
 
     public string NormalizedName { get; }
     public string? Name => _game.Name;
@@ -46,9 +56,10 @@ public partial class GameModViewModel : ObservableObject
                                      EngineName == Game.Engine.Unity ||
                                      EngineName == Game.Engine.Unreal) && 
                                      HasReShade;
-    public bool CanUpdateReShade => HasReShade;
-    public bool CanUpdateRenoDX => HasRenoDX;
-
+    public bool CanUpdateReShade => HasReShade && (ReShadeUpdateResult?.UpdateAvailable ?? false);
+    public string? ReShadeLatestVersion => ReShadeUpdateResult?.LatestVersion;
+    public bool CanUpdateRenoDX => HasRenoDX && (RenoDXUpdateResult?.UpdateAvailable ?? false);
+    public string? RenoDXLatestVersion => RenoDXUpdateResult?.LatestVersion;
     public string? ReShadeVersion => _game.ReShade?.Version;
     public string? ReShadeBranch => _game.ReShade?.BranchName.ToString() ?? "Unknown";
     public string? ReShadeArch => _game.ReShade?.Arch.ToString();
@@ -72,12 +83,14 @@ public partial class GameModViewModel : ObservableObject
         OnPropertyChanged(nameof(CanUpdateReShade));
         OnPropertyChanged(nameof(CanUpdateRenoDX));
         OnPropertyChanged(nameof(ReShadeVersion));
+        OnPropertyChanged(nameof(ReShadeLatestVersion));
         OnPropertyChanged(nameof(ReShadeBranch));
         OnPropertyChanged(nameof(ReShadeArch));
         OnPropertyChanged(nameof(ReShadeFileName));
         OnPropertyChanged(nameof(RenoDXName));
         OnPropertyChanged(nameof(RenoDXMaintainer));
         OnPropertyChanged(nameof(RenoDXVersion));
+        OnPropertyChanged(nameof(RenoDXLatestVersion));
         OnPropertyChanged(nameof(RenoDXBranch));
         OnPropertyChanged(nameof(RenoDXArch));
     }

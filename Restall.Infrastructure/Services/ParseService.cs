@@ -47,8 +47,8 @@ public class ParseService : IParseService
     {
         var versionTask = Task.WhenAll(
             FetchStableReShadeVersionsAsync(),
-            FetchLatestRenoDxSnapshotAsync(),
-            FetchRenoDxNightlyVersionsAsync()
+            FetchLatestRenoDXSnapshotAsync(),
+            FetchRenoDXNightlyVersionsAsync()
         );
 
         var wikiTask = FetchRenoDXWikiModsAsync();
@@ -260,7 +260,7 @@ public class ParseService : IParseService
         }
     }
 
-    private async Task FetchLatestRenoDxSnapshotAsync()
+    private async Task FetchLatestRenoDXSnapshotAsync()
     {
         try
         {
@@ -317,7 +317,7 @@ public class ParseService : IParseService
         }
     }
 
-    private async Task FetchRenoDxNightlyVersionsAsync()
+    private async Task FetchRenoDXNightlyVersionsAsync()
     {
         try
         {

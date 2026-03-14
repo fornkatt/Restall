@@ -11,4 +11,7 @@ public class RenoDX
     public Branch BranchName { get; set; } = Branch.Unknown;
     public Architecture Arch { get; set; } = Architecture.x64;
     public string? Version { get; set; }
+
+    public bool IsExternalSourceMod =>
+        OriginalName?.StartsWith("renodx-unityengine", StringComparison.OrdinalIgnoreCase) == true;
 }

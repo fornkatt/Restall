@@ -11,5 +11,7 @@ public record AppInitializationResultDto(
 public record GameInitResultDto(
     Game Game,
     RenoDXModInfoDto? CompatibleMod,
-    RenoDXGenericModInfoDto? CompatibleGenericMod
+    RenoDXGenericModInfoDto? CompatibleGenericMod,
+    UpdateCheckResultDto? ReShadeUpdateResult = null,
+    UpdateCheckResultDto? RenoDXUpdateResult = null
     );

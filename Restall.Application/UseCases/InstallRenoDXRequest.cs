@@ -8,5 +8,6 @@ public record InstallRenoDXRequest(
     RenoDX.Architecture Arch,
     RenoDX.Branch Branch,
     RenoDXModInfoDto? ModInfo = null,
-    RenoDXGenericModInfoDto? GenericModInfo = null
+    RenoDXGenericModInfoDto? GenericModInfo = null,
+    string? TargetVersion = null
     );

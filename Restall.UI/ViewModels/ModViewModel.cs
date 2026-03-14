@@ -16,8 +16,25 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 {
     private readonly IModManagementFacade _modManagementFacade;
     private readonly IModSelectionDialogService _modSelectionDialogService;
+    private readonly IUpdateCheckService _updateCheckService;
+    private readonly IParseService _parseService;
 
     private bool _suppressMessage;
+
+    public ModViewModel(
+    IModManagementFacade modManagementFacade,
+    IModSelectionDialogService modSelectionDialogService,
+    IUpdateCheckService updateCheckService,
+    IParseService parseService
+    )
+    {
+        _modManagementFacade = modManagementFacade;
+        _modSelectionDialogService = modSelectionDialogService;
+        _updateCheckService = updateCheckService;
+        _parseService = parseService;
+
+        IsActive = true;
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(InstallReShadeButtonText))]
@@ -28,8 +45,14 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [ObservableProperty]
     private ReShade.Branch _selectedReShadeBranch = ReShade.Branch.Stable;
 
+    public string? ReShadeLatestVersionForBranch =>
+        _parseService.GetLatestReShadeVersion(SelectedReShadeBranch);
+
     [ObservableProperty]
     private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
+
+    public string? RenoDXLatestVersionForBranch =>
+        _parseService.GetLatestRenoDXTag(SelectedRenoDXBranch)?.Version;
 
     [ObservableProperty]
     private int _downloadPercent;
@@ -39,17 +62,6 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
     [ObservableProperty]
     private string? _uninstallStatus;
-
-    public ModViewModel(
-        IModManagementFacade modManagementFacade,
-        IModSelectionDialogService modSelectionDialogService
-        )
-    {
-        _modManagementFacade = modManagementFacade;
-        _modSelectionDialogService = modSelectionDialogService;
-
-        IsActive = true;
-    }
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
@@ -78,6 +90,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         OnPropertyChanged(nameof(InstallReShadeButtonText));
         OnPropertyChanged(nameof(UpdateReShadeButtonText));
         OnPropertyChanged(nameof(UninstallReShadeButtonText));
+        OnPropertyChanged(nameof(UpdateRenoDXButtonText));
     }
 
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
@@ -85,8 +98,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     public string InstallReShadeButtonText =>
         SelectedGame?.HasReShade == true ? "Reinstall" : "Install";
 
-    public string UpdateReShadeButtonText =>
-        SelectedGame?.CanUpdateReShade == true ? "Update" : "Placeholder";
+    public string UpdateReShadeButtonText => "Update";
 
     public string UninstallReShadeButtonText => "Uninstall";
 
@@ -123,6 +135,9 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
         var result = await _modManagementFacade.InstallOrUpdateReShadeAsync(request, progress);
 
+        if (result.IsSuccess && result.UpdatedGame.ReShade is not null)
+            SelectedGame.ReShadeUpdateResult = _updateCheckService.CheckReShadeUpdate(result.UpdatedGame.ReShade);
+
         SelectedGame.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
         DownloadStatus = result.IsSuccess ? successStatus : result.ErrorMessage;
@@ -147,6 +162,13 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
     /* ---RENODX-------------------------------------------------------------------------------------------------------------- */
 
+    public string InstallRenoDXButtonText =>
+        SelectedGame?.HasRenoDX == true ? "Reinstall" : "Install";
+
+    public string UpdateRenoDXButtonText => "Update";
+
+    public string UninstallRenoDXButtonText => "Uninstall";
+
     [RelayCommand(CanExecute = nameof(CanInstallRenoDX))]
     private Task InstallRenoDXAsync() => ExecuteRenoDXInstallAsync("RenoDX installed.");
 
@@ -164,7 +186,8 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
             SelectedGame.SelectedRenoDXInstallArch,
             SelectedRenoDXBranch,
             ModInfo: SelectedGame.CompatibleRenoDXMod,
-            GenericModInfo: SelectedGame.CompatibleRenoDXGenericMod
+            GenericModInfo: SelectedGame.CompatibleRenoDXGenericMod,
+            TargetVersion: SelectedGame.RenoDXLatestVersion
             );
 
         var progress = new Progress<DownloadProgressReportDto>(report =>
@@ -176,6 +199,9 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         });
 
         var result = await _modManagementFacade.InstallOrUpdateRenoDXAsync(request, progress);
+
+        if (result.IsSuccess && result.UpdatedGame.RenoDX is not null)
+            SelectedGame.RenoDXUpdateResult = _updateCheckService.CheckRenoDXUpdate(result.UpdatedGame.RenoDX);
 
         SelectedGame.NotifyGameStateChanged();
         NotifyAllCommandsChanged();

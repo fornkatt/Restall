@@ -48,6 +48,12 @@
 						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.ReShadeVersion}" FontSize="12"
 								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
 					</Grid>
+					<Grid ColumnDefinitions="Auto, *" Margin="10, 0, 0, 0"
+						  IsVisible="{Binding ReShadeLatestVersionForBranch, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+						<TextBlock Grid.Column="0" Text="Latest: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding ReShadeLatestVersionForBranch}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
 				</StackPanel>
 				<Button Grid.Row="1" Grid.Column="0"
 						Content="{Binding InstallReShadeButtonText}"
@@ -98,6 +104,12 @@
 						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.RenoDXVersion}" FontSize="12"
 								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
 					</Grid>
+					<Grid ColumnDefinitions="Auto, *" Margin="10, 0, 0, 0"
+						  IsVisible="{Binding RenoDXLatestVersionForBranch, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+						<TextBlock Grid.Column="0" Text="Latest: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
+						<TextBlock Grid.Column="1" Text="{Binding RenoDXLatestVersionForBranch}" FontSize="12"
+								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
+					</Grid>
 					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
 						<TextBlock Grid.Column="0" Text="Maintainer: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
 						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.RenoDXMaintainer}" FontSize="12"
@@ -105,7 +117,7 @@
 					</Grid>
 				</StackPanel>
 				<Button Grid.Row="1" Grid.Column="1"
-						Content="INSTALL"
+						Content="{Binding InstallRenoDXButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"
 						Command="{Binding InstallRenoDXCommand}"
@@ -113,7 +125,7 @@
 						Foreground="{DynamicResource ModCardButtonText}"
 						Margin="10"/>
 				<Button Grid.Row="2" Grid.Column="1"
-						Content="UPDATE"
+						Content="{Binding UpdateRenoDXButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"
 						Command="{Binding UpdateRenoDXCommand}"
@@ -121,7 +133,7 @@
 						Foreground="{DynamicResource ModCardButtonText}"
 						Margin="10"/>
 				<Button Grid.Row="3" Grid.Column="1"
-						Content="UNINSTALL"
+						Content="{Binding UninstallRenoDXButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"
 						Command="{Binding UninstallRenoDXCommand}"
