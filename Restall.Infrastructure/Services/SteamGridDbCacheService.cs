@@ -1,5 +1,5 @@
-using System.Text.Json;
 using Restall.Application.Interfaces;
+using System.Text.Json;
 
 namespace Restall.Infrastructure.Services;
 

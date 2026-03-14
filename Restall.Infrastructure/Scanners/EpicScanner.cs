@@ -1,8 +1,8 @@
-using System.Text.RegularExpressions;
 using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Scanners;
 

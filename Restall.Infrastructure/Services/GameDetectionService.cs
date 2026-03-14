@@ -1,8 +1,8 @@
-using System.Collections.Concurrent;
 using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using System.Collections.Concurrent;
 
 namespace Restall.Infrastructure.Services;
 

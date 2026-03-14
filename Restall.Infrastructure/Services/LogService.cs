@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using Restall.Application.Interfaces;
+﻿using Restall.Application.Interfaces;
+using System.Diagnostics;
 
 namespace Restall.Infrastructure.Services;
 

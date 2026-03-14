@@ -1,14 +1,14 @@
-using Microsoft.Extensions.DependencyInjection;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
-using System.Linq;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Configuration;
-using Restall.UI.ViewModels;
-using Restall.UI.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Restall.Infrastructure.Extensions;
 using Restall.UI.Interfaces;
 using Restall.UI.Services;
+using Restall.UI.ViewModels;
+using Restall.UI.Views;
+using System.Linq;
 
 namespace Restall.UI;
 
