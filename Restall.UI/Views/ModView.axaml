@@ -81,7 +81,15 @@
 						Margin="10"/>
 
 				<!-- RENODX -->
-				<StackPanel Grid.Row="0" Grid.Column="1">
+				<TextBlock Grid.Row="0" Grid.Column="1" 
+						   IsVisible="{Binding !SelectedGame.IsRenoDXSupported}"
+						   Text="RenoDX not supported"
+						   FontWeight="Bold"
+						   FontSize="25"
+						   Foreground="{DynamicResource GameCardText}"
+						   Margin="10, 10, 0, 0"/>
+				<StackPanel Grid.Row="0" Grid.Column="1"
+							IsVisible="{Binding SelectedGame.IsRenoDXSupported}">
 					<TextBlock Text="RenoDX" FontWeight="Bold" FontSize="25"
 							   Foreground="{DynamicResource GameCardText}" Margin="10,10,0,0"/>
 					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
@@ -117,6 +125,7 @@
 					</Grid>
 				</StackPanel>
 				<Button Grid.Row="1" Grid.Column="1"
+						IsVisible="{Binding SelectedGame.IsRenoDXSupported}"
 						Content="{Binding InstallRenoDXButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"
@@ -125,6 +134,7 @@
 						Foreground="{DynamicResource ModCardButtonText}"
 						Margin="10"/>
 				<Button Grid.Row="2" Grid.Column="1"
+						IsVisible="{Binding SelectedGame.IsRenoDXSupported}"
 						Content="{Binding UpdateRenoDXButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"
@@ -133,6 +143,7 @@
 						Foreground="{DynamicResource ModCardButtonText}"
 						Margin="10"/>
 				<Button Grid.Row="3" Grid.Column="1"
+						IsVisible="{Binding SelectedGame.IsRenoDXSupported}"
 						Content="{Binding UninstallRenoDXButtonText}"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 						MinWidth="120" CornerRadius="6"

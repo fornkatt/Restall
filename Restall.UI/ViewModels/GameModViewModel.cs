@@ -60,6 +60,11 @@ public partial class GameModViewModel : ObservableObject
     public string? ReShadeLatestVersion => ReShadeUpdateResult?.LatestVersion;
     public bool CanUpdateRenoDX => HasRenoDX && (RenoDXUpdateResult?.UpdateAvailable ?? false);
     public string? RenoDXLatestVersion => RenoDXUpdateResult?.LatestVersion;
+    public bool IsRenoDXSupported =>
+        (CompatibleRenoDXMod is not null ||
+         CompatibleRenoDXGenericMod is not null) ||
+        (EngineName == Game.Engine.Unity ||
+         EngineName == Game.Engine.Unreal);
     public string? ReShadeVersion => _game.ReShade?.Version;
     public string? ReShadeBranch => _game.ReShade?.BranchName.ToString() ?? "Unknown";
     public string? ReShadeArch => _game.ReShade?.Arch.ToString();

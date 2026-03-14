@@ -40,6 +40,9 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [NotifyPropertyChangedFor(nameof(InstallReShadeButtonText))]
     [NotifyPropertyChangedFor(nameof(UpdateReShadeButtonText))]
     [NotifyPropertyChangedFor(nameof(UninstallReShadeButtonText))]
+    [NotifyPropertyChangedFor(nameof(InstallRenoDXButtonText))]
+    [NotifyPropertyChangedFor(nameof(UpdateRenoDXButtonText))]
+    [NotifyPropertyChangedFor(nameof(UninstallRenoDXButtonText))]
     private GameModViewModel? _selectedGame;
 
     [ObservableProperty]

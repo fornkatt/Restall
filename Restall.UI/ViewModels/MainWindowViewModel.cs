@@ -16,7 +16,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
     [ObservableProperty]
     private GameModViewModel? _selectedGame;
 
-    public bool IsGameSelected => SelectedGame != null;
+    public bool IsGameSelected => SelectedGame is not null;
 
     public MainWindowViewModel(
         BannerViewModel bannerViewModel,
