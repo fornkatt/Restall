@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -8,7 +9,6 @@ namespace Restall.Infrastructure.Scanners;
 public class EpicScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
-    
 
     public EpicScanner(
         ILogService logService)
@@ -17,31 +17,40 @@ public class EpicScanner : IPlatformScannerService
         
     }
     
-    public Task<List<Game>> ScanAsync() => Task.Run(ScanEpic);
+    public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEpic);
     public Game.Platform Platform => Game.Platform.Epic;
-
-    private List<Game> ScanEpic()
+    
+    private GameScanResultDto ScanEpic()
     {
         var games = new List<Game>();
+        var errors = new List<string>();
 
         if (OperatingSystem.IsWindows())
         {
             var ueInstallPath = GetInstallPath();
-
-
-            if (ueInstallPath != null && Directory.Exists(ueInstallPath))
+            if (ueInstallPath is not null && Directory.Exists(ueInstallPath))
             {
-                games.AddRange(ScanEpicLibrary(ueInstallPath));
+                var (epicLibrary, error) = ScanEpicLibrary(ueInstallPath);
+                games.AddRange(epicLibrary);
+                if(error is not null) errors.Add(error);
             }
         }
 
         var epicHeroicPath = GetHeroicInstallPath();
-        if (epicHeroicPath != null && Directory.Exists(epicHeroicPath))
+        if (epicHeroicPath is not null && Directory.Exists(epicHeroicPath))
         {
-            games.AddRange(ScanHeroicLibrary(epicHeroicPath));
+            var (epicHeroicLibrary, error) = ScanHeroicLibrary(epicHeroicPath);
+            games.AddRange(epicHeroicLibrary);
+            if(error is not null) errors.Add(error);
         }
+        
+        return new GameScanResultDto(
+            Platform:     Game.Platform.Epic,
+            Games:        games,
+            Success:      games.Count > 0,
+            ErrorMessage: errors.Count > 0 ? string.Join("; ", errors) : null);
 
-        return games;
+        
     }
 
     private string? GetInstallPath()
@@ -51,7 +60,7 @@ public class EpicScanner : IPlatformScannerService
             "Epic", "EpicGamesLauncher", "Data", "Manifests");
     }
 
-    private List<Game> ScanEpicLibrary(string manifestDir)
+    private (List<Game> games, string? error) ScanEpicLibrary(string manifestDir)
     {
         var games = new List<Game>();
 
@@ -68,17 +77,17 @@ public class EpicScanner : IPlatformScannerService
                 {
                     if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(rootPath))
                         continue;
-                    
+
 
                     if (!Directory.Exists(rootPath))
                         continue;
-                    
 
-                    
+
+
                     if (GameScanHelper.NonGame(rootPath))
-                    
+
                         continue;
-                    
+
 
                     games.Add(new Game
                     {
@@ -88,14 +97,16 @@ public class EpicScanner : IPlatformScannerService
                         PlatformId = $"epic:{catalogItemId}"
                     });
                 }
-            }
-            catch
-            {
-                _logService.LogError("Could not find Epic library: " + file);
-            }
-        }
 
-        return games;
+            }
+            catch (Exception ex)
+            {
+                    _logService.LogError($"Failed to scan Epic Library...{ex.Message}");           
+            }
+            
+        }
+        return (games, null);
+
     }
     private string? GetHeroicInstallPath()
     {
@@ -108,17 +119,14 @@ public class EpicScanner : IPlatformScannerService
         return Directory.Exists(heroicPath) ? heroicPath : null;
     }
 
-    private List<Game> ScanHeroicLibrary(string configDir)
+    private (List<Game>games, string? error) ScanHeroicLibrary(string configDir)
     {
         var games = new List<Game>();
         var installedJsonPath = Path.Combine(configDir, "installed.json");
 
 
-        if (!File.Exists(installedJsonPath))
-        {
-            _logService.LogWarning($"Could not find installed json file: {installedJsonPath}");
-            return games;
-        }
+        if (!File.Exists(installedJsonPath)) return (games,null);
+        
 
         try
         {
@@ -148,19 +156,20 @@ public class EpicScanner : IPlatformScannerService
                 {
                     Name = name,
                     InstallFolder = installPath,
-                    PlatformName = Platform,
+                    PlatformName = Game.Platform.Epic,
                     PlatformId = $"epic:{appName}"
                     
                 });
                 
             }
+            
+            return (games,null);
+            
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Something went wrong with Epic Heroic: {ex.Message}");
+            return(games,$"Something went wrong with Epic Heroic: {ex.Message}");
         }
 
-        return games;
     }
-
 }

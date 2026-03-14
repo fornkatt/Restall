@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -27,19 +28,41 @@ public class GameDetectionService : IGameDetectionService
         _platformScannerService = platformScannerService;
     }
     
-     public async Task<List<Game?>> FindGames()
+     public async Task<GameScanResultDto> FindGames(IProgress<GameScanProgressReportDto>? progress = null)
      {
           try
           {
+
+              var scanners = _platformScannerService.ToList();
+              var totalScanners = scanners.Count;
+              var completed = 0;
+              var allGames = new List<Game>();
+              var allErrors = new List<string>();
+
+              foreach (var scanner in scanners)
+              {
+                  
+                  var result = await scanner.ScanAsync();
+                  completed++;
+                  allGames.AddRange(result.Games);
+                  
+                  if(result.ErrorMessage is not null)
+                      allErrors.Add(result.ErrorMessage);
+
+                  progress?.Report(new GameScanProgressReportDto(
+                      CompletedPlatform: result.Platform.ToString(),
+                      ScannersCompleted: completed,
+                      TotalScanners:     totalScanners,
+                      Success:           result.Success,
+                      ErrorMessage:      result.ErrorMessage
+                      ));
+                  
+              }
               
-              var scanTasks = _platformScannerService.Select(s => s.ScanAsync());
-              var results = await Task.WhenAll(scanTasks);
-              var allGames = results.SelectMany(g => g).ToList();
-
-              var deduped = allGames.GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
-                  .Select(g => g.OrderByDescending(g => g.PlatformId)).First()
+              var deduped = allGames
+                  .GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
+                  .Select(g => g.OrderByDescending(x => x.PlatformId != null).First())
                   .ToList<Game?>();
-
               
               var engineCache = new ConcurrentDictionary<string, (string? path, Game.Engine engine)>(
                   StringComparer.OrdinalIgnoreCase);
@@ -67,16 +90,27 @@ public class GameDetectionService : IGameDetectionService
                   });
               });
               
-              return deduped
-                  .Where(g => !string.IsNullOrEmpty(g.InstallFolder))
-                  .Cast<Game>()
+              var validGames = deduped
+                  .Where(g => !string.IsNullOrEmpty(g.ExecutablePath))
                   .ToList();
-         
+
+              
+              return new GameScanResultDto(
+                  Platform:     Game.Platform.Unknown,
+                  Games:        validGames!,
+                  Success:      validGames.Count > 0,
+                  ErrorMessage: allErrors.Count > 0 ? string.Join("; ", allErrors) : null);
+              
+
           }
           catch (Exception ex)
           {
               await _logService.LogErrorAsync($"Something went wrong with FindGames: {ex.Message}");
-              return [];
+              return new GameScanResultDto(
+                  Platform:     Game.Platform.Unknown,
+                  Games:        [],
+                  Success:      false,
+                  ErrorMessage: ex.Message);
           }
          
          

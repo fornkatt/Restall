@@ -63,6 +63,15 @@ internal class GameScanHelper
         catch { return null; }
     }
     
+    internal static string? GetRegistryValue(RegistryKey key, params string[] valueNames)
+    {
+        foreach (var name in valueNames)
+        {
+            if (key.GetValue(name) is string value && !string.IsNullOrEmpty(value))
+                return value;
+        }
+        return null;
+    }
     
     internal static bool NonGame(string name)
     {

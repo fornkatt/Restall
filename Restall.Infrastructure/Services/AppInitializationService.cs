@@ -26,17 +26,18 @@ public class AppInitializationService : IAppInitializationService
 
     public async Task<AppInitializationResultDto> InitializeAsync(IProgress<GameScanProgressReportDto>? progress = null)
     {
-        var gamesTask = _gameDetectionService.FindGames();
+        var gamesTask = _gameDetectionService.FindGames(progress);
         var parseTask = _parseService.FetchAvailableModsAsync();
 
         await Task.WhenAll(gamesTask, parseTask);
-
+        
+        var gameScanResults = gamesTask.Result;
+        
         var wikiResults = parseTask.Result;
         var results = new List<GameInitResultDto>();
 
-        var sortedGames = gamesTask.Result
-            .Where(g => g is not null)
-            .OrderBy(g => g!.Name);
+        var sortedGames = gameScanResults.Games
+            .OrderBy(g => g.Name);
 
         foreach (var game in sortedGames)
         {
@@ -57,7 +58,7 @@ public class AppInitializationService : IAppInitializationService
             results.Add(new GameInitResultDto(game, compatibleMod, compatibleGenericMod));
         }
 
-        return new AppInitializationResultDto(results);
+        return new AppInitializationResultDto(results, Success:true);
     }
 
     private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, IReadOnlyList<RenoDXModInfoDto> mods)

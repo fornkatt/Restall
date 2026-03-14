@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -15,22 +16,34 @@ public class SteamScanner : IPlatformScannerService
         _logService = logService;
     }
     
-    public Task<List<Game>> ScanAsync() => Task.Run(ScanSteam);
+    public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanSteam);
     public Game.Platform Platform => Game.Platform.Steam;
-
-    private List<Game> ScanSteam()
+    private GameScanResultDto ScanSteam()
     {
         var games = new List<Game>();
+        var errors = new List<string>();
         var steamPath = GetInstallPath();
 
-        if (steamPath == null) return games;
+        if (steamPath is null)
+            return new GameScanResultDto( 
+                Game.Platform.Steam,
+                [], 
+                Success: false, 
+                ErrorMessage: "Steam installation not found");
+        
         steamPath = GameScanHelper.NormalizePath(steamPath);
         foreach (var library in GetSteamLibraries(steamPath))
         {
-            games.AddRange(ScanSteamLibrary(library));
+            var (libraryGames, error)  = ScanSteamLibrary(library);
+            games.AddRange(libraryGames);
+            if (error is not null) errors.Add(error);
         }
 
-        return games;
+        return new GameScanResultDto(
+            Platform:     Game.Platform.Steam,
+            Games:        games,
+            Success:      games.Count > 0,
+            ErrorMessage: errors.Count > 0 ? string.Join("; ", errors) : null);
     }
 
     private string? GetInstallPath()
@@ -54,11 +67,11 @@ public class SteamScanner : IPlatformScannerService
         return null;
     }
 
-    private List<Game> ScanSteamLibrary(string library)
+    private (List<Game> games, string? error) ScanSteamLibrary(string library)
     {
         var games = new List<Game>();
         var steamapps = Path.Combine(library, "steamapps");
-        if (!Directory.Exists(steamapps)) return games;
+        if (!Directory.Exists(steamapps)) return (games, null);
         foreach (var acf in Directory.GetFiles(steamapps, "appmanifest_*.acf"))
         {
             try
@@ -69,16 +82,10 @@ public class SteamScanner : IPlatformScannerService
                 
                 if (name == null || installDir == null) continue;
 
-                if (GameScanHelper.NonGame(name))
-                {
-                    _logService.LogInfo($"[EXCLUDED] Non-game name: {name}");
-                    continue;
-                }
-                if (GameScanHelper.NonGame(installDir))
-                {
-                    _logService.LogInfo($"[EXCLUDED] Non-game by path: {installDir}");
-                    continue;
-                }
+                if (GameScanHelper.NonGame(name)) continue;
+                
+                if (GameScanHelper.NonGame(installDir)) continue;
+                
 
                 var rootPath = Path.Combine(steamapps, "common", installDir);
                 if (!Directory.Exists(rootPath)) continue;
@@ -98,7 +105,7 @@ public class SteamScanner : IPlatformScannerService
             }
         }
 
-        return games;
+        return (games, null);
     }
 
     private List<string> GetSteamLibraries(string path)

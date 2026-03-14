@@ -1,3 +1,4 @@
+using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -14,21 +15,31 @@ public class UbisoftScanner : IPlatformScannerService
         _logService = logService;
     }
     
-    public Task<List<Game>> ScanAsync() => Task.Run(ScanUbisoft);
+    
+    public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanUbisoft);
     public Game.Platform Platform => Game.Platform.Ubisoft;
-
-    private List<Game> ScanUbisoft()
+    
+    private GameScanResultDto ScanUbisoft()
     {
         var games = new List<Game>();
+        var errors = new List<string>();
+        
         if (OperatingSystem.IsWindows())
         {
-            games.AddRange(ScanUbisoftLibrary());
+            var (library, error) = ScanUbisoftLibrary();
+            
+            games.AddRange(library);
+            if(error is not null) errors.Add(error);
         }
-
-        return games;
+        return new GameScanResultDto(
+            Platform:     Game.Platform.Ubisoft,
+            Games:        games,
+            Success:      games.Count > 0,
+            ErrorMessage: errors.Count > 0 ? string.Join("; ", errors) : null);
+        
     }
     
-    private List<Game> ScanUbisoftLibrary()
+    private (List<Game> games, string? error) ScanUbisoftLibrary()
     {
         var games = new List<Game>();
 
@@ -36,21 +47,19 @@ public class UbisoftScanner : IPlatformScannerService
         {
             using var key = GameScanHelper.GetOpenRegistryKey(@"\Ubisoft\Launcher\Installs");
 
-            if (key == null) return games;
+            if (key is null) return (games, null);
 
             foreach (var subName in key.GetSubKeyNames())
             {
                 using var gameKey = key.OpenSubKey(subName);
-                if (gameKey == null) continue;
+                if (gameKey is null) continue;
 
-                var installDir = GameScanHelper.NormalizePath(gameKey.GetValue("InstallDir") as string ?? string.Empty);
+                var installDir = GameScanHelper.NormalizePath(
+                    GameScanHelper.GetRegistryValue(gameKey, "InstallDir", "Install Dir"));
                 if (string.IsNullOrEmpty(installDir)) continue;
                 if (!Directory.Exists(installDir)) continue;
 
-                var name = gameKey.GetValue("Name") as string
-                           ?? gameKey.GetValue("DisplayName") as string
-                           ?? Path.GetFileName(installDir);
-                
+                var name = GameScanHelper.GetRegistryValue(gameKey, "Name", "DisplayName") ?? Path.GetFileName(installDir);
                 if (string.IsNullOrEmpty(name)) continue;
                 
                 games.Add(new Game
@@ -61,15 +70,14 @@ public class UbisoftScanner : IPlatformScannerService
                     PlatformId = $"uplay:{subName}"
                 });
             }
+            return (games,null);
         }
-        catch
+        catch(Exception ex)
         {
-            _logService.LogError($"Could not find Ubisoft games...{games}");
+            return(games, $"Failed Ubisoft scan...{ex.Message}");
         }
 
 
-        return games;
     }
-
-
+    
 }

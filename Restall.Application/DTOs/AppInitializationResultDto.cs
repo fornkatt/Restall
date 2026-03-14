@@ -3,7 +3,9 @@
 namespace Restall.Application.DTOs;
 
 public record AppInitializationResultDto(
-    IReadOnlyList<GameInitResultDto> Games
+    IReadOnlyList<GameInitResultDto> Games,
+    bool Success,
+    string? ErrorMessage = null
     );
 
 public record GameInitResultDto(

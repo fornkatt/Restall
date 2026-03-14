@@ -1,3 +1,4 @@
+using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -14,48 +15,51 @@ public class EAScanner : IPlatformScannerService
         _logService = logService;
     }
     
-    public Task<List<Game>> ScanAsync() => Task.Run(ScanEA);
+    public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEA);
     public Game.Platform Platform => Game.Platform.EA;
 
-
-    private List<Game> ScanEA()
+    private GameScanResultDto ScanEA()
     {
         var games = new List<Game>();
+        var errors = new List<string>();
         if (OperatingSystem.IsWindows())
         {
-            games.AddRange(ScanEALibrary());
+            var (library, error) = ScanEALibrary();   
+            games.AddRange(library);
+            if(error is not null)  errors.Add(error);
         }
-
-        return games;
+        
+        return new GameScanResultDto(
+            Platform:     Game.Platform.EA,
+            Games:        games,
+            Success:      games.Count > 0,
+            ErrorMessage: errors.Count > 0 ? string.Join("; ", errors) : null);
+        
     }
 
-    private List<Game> ScanEALibrary()
+    private (List<Game>games, string? error) ScanEALibrary()
     {
         var games = new List<Game>();
         try
         {
             using var key = GameScanHelper.GetOpenRegistryKey(@"\EA Games");
 
-            if (key == null) return games;
+            if (key is null) return (games,null);
             foreach (var subName in key.GetSubKeyNames())
             {
                 using var gameKey = key.OpenSubKey(subName);
-                if (gameKey == null) continue;
+                if (gameKey is null) continue;
 
-                var installDir = gameKey.GetValue(GameScanHelper.NormalizePath("Install Dir")) as string
-                                 ?? gameKey.GetValue(GameScanHelper.NormalizePath("InstallLocation")) as string
-                                 ?? gameKey.GetValue(GameScanHelper.NormalizePath("InstallDir")) as string;
-
-
+                var installDir = GameScanHelper.NormalizePath(
+                    GameScanHelper.GetRegistryValue(gameKey, "Install Dir", "InstallLocation", "InstallDir"));;
+                
                 if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir)) continue;
 
-                var displayName = gameKey.GetValue("DisplayName") as string
+                var displayName = GameScanHelper.GetRegistryValue(gameKey, "DisplayName") 
                                   ?? subName;
 
                 if (string.IsNullOrEmpty(displayName)) continue;
-
                 
-
                 games.Add(new Game
                 {
                     Name = displayName,
@@ -70,7 +74,7 @@ public class EAScanner : IPlatformScannerService
             _logService.LogError($"Could not find EA games...");
         }
 
-        return games;
+        return (games, null);
     }
 
 }
