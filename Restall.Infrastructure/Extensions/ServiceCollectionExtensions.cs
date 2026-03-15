@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Restall.Application.Facades;
 using Restall.Application.Interfaces;
 using Restall.Application.Services;
 using Restall.Application.UseCases;
-using Restall.Infrastructure.Persistence;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
+using Restall.Infrastructure.Stores;
 
 namespace Restall.Infrastructure.Extensions;
 

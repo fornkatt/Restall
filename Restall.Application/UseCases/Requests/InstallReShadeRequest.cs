@@ -1,6 +1,6 @@
 ﻿using Restall.Domain.Entities;
 
-namespace Restall.Application.UseCases;
+namespace Restall.Application.UseCases.Requests;
 
 public record InstallReShadeRequest(
     Game Game,

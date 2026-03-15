@@ -2,7 +2,7 @@ using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Domain.Entities;
 
-namespace Restall.Infrastructure.Persistence;
+namespace Restall.Infrastructure.Stores;
 
 public class VersionCatalog : IVersionCatalog
 {

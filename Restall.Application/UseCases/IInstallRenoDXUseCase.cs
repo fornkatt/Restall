@@ -1,4 +1,5 @@
 ﻿using Restall.Application.DTOs;
+using Restall.Application.UseCases.Requests;
 
 namespace Restall.Application.UseCases;
 

@@ -1,7 +1,7 @@
 ﻿using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 
-namespace Restall.Infrastructure.Persistence;
+namespace Restall.Infrastructure.Stores;
 
 public class ModCatalog : IModCatalog
 {

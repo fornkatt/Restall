@@ -1,7 +1,7 @@
 ﻿using Restall.Application.DTOs;
 using Restall.Domain.Entities;
 
-namespace Restall.Application.UseCases;
+namespace Restall.Application.UseCases.Requests;
 
 public record InstallRenoDXRequest(
     Game Game,

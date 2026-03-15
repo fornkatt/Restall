@@ -1,9 +1,10 @@
 ﻿using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Application.UseCases;
+using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 
-namespace Restall.Application.Services;
+namespace Restall.Application.Facades;
 
 public class ModManagementFacade : IModManagementFacade
 {

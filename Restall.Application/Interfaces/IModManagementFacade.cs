@@ -1,5 +1,5 @@
 ﻿using Restall.Application.DTOs;
-using Restall.Application.UseCases;
+using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.Interfaces;
