@@ -30,7 +30,7 @@
 							   Foreground="{DynamicResource GameCardText}" Margin="10,10,0,0"/>
 					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
 						<TextBlock Grid.Column="0" Text="Name: " FontSize="12" Foreground="{DynamicResource GameCardText}"/>
-						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.ReShadeFileName}" FontSize="12"
+						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.ReShadeFilename}" FontSize="12"
 								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
 					</Grid>
 					<Grid ColumnDefinitions="Auto,*" Margin="10,0,0,0">
@@ -123,6 +123,10 @@
 						<TextBlock Grid.Column="1" Text="{Binding SelectedGame.RenoDXMaintainer}" FontSize="12"
 								   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"/>
 					</Grid>
+					<ToggleSwitch IsChecked="{Binding IsRenoDXNightlyBranch, Mode=TwoWay}"
+                                  OnContent="Nightly"
+                                  OffContent="Snapshot"
+                                  Margin="10,4,0,0"/>
 				</StackPanel>
 				<Button Grid.Row="1" Grid.Column="1"
 						IsVisible="{Binding SelectedGame.IsRenoDXSupported}"

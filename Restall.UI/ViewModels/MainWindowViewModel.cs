@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Messaging;
 using Restall.Application.DTOs;
 using Restall.UI.Messages;
+using System.Linq;
 
 namespace Restall.UI.ViewModels;
 
@@ -43,6 +44,8 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
                 RenoDXUpdateResult = item.RenoDXUpdateResult
             });
         }
+
+        GameListViewModel.SelectedGame = GameListViewModel.Games.FirstOrDefault();
     }
 
     partial void OnSelectedGameChanged(GameModViewModel? value)

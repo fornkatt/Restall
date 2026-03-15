@@ -24,6 +24,7 @@
 					<SolidColorBrush x:Key="GameCardBorder" Color="#fafafa"/>
 					<SolidColorBrush x:Key="ModCardButton" Color="#e7e7e7"/>
 					<SolidColorBrush x:Key="ModCardButtonText" Color="Black"/>
+					<SolidColorBrush x:Key="DialogBorder" Color="#dedede"/>
 				</ResourceDictionary>
 				<ResourceDictionary x:Key="Dark">
 					<SolidColorBrush x:Key="AppBackground" Color="#151515"/>
@@ -34,6 +35,7 @@
 					<SolidColorBrush x:Key="GameCardBorder" Color="#2c2c2c"/>
 					<SolidColorBrush x:Key="ModCardButton" Color="#484848"/>
 					<SolidColorBrush x:Key="ModCardButtonText" Color="#e1e1e1"/>
+					<SolidColorBrush x:Key="DialogBorder" Color="#2e2e2e"/>
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>

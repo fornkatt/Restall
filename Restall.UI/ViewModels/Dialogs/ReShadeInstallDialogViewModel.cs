@@ -16,7 +16,7 @@ public partial class ReShadeInstallDialogViewModel : ObservableObject
     {
         AvailableVersions = availableVersions;
         _selectedVersion = availableVersions.FirstOrDefault();
-        _selectedFileNameOption = FileNameOptions.FirstOrDefault();
+        _selectedFilenameOption = FileNameOptions.FirstOrDefault();
         _selectedExtensionOption = ExtensionOptions.FirstOrDefault();
     }
 
@@ -35,27 +35,89 @@ public partial class ReShadeInstallDialogViewModel : ObservableObject
             .ToList();
 
     [ObservableProperty]
+    private bool _isVersionExpanded = true;
+
+    [ObservableProperty]
+    private bool _isFilenameExpanded;
+
+    [ObservableProperty]
+    private bool _isExtensionExpanded;
+
+    partial void OnIsVersionExpandedChanged(bool value)
+    {
+        if (value)
+        {
+            IsFilenameExpanded = false;
+            IsExtensionExpanded = false;
+        }
+    }
+
+    partial void OnIsFilenameExpandedChanged(bool value)
+    {
+        if (value)
+        {
+            IsVersionExpanded = false;
+            IsExtensionExpanded = false;
+        }
+    }
+
+    partial void OnIsExtensionExpandedChanged(bool value)
+    {
+        if (value)
+        {
+            IsVersionExpanded = false;
+            IsFilenameExpanded = false;
+        }
+    }
+
+    partial void OnSelectedVersionChanged(string? value)
+    {
+        if (value is null) return;
+        IsVersionExpanded = false;
+        IsFilenameExpanded = true;
+    }
+
+    partial void OnSelectedFilenameOptionChanged(ReShadeFileNameOption? value)
+    {
+        if (value is null) return;
+        IsFilenameExpanded = false;
+        IsExtensionExpanded = true;
+    }
+
+    partial void OnSelectedExtensionOptionChanged(ReShadeExtensionOption? value)
+    {
+        if (value is null) return;
+        IsExtensionExpanded = false;
+    }
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanConfirm))]
     [NotifyCanExecuteChangedFor(nameof(ConfirmCommand))]
     private string? _selectedVersion;
 
     [ObservableProperty]
-    private ReShadeFileNameOption? _selectedFileNameOption;
+    [NotifyPropertyChangedFor(nameof(SelectedFilename))]
+    private ReShadeFileNameOption? _selectedFilenameOption;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedExtension))]
     private ReShadeExtensionOption? _selectedExtensionOption;
+
+    public string? SelectedFilename => SelectedFilenameOption?.Display;
+
+    public string? SelectedExtension => SelectedExtensionOption?.Display;
 
     public bool WasConfirmed { get; private set; }
 
     public bool CanConfirm => SelectedVersion is not null 
-                           && SelectedFileNameOption is not null 
+                           && SelectedFilenameOption is not null 
                            && SelectedExtensionOption is not null;
 
     public ReShadeInstallSelectionDto? BuildResult() =>
         CanConfirm
             ? new ReShadeInstallSelectionDto(
                 SelectedVersion!,
-                SelectedFileNameOption!.Value,
+                SelectedFilenameOption!.Value,
                 SelectedExtensionOption!.Value
                 )
             : null;

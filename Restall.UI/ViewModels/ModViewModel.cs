@@ -53,7 +53,14 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
+    [NotifyPropertyChangedFor(nameof(IsRenoDXNightlyBranch))]
     private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
+
+    public bool IsRenoDXNightlyBranch
+    {
+        get => SelectedRenoDXBranch == RenoDX.Branch.Nightly;
+        set => SelectedRenoDXBranch = value ? RenoDX.Branch.Nightly : RenoDX.Branch.Snapshot;
+    }
 
     public string? RenoDXLatestVersionForBranch => SelectedGame?.EngineName == Game.Engine.Unity
         ? "No version info"
@@ -114,7 +121,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     private bool CanInstallReShade => SelectedGame is not null;
 
     [RelayCommand(CanExecute = nameof(CanUpdateReShade))]
-    private Task UpdateReShadeAsync() => ExecuteReShadeInstallAsync("ReShade updated.");
+    private Task UpdateReShadeAsync() => ExecuteReShadeUpdateAsync("ReShade updated.");
 
     private bool CanUpdateReShade => SelectedGame?.CanUpdateReShade ?? false;
 
@@ -137,6 +144,39 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
             DownloadStatus = report.PercentComplete >= 0
             ? $"Downloading {report.FileName}... {report.PercentComplete}%"
             : $"Downloading {report.FileName}...";
+        });
+
+        var result = await _modManagementFacade.InstallOrUpdateReShadeAsync(request, progress);
+
+        if (result.UpdateCheckResult is not null)
+            SelectedGame.ReShadeUpdateResult = result.UpdateCheckResult;
+
+        SelectedGame.NotifyGameStateChanged();
+        NotifyAllCommandsChanged();
+        DownloadStatus = result.IsSuccess ? successStatus : result.ErrorMessage;
+    }
+
+    private async Task ExecuteReShadeUpdateAsync(string successStatus)
+    {
+        var installedFilename = SelectedGame?.ReShadeFilename;
+        var latestVersion = _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
+
+        if (installedFilename is null || latestVersion is null) return;
+
+        var request = new InstallReShadeRequest(
+            SelectedGame!.GetGame(),
+            SelectedReShadeBranch,
+            SelectedGame.SelectedReShadeInstallArch,
+            latestVersion,
+            installedFilename
+            );
+
+        var progress = new Progress<DownloadProgressReportDto>(report =>
+        {
+            DownloadPercent = report.PercentComplete;
+            DownloadStatus = report.PercentComplete >= 0
+                ? $"Downloading {report.FileName}... {report.PercentComplete}%"
+                : $"Downloading {report.FileName}...";
         });
 
         var result = await _modManagementFacade.InstallOrUpdateReShadeAsync(request, progress);
@@ -187,13 +227,27 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
     private async Task ExecuteRenoDXInstallAsync(string successStatus)
     {
+        string? targetVersion;
+
+        if (SelectedRenoDXBranch == RenoDX.Branch.Nightly)
+        {
+            var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
+            if (selectedTag is null) return;
+
+            targetVersion = selectedTag.Version;
+        }
+        else
+        {
+            targetVersion = SelectedGame?.RenoDXLatestVersion;
+        }
+            
         var request = new InstallRenoDXRequest(
             SelectedGame!.GetGame(),
             SelectedGame.SelectedRenoDXInstallArch,
             SelectedRenoDXBranch,
             ModInfo: SelectedGame.CompatibleRenoDXMod,
             GenericModInfo: SelectedGame.CompatibleRenoDXGenericMod,
-            TargetVersion: SelectedGame.RenoDXLatestVersion
+            TargetVersion: targetVersion
             );
 
         var progress = new Progress<DownloadProgressReportDto>(report =>

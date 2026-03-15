@@ -116,7 +116,7 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
             System.Globalization.DateTimeStyles.None, out var cached) &&
                DateOnly.TryParseExact(targetDate, "yyyyMMdd", null,
             System.Globalization.DateTimeStyles.None, out var target) &&
-            target > cached;
+            target != cached;
     }
 
     private string? ResolveAddonFileName(InstallRenoDXRequest request)
@@ -146,6 +146,7 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
             : _modDownloadService.DownloadRenoDXAsync(
                 request.Branch,
                 addonFileName,
+                version: request.TargetVersion,
                 wikiSnapshotUrl: request.Arch == RenoDX.Architecture.x64 ? request.ModInfo?.SnapshotUrl64 : request.ModInfo?.SnapshotUrl32,
                 progress: progress
                 );

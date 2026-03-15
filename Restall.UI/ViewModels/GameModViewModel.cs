@@ -68,7 +68,7 @@ public partial class GameModViewModel : ObservableObject
     public string? ReShadeVersion => _game.ReShade?.Version;
     public string? ReShadeBranch => _game.ReShade?.BranchName.ToString() ?? "Unknown";
     public string? ReShadeArch => _game.ReShade?.Arch.ToString();
-    public string? ReShadeFileName => _game.ReShade?.SelectedFileName;
+    public string? ReShadeFilename => _game.ReShade?.SelectedFileName;
 
     // Get the actual ReShade object
     internal ReShade? GetReShade() => _game.ReShade;
@@ -91,7 +91,7 @@ public partial class GameModViewModel : ObservableObject
         OnPropertyChanged(nameof(ReShadeLatestVersion));
         OnPropertyChanged(nameof(ReShadeBranch));
         OnPropertyChanged(nameof(ReShadeArch));
-        OnPropertyChanged(nameof(ReShadeFileName));
+        OnPropertyChanged(nameof(ReShadeFilename));
         OnPropertyChanged(nameof(RenoDXName));
         OnPropertyChanged(nameof(RenoDXMaintainer));
         OnPropertyChanged(nameof(RenoDXVersion));
