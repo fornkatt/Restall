@@ -7,10 +7,25 @@ public class CachePathService : ICachePathService
 {
     private const string s_downloadCacheFolderName = "DownloadCache";
     private const string s_cacheFolderName = "Cache";
-
+    private const string s_sgdbFolderName = "SGDB";
+    
+    private const string s_bannerFileName = "banner.png";
+    private const string s_iconFileName = "icon.png";
+    private const string s_logoFileName = "logo.png";
+    
     private readonly string _reShadeCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_cacheFolderName, "ReShade");
     private readonly string _reShadeDownloadCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_downloadCacheFolderName, "ReShade");
     private readonly string _renoDXDownloadCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_downloadCacheFolderName, "RenoDX");
+    private readonly string _sgdbCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_cacheFolderName, s_sgdbFolderName);
+    
+    public string GetSgdbCacheDirectory() => _sgdbCacheBaseDir;
+    public string GetSgdbBannerPath(int steamGridDbId) =>
+        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), s_bannerFileName);
+
+    public string GetSgdbThumbnailPath(int steamGridDbId) =>
+        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), s_iconFileName);
+
+    public string GetSgdbLogoPath(int steamGridDbId) => Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), s_logoFileName);
 
     public string GetReShadeCachePath(ReShade reShade) =>
         Path.Combine(_reShadeCacheBaseDir, reShade.BranchName.ToString(), reShade.Version!);
@@ -29,4 +44,6 @@ public class CachePathService : ICachePathService
 
     public string GetReShadeExtractedFilePath(ReShade reShade) =>
         Path.Combine(GetReShadeCachePath(reShade), reShade.OriginalFileName);
+
+
 }

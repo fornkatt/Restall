@@ -9,6 +9,7 @@ using Restall.UI.Interfaces;
 using Restall.UI.Messages;
 using System;
 using System.Threading.Tasks;
+using Restall.Application.UseCases.Requests;
 
 namespace Restall.UI.ViewModels;
 

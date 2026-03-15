@@ -3,6 +3,7 @@ using Restall.Application.Facades;
 using Restall.Application.Interfaces;
 using Restall.Application.Services;
 using Restall.Application.UseCases;
+using Restall.Infrastructure.Persistence;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
 using Restall.Infrastructure.Stores;
@@ -23,7 +24,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IVersionCatalog, VersionCatalog>();
         services.AddSingleton<IModCatalog, ModCatalog>();
 
-        services.AddSingleton<ISteamGridDbCacheService, SteamGridDbCacheService>();
+        services.AddSingleton<ISteamGridDbIndexRepository, SteamGridDbIndexRepository>();
         services.AddSingleton<ISteamGridDbService, SteamGridDbService>();
 
         services.AddPlatformScanners();

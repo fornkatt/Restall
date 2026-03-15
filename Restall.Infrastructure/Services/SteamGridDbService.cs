@@ -10,18 +10,21 @@ namespace Restall.Infrastructure.Services;
 public class SteamGridDbService : ISteamGridDbService
 {
     private readonly ILogService _logService;
-    private readonly ISteamGridDbCacheService _cacheService;
+    private readonly ICachePathService _cacheService;
+    private readonly ISteamGridDbIndexRepository _indexRepository;
     private readonly SteamGridDb? _sgdb;
 
     private const double s_similarityThreshold = 0.6d;
 
     public SteamGridDbService(
         ILogService logService,
-        ISteamGridDbCacheService cacheService,
+        ICachePathService cacheService,
+        ISteamGridDbIndexRepository indexRepository,
         IConfiguration configuration)
     {
         _logService = logService;
         _cacheService = cacheService;
+        _indexRepository = indexRepository;
 
         var apiKey = configuration["SteamGridDBApiKey:ApiKey"];
         if (!string.IsNullOrWhiteSpace(apiKey))
@@ -78,7 +81,7 @@ public class SteamGridDbService : ISteamGridDbService
         }
 
         var cacheKey = game.PlatformId;
-        var sgdbId = _cacheService.TryGetSteamGridDbId(cacheKey);
+        var sgdbId = _indexRepository.TryGetSteamGridDbId(cacheKey);
 
         try
         {
@@ -99,7 +102,7 @@ public class SteamGridDbService : ISteamGridDbService
                 return;
             }
 
-            await _cacheService.SaveSteamGridDbIdAsync(cacheKey, resolvedId.Value);
+            await _indexRepository.SaveSteamGridDbIdAsync(cacheKey, resolvedId.Value);
             await _logService.LogInfoAsync($"Resolved SGDB ID for {game.Name} → {resolvedId}");
 
             await SetGameImagePathsAsync(game, resolvedId.Value, platformId, sgdbPlatform.Value);
@@ -114,13 +117,15 @@ public class SteamGridDbService : ISteamGridDbService
     private async Task SetGameImagePathsAsync(
         Game game, int sgdbId, int platformId, SteamGridDbGamePlatform platform)
     {
-        var bannerPath = _cacheService.GetBannerPath(sgdbId);
-        var iconPath   = _cacheService.GetThumbnailPath(sgdbId);
-        var logoPath = _cacheService.GetLogoPath(sgdbId);
-
+        var bannerPath = _cacheService.GetSgdbBannerPath(sgdbId);
+        var iconPath   = _cacheService.GetSgdbThumbnailPath(sgdbId);
+        var logoPath = _cacheService.GetSgdbLogoPath(sgdbId);
+        
+        var bannerExists = 
+        
         Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
 
-        if (!_cacheService.BannerExists(sgdbId))
+        if (!BannerExists(sgdbId))
         {
             var heroes   = await _sgdb!.GetHeroesByPlatformGameIdAsync(platform, platformId);
 
@@ -129,23 +134,23 @@ public class SteamGridDbService : ISteamGridDbService
             await DownloadImageAsync(imageUrl, bannerPath, "banner");
         }
 
-        if (!_cacheService.ThumbnailExists(sgdbId))
+        if (!ThumbnailExists(sgdbId))
         {
             var icons    = await _sgdb!.GetIconsByPlatformGameIdAsync(platform, platformId);
             var imageUrl = icons?.FirstOrDefault()?.FullImageUrl;
             await DownloadImageAsync(imageUrl, iconPath, "icon");
         }
 
-        if (!_cacheService.LogoExists(sgdbId))
+        if (!LogoExists(sgdbId))
         {
             var logos = await _sgdb.GetLogosByPlatformGameIdAsync(platform, platformId);
             var imageUrl = logos?.FirstOrDefault()?.FullImageUrl;
             await DownloadImageAsync(imageUrl, logoPath, "logo");
         }
         
-        game.BannerPathString = _cacheService.BannerExists(sgdbId) ? bannerPath : null;
-        game.ThumbnailPathString = _cacheService.ThumbnailExists(sgdbId) ? iconPath : null;
-        game.LogoPathString = _cacheService.LogoExists(sgdbId) ? logoPath : null;
+        game.BannerPathString = BannerExists(sgdbId) ? bannerPath : null;
+        game.ThumbnailPathString = ThumbnailExists(sgdbId) ? iconPath : null;
+        game.LogoPathString = LogoExists(sgdbId) ? logoPath : null;
     }
 
     private async Task DownloadByNameSearchAsync(Game game)
@@ -154,40 +159,40 @@ public class SteamGridDbService : ISteamGridDbService
         var normalizedName = GameNameHelper.NormalizeName(game.Name ?? string.Empty);
         var searchTerm = GameNameHelper.NormalizeName(GameNameHelper.StripEditionSuffix(game.Name ?? string.Empty));
         var cacheKey = $"name:{normalizedName}";
-        var cachedId = _cacheService.TryGetSteamGridDbId(cacheKey);
+        var cachedId = _indexRepository.TryGetSteamGridDbId(cacheKey);
         
         if (cachedId is not null)
         {
-            var bannerPath = _cacheService.GetBannerPath(cachedId.Value);
-            var iconPath   = _cacheService.GetThumbnailPath(cachedId.Value);
-            var logoPath = _cacheService.GetLogoPath(cachedId.Value);
+            var bannerPath = _cacheService.GetSgdbBannerPath(cachedId.Value);
+            var iconPath   = _cacheService.GetSgdbThumbnailPath(cachedId.Value);
+            var logoPath = _cacheService.GetSgdbLogoPath(cachedId.Value);
 
             Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
 
-            if (!_cacheService.BannerExists(cachedId.Value))
+            if (!BannerExists(cachedId.Value))
             {
                 var heroes   = await _sgdb!.GetHeroesByGameIdAsync(cachedId.Value);
                 var imageUrl = heroes?.FirstOrDefault()?.FullImageUrl;
                 await DownloadImageAsync(imageUrl, bannerPath, "banner");
             }
 
-            if (!_cacheService.ThumbnailExists(cachedId.Value))
+            if (!ThumbnailExists(cachedId.Value))
             {
                 var icons    = await _sgdb!.GetIconsByGameIdAsync(cachedId.Value);
                 var imageUrl = icons?.FirstOrDefault()?.FullImageUrl;
                 await DownloadImageAsync(imageUrl, iconPath, "icon");
             }
 
-            if (!_cacheService.LogoExists(cachedId.Value))
+            if (!LogoExists(cachedId.Value))
             {
                 var logos  = await _sgdb.GetLogosByGameIdAsync(cachedId.Value);
                 var imageUrl = logos?.FirstOrDefault()?.FullImageUrl;
                 await DownloadImageAsync(imageUrl,logoPath, "logo");
             }
             
-            game.BannerPathString = _cacheService.BannerExists(cachedId.Value) ? bannerPath : null;
-            game.ThumbnailPathString = _cacheService.ThumbnailExists(cachedId.Value) ? iconPath : null;
-            game.LogoPathString = _cacheService.LogoExists(cachedId.Value) ? logoPath : null;
+            game.BannerPathString = BannerExists(cachedId.Value) ? bannerPath : null;
+            game.ThumbnailPathString = ThumbnailExists(cachedId.Value) ? iconPath : null;
+            game.LogoPathString = LogoExists(cachedId.Value) ? logoPath : null;
             return;
         }
         
@@ -204,38 +209,38 @@ public class SteamGridDbService : ISteamGridDbService
                 
                 if (bestMatch is null) return;
                 
-                await _cacheService.SaveSteamGridDbIdAsync(cacheKey, bestMatch.Id);
+                await _indexRepository.SaveSteamGridDbIdAsync(cacheKey, bestMatch.Id);
         
-                var bannerPath = _cacheService.GetBannerPath(bestMatch.Id);
-                var iconPath   = _cacheService.GetThumbnailPath(bestMatch.Id);
-                var logoPath = _cacheService.GetLogoPath(bestMatch.Id);
+                var bannerPath = _cacheService.GetSgdbBannerPath(bestMatch.Id);
+                var iconPath   = _cacheService.GetSgdbThumbnailPath(bestMatch.Id);
+                var logoPath = _cacheService.GetSgdbLogoPath(bestMatch.Id);
         
                 Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
         
-                if (!_cacheService.BannerExists(bestMatch.Id))
+                if (!BannerExists(bestMatch.Id))
                 {
                     var heroes   = await _sgdb!.GetHeroesByGameIdAsync(bestMatch.Id);
                     var imageUrl = heroes?.FirstOrDefault()?.FullImageUrl;
                     await DownloadImageAsync(imageUrl, bannerPath, "banner");
                 }
         
-                if (!_cacheService.ThumbnailExists(bestMatch.Id))
+                if (!ThumbnailExists(bestMatch.Id))
                 {
                     var icons    = await _sgdb!.GetIconsByGameIdAsync(bestMatch.Id);
                     var imageUrl = icons?.FirstOrDefault()?.FullImageUrl;
                     await DownloadImageAsync(imageUrl, iconPath, "icon");
                 }
 
-                if (!_cacheService.LogoExists(bestMatch.Id))
+                if (!LogoExists(bestMatch.Id))
                 {
                     var logos   = await _sgdb.GetLogosByGameIdAsync(bestMatch.Id);
                     var imageUrl = logos?.FirstOrDefault()?.FullImageUrl;
                     await DownloadImageAsync(imageUrl, logoPath, "logo");
                 }
                 
-                game.BannerPathString = _cacheService.BannerExists(bestMatch.Id) ? bannerPath : null;
-                game.ThumbnailPathString = _cacheService.ThumbnailExists(bestMatch.Id) ? iconPath : null;
-                game.LogoPathString = _cacheService.LogoExists(bestMatch.Id) ? logoPath : null;
+                game.BannerPathString = BannerExists(bestMatch.Id) ? bannerPath : null;
+                game.ThumbnailPathString = ThumbnailExists(bestMatch.Id) ? iconPath : null;
+                game.LogoPathString = LogoExists(bestMatch.Id) ? logoPath : null;
                 return;
         }
         catch (Exception ex)
@@ -266,4 +271,8 @@ public class SteamGridDbService : ISteamGridDbService
             await _logService.LogErrorAsync($"Failed to download {label}", ex);
         }
     }
+    
+    private bool BannerExists(int steamGridDbId) => File.Exists(_cacheService.GetSgdbBannerPath(steamGridDbId));
+    private bool ThumbnailExists(int steamGridDbId) => File.Exists(_cacheService.GetSgdbThumbnailPath(steamGridDbId));
+    private bool LogoExists(int steamGridDbId) => File.Exists(_cacheService.GetSgdbLogoPath(steamGridDbId));
 }
