@@ -64,7 +64,9 @@ public partial class GameModViewModel : ObservableObject
         (CompatibleRenoDXMod is not null ||
          CompatibleRenoDXGenericMod is not null) ||
         (EngineName == Game.Engine.Unity ||
-         EngineName == Game.Engine.Unreal);
+         EngineName == Game.Engine.Unreal ||
+        HasRenoDX) &&
+        HasReShade;
     public string? ReShadeVersion => _game.ReShade?.Version;
     public string? ReShadeBranch => _game.ReShade?.BranchName.ToString() ?? "Unknown";
     public string? ReShadeArch => _game.ReShade?.Arch.ToString();
@@ -84,6 +86,7 @@ public partial class GameModViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(HasRenoDX));
         OnPropertyChanged(nameof(HasReShade));
+        OnPropertyChanged(nameof(IsRenoDXSupported));
         OnPropertyChanged(nameof(CanInstallRenoDX));
         OnPropertyChanged(nameof(CanUpdateReShade));
         OnPropertyChanged(nameof(CanUpdateRenoDX));

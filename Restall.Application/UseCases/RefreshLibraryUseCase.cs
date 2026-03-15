@@ -69,7 +69,7 @@ public class RefreshLibraryUseCase : IRefreshLibraryUseCase
             var compatibleGenericMod = compatibleMod is null
                 ? FindGenericMod(game.Name, _modCatalog.GetRenoDXGenericWikiMods())
                 : null;
-
+                
             artworkTasks.Add(_steamGridDbService.EnrichGameArtworkAsync(game));
 
             results.Add(new GameInitResultDto(

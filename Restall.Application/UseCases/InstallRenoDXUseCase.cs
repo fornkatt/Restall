@@ -30,15 +30,20 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
     public async Task<ModOperationResultDto> ExecuteAsync(InstallRenoDXRequest request, IProgress<DownloadProgressReportDto>? progress = null)
     {
-        var addonFileName = ResolveAddonFileName(request);
+        var addonFilename = ResolveAddonFileName(request);
 
-        if (addonFileName is null)
-            return new ModOperationResultDto(false, request.Game, "No mod info provided.");
+        if (addonFilename is null)
+            return new ModOperationResultDto(
+                false, 
+                request.Game, 
+                "Could not determine addon filename. " +
+                "This game has no wiki entry and no existing RenoDX installation was detected."
+                );
 
         var renoDx = new RenoDX
         {
-            SelectedName = addonFileName,
-            OriginalName = addonFileName,
+            SelectedName = addonFilename,
+            OriginalName = addonFilename,
             BranchName = request.Branch,
             Arch = request.Arch,
             Maintainer = request.ModInfo?.Maintainer
@@ -49,9 +54,9 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         await InvalidateCacheIfOutdatedAsync(renoDx, request.TargetVersion, isUnityEngine);
 
-        if (!await DownloadAsync(isUnityEngine, request, addonFileName, progress))
+        if (!await DownloadAsync(isUnityEngine, request, addonFilename, progress))
         {
-            await _logService.LogWarningAsync($"Failed to download RenoDX: {addonFileName}");
+            await _logService.LogWarningAsync($"Failed to download RenoDX: {addonFilename}");
             return new ModOperationResultDto(false, request.Game, "Failed to download RenoDX");
         }
 
@@ -131,12 +136,15 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         var bit = request.Arch == RenoDX.Architecture.x64 ? "64" : "32";
 
-        return request.Game.EngineName switch
+        var engineBased = request.Game.EngineName switch
         {
             Game.Engine.Unity => $"renodx-unityengine.addon{bit}",
             Game.Engine.Unreal => $"renodx-unrealengine.addon{bit}",
             _ => null
         };
+        if (engineBased is not null) return engineBased;
+
+        return request.Game.RenoDX?.SelectedName;
     }
 
     private Task<bool> DownloadAsync(bool isUnityEngine, InstallRenoDXRequest request, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
