@@ -6,5 +6,6 @@ public record ModOperationResultDto(
     bool IsSuccess,
     Game UpdatedGame,
     string? ErrorMessage = null,
-    bool ShouldPromptForDeepScan = false
+    bool ShouldPromptForDeepScan = false,
+    UpdateCheckResultDto? UpdateCheckResult = null
     );

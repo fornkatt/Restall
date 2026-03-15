@@ -16,7 +16,6 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 {
     private readonly IModManagementFacade _modManagementFacade;
     private readonly IModSelectionDialogService _modSelectionDialogService;
-    private readonly IUpdateCheckService _updateCheckService;
     private readonly IParseService _parseService;
 
     private bool _suppressMessage;
@@ -24,13 +23,11 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     public ModViewModel(
     IModManagementFacade modManagementFacade,
     IModSelectionDialogService modSelectionDialogService,
-    IUpdateCheckService updateCheckService,
     IParseService parseService
     )
     {
         _modManagementFacade = modManagementFacade;
         _modSelectionDialogService = modSelectionDialogService;
-        _updateCheckService = updateCheckService;
         _parseService = parseService;
 
         IsActive = true;
@@ -43,6 +40,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [NotifyPropertyChangedFor(nameof(InstallRenoDXButtonText))]
     [NotifyPropertyChangedFor(nameof(UpdateRenoDXButtonText))]
     [NotifyPropertyChangedFor(nameof(UninstallRenoDXButtonText))]
+    [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
     private GameModViewModel? _selectedGame;
 
     [ObservableProperty]
@@ -54,8 +52,10 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [ObservableProperty]
     private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
 
-    public string? RenoDXLatestVersionForBranch =>
-        _parseService.GetLatestRenoDXTag(SelectedRenoDXBranch)?.Version;
+    public string? RenoDXLatestVersionForBranch => SelectedGame?.EngineName == Game.Engine.Unity
+        ? "No version info"
+        : _parseService.GetLatestRenoDXTag(SelectedRenoDXBranch)?.Version;
+
 
     [ObservableProperty]
     private int _downloadPercent;
@@ -138,8 +138,8 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
         var result = await _modManagementFacade.InstallOrUpdateReShadeAsync(request, progress);
 
-        if (result.IsSuccess && result.UpdatedGame.ReShade is not null)
-            SelectedGame.ReShadeUpdateResult = _updateCheckService.CheckReShadeUpdate(result.UpdatedGame.ReShade);
+        if (result.UpdateCheckResult is not null)
+            SelectedGame.ReShadeUpdateResult = result.UpdateCheckResult;
 
         SelectedGame.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
@@ -203,8 +203,8 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
         var result = await _modManagementFacade.InstallOrUpdateRenoDXAsync(request, progress);
 
-        if (result.IsSuccess && result.UpdatedGame.RenoDX is not null)
-            SelectedGame.RenoDXUpdateResult = _updateCheckService.CheckRenoDXUpdate(result.UpdatedGame.RenoDX);
+        if (result.UpdateCheckResult is not null)
+            SelectedGame.RenoDXUpdateResult = result.UpdateCheckResult;
 
         SelectedGame.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
