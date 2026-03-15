@@ -157,7 +157,7 @@ public class SteamGridDbService : ISteamGridDbService
     {
         
         var normalizedName = GameNameHelper.NormalizeName(game.Name ?? string.Empty);
-        var searchTerm = GameNameHelper.NormalizeName(GameNameHelper.StripEditionSuffix(game.Name ?? string.Empty));
+        var searchTerm = normalizedName;
         var cacheKey = $"name:{normalizedName}";
         var cachedId = _indexRepository.TryGetSteamGridDbId(cacheKey);
         
@@ -203,11 +203,17 @@ public class SteamGridDbService : ISteamGridDbService
                 if (results is null || results.Length == 0) return;
 
                 var bestMatch = results.FirstOrDefault(g =>
-                    GameNameHelper.ComputeNameSimilarity(
-                        normalizedName, 
-                        GameNameHelper.NormalizeName(g.Name)) >= s_similarityThreshold);
+                    GameNameHelper.FuzzyNameMatch(
+                        normalizedName,
+                        GameNameHelper.NormalizeName(g.Name)));;
+
+                if (bestMatch is null)
+                {
+                     var strippedTerm = GameNameHelper.NormalizeName(GameNameHelper.StripEditionSuffix(game.Name ?? string.Empty));
+                     results = await _sgdb!.SearchForGamesAsync(strippedTerm);
+                     bestMatch = results?.FirstOrDefault(g => GameNameHelper.FuzzyNameMatch(normalizedName, GameNameHelper.NormalizeName(g.Name)));
+                }
                 
-                if (bestMatch is null) return;
                 
                 await _indexRepository.SaveSteamGridDbIdAsync(cacheKey, bestMatch.Id);
         
