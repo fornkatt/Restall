@@ -9,7 +9,7 @@ using Restall.Infrastructure.Stores;
 
 namespace Restall.Infrastructure.Extensions;
 
-public static class ServiceCollectionExtensions
+public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {

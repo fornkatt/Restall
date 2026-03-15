@@ -4,8 +4,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Infrastructure.Extensions;
-using Restall.UI.Interfaces;
-using Restall.UI.Services;
+using Restall.UI.Extensions;
 using Restall.UI.ViewModels;
 using Restall.UI.Views;
 using System.Linq;
@@ -63,14 +62,7 @@ public partial class App : Avalonia.Application
     private static void ConfigureServices(IServiceCollection services)
     {
         services.AddInfrastructureServices();
-
-        services.AddTransient<IModSelectionDialogService, ModSelectionDialogService>();
-
-        services.AddTransient<StartupWindowViewModel>();
-        services.AddTransient<BannerViewModel>();
-        services.AddTransient<GameListViewModel>();
-        services.AddTransient<ModViewModel>();
-        services.AddTransient<MainWindowViewModel>();
+        services.AddUIServices();
     }
 
     private void DisableAvaloniaDataAnnotationValidation()
