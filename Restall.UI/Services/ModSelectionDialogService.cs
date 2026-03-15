@@ -11,16 +11,16 @@ namespace Restall.UI.Services;
 
 public class ModSelectionDialogService : IModSelectionDialogService
 {
-    private readonly IParseService _parseService;
     private readonly ILogService _logService;
+    private readonly IVersionCatalog _versionCatalog;
 
     public ModSelectionDialogService(
-        IParseService parseService,
-        ILogService logService
+        ILogService logService,
+        IVersionCatalog versionCatalog
         )
     {
-        _parseService = parseService;
         _logService = logService;
+        _versionCatalog = versionCatalog;
     }
 
     public async Task<ReShadeInstallSelectionDto?> ShowReShadeInstallDialogAsync()
@@ -30,7 +30,7 @@ public class ModSelectionDialogService : IModSelectionDialogService
 
         if (mainWindow is null) return null;
 
-        var versions = _parseService.GetAvailableReShadeVersions(ReShade.Branch.Stable);
+        var versions = _versionCatalog.GetAvailableReShadeVersions(ReShade.Branch.Stable);
 
         if (versions.Count == 0)
         {

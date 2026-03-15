@@ -2,9 +2,9 @@
 
 namespace Restall.Application.DTOs;
 
-public record AppInitializationResultDto(
+public record RefreshLibraryResultDto(
     IReadOnlyList<GameInitResultDto> Games,
-    bool Success,
+    bool IsSuccess,
     string? ErrorMessage = null
     );
 

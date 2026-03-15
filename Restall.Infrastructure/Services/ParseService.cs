@@ -18,9 +18,6 @@ public class ParseService : IParseService
     private const string s_renoDxTagsUrl = "https://github.com/clshortfuse/renodx/tags";
     private const string s_renoDxReleasesTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
 
-    private readonly Dictionary<ReShade.Branch, List<string>> _availableReShadeVersions = [];
-    private readonly Dictionary<RenoDX.Branch, List<RenoDXTagInfoDto>> _availableRenoDXTags = [];
-
     public ParseService(
         ILogService logService,
         HttpClient httpClient
@@ -31,36 +28,7 @@ public class ParseService : IParseService
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
     }
 
-    public RenoDXTagInfoDto? GetLatestRenoDXTag(RenoDX.Branch branch) =>
-        _availableRenoDXTags.TryGetValue(branch, out var tags) ? tags.FirstOrDefault() : null;
-
-    public IReadOnlyList<RenoDXTagInfoDto> GetAllRenoDXNightlies() =>
-        _availableRenoDXTags.TryGetValue(RenoDX.Branch.Nightly, out var tags) ? tags.AsReadOnly() : [];
-
-    public IReadOnlyList<string> GetAvailableReShadeVersions(ReShade.Branch branch) =>
-        _availableReShadeVersions.TryGetValue(branch, out var versions) ? versions.AsReadOnly() : [];
-
-    public string? GetLatestReShadeVersion(ReShade.Branch branch) =>
-        _availableReShadeVersions.TryGetValue(branch, out var versions) ? versions.FirstOrDefault() : null;
-
-    public async Task<WikiParseResultDto> FetchAvailableModsAsync()
-    {
-        var versionTask = Task.WhenAll(
-            FetchStableReShadeVersionsAsync(),
-            FetchLatestRenoDXSnapshotAsync(),
-            FetchRenoDXNightlyVersionsAsync()
-        );
-
-        var wikiTask = FetchRenoDXWikiModsAsync();
-
-        await Task.WhenAll(versionTask, wikiTask);
-
-        var (wikiMods, genericWikiMods) = wikiTask.Result;
-
-        return new WikiParseResultDto(wikiMods, genericWikiMods);
-    }
-
-    private async Task FetchStableReShadeVersionsAsync()
+    public async Task<IReadOnlyList<string>> FetchReShadeVersionsAsync()
     {
         try
         {
@@ -73,71 +41,101 @@ public class ParseService : IParseService
                 await _logService.LogInfoAsync($"reshade.me has a newer version not yet on GitHub tags: {siteVersion}");
             }
 
-            _availableReShadeVersions[ReShade.Branch.Stable] = versions;
             await _logService.LogInfoAsync($"Fetched {versions.Count} stable ReShade versions. Latest: {versions.FirstOrDefault()}");
+            return versions;
         }
         catch (Exception ex)
         {
             await _logService.LogErrorAsync("Failed to fetch stable ReShade versions.", ex);
+            return [];
         }
     }
 
-    private async Task<string?> FetchLatestReShadeVersionFromSiteAsync()
+    public async Task<RenoDXTagInfoDto?> FetchRenoDXSnapshotAsync()
     {
         try
         {
-            var document = await _httpClient.GetStringAsync(s_reShadeSiteUrl);
-            var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
-            return match.Success ? match.Groups[1].Value : null;
+            var document = await LoadHtmlDocumentAsync(s_renoDxReleasesTagUrl + "snapshot");
+
+            var timeNode = document.DocumentNode.SelectSingleNode("//relative-time");
+            DateOnly? date = null;
+            if (timeNode is not null)
+            {
+                var datetime = timeNode.GetAttributeValue("datetime", string.Empty);
+                if (DateTime.TryParse(datetime, out var parsed))
+                    date = DateOnly.FromDateTime(parsed.ToUniversalTime());
+            }
+
+            if (date is null)
+            {
+                await _logService.LogWarningAsync("Failed to parse snapshot release date");
+                return null;
+            }
+
+            var bodyNode = document.DocumentNode.SelectSingleNode(
+                "//div[contains(@class, 'markdown-body')]");
+            var commitNotes = new List<string>();
+
+            if (bodyNode is not null)
+            {
+                string? currentSection = null;
+                foreach (var node in bodyNode.ChildNodes)
+                {
+                    if (node.Name == "h2")
+                    {
+                        currentSection = node.InnerText.Trim();
+                        continue;
+                    }
+
+                    if (node.Name == "ul")
+                    {
+                        foreach (var li in node.SelectNodes(".//li") ?? Enumerable.Empty<HtmlNode>())
+                        {
+                            var text = li.InnerText.Trim();
+                            if (!string.IsNullOrWhiteSpace(text))
+                                commitNotes.Add(currentSection is not null ? $"[{currentSection}] {text}" : text);
+                        }
+                    }
+                }
+            }
+
+            await _logService.LogInfoAsync($"Successfully parsed RenoDX snapshot: {date.Value}\n{string.Join(Environment.NewLine, commitNotes)}");
+            return new RenoDXTagInfoDto(date.Value, RenoDX.Branch.Snapshot, commitNotes);
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync("Could not fetch latest ReShade version from reshade.me.", ex);
+            await _logService.LogErrorAsync("Failed to fetch latest RenoDX snapshot", ex);
             return null;
         }
     }
 
-    private async Task<List<string>> FetchReShadeVersionsFromGitHubTagsAsync()
+    public async Task<IReadOnlyList<RenoDXTagInfoDto>> FetchRenoDXNightlyTagsAsync()
     {
-        var versions = new List<string>();
-
         try
         {
-            var document = await LoadHtmlDocumentAsync(s_reShadeTagsUrl);
+            var nightlyTags = await FetchRenoDXNightlyTagNamesAsync();
 
-            var tagNodes = document.DocumentNode
-                .SelectNodes("//a[contains(@href, 'crosire/reshade/releases/tag/')]");
-
-            if (tagNodes is null)
+            if (nightlyTags.Count <= 0)
             {
-                await _logService.LogWarningAsync("No ReShade tags found to parse.");
-                return versions;
+                await _logService.LogWarningAsync("No nightly RenoDX tags found.");
+                return [];
             }
 
-            foreach (var node in tagNodes)
-            {
-                var href = node.GetAttributeValue("href", string.Empty);
-                var tag = href.Split('/').LastOrDefault();
+            var tagInfoResults = await Task.WhenAll(nightlyTags.Select(FetchRenoDXNighlyReleaseInfoAsync));
+            var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToList();
 
-                if (string.IsNullOrWhiteSpace(tag)) continue;
-
-                var version = tag.TrimStart('v');
-
-                if (!string.IsNullOrWhiteSpace(version) && !versions.Contains(version))
-                    versions.Add(version);
-
-                await _logService.LogInfoAsync($"Found ReShade version: {version}");
-            }
+            await _logService.LogInfoAsync($"Fetched {tagInfos.Count} nightly RenoDX versions. " +
+                $"Latest: {tagInfos.FirstOrDefault()?.Version}");
+            return tagInfos;
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync("Unable to parse ReShade GitHub tags page.", ex);
+            await _logService.LogErrorAsync("Failed to fetch nightly RenoDX versions.", ex);
+            return [];
         }
-
-        return versions;
     }
 
-    private async Task<(List<RenoDXModInfoDto> WikiMods, List<RenoDXGenericModInfoDto> GenericWikiMods)> FetchRenoDXWikiModsAsync()
+    public async Task<RenoDXWikiParseResultDto> FetchRenoDXWikiModsAsync()
     {
         var wikiMods = new List<RenoDXModInfoDto>();
         var genericWikiMods = new List<RenoDXGenericModInfoDto>();
@@ -239,7 +237,7 @@ public class ParseService : IParseService
             await _logService.LogErrorAsync("Failed to fetch RenoDX wiki mods.", ex);
         }
 
-        return (wikiMods, genericWikiMods);
+        return new RenoDXWikiParseResultDto(wikiMods, genericWikiMods);
     }
 
     private string? ExtractMarkdownUrl(string markdown, string urlContains)
@@ -260,87 +258,59 @@ public class ParseService : IParseService
         }
     }
 
-    private async Task FetchLatestRenoDXSnapshotAsync()
+    private async Task<string?> FetchLatestReShadeVersionFromSiteAsync()
     {
         try
         {
-            var document = await LoadHtmlDocumentAsync(s_renoDxReleasesTagUrl + "snapshot");
-
-            var timeNode = document.DocumentNode.SelectSingleNode("//relative-time");
-            DateOnly? date = null;
-            if (timeNode is not null)
-            {
-                var datetime = timeNode.GetAttributeValue("datetime", string.Empty);
-                if (DateTime.TryParse(datetime, out var parsed))
-                    date = DateOnly.FromDateTime(parsed.ToUniversalTime());
-            }
-
-            if (date is null)
-            {
-                await _logService.LogWarningAsync("Failed to parse snapshot release date");
-                return;
-            }
-
-            var bodyNode = document.DocumentNode.SelectSingleNode(
-                "//div[contains(@class, 'markdown-body')]");
-            var commitNotes = new List<string>();
-
-            if (bodyNode is not null)
-            {
-                string? currentSection = null;
-                foreach (var node in bodyNode.ChildNodes)
-                {
-                    if (node.Name == "h2")
-                    {
-                        currentSection = node.InnerText.Trim();
-                        continue;
-                    }
-
-                    if (node.Name == "ul")
-                    {
-                        foreach (var li in node.SelectNodes(".//li") ?? Enumerable.Empty<HtmlNode>())
-                        {
-                            var text = li.InnerText.Trim();
-                            if (!string.IsNullOrWhiteSpace(text))
-                                commitNotes.Add(currentSection is not null ? $"[{currentSection}] {text}" : text);
-                        }
-                    }
-                }
-            }
-
-            await _logService.LogInfoAsync($"Successfully parsed RenoDX snapshot: {date.Value}\n{string.Join(Environment.NewLine, commitNotes)}");
-            _availableRenoDXTags[RenoDX.Branch.Snapshot] = [new RenoDXTagInfoDto(date.Value, RenoDX.Branch.Snapshot, commitNotes)];
+            var document = await _httpClient.GetStringAsync(s_reShadeSiteUrl);
+            var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
+            return match.Success ? match.Groups[1].Value : null;
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync("Failed to fetch latest RenoDX snapshot", ex);
+            await _logService.LogErrorAsync("Could not fetch latest ReShade version from reshade.me.", ex);
+            return null;
         }
     }
 
-    private async Task FetchRenoDXNightlyVersionsAsync()
+    private async Task<List<string>> FetchReShadeVersionsFromGitHubTagsAsync()
     {
+        var versions = new List<string>();
+
         try
         {
-            var nightlyTags = await FetchRenoDXNightlyTagNamesAsync();
+            var document = await LoadHtmlDocumentAsync(s_reShadeTagsUrl);
 
-            if (nightlyTags.Count <= 0)
+            var tagNodes = document.DocumentNode
+                .SelectNodes("//a[contains(@href, 'crosire/reshade/releases/tag/')]");
+
+            if (tagNodes is null)
             {
-                await _logService.LogWarningAsync("No nightly RenoDX tags found.");
-                return;
+                await _logService.LogWarningAsync("No ReShade tags found to parse.");
+                return versions;
             }
 
-            var tagInfoResults = await Task.WhenAll(nightlyTags.Select(FetchRenoDXNighlyReleaseInfoAsync));
+            foreach (var node in tagNodes)
+            {
+                var href = node.GetAttributeValue("href", string.Empty);
+                var tag = href.Split('/').LastOrDefault();
 
-            var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToList();
-            _availableRenoDXTags[RenoDX.Branch.Nightly] = tagInfos;
+                if (string.IsNullOrWhiteSpace(tag)) continue;
 
-            await _logService.LogInfoAsync($"Fetched {tagInfos.Count} nightly RenoDX versions. " +
-                $"Latest: {tagInfos.FirstOrDefault()?.Version}");
+                var version = tag.TrimStart('v');
+
+                if (!string.IsNullOrWhiteSpace(version) && !versions.Contains(version))
+                    versions.Add(version);
+
+                await _logService.LogInfoAsync($"Found ReShade version: {version}");
+            }
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync("Failed to fetch nightly RenoDX versions.", ex);
+            await _logService.LogErrorAsync("Unable to parse ReShade GitHub tags page.", ex);
         }
+
+        return versions;
     }
 
     private async Task<List<string>> FetchRenoDXNightlyTagNamesAsync(string? pageUrl = null)

@@ -4,4 +4,5 @@ public record DownloadProgressReportDto(
     string FileName,
     long BytesReceived,
     long? TotalBytes,
-    int PercentComplete);
+    int PercentComplete
+    );

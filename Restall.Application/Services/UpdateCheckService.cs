@@ -7,18 +7,18 @@ namespace Restall.Application.Services;
 public class UpdateCheckService : IUpdateCheckService
 {
     private readonly ILogService _logService;
-    private readonly IParseService _parseService;
+    private readonly IVersionCatalog _versionCatalog;
 
     private const string s_nightlyPrefix = "nightly-";
     private const string s_dateFormat = "yyyyMMdd";
 
     public UpdateCheckService(
         ILogService logService,
-        IParseService parseService
+        IVersionCatalog versionCatalog
         )
     {
         _logService = logService;
-        _parseService = parseService;
+        _versionCatalog = versionCatalog;
     }
 
     public UpdateCheckResultDto CheckReShadeUpdate(ReShade installed)
@@ -28,7 +28,7 @@ public class UpdateCheckService : IUpdateCheckService
             : installed.BranchName;
 
         var installedVersion = installed.Version;
-        var latestVersion = _parseService.GetLatestReShadeVersion(branch);
+        var latestVersion = _versionCatalog.GetLatestReShadeVersion(branch);
 
         if (string.IsNullOrWhiteSpace(installedVersion) || string.IsNullOrWhiteSpace(latestVersion))
             return new UpdateCheckResultDto(false, installedVersion, latestVersion);
@@ -90,8 +90,7 @@ public class UpdateCheckService : IUpdateCheckService
         if (effectiveBranch is not (RenoDX.Branch.Snapshot or RenoDX.Branch.Nightly))
             return new UpdateCheckResultDto(false, installedVersionString, null);
 
-        var latestTag = _parseService.GetLatestRenoDXTag(effectiveBranch);
-
+        var latestTag = _versionCatalog.GetLatestRenoDXVersionByTag(effectiveBranch);
         if (latestTag is null)
             return new UpdateCheckResultDto(false, installedVersionString, null);
 

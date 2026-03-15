@@ -2,6 +2,7 @@
 using Restall.Application.Interfaces;
 using Restall.Application.Services;
 using Restall.Application.UseCases;
+using Restall.Infrastructure.Persistence;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
 
@@ -13,29 +14,31 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<ICachePathService, CachePathService>();
+
+        services.AddHttpClient("ParseService");
+        services.AddSingleton<IParseService, ParseService>();
+
+        services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
+        services.AddSingleton<IVersionCatalog, VersionCatalog>();
+        services.AddSingleton<IModCatalog, ModCatalog>();
+
         services.AddSingleton<ISteamGridDbCacheService, SteamGridDbCacheService>();
         services.AddSingleton<ISteamGridDbService, SteamGridDbService>();
 
         services.AddPlatformScanners();
+        services.AddSingleton<IEngineDetectionService, EngineDetectionService>();
+        services.AddSingleton<IGameDetectionService, GameDetectionService>();
+        services.AddSingleton<IModDetectionService, ModDetectionService>();
+
+        services.AddSingleton<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
         
-        services.AddTransient<IEngineDetectionService, EngineDetectionService>();
-        services.AddTransient<IGameDetectionService, GameDetectionService>();
-        services.AddTransient<IModDetectionService, ModDetectionService>();
         services.AddTransient<IModInstallService, ModInstallService>();
         services.AddTransient<IFileExtractionService, FileExtractionService>();
-
         services.AddTransient<IInstallReShadeUseCase, InstallReShadeUseCase>();
         services.AddTransient<IUninstallReShadeUseCase, UninstallReShadeUseCase>();
         services.AddTransient<IInstallRenoDXUseCase, InstallRenoDXUseCase>();
         services.AddTransient<IUninstallRenoDXUseCase, UninstallRenoDXUseCase>();
-
-        services.AddTransient<IAppInitializationService, AppInitializationService>();
-
         services.AddTransient<IModManagementFacade, ModManagementFacade>();
-
-        services.AddHttpClient("ParseService");
-        services.AddSingleton<IParseService, ParseService>();
-        services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
 
         services.AddHttpClient<IModDownloadService, ModDownloadService>();
 

@@ -4,5 +4,5 @@ namespace Restall.Application.UseCases;
 
 public interface IRefreshLibraryUseCase
 {
-    Task<AppInitializationResultDto> ExecuteAsync(IProgress<GameScanProgressReportDto>? progress = null);
+    Task<RefreshLibraryResultDto> ExecuteAsync(IProgress<GameScanProgressReportDto>? progress = null);
 }

@@ -1,6 +1,6 @@
 ﻿namespace Restall.Application.DTOs;
 
-public record WikiParseResultDto(
+public record RenoDXWikiParseResultDto(
     IReadOnlyList<RenoDXModInfoDto> WikiMods,
     IReadOnlyList<RenoDXGenericModInfoDto> GenericWikiMods
     );

@@ -9,7 +9,6 @@ public class CachePathService : ICachePathService
     private const string s_cacheFolderName = "Cache";
 
     private readonly string _reShadeCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_cacheFolderName, "ReShade");
-    private readonly string _renoDXCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_cacheFolderName, "RenoDX");
     private readonly string _reShadeDownloadCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_downloadCacheFolderName, "ReShade");
     private readonly string _renoDXDownloadCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_downloadCacheFolderName, "RenoDX");
 

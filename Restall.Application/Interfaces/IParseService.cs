@@ -5,14 +5,9 @@ namespace Restall.Application.Interfaces;
 
 public interface IParseService
 {
-    Task<WikiParseResultDto> FetchAvailableModsAsync();
+    Task<IReadOnlyList<string>> FetchReShadeVersionsAsync();
 
-    // Get latest RenoDX snapshot or nightly
-    RenoDXTagInfoDto? GetLatestRenoDXTag(RenoDX.Branch branch);
-
-    IReadOnlyList<RenoDXTagInfoDto> GetAllRenoDXNightlies();
-    IReadOnlyList<string> GetAvailableReShadeVersions(ReShade.Branch branch); 
-
-    // Gets latest ReShade version depending on branch. Stable, nightly or RenoDX
-    string? GetLatestReShadeVersion(ReShade.Branch branch);
+    Task<RenoDXWikiParseResultDto> FetchRenoDXWikiModsAsync();
+    Task<RenoDXTagInfoDto?> FetchRenoDXSnapshotAsync();
+    Task<IReadOnlyList<RenoDXTagInfoDto>> FetchRenoDXNightlyTagsAsync();
 }

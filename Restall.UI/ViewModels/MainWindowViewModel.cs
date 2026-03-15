@@ -31,7 +31,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
         IsActive = true;
     }
 
-    public void LoadGames(AppInitializationResultDto result)
+    public void LoadGames(RefreshLibraryResultDto result)
     {
         foreach (var item in result.Games)
         {

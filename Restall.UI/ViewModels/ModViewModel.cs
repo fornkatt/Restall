@@ -16,19 +16,19 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 {
     private readonly IModManagementFacade _modManagementFacade;
     private readonly IModSelectionDialogService _modSelectionDialogService;
-    private readonly IParseService _parseService;
+    private readonly IVersionCatalog _versionCatalog;
 
     private bool _suppressMessage;
 
     public ModViewModel(
     IModManagementFacade modManagementFacade,
     IModSelectionDialogService modSelectionDialogService,
-    IParseService parseService
+    IVersionCatalog versionCatalog
     )
     {
         _modManagementFacade = modManagementFacade;
         _modSelectionDialogService = modSelectionDialogService;
-        _parseService = parseService;
+        _versionCatalog = versionCatalog;
 
         IsActive = true;
     }
@@ -44,17 +44,19 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     private GameModViewModel? _selectedGame;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ReShadeLatestVersionForBranch))]
     private ReShade.Branch _selectedReShadeBranch = ReShade.Branch.Stable;
 
     public string? ReShadeLatestVersionForBranch =>
-        _parseService.GetLatestReShadeVersion(SelectedReShadeBranch);
+        _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
     private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
 
     public string? RenoDXLatestVersionForBranch => SelectedGame?.EngineName == Game.Engine.Unity
         ? "No version info"
-        : _parseService.GetLatestRenoDXTag(SelectedRenoDXBranch)?.Version;
+        : _versionCatalog.GetLatestRenoDXVersionByTag(SelectedRenoDXBranch)?.Version;
 
 
     [ObservableProperty]

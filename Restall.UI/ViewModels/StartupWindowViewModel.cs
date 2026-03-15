@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
+using Restall.Application.UseCases;
 using System;
 using System.Threading.Tasks;
 
@@ -8,21 +9,21 @@ namespace Restall.UI.ViewModels;
 
 public partial class StartupWindowViewModel : ObservableObject
 {
-    private readonly IAppInitializationService _appInitializationService;
+    private readonly IRefreshLibraryUseCase _refreshLibrary;
     private readonly ILogService _logService;
 
-    public event Action<AppInitializationResultDto>? InitializationCompleted;
+    public event Action<RefreshLibraryResultDto>? InitializationCompleted;
 
     [ObservableProperty]
     private string _statusMessage = "Loading...";
 
     public StartupWindowViewModel(
-        IAppInitializationService appInitializationService,
-        ILogService logService
+        ILogService logService,
+        IRefreshLibraryUseCase refreshLibrary
         )
     {
-        _appInitializationService = appInitializationService;
         _logService = logService;
+        _refreshLibrary = refreshLibrary;
     }
 
     public async Task InitializeAsync()
@@ -35,7 +36,7 @@ public partial class StartupWindowViewModel : ObservableObject
 
         StatusMessage = "Scanning for games...";
 
-        var result = await _appInitializationService.InitializeAsync(progress);
+        var result = await _refreshLibrary.ExecuteAsync(progress);
 
         foreach (var item in result.Games)
         {
