@@ -18,7 +18,7 @@ public static partial class GameNameHelper
     }
     
     [GeneratedRegex(
-        @"(\s*[-–:]\s*|\s+)(ultimate|complete|definitive|gold|deluxe|premium|anniversary|enhanced|enchanted|directors cut|remastered|goty|game of the year|standard)(\s+edition)?\s*$"
+        @"(\s*[-–:]\s*|\s+)(ultimate|complete|definitive|gold|deluxe|premium|anniversary|enhanced|enchanted|directors cut|remastered|remake|goty|game of the year|standard)(\s+edition)?\s*$"
         ,
         RegexOptions.IgnoreCase)]
     private static partial Regex EditionSuffixRegex();

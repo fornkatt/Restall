@@ -83,7 +83,8 @@ internal class GameScanHelper
             "Exodus SDK",
             "DotNET",
             "__Installer",
-            "_CommonRedist"
+            "_CommonRedist",
+            "UE_"
             
         };
         if (nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase)))

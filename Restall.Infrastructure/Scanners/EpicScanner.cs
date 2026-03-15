@@ -81,14 +81,10 @@ public class EpicScanner : IPlatformScannerService
 
                     if (!Directory.Exists(rootPath))
                         continue;
-
-
-
+                    
                     if (GameScanHelper.NonGame(rootPath))
-
                         continue;
-
-
+                    
                     games.Add(new Game
                     {
                         Name = name,

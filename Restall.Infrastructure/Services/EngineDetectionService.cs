@@ -58,7 +58,7 @@ public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngin
             foreach (var sub in Directory.GetDirectories(dir))
             {
                 var name = Path.GetFileName(sub);
-
+                    
                 // Skip Engine folder — its Binaries are for the engine, not the game
                 if (name.Equals("Engine", StringComparison.OrdinalIgnoreCase)) continue;
 
@@ -85,8 +85,9 @@ public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngin
                 CollectUEBinaries(sub, depth + 1, results);
             }
         }
-        catch
+        catch(Exception ex)
         {
+            _logService.LogError($"[ERROR] Something went wrong when collecting Binaries folder. {ex.Message}");
         }
     }
 
@@ -114,15 +115,15 @@ public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngin
 
     private string? FindShallowExeFolder(string root)
     {
-        var subFolders = new[]
-        {
-            Path.Combine("bin", "x64"),
-            Path.Combine("bin", "x86"),
-            Path.Combine("bin", "win64"),
-            Path.Combine("Binaries", "Win64"),
-            Path.Combine("Binaries", "WinGDK")
-        };
-
+         var subFolders = new[]
+         {
+             Path.Combine("bin", "x64"),
+             Path.Combine("bin", "x86"),
+             Path.Combine("bin", "win64"),
+             Path.Combine("Binaries", "Win64"),
+             Path.Combine("Binaries", "WinGDK")
+         };
+        
         foreach (var sub in subFolders)
         {
             var preferredFolders = Path.Combine(root, sub);
