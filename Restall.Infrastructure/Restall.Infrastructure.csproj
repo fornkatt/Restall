@@ -7,19 +7,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Restall.Application\Restall.Application.csproj" />
+        <ProjectReference Include="..\Restall.Application\Restall.Application.csproj"/>
+        <ProjectReference Include="..\Restall.Domain\Restall.Domain.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
-      <PackageReference Include="PeNet" Version="6.0.0" />
-      <PackageReference Include="craftersmine.SteamGridDB.Net" Version="1.1.7" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Persistence\" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.12.4"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3"/>
+        <PackageReference Include="PeNet" Version="6.0.0"/>
+        <PackageReference Include="craftersmine.SteamGridDB.Net" Version="1.1.7"/>
     </ItemGroup>
 
 </Project>
