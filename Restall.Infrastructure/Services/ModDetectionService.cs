@@ -30,8 +30,9 @@ public class ModDetectionService : IModDetectionService
             {
                 fileList.Add(new ReShade
                 {
-                    SelectedFileName = Path.GetFileName(file),
+                    SelectedFilename = Path.GetFileName(file),
                     Version = versionInfo.ProductVersion,
+                    BranchName = ReShade.Branch.Stable,
                     Arch = versionInfo.OriginalFilename?.Contains("64") == true
                         ? ReShade.Architecture.x64
                         : ReShade.Architecture.x32

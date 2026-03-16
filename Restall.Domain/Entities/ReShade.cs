@@ -29,7 +29,7 @@ public class ReShade
 
     public Branch BranchName { get; set; } = Branch.Unknown;
     public string OriginalFileName => $"ReShade{(int)Arch}.dll";
-    public string SelectedFileName { get; set; } = string.Empty;
+    public string SelectedFilename { get; set; } = string.Empty;
     public string? Version { get; set; }
 
     public static string GetFileName(FileName fileType, FileExtension extension)

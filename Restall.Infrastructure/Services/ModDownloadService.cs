@@ -65,7 +65,7 @@ public class ModDownloadService : IModDownloadService
                     await _logService.LogWarningAsync("RenoDX nightly branch requires both addon filename and version.");
                     return false;
                 }
-                downloadUrl = $"{s_renoDxNightlyDownloadBaseUrl}{version}/{addonFileName}";
+                downloadUrl = $"{s_renoDxNightlyDownloadBaseUrl}nightly-{version}/{addonFileName}";
                 fileName = addonFileName;
                 break;
             default:

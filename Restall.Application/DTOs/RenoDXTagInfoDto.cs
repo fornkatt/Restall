@@ -8,7 +8,5 @@ public record RenoDXTagInfoDto(
     List<string>? CommitNotes = null
 )
 {
-    public string Version => Branch == RenoDX.Branch.Nightly
-        ? $"nightly-{Date:yyyyMMdd}"
-        : $"{Date:yyyyMMdd}";
+    public string Version => $"{Date:yyyyMMdd}";
 }

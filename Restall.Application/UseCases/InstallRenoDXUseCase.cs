@@ -100,15 +100,9 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
         if (string.IsNullOrWhiteSpace(cachedVersion) || string.IsNullOrWhiteSpace(targetVersion))
             return false;
 
-        const string nightlyPrefix = "nightly-";
-
-        var targetDate = targetVersion.StartsWith(nightlyPrefix, StringComparison.OrdinalIgnoreCase)
-            ? targetVersion[nightlyPrefix.Length..]
-            : targetVersion;
-
         return DateOnly.TryParseExact(cachedVersion, "yyyyMMdd", null,
             System.Globalization.DateTimeStyles.None, out var cached) &&
-               DateOnly.TryParseExact(targetDate, "yyyyMMdd", null,
+               DateOnly.TryParseExact(targetVersion, "yyyyMMdd", null,
             System.Globalization.DateTimeStyles.None, out var target) &&
             target != cached;
     }

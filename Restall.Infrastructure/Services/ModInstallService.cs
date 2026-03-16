@@ -32,18 +32,18 @@ public class ModInstallService : IModInstallService
 
                     if (game.ReShade is not null)
                     {
-                        previousFile = Path.Combine(game.ExecutablePath, game.ReShade.SelectedFileName);
+                        previousFile = Path.Combine(game.ExecutablePath, game.ReShade.SelectedFilename);
                         await TryDeleteFileAsync(previousFile);
                     }
                         
-                    string destinationPath = Path.Combine(game.ExecutablePath, reShade.SelectedFileName);
+                    string destinationPath = Path.Combine(game.ExecutablePath, reShade.SelectedFilename);
 
                     File.Copy(sourcePath, destinationPath, true);
 
                     game.ReShade = reShade;
 
                     await _logService.LogInfoAsync($"Successfully installed ReShade as " +
-                                                  $"{reShade.SelectedFileName} to {game.ExecutablePath}");
+                                                  $"{reShade.SelectedFilename} to {game.ExecutablePath}");
 
                     break;
                 }
@@ -79,7 +79,7 @@ public class ModInstallService : IModInstallService
             return new ModOperationResultDto(false, game);
         }
 
-        string expectedPath = Path.Combine(game.ExecutablePath, game.ReShade!.SelectedFileName);
+        string expectedPath = Path.Combine(game.ExecutablePath, game.ReShade!.SelectedFilename);
         bool deleted = await TryDeleteFileAsync(expectedPath);
 
         game.ReShade = null;

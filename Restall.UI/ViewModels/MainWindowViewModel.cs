@@ -39,9 +39,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
             GameListViewModel.Games.Add(new GameModViewModel(item.Game)
             {
                 CompatibleRenoDXMod = item.CompatibleMod,
-                CompatibleRenoDXGenericMod = item.CompatibleGenericMod,
-                ReShadeUpdateResult = item.ReShadeUpdateResult,
-                RenoDXUpdateResult = item.RenoDXUpdateResult
+                CompatibleRenoDXGenericMod = item.CompatibleGenericMod
             });
         }
 

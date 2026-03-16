@@ -35,7 +35,7 @@ public class InstallReShadeUseCase : IInstallReShadeUseCase
             BranchName = request.Branch,
             Arch = request.Arch,
             Version = request.Version,
-            SelectedFileName = request.SelectedFileName,
+            SelectedFilename = request.SelectedFilename,
         };
 
         var extractedFilePath = _cachePathService.GetReShadeExtractedFilePath(reShade);
@@ -55,7 +55,7 @@ public class InstallReShadeUseCase : IInstallReShadeUseCase
         var result = await _modInstallService.InstallModAsync(request.Game, reShade, extractedFilePath);
 
         if (result.IsSuccess)
-            await _logService.LogInfoAsync($"Successfully installed ReShade version {reShade.Version} as {reShade.SelectedFileName} to game: {request.Game.Name}");
+            await _logService.LogInfoAsync($"Successfully installed ReShade version {reShade.Version} as {reShade.SelectedFilename} to game: {request.Game.Name}");
         else
             await _logService.LogWarningAsync($"Could not install ReShade to game: {request.Game.Name}");
 
