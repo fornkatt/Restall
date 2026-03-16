@@ -103,5 +103,14 @@ internal class GameScanHelper
         return nonGameSuffixes.Any(s => name.EndsWith(s, StringComparison.OrdinalIgnoreCase));
         
     }
-    
+
+    internal static string[] GetPreferredExeSubFolders() => 
+    [
+        Path.Combine("bin", "x64"),
+        Path.Combine("bin", "x86"),
+        Path.Combine("bin", "win64")
+    ];
+
+
+
 }

@@ -43,21 +43,5 @@ public static partial class GameNameHelper
 
         return maxWords > 0 && (double)shared / maxWords >= 0.5;
     }
-
-    public static double ComputeNameSimilarity(string a, string b)
-    {
-        if (!a.Contains(b) && !b.Contains(a)) return 0.0;
-
-        var aWords = a.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var bWords = b.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var bSet = new HashSet<string>(bWords);
-
-        int shared = aWords.Count(w => bSet.Contains(w));
-        int total = aWords.Length + bWords.Length;
-
-        return total == 0 ? 0.0 : (2.0 * shared) / total;
-
-    }
-    
     
 }

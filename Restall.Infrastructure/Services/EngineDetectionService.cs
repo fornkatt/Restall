@@ -115,14 +115,7 @@ public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngin
 
     private string? FindShallowExeFolder(string root)
     {
-         var subFolders = new[]
-         {
-             Path.Combine("bin", "x64"),
-             Path.Combine("bin", "x86"),
-             Path.Combine("bin", "win64"),
-             Path.Combine("Binaries", "Win64"),
-             Path.Combine("Binaries", "WinGDK")
-         };
+        var subFolders = GameScanHelper.GetPreferredExeSubFolders();
         
         foreach (var sub in subFolders)
         {
