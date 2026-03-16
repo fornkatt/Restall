@@ -13,7 +13,7 @@
 		TransparencyLevelHint="Transparent">
 
 	<Border Background="{DynamicResource AppBackground}"
-			CornerRadius="20"
+			CornerRadius="10"
 			BorderBrush="{DynamicResource DialogBorder}"
 			BorderThickness="1">
 		<Border.Styles>

@@ -1,7 +1,7 @@
 ﻿namespace Restall.Application.DTOs;
 
 public record ReShadeModInfoDto(
-    string? FileName,
+    string? Filename,
     string? Version,
     string? StableUrl,
     string? NightlyUrl,

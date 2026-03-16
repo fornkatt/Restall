@@ -34,8 +34,8 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         if (addonFilename is null)
             return new ModOperationResultDto(
-                false, 
-                request.Game, 
+                false,
+                request.Game,
                 "Could not determine addon filename. " +
                 "This game has no wiki entry and no existing RenoDX installation was detected."
                 );
@@ -79,21 +79,10 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
         var cachedFilePath = _cachePathService.GetRenoDXCachePath(renoDx);
         if (!File.Exists(cachedFilePath)) return;
 
-        string? reason;
+        if (string.IsNullOrWhiteSpace(targetVersion)) return;
 
-        if (forceInvalidate)
-        {
-            reason = "always fetch fresh version for external mods";
-        }
-        else
-        {
-            if (string.IsNullOrWhiteSpace(targetVersion)) return;
-
-            var cachedVersion = _modDetectionService.GetRenoDXFileVersion(cachedFilePath);
-            if (!IsCacheOutdated(cachedVersion, targetVersion)) return;
-
-            reason = $"cached = {cachedVersion}, target = {targetVersion}";
-        }
+        var cachedVersion = _modDetectionService.GetRenoDXFileVersion(cachedFilePath);
+        if (!IsCacheOutdated(cachedVersion, targetVersion)) return;
 
         try
         {
@@ -126,13 +115,13 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
     private string? ResolveAddonFileName(InstallRenoDXRequest request)
     {
-        if (request.ModInfo is { } modInfo)
+        if (request.ModInfo is { HasWikiFilename: true } modInfo)
             return request.Arch == RenoDX.Architecture.x32
-                ? modInfo.AddonFileName32 ?? modInfo.AddonFileName64
-                : modInfo.AddonFileName64 ?? modInfo.AddonFileName32;
+                ? modInfo.AddonFilename32 ?? modInfo.AddonFilename64
+                : modInfo.AddonFilename64 ?? modInfo.AddonFilename32;
 
         if (request.GenericModInfo is { } generic)
-            return request.Arch == RenoDX.Architecture.x64 ? generic.AddonFileName64 : generic.AddonFileName32;
+            return request.Arch == RenoDX.Architecture.x64 ? generic.AddonFilename64 : generic.AddonFilename32;
 
         var bit = request.Arch == RenoDX.Architecture.x64 ? "64" : "32";
 
@@ -144,16 +133,16 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
         };
         if (engineBased is not null) return engineBased;
 
-        return request.Game.RenoDX?.SelectedName;
+        return request.Game.RenoDX?.OriginalName;
     }
 
-    private Task<bool> DownloadAsync(bool isUnityEngine, InstallRenoDXRequest request, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
+    private Task<bool> DownloadAsync(bool isUnityEngine, InstallRenoDXRequest request, string addonFilename, IProgress<DownloadProgressReportDto>? progress = null)
     {
         return isUnityEngine
-            ? _modDownloadService.DownloadUnityRenoDXAsync(addonFileName, progress)
+            ? _modDownloadService.DownloadUnityRenoDXAsync(addonFilename, progress)
             : _modDownloadService.DownloadRenoDXAsync(
                 request.Branch,
-                addonFileName,
+                addonFilename,
                 version: request.TargetVersion,
                 wikiSnapshotUrl: request.Arch == RenoDX.Architecture.x64 ? request.ModInfo?.SnapshotUrl64 : request.ModInfo?.SnapshotUrl32,
                 progress: progress

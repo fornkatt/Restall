@@ -11,12 +11,14 @@
 		SystemDecorations="None"
 		CanResize="False"
 		Background="Transparent"
-		TransparencyLevelHint="Transparent">
+		TransparencyLevelHint="Transparent"
+		ClipToBounds="True">
 
 	<Border Background="{DynamicResource AppBackground}"
-			CornerRadius="20"
+			CornerRadius="10"
 			BorderBrush="{DynamicResource DialogBorder}"
-			BorderThickness="1">
+			BorderThickness="1"
+			ClipToBounds="True">
 		<Border.Styles>
 			<Style Selector="ListBoxItem">
 				<Setter Property="Padding" Value="0"/>
@@ -36,28 +38,35 @@
 		</Border.Styles>
 
 		<Grid Grid.ColumnDefinitions="0.5*, 0.5*"
-			  Grid.RowDefinitions="Auto, Auto, Auto">
+			  Grid.RowDefinitions="Auto, Auto, Auto, Auto">
 			<ListBox Grid.Row="0"
 					 Grid.ColumnSpan="2"
 					 ItemsSource="{Binding AvailableVersions}"
 					 SelectedItem="{Binding SelectedVersion}"
 					 SelectionMode="Single"
 					 Background="Transparent"
-					 MaxHeight="200">
+					 MaxHeight="200"
+					 ClipToBounds="True">
 				<ListBox.ItemTemplate>
 					<DataTemplate x:DataType="dto:RenoDXTagInfoDto">
 						<RadioButton Content="{Binding Version}"
 									 IsChecked="{Binding $parent[ListBoxItem].IsSelected}"
 									 IsHitTestVisible="True"
-									 Margin="4, 2" />
+									 Margin="4, 2"
+									 ClipToBounds="True"/>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
-
-			<Border Grid.Row="1"
+			<Separator Grid.Row="1"
+					   Grid.ColumnSpan="2"
+					   Margin="10, 8, 10, 0"
+					   Background="{DynamicResource GameCardBackground}"
+					   IsVisible="{Binding HasCommitNotes}"
+					   Height="2"/>
+			<Border Grid.Row="2"
 					Grid.ColumnSpan="2"
 					IsVisible="{Binding HasCommitNotes}"
-					Margin="8,0,8,8"
+					Margin="8, 15, 8, 8"
 					Padding="6"
 					Background="{DynamicResource GameCardBackground}"
 					CornerRadius="4">
@@ -80,7 +89,7 @@
 				</StackPanel>
 			</Border>
 
-			<Button Grid.Row="2"
+			<Button Grid.Row="3"
 					Grid.Column="0"
 					Margin="10"
 					Content="Confirm"
@@ -93,7 +102,7 @@
 					CornerRadius="5"
 					Background="{DynamicResource ModCardButton}"
 					Foreground="{DynamicResource ModCardButtonText}"/>
-			<Button Grid.Row="2"
+			<Button Grid.Row="3"
 					Grid.Column="1"
 					Margin="10"
 					Content="Cancel"

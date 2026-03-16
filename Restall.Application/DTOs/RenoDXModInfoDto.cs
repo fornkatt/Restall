@@ -14,26 +14,26 @@ public record RenoDXModInfoDto(
     string? Maintainer,
     string? Notes,
     string? Status,
-    string? OverrideAddonFileName = null
+    string? OverrideAddonFilename = null
 )
 
 {
-    public string? AddonFileName64 => ExtractFileName(SnapshotUrl64);
-    public string? AddonFileName32 => ExtractFileName(SnapshotUrl32);
-    public string? AddonFileNameFallBack => AddonFileName64 ?? AddonFileName32 ?? OverrideAddonFileName;
+    public string? AddonFilename64 => ExtractFilename(SnapshotUrl64);
+    public string? AddonFilename32 => ExtractFilename(SnapshotUrl32);
+    public string? AddonFileNameFallBack => AddonFilename64 ?? AddonFilename32 ?? OverrideAddonFilename;
 
     public bool SupportsX64 => SnapshotUrl64 is not null;
     public bool SupportsX32 => SnapshotUrl32 is not null;
     public bool IsDualArch => SupportsX64 && SupportsX32;
 
-    public bool CanAutoInstall => AddonFileName64 is not null || AddonFileName32 is not null;
+    public bool HasWikiFilename => AddonFilename64 is not null || AddonFilename32 is not null;
 
     public RenoDXModSource PreferredManualSource =>
         NexusUrl is not null    ? RenoDXModSource.Nexus :
         DiscordUrl is not null  ? RenoDXModSource.Discord :
                                   RenoDXModSource.Unknown;
 
-    private static string? ExtractFileName(string? url) =>
+    private static string? ExtractFilename(string? url) =>
         Uri.TryCreate(url, UriKind.Absolute, out var uri)
         ? Path.GetFileName(uri.AbsolutePath)
         : null;

@@ -71,7 +71,10 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     private int _downloadPercent;
 
     [ObservableProperty]
-    private string? _downloadStatus;
+    private string? _installStatus;
+
+    [ObservableProperty]
+    private string? _updateStatus;
 
     [ObservableProperty]
     private string? _uninstallStatus;
@@ -141,7 +144,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         var progress = new Progress<DownloadProgressReportDto>(report =>
         {
             DownloadPercent = report.PercentComplete;
-            DownloadStatus = report.PercentComplete >= 0
+            InstallStatus = report.PercentComplete >= 0
             ? $"Downloading {report.FileName}... {report.PercentComplete}%"
             : $"Downloading {report.FileName}...";
         });
@@ -153,7 +156,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
         SelectedGame.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
-        DownloadStatus = result.IsSuccess ? successStatus : result.ErrorMessage;
+        InstallStatus = result.IsSuccess ? successStatus : result.ErrorMessage;
     }
 
     private async Task ExecuteReShadeUpdateAsync(string successStatus)
@@ -174,7 +177,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         var progress = new Progress<DownloadProgressReportDto>(report =>
         {
             DownloadPercent = report.PercentComplete;
-            DownloadStatus = report.PercentComplete >= 0
+            InstallStatus = report.PercentComplete >= 0
                 ? $"Downloading {report.FileName}... {report.PercentComplete}%"
                 : $"Downloading {report.FileName}...";
         });
@@ -186,7 +189,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
         SelectedGame.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
-        DownloadStatus = result.IsSuccess ? successStatus : result.ErrorMessage;
+        InstallStatus = result.IsSuccess ? successStatus : result.ErrorMessage;
     }
 
     [RelayCommand(CanExecute = nameof(CanUninstallReShade))]
@@ -253,7 +256,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         var progress = new Progress<DownloadProgressReportDto>(report =>
         {
             DownloadPercent = report.PercentComplete;
-            DownloadStatus = report.PercentComplete >= 0
+            InstallStatus = report.PercentComplete >= 0
                 ? $"Downloading {report.FileName}... {report.PercentComplete}%"
                 : $"Downloading {report.FileName}...";
         });
@@ -265,7 +268,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
         SelectedGame.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
-        DownloadStatus = result.IsSuccess ? successStatus : result.ErrorMessage;
+        InstallStatus = result.IsSuccess ? successStatus : result.ErrorMessage;
     }
 
     [RelayCommand(CanExecute = nameof(CanUninstallRenoDX))]

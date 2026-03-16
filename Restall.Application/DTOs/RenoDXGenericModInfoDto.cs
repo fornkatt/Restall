@@ -8,10 +8,10 @@ public record RenoDXGenericModInfoDto(
 )
 
 {
-    public string AddonFileName64 => GetAddonFileName("64");
-    public string AddonFileName32 => GetAddonFileName("32");
+    public string AddonFilename64 => GetAddonFilename("64");
+    public string AddonFilename32 => GetAddonFilename("32");
 
-    private string GetAddonFileName(string bit) =>
+    private string GetAddonFilename(string bit) =>
         Engine switch
         {
             Engine.Unreal => $"renodx-unrealengine.addon{bit}",

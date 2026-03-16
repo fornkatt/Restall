@@ -51,22 +51,22 @@ public partial class GameModViewModel : ObservableObject
     public string? InstallFolder => _game.InstallFolder;
     public bool HasRenoDX => _game.HasRenoDX;
     public bool HasReShade => _game.HasReShade;
-    public bool CanInstallRenoDX => (CompatibleRenoDXMod is not null ||
-                                     CompatibleRenoDXGenericMod is not null ||
-                                     EngineName == Game.Engine.Unity ||
-                                     EngineName == Game.Engine.Unreal) && 
-                                     HasReShade;
+    public bool CanInstallRenoDX => (CompatibleRenoDXMod is not null        ||
+                                    CompatibleRenoDXGenericMod is not null  ||
+                                    EngineName == Game.Engine.Unity         ||
+                                    EngineName == Game.Engine.Unreal        ||
+                                    HasRenoDX)                              &&
+                                    HasReShade;
     public bool CanUpdateReShade => HasReShade && (ReShadeUpdateResult?.UpdateAvailable ?? false);
     public string? ReShadeLatestVersion => ReShadeUpdateResult?.LatestVersion;
     public bool CanUpdateRenoDX => HasRenoDX && (RenoDXUpdateResult?.UpdateAvailable ?? false);
     public string? RenoDXLatestVersion => RenoDXUpdateResult?.LatestVersion;
     public bool IsRenoDXSupported =>
-        (CompatibleRenoDXMod is not null ||
-         CompatibleRenoDXGenericMod is not null) ||
-        (EngineName == Game.Engine.Unity ||
-         EngineName == Game.Engine.Unreal ||
-        HasRenoDX) &&
-        HasReShade;
+        (CompatibleRenoDXMod is not null            ||
+         CompatibleRenoDXGenericMod is not null)    ||
+        (EngineName == Game.Engine.Unity            ||
+         EngineName == Game.Engine.Unreal)          ||
+         HasRenoDX;
     public string? ReShadeVersion => _game.ReShade?.Version;
     public string? ReShadeBranch => _game.ReShade?.BranchName.ToString() ?? "Unknown";
     public string? ReShadeArch => _game.ReShade?.Arch.ToString();
@@ -113,8 +113,8 @@ public partial class GameModViewModel : ObservableObject
     public bool RenoDXSupportsX32 => CompatibleRenoDXMod?.SupportsX32 ?? false;
     public bool RenoDXIsDualArch => CompatibleRenoDXMod?.IsDualArch ?? false;
 
-    public string? RenoDXAddonFileNameX64 => CompatibleRenoDXMod?.AddonFileName64;
-    public string? RenoDXAddonFileNameX32 => CompatibleRenoDXMod?.AddonFileName32;
+    public string? RenoDXAddonFileNameX64 => CompatibleRenoDXMod?.AddonFilename64;
+    public string? RenoDXAddonFileNameX32 => CompatibleRenoDXMod?.AddonFilename32;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
@@ -140,8 +140,8 @@ public partial class GameModViewModel : ObservableObject
 
     public string? RenoDXAddonFileName =>
         SelectedRenoDXInstallArch == RenoDX.Architecture.x32
-            ? CompatibleRenoDXMod?.AddonFileName32 ?? CompatibleRenoDXMod?.AddonFileName64
-            : CompatibleRenoDXMod?.AddonFileName64 ?? CompatibleRenoDXMod?.AddonFileName32;
+            ? CompatibleRenoDXMod?.AddonFilename32 ?? CompatibleRenoDXMod?.AddonFilename64
+            : CompatibleRenoDXMod?.AddonFilename64 ?? CompatibleRenoDXMod?.AddonFilename32;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanInstallRenoDX))]
@@ -182,7 +182,7 @@ public partial class GameModViewModel : ObservableObject
 
     partial void OnThumbnailPathStringChanged(string? value) =>
         ResetLazyBitmap(ref _thumbnailBitmap, value, ThumbnailTargetWidth);
-    
+
     public Bitmap? BannerBitmap => _bannerBitmap.Value;
     public Bitmap? LogoBitmap => _logoBitmap.Value;
     public Bitmap? ThumbnailBitmap => _thumbnailBitmap.Value;
