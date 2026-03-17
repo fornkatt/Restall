@@ -31,20 +31,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
 
         IsActive = true;
     }
-
-    public void LoadGames(RefreshLibraryResultDto result)
-    {
-        foreach (var item in result.Games)
-        {
-            GameListViewModel.Games.Add(new GameModViewModel(item.Game)
-            {
-                CompatibleRenoDXMod = item.CompatibleMod,
-                CompatibleRenoDXGenericMod = item.CompatibleGenericMod
-            });
-        }
-
-        GameListViewModel.SelectedGame = GameListViewModel.Games.FirstOrDefault();
-    }
+    
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {

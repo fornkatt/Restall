@@ -11,11 +11,15 @@
           RowDefinitions=".25*,.75*">
 
         <!-- GAME CARD -->
-        <Border Grid.Row="0" CornerRadius="20" Margin="0, 5, 5, 5" Background="{DynamicResource GameCardBackground}">
-            <Grid ColumnDefinitions=".5*,.5*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
-                <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="10, 10, 10, 0"
-                           Text="{Binding SelectedGame.Name}"
-                           FontSize="20" FontWeight="Bold" Foreground="{DynamicResource GameCardText}" />
+        <Border Grid.Row="0" CornerRadius="20" Margin="5, 5, 5, 5" Background="{DynamicResource GameCardBackground}">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="10,10,10,0">
+                <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <TextBlock Text="{Binding SelectedGame.Name}" FontSize="20" FontWeight="Bold" Margin="10,0,0,0" 
+                           Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                <Button Classes="game-card-btn" CornerRadius="6" Command="{Binding OpenInExplorerCommand}" VerticalAlignment="Center">
+                    <TextBlock FontFamily="{StaticResource Phosphor-Fill}" FontSize="20" Text="&#xE256;" />
+                </Button>
+                </StackPanel>               
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" FontSize="12" Margin="10, 0, 0, 0"
                            Text="{Binding SelectedGame.PlatformName}" Foreground="{DynamicResource GameCardText}"
                            TextWrapping="Wrap" />

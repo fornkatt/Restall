@@ -32,4 +32,8 @@
         <ProjectReference Include="..\Restall.Application\Restall.Application.csproj"/>
         <ProjectReference Include="..\Restall.Domain\Restall.Domain.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\Fonts\" />
+    </ItemGroup>
 </Project>

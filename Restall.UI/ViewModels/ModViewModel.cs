@@ -7,6 +7,8 @@ using Restall.Domain.Entities;
 using Restall.UI.Interfaces;
 using Restall.UI.Messages;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Restall.Application.UseCases.Requests;
 
@@ -119,7 +121,35 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         OnPropertyChanged(nameof(UninstallReShadeButtonText));
         OnPropertyChanged(nameof(UpdateRenoDXButtonText));
     }
-
+    
+    /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
+    [RelayCommand]
+    private void OpenInExplorer()
+    {
+        var folder = SelectedGame?.ExecutablePath;
+        if(!Directory.Exists(folder)) return;
+        
+        if (OperatingSystem.IsWindows())
+        {
+            
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "explorer.exe",
+                Arguments = $"\"{folder}\"",
+                UseShellExecute = false
+            });
+        }
+        else
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "xdg-open",
+                ArgumentList = { folder },
+                UseShellExecute = false
+            });
+        }
+    }
+    
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
 
     public string? ReShadeVersionTextColor =>

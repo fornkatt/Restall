@@ -45,7 +45,7 @@ public partial class App : Avalonia.Application
             startupVm.InitializationCompleted += result =>
             {
                 var mainWindowVm = serviceProvider.GetRequiredService<MainWindowViewModel>();
-                mainWindowVm.LoadGames(result);
+                mainWindowVm.GameListViewModel.LoadGames(result);
 
                 var mainWindow = new MainWindow { DataContext = mainWindowVm };
                 desktop.MainWindow = mainWindow;

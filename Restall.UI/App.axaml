@@ -10,10 +10,18 @@
 
 	<Application.Styles>
 		<FluentTheme />
+		<StyleInclude Source="avares://Restall.UI/Styles/ButtonStyles.axaml"/>
 	</Application.Styles>
 
 	<Application.Resources>
 		<ResourceDictionary>
+			<!-- Icon Fonts: https://phosphoricons.com/ -->
+			<FontFamily x:Key="Phosphor">avares://Restall.UI/Assets/Fonts#Phosphor</FontFamily>
+			<FontFamily x:Key="Phosphor-Bold">avares://Restall.UI/Assets/Fonts#Phosphor-Bold</FontFamily>
+			<FontFamily x:Key="Phosphor-Fill">avares://Restall.UI/Assets/Fonts#Phosphor-Fill</FontFamily>
+
+			
+			<!-- Themes -->
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Light">
 					<SolidColorBrush x:Key="AppBackground" Color="#ececec"/>
@@ -40,5 +48,7 @@
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>
+	
+	
 
 </Application>
