@@ -10,29 +10,44 @@
 	
 	<Grid RowDefinitions="Auto ,*" >
 		<!-- TOOLBAR SECTION -->
-	<Border Grid.Row="0" Background="{DynamicResource GameCardBackground}" BorderThickness="1" CornerRadius="2"
-	        Padding="8, 6" Margin="8, 6"/>
+	<Border Grid.Row="0" 
+			Background="{DynamicResource GameCardBackground}" 
+			BorderThickness="1" 
+			CornerRadius="2"
+			Padding="8,6"
+	        Margin="8, 6" ClipToBounds="True"/>
 	        
 			<Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
 			
 			<Button Grid.Column="0" Classes="toolbar-btn" Command="{Binding RefreshLibraryCommand}"
 			        CornerRadius="6" Padding="8,6" Margin="8,6">
-				<StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+				<StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
 					<TextBlock FontFamily="{StaticResource Phosphor-Fill}" FontSize="24"
 					           Text="&#xE758;"
 					           VerticalAlignment="Center"/>
-					<TextBlock Text="Refresh Library"
-					           Margin="10,0,4,0"
+					<TextBlock Text="Full Rescan"
+							   Margin="10,0,4,0"
 					           FontSize="20"
 					           FontWeight="SemiBold"
 					           VerticalAlignment="Center"/>
 				</StackPanel>
 			</Button>
+
+				
+				<TextBlock Grid.Column="1" 
+				           Text="{Binding ScanMessage}"
+				           Background="{DynamicResource GameCardBackground}"
+				           Foreground="{DynamicResource GameCardText}"
+				           FontSize="14"
+					       FontWeight="SemiBold"
+				           VerticalAlignment="Center"
+				           HorizontalAlignment="Left"/>
+				
 			<Button Grid.Column="2"
 			        Classes="toolbar-btn"
 			        CornerRadius="6"
-			        Padding="8,6"
-			        Margin="8,6">
+			        Margin="8,6"
+			        HorizontalAlignment="Right">
 				<TextBlock FontFamily="{StaticResource Phosphor-Bold}"
 				           FontSize="20"
 				           Text="&#xE094;"/>

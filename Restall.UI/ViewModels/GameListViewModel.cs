@@ -1,8 +1,11 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Restall.UI.Messages;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
@@ -15,6 +18,8 @@ public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameC
     
     
     private readonly IRefreshLibraryUseCase _refreshLibrary;
+    private CancellationTokenSource _messageCts = new();
+    
     private bool _suppressMessage;
 
     [ObservableProperty]
@@ -23,6 +28,9 @@ public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameC
     [ObservableProperty]
     private GameModViewModel? _selectedGame;
 
+    [ObservableProperty] 
+    private string _scanMessage;
+    
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RefreshLibraryCommand))]
     private bool _isRefreshing;
@@ -57,12 +65,32 @@ public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameC
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task RefreshLibraryAsync()
     {
+        await _messageCts.CancelAsync();
+        _messageCts = new CancellationTokenSource();
+
+        ScanMessage = "Scanning...";
         IsRefreshing = true;
         var result = await _refreshLibrary.ExecuteAsync();
         LoadGames(result);
         IsRefreshing = false;
+        
+        await ShowCompletedMessageAsync(_messageCts.Token);
     }
 
+    private async Task ShowCompletedMessageAsync(CancellationToken token)
+    {
+        ScanMessage = "Completed!";
+        try
+        {
+            await Task.Delay(1000, token);
+            ScanMessage = string.Empty;
+        }
+        catch (OperationCanceledException ex)
+        {
+            Debug.WriteLine($"Something went wrong with the cancellation token: {ex.Message}");
+        }
+    }
+    
     private bool CanRefresh() => !IsRefreshing;
 
     public GameListViewModel(IRefreshLibraryUseCase refreshLibrary)
