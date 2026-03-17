@@ -82,7 +82,8 @@ public class RefreshLibraryUseCase : IRefreshLibraryUseCase
         }
         
         await Task.WhenAll(artworkTasks);
-        
+
+        await _logService.LogInfoAsync("Game library successfully loaded.");
         return new RefreshLibraryResultDto(results, gameScanResults.Success, gameScanResults.ErrorMessage);
     }
 

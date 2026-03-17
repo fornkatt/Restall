@@ -30,7 +30,9 @@
 					<SolidColorBrush x:Key="GameCardBackground" Color="#ffffff"/>
 					<SolidColorBrush x:Key="GameCardText" Color="Black"/>
 					<SolidColorBrush x:Key="GameCardBorder" Color="#fafafa"/>
+					<SolidColorBrush x:Key="GameCardNotesBorder" Color="#d4d4d4"/>
 					<SolidColorBrush x:Key="ModCardButton" Color="#e7e7e7"/>
+					<SolidColorBrush x:Key="ModCardButtonHover" Color="#f4f4f4"/>
 					<SolidColorBrush x:Key="ModCardButtonText" Color="Black"/>
 					<SolidColorBrush x:Key="DialogBorder" Color="#dedede"/>
 				</ResourceDictionary>
@@ -41,7 +43,9 @@
 					<SolidColorBrush x:Key="GameCardBackground" Color="#272727"/>
 					<SolidColorBrush x:Key="GameCardText" Color="#e1e1e1"/>
 					<SolidColorBrush x:Key="GameCardBorder" Color="#2c2c2c"/>
+					<SolidColorBrush x:Key="GameCardNotesBorder" Color="#5c5c5c"/>
 					<SolidColorBrush x:Key="ModCardButton" Color="#484848"/>
+					<SolidColorBrush x:Key="ModCardButtonHover" Color="#727272"/>
 					<SolidColorBrush x:Key="ModCardButtonText" Color="#e1e1e1"/>
 					<SolidColorBrush x:Key="DialogBorder" Color="#2e2e2e"/>
 				</ResourceDictionary>

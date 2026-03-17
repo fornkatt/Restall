@@ -41,12 +41,6 @@ public partial class GameModViewModel : ObservableObject
     public string? InstallFolder => _game.InstallFolder;
     public bool HasRenoDX => _game.HasRenoDX;
     public bool HasReShade => _game.HasReShade;
-    public bool CanInstallRenoDX => (CompatibleRenoDXMod is not null        ||
-                                    CompatibleRenoDXGenericMod is not null  ||
-                                    EngineName == Game.Engine.Unity         ||
-                                    EngineName == Game.Engine.Unreal        ||
-                                    HasRenoDX)                              &&
-                                    HasReShade;
     public bool IsRenoDXSupported =>
         (CompatibleRenoDXMod is not null            ||
          CompatibleRenoDXGenericMod is not null)    ||
@@ -58,12 +52,12 @@ public partial class GameModViewModel : ObservableObject
     public ReShade.Branch? ReShadeBranchName => _game.ReShade?.BranchName;
     public string? ReShadeArch => _game.ReShade?.Arch.ToString();
     public string? ReShadeFilename => _game.ReShade?.SelectedFilename;
-
-    // Get the actual ReShade object
-    internal ReShade? GetReShade() => _game.ReShade;
-
-    // Get the actual RenoDX object
-    internal RenoDX? GetRenoDX() => _game.RenoDX;
+    public bool IsUsingGenericModWhenSpecificAvailable =>
+        HasRenoDX                                               &&
+        CompatibleRenoDXMod is { HasWikiFilename: true } mod    &&
+        _game.RenoDX?.OriginalName is { } installedName         &&
+        installedName != mod.AddonFilename64                    &&
+        installedName != mod.AddonFilename32;
 
     // Get the actual game object
     internal Game GetGame() => _game;
@@ -76,7 +70,7 @@ public partial class GameModViewModel : ObservableObject
         OnPropertyChanged(nameof(HasRenoDX));
         OnPropertyChanged(nameof(HasReShade));
         OnPropertyChanged(nameof(IsRenoDXSupported));
-        OnPropertyChanged(nameof(CanInstallRenoDX));
+        OnPropertyChanged(nameof(IsUsingGenericModWhenSpecificAvailable));
         OnPropertyChanged(nameof(ReShadeVersion));
         OnPropertyChanged(nameof(ReShadeBranch));
         OnPropertyChanged(nameof(ReShadeArch));
@@ -130,7 +124,7 @@ public partial class GameModViewModel : ObservableObject
             : CompatibleRenoDXMod?.AddonFilename64 ?? CompatibleRenoDXMod?.AddonFilename32;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanInstallRenoDX))]
+    [NotifyPropertyChangedFor(nameof(IsUsingGenericModWhenSpecificAvailable))]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
     [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
     [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl))]
@@ -146,6 +140,8 @@ public partial class GameModViewModel : ObservableObject
 
     [ObservableProperty]
     private RenoDXGenericModInfoDto? _compatibleRenoDXGenericMod;
+
+    // Bitmaps -------------------------------------------------------------------------------
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BannerBitmap))]

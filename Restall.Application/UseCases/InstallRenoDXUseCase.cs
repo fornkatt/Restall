@@ -30,7 +30,7 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
     public async Task<ModOperationResultDto> ExecuteAsync(InstallRenoDXRequest request, IProgress<DownloadProgressReportDto>? progress = null)
     {
-        var addonFilename = ResolveAddonFileName(request);
+        var addonFilename = ResolveAddonFilename(request);
 
         if (addonFilename is null)
             return new ModOperationResultDto(
@@ -107,8 +107,11 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
             target != cached;
     }
 
-    private string? ResolveAddonFileName(InstallRenoDXRequest request)
+    private string? ResolveAddonFilename(InstallRenoDXRequest request)
     {
+        if (request.Game.RenoDX?.OriginalName is { } originalName)
+            return originalName;
+
         if (request.ModInfo is { HasWikiFilename: true } modInfo)
             return request.Arch == RenoDX.Architecture.x32
                 ? modInfo.AddonFilename32 ?? modInfo.AddonFilename64
@@ -125,9 +128,10 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
             Game.Engine.Unreal => $"renodx-unrealengine.addon{bit}",
             _ => null
         };
-        if (engineBased is not null) return engineBased;
+        if (engineBased is not null)
+            return engineBased;
 
-        return request.Game.RenoDX?.OriginalName;
+        return null;
     }
 
     private Task<bool> DownloadAsync(bool isUnityEngine, InstallRenoDXRequest request, string addonFilename, IProgress<DownloadProgressReportDto>? progress = null)

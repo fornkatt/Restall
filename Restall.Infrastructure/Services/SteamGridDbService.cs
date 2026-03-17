@@ -213,8 +213,8 @@ public class SteamGridDbService : ISteamGridDbService
                      results = await _sgdb!.SearchForGamesAsync(strippedTerm);
                      bestMatch = results?.FirstOrDefault(g => GameNameHelper.FuzzyNameMatch(normalizedName, GameNameHelper.NormalizeName(g.Name)));
                 }
-                
-                
+
+
                 await _indexRepository.SaveSteamGridDbIdAsync(cacheKey, bestMatch.Id);
         
                 var bannerPath = _cacheService.GetSgdbBannerPath(bestMatch.Id);

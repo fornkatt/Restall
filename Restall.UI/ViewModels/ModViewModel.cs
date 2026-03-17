@@ -47,6 +47,9 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
+    [NotifyPropertyChangedFor(nameof(RenoDXModStatus))]
+    [NotifyPropertyChangedFor(nameof(RenoDXNotes))]
+    [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
     private GameModViewModel? _selectedGame;
 
     [ObservableProperty]
@@ -120,6 +123,8 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         OnPropertyChanged(nameof(UpdateReShadeButtonText));
         OnPropertyChanged(nameof(UninstallReShadeButtonText));
         OnPropertyChanged(nameof(UpdateRenoDXButtonText));
+        OnPropertyChanged(nameof(RenoDXNotes));
+        OnPropertyChanged(nameof(SpecificRenoDXModAvailableWarning));
     }
     
     /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
@@ -258,6 +263,66 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
 
     /* ---RENODX-------------------------------------------------------------------------------------------------------------- */
 
+    public string? SpecificRenoDXModAvailableWarning =>
+        SelectedGame?.IsUsingGenericModWhenSpecificAvailable == true
+        ? """
+        ⚡ A game-specific mod is now available for auto-install!
+        
+        Uninstall and reinstall to replace the generic mod.
+        """
+        : string.Empty;
+
+    public string? RenoDXNotes
+    {
+        get
+        {
+            if (SelectedGame is null) return null;
+
+            var mod = SelectedGame.CompatibleRenoDXMod;
+            var genericMod = SelectedGame.CompatibleRenoDXGenericMod;
+            var engine = SelectedGame.EngineName;
+
+            if (mod is null && genericMod is null &&
+                engine is Game.Engine.Unreal or Game.Engine.Unity)
+            {
+                return """
+                    ❗ This game does not appear on the RenoDX wiki but downloads are allowed through the generic Unreal or Unity mods.
+
+                    Compatibility is not guaranteed for these games.
+                    """;
+            }
+
+            var text = RenoDXModStatus;
+            var extraNotes = genericMod?.Notes;
+
+            if (!string.IsNullOrWhiteSpace(mod?.Maintainer))
+                text += $"""
+
+
+                    Maintainer: {mod.Maintainer}
+                    """;
+
+            if (!string.IsNullOrWhiteSpace(extraNotes))
+                text += $"""
+                    
+
+                    Additional notes:
+                    
+                    {extraNotes}
+                    """;
+
+            return string.IsNullOrWhiteSpace(text) ? null : text;
+        }
+    }
+
+    private string? RenoDXModStatus =>
+        (SelectedGame?.CompatibleRenoDXMod?.Status ?? SelectedGame?.CompatibleRenoDXGenericMod?.Status) switch
+        {
+            ":white_check_mark:"    => "✅ Working",
+            ":construction:"        => "🚧 WIP, may lack testing or have deal-breaking issues",
+            _                       => string.Empty
+        };
+
     public string? RenoDXVersionTextColor =>
         SelectedGame?.HasRenoDX == true
             ? (CanShowRenoDXUpdate ? "#eb5a2f" : "#1ab652")
@@ -273,7 +338,13 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [RelayCommand(CanExecute = nameof(CanInstallRenoDX))]
     private Task InstallRenoDXAsync() => ExecuteRenoDXInstallAsync("RenoDX installed.");
 
-    private bool CanInstallRenoDX => SelectedGame?.CanInstallRenoDX ?? false;
+    private bool CanInstallRenoDX => SelectedGame is not null                               &&
+                                    (SelectedGame.CompatibleRenoDXMod is not null           ||
+                                     SelectedGame.CompatibleRenoDXGenericMod is not null    ||
+                                     SelectedGame.EngineName == Game.Engine.Unity           ||
+                                     SelectedGame.EngineName == Game.Engine.Unreal          ||
+                                     SelectedGame.HasRenoDX)                                &&
+                                     SelectedGame.HasReShade;
 
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
     private Task UpdateRenoDXAsync() => ExecuteRenoDXUpdateAsync("RenoDX updated.");
