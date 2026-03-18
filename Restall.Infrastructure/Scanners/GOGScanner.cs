@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Scanners;
 
-public class GOGScanner : IPlatformScannerService
+internal sealed class GOGScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
     

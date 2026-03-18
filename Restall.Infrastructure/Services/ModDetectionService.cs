@@ -5,7 +5,7 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
-public class ModDetectionService : IModDetectionService
+internal sealed class ModDetectionService : IModDetectionService
 {
     private readonly ILogService _logService;
 

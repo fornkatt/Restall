@@ -6,10 +6,11 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
-public class ParseService : IParseService
+internal sealed class ParseService : IParseService
 {
     private readonly ILogService _logService;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private HttpClient HttpClient => _httpClientFactory.CreateClient("ParseService");
 
     private const string s_reShadeTagsUrl = "https://github.com/crosire/reshade/tags";
     private const string s_reShadeSiteUrl = "https://reshade.me";
@@ -20,12 +21,11 @@ public class ParseService : IParseService
 
     public ParseService(
         ILogService logService,
-        HttpClient httpClient
+        IHttpClientFactory httpClientFactory
         )
     {
         _logService = logService;
-        _httpClient = httpClient;
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<IReadOnlyList<string>> FetchReShadeVersionsAsync()
@@ -46,7 +46,7 @@ public class ParseService : IParseService
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync("Failed to fetch stable ReShade versions.", ex);
+            await _logService.LogErrorAsync("Unexpected error occured during parsing. Failed to fetch stable ReShade versions.", ex);
             return [];
         }
     }
@@ -142,7 +142,7 @@ public class ParseService : IParseService
 
         try
         {
-            var markdown = await _httpClient.GetStringAsync(s_renoDxUrl);
+            var markdown = await HttpClient.GetStringAsync(s_renoDxUrl);
             var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
             Engine? currentEngine = null;
@@ -262,7 +262,7 @@ public class ParseService : IParseService
     {
         try
         {
-            var document = await _httpClient.GetStringAsync(s_reShadeSiteUrl);
+            var document = await HttpClient.GetStringAsync(s_reShadeSiteUrl);
             var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
             return match.Success ? match.Groups[1].Value : null;
         }
@@ -305,9 +305,21 @@ public class ParseService : IParseService
                 await _logService.LogInfoAsync($"Found ReShade version: {version}");
             }
         }
+        catch (HttpRequestException ex)
+        {
+            await _logService.LogErrorAsync($"GitHub tags page for ReShade is unreachable. ({(int?)ex.StatusCode})", ex);
+            return versions;
+        }
+        catch (TaskCanceledException ex)
+        {
+            await _logService.LogErrorAsync("GitHub tags page for ReShade timed out.", ex);
+            return versions;
+        }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync("Unable to parse ReShade GitHub tags page.", ex);
+            await _logService.LogErrorAsync("Unable to parse ReShade GitHub tags page. " +
+                "Page structure likely changed or other unexpected error.", ex);
+            return versions;
         }
 
         return versions;
@@ -340,9 +352,21 @@ public class ParseService : IParseService
                     tags.Add(tag);
             }
         }
+        catch (HttpRequestException ex)
+        {
+            await _logService.LogErrorAsync($"GitHub tags page for RenoDX is unreachable. ({(int?)ex.StatusCode})", ex);
+            return tags;
+        }
+        catch (TaskCanceledException ex)
+        {
+            await _logService.LogErrorAsync("GitHub tags page for RenoDX timed out.", ex);
+            return tags;
+        }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync("Failed to fetch RenoDX tags page", ex);
+            await _logService.LogErrorAsync("Unable to parse RenoDX GitHub tags page." +
+                "Page structure might have changed or other unextected error.", ex);
+            return tags;
         }
 
         return tags;
@@ -389,16 +413,27 @@ public class ParseService : IParseService
 
             return new RenoDXTagInfoDto(date, RenoDX.Branch.Nightly, commitNotes);
         }
+        catch (HttpRequestException ex)
+        {
+            await _logService.LogErrorAsync($"Page for {nightlyTag} is unreachable. ({(int?)ex.StatusCode})", ex);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            await _logService.LogErrorAsync($"Request timed out while fetching {nightlyTag}", ex);
+            return null;
+        }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"Failed to fetch release info for {nightlyTag}", ex);
+            await _logService.LogErrorAsync($"Failed to fetch release info for {nightlyTag}." +
+                $"Page structure might have changed or other unexpected error.", ex);
             return null;
         }
     }
 
     private async Task<HtmlDocument> LoadHtmlDocumentAsync(string url)
     {
-        await using var stream = await _httpClient.GetStreamAsync(url);
+        await using var stream = await HttpClient.GetStreamAsync(url);
         var document = new HtmlDocument();
         document.Load(stream);
         return document;

@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Restall.Infrastructure.Services;
 
-public class LogService : ILogService
+internal sealed class LogService : ILogService
 {
     private readonly string _defaultLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
     private const string DefaultLogFileName = "restall_log.txt";

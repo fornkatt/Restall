@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace Restall.Infrastructure.Services;
 
-public class ModDownloadService : IModDownloadService
+internal sealed class ModDownloadService : IModDownloadService
 {
     private const string s_reShadeStartUrl = "https://reshade.me/downloads/ReShade_Setup_";
     private const string s_reShadeEndUrl = "_Addon.exe";
@@ -123,7 +123,7 @@ public class ModDownloadService : IModDownloadService
         }
     }
 
-    private async Task<bool> PerformDownloadAsync(string url, string destinationPath, string fileName, IProgress<DownloadProgressReportDto>? progress)
+    private async Task<bool> PerformDownloadAsync(string url, string destinationPath, string filename, IProgress<DownloadProgressReportDto>? progress)
     {
         try
         {
@@ -150,23 +150,42 @@ public class ModDownloadService : IModDownloadService
 
                 if (percent != lastReportedPercent)
                 {
-                    progress?.Report(new DownloadProgressReportDto(fileName, percent));
+                    progress?.Report(new DownloadProgressReportDto(filename, percent));
                     lastReportedPercent = percent;
                 }
             }
 
-            await _logService.LogInfoAsync($"Successfully downloaded {fileName} to {Path.GetDirectoryName(destinationPath)}");
+            await _logService.LogInfoAsync($"Successfully downloaded {filename} to {Path.GetDirectoryName(destinationPath)}");
             return true;
+        }
+        catch (TaskCanceledException ex)
+        {
+            await _logService.LogErrorAsync($"Download timed out for {filename} from {url}", ex);
+            progress?.Report(new DownloadProgressReportDto(filename, -1));
+            return false;
+        }
+        catch (HttpRequestException ex)
+        {
+            await _logService.LogErrorAsync($"Server error downloading {filename}. ({(int?)ex.StatusCode}): {url}", ex);
+            return false;
+        }
+        catch (IOException ex)
+        {
+            await _logService.LogErrorAsync($"Disk write failed for {filename}. Disk may be full or path locked.", ex);
+            return false;
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"Failed to download {fileName} from {url}", ex);
+            await _logService.LogErrorAsync($"Failed to download {filename} from {url}", ex);
 
             if (File.Exists(destinationPath))
             {
                 try { File.Delete(destinationPath); }
-                catch { }
-            } 
+                catch (Exception cleanupEx)
+                {
+                    await _logService.LogErrorAsync($"Could not cleanup partial download at {destinationPath}", cleanupEx);
+                }
+            }
 
             return false;
         }

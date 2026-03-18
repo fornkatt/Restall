@@ -22,9 +22,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<ILogService, LogService>();
         services.AddSingleton<ICachePathService, CachePathService>();
 
-        services.AddHttpClient("ParseService");
+        services.AddHttpClient("ParseService", c => c.DefaultRequestHeaders.UserAgent.ParseAdd("Restall"));
         services.AddSingleton<IParseService, ParseService>();
-
         services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
         services.AddSingleton<IVersionCatalog, VersionCatalog>();
         services.AddSingleton<IModCatalog, ModCatalog>();
@@ -36,8 +35,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IGameDetectionService, GameDetectionService>();
         services.AddSingleton<IModDetectionService, ModDetectionService>();
 
-        services.AddSingleton<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
-        
+        services.AddTransient<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
         services.AddTransient<IModInstallService, ModInstallService>();
         services.AddTransient<IFileExtractionService, FileExtractionService>();
         services.AddTransient<IInstallReShadeUseCase, InstallReShadeUseCase>();

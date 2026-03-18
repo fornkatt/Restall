@@ -4,7 +4,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
-public class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
+public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
 {
     private readonly IModInstallService _modInstallService;
 

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Restall.UI.ViewModels.Dialogs;
 
-public partial class ReShadeInstallDialogViewModel : ObservableObject
+public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
 {
     public ReShadeInstallDialogViewModel(
         IReadOnlyList<string> availableVersions

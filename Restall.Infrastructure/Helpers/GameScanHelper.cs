@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Helpers;
 
-internal class GameScanHelper
+internal static class GameScanHelper
 {
     private const string SoftwareRegistryPath = @"SOFTWARE\";
     private const string Wow64RegistryPath = @"SOFTWARE\Wow6432Node\";

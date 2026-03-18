@@ -5,7 +5,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
-public class InstallRenoDXUseCase : IInstallRenoDXUseCase
+public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
 {
     private readonly IModDownloadService _modDownloadService;
     private readonly IModInstallService _modInstallService;

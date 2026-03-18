@@ -1,9 +1,9 @@
-using System.Text.Json;
 using Restall.Application.Interfaces;
+using System.Text.Json;
 
 namespace Restall.Infrastructure.Persistence;
 
-public class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
+internal sealed class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
 {
     private readonly ILogService _logService;
     private readonly ICachePathService _cachePathService;

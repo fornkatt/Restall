@@ -4,7 +4,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
-public class UninstallReShadeUseCase : IUninstallReShadeUseCase
+public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 {
     private readonly IModInstallService _modInstallService;
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Restall.UI.ViewModels;
 
-public partial class StartupWindowViewModel : ObservableObject
+public sealed partial class StartupWindowViewModel : ObservableObject
 {
     private readonly IRefreshLibraryUseCase _refreshLibrary;
     private readonly ILogService _logService;
@@ -48,7 +48,7 @@ public partial class StartupWindowViewModel : ObservableObject
         }
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
-        
+
         InitializationCompleted?.Invoke(result);
     }
 }

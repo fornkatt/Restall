@@ -1,6 +1,6 @@
 namespace Restall.Domain.Entities;
 
-public class ReShade
+public sealed class ReShade
 {
     public enum Branch { Unknown, Stable, Nightly, RenoDX }
     public enum FileName { Dxgi, D3d12, D3d11, Version, ReShade32, ReShade64 }

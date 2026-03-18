@@ -5,7 +5,7 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Scanners;
 
-public class EAScanner : IPlatformScannerService
+internal sealed class EAScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
     

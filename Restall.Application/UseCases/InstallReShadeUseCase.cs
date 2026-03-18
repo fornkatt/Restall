@@ -5,7 +5,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
-public class InstallReShadeUseCase : IInstallReShadeUseCase
+public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
 {
     private readonly ICachePathService _cachePathService;
     private readonly IModDownloadService _modDownloadService;

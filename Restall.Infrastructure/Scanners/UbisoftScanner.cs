@@ -5,7 +5,7 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Scanners;
 
-public class UbisoftScanner : IPlatformScannerService
+internal sealed class UbisoftScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
     

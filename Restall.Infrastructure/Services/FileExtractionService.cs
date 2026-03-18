@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Restall.Infrastructure.Services;
 
-public class FileExtractionService : IFileExtractionService
+internal sealed class FileExtractionService : IFileExtractionService
 {
     private readonly ILogService _logService;
 

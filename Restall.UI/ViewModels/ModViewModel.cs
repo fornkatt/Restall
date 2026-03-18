@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
+using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 using Restall.UI.Interfaces;
 using Restall.UI.Messages;
@@ -11,11 +12,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Restall.Application.UseCases.Requests;
 
 namespace Restall.UI.ViewModels;
 
-public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
+public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
 {
     private readonly IModManagementFacade _modManagementFacade;
     private readonly IModSelectionDialogService _modSelectionDialogService;
@@ -102,7 +102,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         InstallRenoDXCommand.NotifyCanExecuteChanged();
         UpdateRenoDXCommand.NotifyCanExecuteChanged();
         UninstallRenoDXCommand.NotifyCanExecuteChanged();
-        
+
         OnPropertyChanged(nameof(CanShowReShadeUpdate));
         OnPropertyChanged(nameof(CanShowRenoDXUpdate));
         OnPropertyChanged(nameof(RenoDXVersionTextColor));
@@ -114,17 +114,17 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         OnPropertyChanged(nameof(RenoDXNotes));
         OnPropertyChanged(nameof(SpecificRenoDXModAvailableWarning));
     }
-    
+
     /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
     [RelayCommand]
     private void OpenInExplorer()
     {
         var folder = SelectedGame?.ExecutablePath;
-        if(!Directory.Exists(folder)) return;
-        
+        if (!Directory.Exists(folder)) return;
+
         if (OperatingSystem.IsWindows())
         {
-            
+
             Process.Start(new ProcessStartInfo
             {
                 FileName = "explorer.exe",
@@ -142,7 +142,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
             });
         }
     }
-    
+
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
     private async Task ExecuteReShadeActionAsync(Func<Progress<DownloadProgressReportDto>,
         Task<ModOperationResultDto>> work, string successMessage, int delayMs = 5000)
@@ -152,7 +152,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         game.ReShadeMessageCts?.Cancel();
         var cts = new CancellationTokenSource();
         game.ReShadeMessageCts = cts;
-        
+
         var progress = new Progress<DownloadProgressReportDto>(report =>
         {
             game.ReShadeModActionStatus = report.PercentComplete >= 0
@@ -161,18 +161,18 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
                    {report.PercentComplete}%
                    """
                 : $"Downloading {report.Filename}";
-            game.IsShowingReShadeActionMessage  = true;
+            game.IsShowingReShadeActionMessage = true;
         });
-        
+
         var result = await work(progress);
-        
+
         game.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
         game.ReShadeModActionStatus = result.IsSuccess ? successMessage : result.Message;
         game.IsShowingReShadeActionMessage = true;
 
         _ = DismissAsync();
-        
+
         async Task DismissAsync()
         {
             try { await Task.Delay(delayMs, cts.Token); }
@@ -181,12 +181,12 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
             game.IsShowingReShadeActionMessage = false;
         }
     }
-    
+
     public string? ReShadeVersionTextColor =>
-        SelectedGame?.HasReShade == true ? 
+        SelectedGame?.HasReShade == true ?
             (CanShowReShadeUpdate ? "#eb5a2f" : "#1ab652")
             : null;
-    
+
     public string InstallReShadeButtonText =>
         SelectedGame?.HasReShade == true ? "Reinstall" : "Install";
 
@@ -244,7 +244,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
             "ReShade uninstalled.");
 
     private bool CanUninstallReShade => SelectedGame?.HasReShade ?? false;
-    
+
     public bool CanShowReShadeUpdate =>
         SelectedGame?.HasReShade == true &&
         SelectedGame.ReShadeBranchName == SelectedReShadeBranch &&
@@ -348,16 +348,16 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     private string? RenoDXModStatus =>
         (SelectedGame?.CompatibleRenoDXMod?.Status ?? SelectedGame?.CompatibleRenoDXGenericMod?.Status) switch
         {
-            ":white_check_mark:"    => "✅ Working",
-            ":construction:"        => "🚧 WIP, may lack testing or have deal-breaking issues",
-            _                       => string.Empty
+            ":white_check_mark:" => "✅ Working",
+            ":construction:" => "🚧 WIP, may lack testing or have deal-breaking issues",
+            _ => string.Empty
         };
 
     public string? RenoDXVersionTextColor =>
         SelectedGame?.HasRenoDX == true
             ? (CanShowRenoDXUpdate ? "#eb5a2f" : "#1ab652")
             : null;
-    
+
     public string InstallRenoDXButtonText =>
         SelectedGame?.HasRenoDX == true ? "Reinstall" : "Install";
 
@@ -381,7 +381,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
         {
             targetVersion = RenoDXLatestVersionForBranch;
         }
-            
+
         var request = new InstallRenoDXRequest(
             SelectedGame!.GetGame(),
             SelectedGame.SelectedRenoDXInstallArch,
@@ -396,12 +396,12 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
             "RenoDX installed.");
     }
 
-    private bool CanInstallRenoDX => SelectedGame is not null                               &&
-                                    (SelectedGame.CompatibleRenoDXMod is not null           ||
-                                     SelectedGame.CompatibleRenoDXGenericMod is not null    ||
-                                     SelectedGame.EngineName == Game.Engine.Unity           ||
-                                     SelectedGame.EngineName == Game.Engine.Unreal          ||
-                                     SelectedGame.HasRenoDX)                                &&
+    private bool CanInstallRenoDX => SelectedGame is not null &&
+                                    (SelectedGame.CompatibleRenoDXMod is not null ||
+                                     SelectedGame.CompatibleRenoDXGenericMod is not null ||
+                                     SelectedGame.EngineName == Game.Engine.Unity ||
+                                     SelectedGame.EngineName == Game.Engine.Unreal ||
+                                     SelectedGame.HasRenoDX) &&
                                      SelectedGame.HasReShade;
 
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
@@ -409,7 +409,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     {
         var targetVersion = RenoDXLatestVersionForBranch;
         if (targetVersion is null) return;
-        
+
         var request = new InstallRenoDXRequest(
             SelectedGame!.GetGame(),
             SelectedGame.SelectedRenoDXInstallArch,
@@ -429,7 +429,7 @@ public partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChange
     [RelayCommand(CanExecute = nameof(CanUninstallRenoDX))]
     private Task UninstallRenoDXAsync() =>
     ExecuteRenoDXActionAsync(
-        _ => _modManagementFacade.UninstallRenoDXAsync(SelectedGame!.GetGame()), 
+        _ => _modManagementFacade.UninstallRenoDXAsync(SelectedGame!.GetGame()),
         "RenoDX uninstalled.");
 
     private bool CanUninstallRenoDX => SelectedGame?.HasRenoDX ?? false;

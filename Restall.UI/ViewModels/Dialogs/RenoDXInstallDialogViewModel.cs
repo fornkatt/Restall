@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Restall.UI.ViewModels.Dialogs;
 
-public partial class RenoDXInstallDialogViewModel : ObservableObject
+public sealed partial class RenoDXInstallDialogViewModel : ObservableObject
 {
     public RenoDXInstallDialogViewModel(
         IReadOnlyList<RenoDXTagInfoDto> availableVersions

@@ -1,23 +1,33 @@
-using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Restall.Application.DTOs;
+using Restall.Application.Interfaces;
+using Restall.Application.UseCases;
 using Restall.UI.Messages;
+using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.Input;
-using Restall.Application.DTOs;
-using Restall.Application.UseCases;
 
 namespace Restall.UI.ViewModels;
 
-public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
-{   
-    
-    
+public sealed partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
+{
     private readonly IRefreshLibraryUseCase _refreshLibrary;
+    private readonly ILogService _logService;
+
+    public GameListViewModel(
+        IRefreshLibraryUseCase refreshLibrary,
+        ILogService logService
+        )
+    {
+        _refreshLibrary = refreshLibrary;
+        _logService = logService;
+        IsActive = true;
+    }
+
     private CancellationTokenSource _messageCts = new();
     
     private bool _suppressMessage;
@@ -91,9 +101,10 @@ public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameC
             await message();
             ScanMessage = "Completed!";
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             ScanMessage = "Error";
+            await _logService.LogErrorAsync("An error occured during scanning", ex);
         }
         finally
         {
@@ -113,11 +124,4 @@ public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameC
     }
     
     private bool CanRefresh() => !IsRefreshing;
-
-    public GameListViewModel(IRefreshLibraryUseCase refreshLibrary)
-    {
-        _refreshLibrary = refreshLibrary;
-        IsActive = true;
-    }
-    
 }

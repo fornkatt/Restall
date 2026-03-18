@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 namespace Restall.Infrastructure.Services;
 
 
-public class GameDetectionService : IGameDetectionService
+internal sealed class GameDetectionService : IGameDetectionService
 {
     private readonly ILogService _logService;
     private readonly IEnumerable<IPlatformScannerService> _platformScannerService;

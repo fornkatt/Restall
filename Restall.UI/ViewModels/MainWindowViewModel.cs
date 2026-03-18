@@ -1,12 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using Restall.Application.DTOs;
 using Restall.UI.Messages;
-using System.Linq;
 
 namespace Restall.UI.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
+public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
 {
     private bool _suppressMessage;
 
@@ -31,7 +29,7 @@ public partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGam
 
         IsActive = true;
     }
-    
+
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {

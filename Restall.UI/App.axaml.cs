@@ -7,7 +7,10 @@ using Restall.Infrastructure.Extensions;
 using Restall.UI.Extensions;
 using Restall.UI.ViewModels;
 using Restall.UI.Views;
+using System;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Restall.UI;
 
@@ -23,6 +26,20 @@ public partial class App : Avalonia.Application
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
+        var crashLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs", "crash.log");
+
+        // Fall back to primitive logging if crash occurs as a last resort during initialization or if LogService cannot be reached.
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            var ex = e.ExceptionObject as Exception;
+            File.AppendAllText(crashLogPath, $"{DateTime.Now}: {ex}{Environment.NewLine}");
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            File.AppendAllText(crashLogPath, $"{DateTime.Now} {e.Exception}{Environment.NewLine}");
+        };
+
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: true)
             .AddUserSecrets<App>()

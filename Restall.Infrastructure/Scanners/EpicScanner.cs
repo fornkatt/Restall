@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Scanners;
 
-public class EpicScanner : IPlatformScannerService
+internal sealed class EpicScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
 

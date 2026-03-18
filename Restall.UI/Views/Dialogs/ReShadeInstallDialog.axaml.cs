@@ -4,7 +4,7 @@ using System;
 
 namespace Restall.UI.Views.Dialogs;
 
-public partial class ReShadeInstallDialog : Window
+public sealed partial class ReShadeInstallDialog : Window
 {
     public ReShadeInstallDialog()
     {

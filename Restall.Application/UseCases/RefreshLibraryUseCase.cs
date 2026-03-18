@@ -4,7 +4,7 @@ using Restall.Application.Interfaces;
 
 namespace Restall.Application.UseCases;
 
-public class RefreshLibraryUseCase : IRefreshLibraryUseCase
+public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase
 {
     private readonly ILogService _logService;
     private readonly IGameDetectionService _gameDetectionService;

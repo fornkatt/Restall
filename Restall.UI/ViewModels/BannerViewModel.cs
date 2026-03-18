@@ -4,7 +4,7 @@ using Restall.UI.Messages;
 
 namespace Restall.UI.ViewModels;
 
-public partial class BannerViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
+public sealed partial class BannerViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
 {
     [ObservableProperty]
     private GameModViewModel? _selectedGame;

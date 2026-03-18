@@ -1,6 +1,6 @@
 namespace Restall.Domain.Entities;
 
-public class Game
+public sealed class Game
 {  
     public enum Platform { Unknown, Steam, Epic, GOG, Ubisoft, EA }
     public enum Engine { Unknown, Unreal, Unity }

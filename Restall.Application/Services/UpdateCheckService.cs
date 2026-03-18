@@ -4,7 +4,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.Services;
 
-public class UpdateCheckService : IUpdateCheckService
+public sealed class UpdateCheckService : IUpdateCheckService
 {
     private readonly ILogService _logService;
     private readonly IVersionCatalog _versionCatalog;

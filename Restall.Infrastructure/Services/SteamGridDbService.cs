@@ -7,7 +7,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Infrastructure.Services;
 
-public class SteamGridDbService : ISteamGridDbService
+internal sealed class SteamGridDbService : ISteamGridDbService
 {
     private readonly ILogService _logService;
     private readonly ICachePathService _cacheService;

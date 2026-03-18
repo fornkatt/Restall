@@ -4,7 +4,7 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
-public class EngineDetectionService : IEngineDetectionService
+internal sealed class EngineDetectionService : IEngineDetectionService
 {
     private readonly ILogService _logService;
 

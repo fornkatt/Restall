@@ -4,7 +4,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Infrastructure.Stores;
 
-public class VersionCatalog : IVersionCatalog
+internal sealed class VersionCatalog : IVersionCatalog
 {
     private readonly IParseService _parseService;
     private readonly ILogService _logService;

@@ -3,7 +3,7 @@ using Restall.Application.Interfaces;
 
 namespace Restall.Infrastructure.Stores;
 
-public class ModCatalog : IModCatalog
+internal sealed class ModCatalog : IModCatalog
 {
     private readonly IParseService _parseService;
 

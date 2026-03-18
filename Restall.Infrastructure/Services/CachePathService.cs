@@ -3,7 +3,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Infrastructure.Services;
 
-public class CachePathService : ICachePathService
+internal sealed class CachePathService : ICachePathService
 {
     private const string s_downloadCacheFolderName = "DownloadCache";
     private const string s_cacheFolderName = "Cache";

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Restall.UI.Services;
 
-public class ModSelectionDialogService : IModSelectionDialogService
+public sealed class ModSelectionDialogService : IModSelectionDialogService
 {
     private readonly ILogService _logService;
     private readonly IVersionCatalog _versionCatalog;

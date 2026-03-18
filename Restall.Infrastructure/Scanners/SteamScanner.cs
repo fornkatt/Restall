@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Scanners;
 
-public class SteamScanner : IPlatformScannerService
+internal sealed class SteamScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
     

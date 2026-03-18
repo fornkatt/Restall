@@ -4,7 +4,7 @@ using System;
 
 namespace Restall.UI.Views.Dialogs;
 
-public partial class RenoDXInstallDialog : Window
+public sealed partial class RenoDXInstallDialog : Window
 {
     public RenoDXInstallDialog()
     {

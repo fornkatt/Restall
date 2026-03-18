@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Restall.UI.ViewModels;
 
-public partial class GameModViewModel : ObservableObject
+public sealed partial class GameModViewModel : ObservableObject
 {
     private readonly Game _game;
 
