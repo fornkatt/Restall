@@ -25,7 +25,6 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IModCatalog, ModCatalog>();
 
         services.AddSingleton<ISteamGridDbIndexRepository, SteamGridDbIndexRepository>();
-        services.AddSingleton<ISteamGridDbService, SteamGridDbService>();
 
         services.AddPlatformScanners();
         services.AddSingleton<IEngineDetectionService, EngineDetectionService>();
@@ -43,6 +42,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddTransient<IModManagementFacade, ModManagementFacade>();
 
         services.AddHttpClient<IModDownloadService, ModDownloadService>();
+        services.AddHttpClient<ISteamGridDbService, SteamGridDbService>();
 
         return services;
     }

@@ -12,7 +12,7 @@
 
 		<!-- GAME CARD -->
 		<Border Grid.Row="0" CornerRadius="20" Margin="5, 5, 5, 5" Background="{DynamicResource GameCardBackground}">
-			<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="10,10,10,0">
+			<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="10,10,10,0">
 				<StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
 					<TextBlock Text="{Binding SelectedGame.Name}" FontSize="20" FontWeight="Bold" Margin="10,0,0,0"
 							   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap" VerticalAlignment="Center"/>
@@ -32,9 +32,41 @@
 				<TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" FontSize="12" Margin="10, 0, 0, 0"
 						   Text="{Binding SelectedGame.ExecutablePath}" Foreground="{DynamicResource GameCardText}"
 						   TextWrapping="Wrap" />
+				
+				<Grid Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2"
+				      ColumnDefinitions="*, *, *" ColumnSpacing="5"
+				      Margin="5,30,5,5">
+					<Button Grid.Column="0"
+					        Classes="game-card-btn"
+					        CornerRadius="6"
+					        VerticalAlignment="Center"
+					        HorizontalAlignment="Stretch"
+					        Margin="0,0,4,0">
+						<TextBlock Text="Quick game scan" FontSize="14" HorizontalAlignment="Center" />
+						
+					</Button>
+					<Button Grid.Column="1"
+					        Classes="game-card-btn"
+					        CornerRadius="6"
+					        VerticalAlignment="Center"
+					        HorizontalAlignment="Stretch"
+					        HorizontalContentAlignment="Center"
+					        Margin="0,0,4,0">
+						<TextBlock Text="RenoDX Commander" FontSize="14" HorizontalAlignment="Center" />
+						
+					</Button>
+					<Button Grid.Column="2"
+					        Classes="game-card-btn"
+					        CornerRadius="6"
+					        VerticalAlignment="Center"
+					        HorizontalAlignment="Stretch"
+					        HorizontalContentAlignment="Center">
+						<TextBlock Text="Special K" FontSize="14" HorizontalAlignment="Center" />
+					</Button>
+				</Grid>
 			</Grid>
 		</Border>
-
+		
 		<!-- MOD CARD -->
 		<Border Grid.Row="1" Margin="5" CornerRadius="20" Background="{DynamicResource GameCardBackground}">
 			<Grid RowDefinitions="Auto, Auto"
