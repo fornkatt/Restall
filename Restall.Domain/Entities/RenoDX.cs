@@ -7,7 +7,6 @@ public class RenoDX
     
     public string? SelectedName { get; set; }
     public string? OriginalName { get; set; }
-    public string? Maintainer { get; set; }
     public Branch BranchName { get; set; } = Branch.Unknown;
     public Architecture Arch { get; set; } = Architecture.x64;
     public string? Version { get; set; }

@@ -29,7 +29,7 @@ public class SteamScanner : IPlatformScannerService
                 Game.Platform.Steam,
                 [], 
                 Success: false, 
-                ErrorMessage: "Steam installation not found");
+                Message: "Steam installation not found");
         
         steamPath = GameScanHelper.NormalizePath(steamPath);
         foreach (var library in GetSteamLibraries(steamPath))
@@ -43,7 +43,7 @@ public class SteamScanner : IPlatformScannerService
             Platform:     Game.Platform.Steam,
             Games:        games,
             Success:      games.Count > 0,
-            ErrorMessage: errors.Count > 0 ? string.Join("; ", errors) : null);
+            Message: errors.Count > 0 ? string.Join("; ", errors) : null);
     }
 
     private string? GetInstallPath()

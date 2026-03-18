@@ -5,5 +5,5 @@ public record GameScanProgressReportDto(
     int ScannersCompleted,
     int TotalScanners,
     bool Success,
-    string? ErrorMessage = null
+    string? Message = null
     );

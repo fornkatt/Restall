@@ -48,7 +48,7 @@ public partial class StartupWindowViewModel : ObservableObject
         }
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
-
+        
         InitializationCompleted?.Invoke(result);
     }
 }

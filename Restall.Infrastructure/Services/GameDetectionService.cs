@@ -46,15 +46,15 @@ public class GameDetectionService : IGameDetectionService
                   completed++;
                   allGames.AddRange(result.Games);
                   
-                  if(result.ErrorMessage is not null)
-                      allErrors.Add(result.ErrorMessage);
+                  if(result.Message is not null)
+                      allErrors.Add(result.Message);
 
                   progress?.Report(new GameScanProgressReportDto(
                       CompletedPlatform: result.Platform.ToString(),
                       ScannersCompleted: completed,
                       TotalScanners:     totalScanners,
                       Success:           result.Success,
-                      ErrorMessage:      result.ErrorMessage
+                      Message:      result.Message
                       ));
                   
               }
@@ -99,7 +99,7 @@ public class GameDetectionService : IGameDetectionService
                   Platform:     Game.Platform.Unknown,
                   Games:        validGames!,
                   Success:      validGames.Count > 0,
-                  ErrorMessage: allErrors.Count > 0 ? string.Join("; ", allErrors) : null);
+                  Message: allErrors.Count > 0 ? string.Join("; ", allErrors) : null);
               
 
           }
@@ -110,7 +110,7 @@ public class GameDetectionService : IGameDetectionService
                   Platform:     Game.Platform.Unknown,
                   Games:        [],
                   Success:      false,
-                  ErrorMessage: ex.Message);
+                  Message: ex.Message);
           }
          
          

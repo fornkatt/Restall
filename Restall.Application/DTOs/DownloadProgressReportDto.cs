@@ -1,7 +1,7 @@
 namespace Restall.Application.DTOs;
 
 public record DownloadProgressReportDto(
-    string FileName,
+    string Filename,
     long BytesReceived,
     long? TotalBytes,
     int PercentComplete

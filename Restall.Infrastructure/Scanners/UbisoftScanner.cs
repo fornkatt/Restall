@@ -35,7 +35,7 @@ public class UbisoftScanner : IPlatformScannerService
             Platform:     Game.Platform.Ubisoft,
             Games:        games,
             Success:      games.Count > 0,
-            ErrorMessage: errors.Count > 0 ? string.Join("; ", errors) : null);
+            Message: errors.Count > 0 ? string.Join("; ", errors) : null);
         
     }
     

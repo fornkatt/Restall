@@ -22,7 +22,7 @@ public class RefreshLibraryUseCase : IRefreshLibraryUseCase
         IUpdateCheckService updateCheckService,
         IVersionCatalog versionCatalog,
         IModCatalog modCatalog
-        )
+    )
     {
         _logService = logService;
         _gameDetectionService = gameDetectionService;
@@ -32,7 +32,7 @@ public class RefreshLibraryUseCase : IRefreshLibraryUseCase
         _versionCatalog = versionCatalog;
         _modCatalog = modCatalog;
     }
-    
+
     public async Task<RefreshLibraryResultDto> ExecuteAsync(IProgress<GameScanProgressReportDto>? progress = null)
     {
         var gameTask = _gameDetectionService.FindGames(progress);
@@ -42,7 +42,7 @@ public class RefreshLibraryUseCase : IRefreshLibraryUseCase
         await Task.WhenAll(gameTask, versionTask, wikiTask);
 
         var gameScanResults = gameTask.Result;
-        
+
         var sortedGames = gameScanResults.Games
             .OrderBy(g => g.Name);
 
@@ -69,7 +69,7 @@ public class RefreshLibraryUseCase : IRefreshLibraryUseCase
             var compatibleGenericMod = compatibleMod is null
                 ? FindGenericMod(game.Name, _modCatalog.GetRenoDXGenericWikiMods())
                 : null;
-                
+
             artworkTasks.Add(_steamGridDbService.EnrichGameArtworkAsync(game));
 
             results.Add(new GameInitResultDto(
@@ -78,13 +78,13 @@ public class RefreshLibraryUseCase : IRefreshLibraryUseCase
                 compatibleGenericMod,
                 reShadeUpdateResult,
                 renoDxUpdateResult
-                ));
+            ));
         }
-        
+
         await Task.WhenAll(artworkTasks);
 
         await _logService.LogInfoAsync("Game library successfully loaded.");
-        return new RefreshLibraryResultDto(results, gameScanResults.Success, gameScanResults.ErrorMessage);
+        return new RefreshLibraryResultDto(results, gameScanResults.Success, gameScanResults.Message);
     }
 
     private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, IReadOnlyList<RenoDXModInfoDto> mods)
@@ -94,16 +94,19 @@ public class RefreshLibraryUseCase : IRefreshLibraryUseCase
         var key = GameNameHelper.NormalizeName(gameName);
 
         return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
-            ?? mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+               ?? mods.FirstOrDefault(m =>
+                   m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
     }
 
-    private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName, IReadOnlyList<RenoDXGenericModInfoDto> mods)
+    private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName,
+        IReadOnlyList<RenoDXGenericModInfoDto> mods)
     {
         if (string.IsNullOrWhiteSpace(gameName)) return null;
 
         var key = GameNameHelper.NormalizeName(gameName);
 
         return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
-            ?? mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+               ?? mods.FirstOrDefault(m =>
+                   m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
     }
 }

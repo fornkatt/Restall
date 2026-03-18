@@ -20,7 +20,6 @@ public record RenoDXModInfoDto(
 {
     public string? AddonFilename64 => ExtractFilename(SnapshotUrl64);
     public string? AddonFilename32 => ExtractFilename(SnapshotUrl32);
-    public string? AddonFileNameFallBack => AddonFilename64 ?? AddonFilename32 ?? OverrideAddonFilename;
 
     public bool SupportsX64 => SnapshotUrl64 is not null;
     public bool SupportsX32 => SnapshotUrl32 is not null;

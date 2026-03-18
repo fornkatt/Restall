@@ -76,14 +76,12 @@ public partial class GameModViewModel : ObservableObject
         OnPropertyChanged(nameof(ReShadeArch));
         OnPropertyChanged(nameof(ReShadeFilename));
         OnPropertyChanged(nameof(RenoDXName));
-        OnPropertyChanged(nameof(RenoDXMaintainer));
         OnPropertyChanged(nameof(RenoDXVersion));
         OnPropertyChanged(nameof(RenoDXBranch));
         OnPropertyChanged(nameof(RenoDXArch));
     }
 
     public string? RenoDXName => _game.RenoDX?.SelectedName;
-    public string? RenoDXMaintainer => _game.RenoDX?.Maintainer;
     public string? RenoDXVersion => _game.RenoDX?.Version;
     public string? RenoDXBranch => _game.RenoDX?.BranchName.ToString();
     public RenoDX.Branch? RenoDXBranchName => _game.RenoDX?.BranchName;

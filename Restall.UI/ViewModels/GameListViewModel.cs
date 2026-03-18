@@ -29,7 +29,7 @@ public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameC
     private GameModViewModel? _selectedGame;
 
     [ObservableProperty] 
-    private string _scanMessage;
+    private string? _scanMessage;
     
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RefreshLibraryCommand))]
@@ -73,6 +73,8 @@ public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameC
         var result = await _refreshLibrary.ExecuteAsync();
         LoadGames(result);
         IsRefreshing = false;
+        
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
         
         await ShowCompletedMessageAsync(_messageCts.Token);
     }

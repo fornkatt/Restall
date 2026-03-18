@@ -36,8 +36,8 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
             return new ModOperationResultDto(
                 false,
                 request.Game,
-                "Could not determine addon filename. " +
-                "This game has no wiki entry and no existing RenoDX installation was detected."
+                "Could not determine addon filename.\n\n" +
+                "This game has no wiki entry or is Discord/Nexus only and no existing RenoDX installation was detected."
                 );
 
         var renoDx = new RenoDX
@@ -45,8 +45,7 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
             SelectedName = addonFilename,
             OriginalName = addonFilename,
             BranchName = request.Branch,
-            Arch = request.Arch,
-            Maintainer = request.ModInfo?.Maintainer
+            Arch = request.Arch
         };
 
         var isUnityEngine = request.GenericModInfo?.Engine == Engine.Unity ||
@@ -57,7 +56,7 @@ public class InstallRenoDXUseCase : IInstallRenoDXUseCase
         if (!await DownloadAsync(isUnityEngine, request, addonFilename, progress))
         {
             await _logService.LogWarningAsync($"Failed to download RenoDX: {addonFilename}");
-            return new ModOperationResultDto(false, request.Game, "Failed to download RenoDX");
+            return new ModOperationResultDto(false, request.Game, "Failed to download file.");
         }
 
         var filePath = _cachePathService.GetRenoDXCachePath(renoDx);

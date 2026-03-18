@@ -6,5 +6,5 @@ public record GameScanResultDto(
     Game.Platform Platform,
     IReadOnlyList<Game> Games,
     bool Success,
-    string? ErrorMessage = null
+    string? Message = null
     );

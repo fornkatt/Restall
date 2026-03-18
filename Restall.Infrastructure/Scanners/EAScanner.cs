@@ -33,7 +33,7 @@ public class EAScanner : IPlatformScannerService
             Platform:     Game.Platform.EA,
             Games:        games,
             Success:      games.Count > 0,
-            ErrorMessage: errors.Count > 0 ? string.Join("; ", errors) : null);
+            Message: errors.Count > 0 ? string.Join("; ", errors) : null);
         
     }
 

@@ -45,11 +45,11 @@ public class InstallReShadeUseCase : IInstallReShadeUseCase
             var downloaded = await EnsureDownloadedAsync(reShade, progress);
 
             if (!downloaded)
-                return new ModOperationResultDto(false, request.Game, "Failed to download ReShade.");
+                return new ModOperationResultDto(false, request.Game, "Failed to download ReShade installer.");
 
             var extracted = ExtractFromDownload(reShade);
             if (!extracted)
-                return new ModOperationResultDto(false, request.Game, "Failed to extract ReShade from installer.");
+                return new ModOperationResultDto(false, request.Game, "Failed to extract files from installer.");
         }
 
         var result = await _modInstallService.InstallModAsync(request.Game, reShade, extractedFilePath);

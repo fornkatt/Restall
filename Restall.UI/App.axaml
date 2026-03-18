@@ -19,7 +19,6 @@
 			<FontFamily x:Key="Phosphor">avares://Restall.UI/Assets/Fonts#Phosphor</FontFamily>
 			<FontFamily x:Key="Phosphor-Bold">avares://Restall.UI/Assets/Fonts#Phosphor-Bold</FontFamily>
 			<FontFamily x:Key="Phosphor-Fill">avares://Restall.UI/Assets/Fonts#Phosphor-Fill</FontFamily>
-
 			
 			<!-- Themes -->
 			<ResourceDictionary.ThemeDictionaries>
@@ -28,12 +27,12 @@
 					<SolidColorBrush x:Key="GameListSelection" Color="#f2f2f2"/>
 					<SolidColorBrush x:Key="GameListHover" Color="#d6d6d6"/>
 					<SolidColorBrush x:Key="GameCardBackground" Color="#ffffff"/>
-					<SolidColorBrush x:Key="GameCardText" Color="Black"/>
+					<SolidColorBrush x:Key="GameCardText" Color="#2c2c2c"/>
 					<SolidColorBrush x:Key="GameCardBorder" Color="#fafafa"/>
 					<SolidColorBrush x:Key="GameCardNotesBorder" Color="#d4d4d4"/>
 					<SolidColorBrush x:Key="ModCardButton" Color="#e7e7e7"/>
 					<SolidColorBrush x:Key="ModCardButtonHover" Color="#f4f4f4"/>
-					<SolidColorBrush x:Key="ModCardButtonText" Color="Black"/>
+					<SolidColorBrush x:Key="ModCardButtonText" Color="#2c2c2c"/>
 					<SolidColorBrush x:Key="DialogBorder" Color="#dedede"/>
 				</ResourceDictionary>
 				<ResourceDictionary x:Key="Dark">
@@ -52,7 +51,4 @@
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>
-	
-	
-
 </Application>

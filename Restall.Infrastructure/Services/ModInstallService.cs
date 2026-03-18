@@ -62,12 +62,12 @@ public class ModInstallService : IModInstallService
                 }
             }
 
-            return new ModOperationResultDto(true, game);
+            return new ModOperationResultDto(true, game, "Installed!");
         }
         catch (Exception ex)
         {
             await _logService.LogErrorAsync("Could not install mod.", ex);
-            return new ModOperationResultDto(false, game, $"Failed to install mod.");
+            return new ModOperationResultDto(false, game, "Failed to install mod.");
         }
     }
 
@@ -76,14 +76,17 @@ public class ModInstallService : IModInstallService
         if (!Directory.Exists(game.ExecutablePath))
         {
             await _logService.LogErrorAsync($"Game executable path not found: {game.ExecutablePath}. Please perform a library rescan.");
-            return new ModOperationResultDto(false, game);
+            return new ModOperationResultDto(false, game, "Executable path not found.");
         }
 
         string expectedPath = Path.Combine(game.ExecutablePath, game.ReShade!.SelectedFilename);
         bool deleted = await TryDeleteFileAsync(expectedPath);
 
         game.ReShade = null;
-        return new ModOperationResultDto(deleted, game, ShouldPromptForDeepScan: !deleted);
+
+        return deleted 
+            ? new ModOperationResultDto(true, game, "Uninstalled!") 
+            : new ModOperationResultDto(false, game, "Uninstall failed. Please ensure all files are removed from the game directory.", true);
     }
 
     public async Task<ModOperationResultDto> UninstallRenoDXAsync(Game game)
@@ -94,13 +97,16 @@ public class ModInstallService : IModInstallService
         {
             await _logService.LogErrorAsync($"RenoDX not found at expected location: {expectedPath}.");
             game.RenoDX = null;
-            return new ModOperationResultDto(false, game, null, true);
+            return new ModOperationResultDto(false, game,"File not found. Please ensure all files are removed from the game directory.", true);
         }
 
         bool deleted = await TryDeleteFileAsync(expectedPath, verifyOriginalFilename: "renodx-");
 
         game.RenoDX = null;
-        return new ModOperationResultDto(deleted, game, ShouldPromptForDeepScan: !deleted);
+
+        return deleted
+            ? new ModOperationResultDto(true, game, "Uninstalled!")
+            : new ModOperationResultDto(false, game, "Uninstall failed. Please ensure all files are removed from the game directory.", true);
     }
 
     private async Task<bool> TryDeleteFileAsync(string path, string? verifyOriginalFilename = null)
