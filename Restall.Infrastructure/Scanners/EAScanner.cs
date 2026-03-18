@@ -69,9 +69,9 @@ internal sealed class EAScanner : IPlatformScannerService
                 });
             }
         }
-        catch
+        catch(Exception ex)
         {
-            _logService.LogError($"Could not find EA games...");
+            _logService.LogError($"Could not read EA games in library", ex);
         }
 
         return (games, null);

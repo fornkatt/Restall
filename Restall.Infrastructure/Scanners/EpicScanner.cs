@@ -37,6 +37,7 @@ internal sealed class EpicScanner : IPlatformScannerService
         }
 
         var epicHeroicPath = GetHeroicInstallPath();
+        
         if (epicHeroicPath is not null && Directory.Exists(epicHeroicPath))
         {
             var (epicHeroicLibrary, error) = ScanHeroicLibrary(epicHeroicPath);
@@ -49,7 +50,6 @@ internal sealed class EpicScanner : IPlatformScannerService
             Games:        games,
             Success:      games.Count > 0,
             Message: errors.Count > 0 ? string.Join("; ", errors) : null);
-
         
     }
 
@@ -97,7 +97,8 @@ internal sealed class EpicScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                    _logService.LogError($"Failed to scan Epic Library...{ex.Message}");           
+                    
+                _logService.LogError($"Failed to scan Epic Manifest: {file}",ex);           
             }
             
         }

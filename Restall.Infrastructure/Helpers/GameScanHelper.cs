@@ -14,7 +14,7 @@ internal static class GameScanHelper
         var normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         return normalized.Trim().TrimEnd(Path.DirectorySeparatorChar);
     }
-
+    
     internal static string? ExtractVdfValue(string vdfContent, string key)
         => Regex.Match(vdfContent, $@"""{Regex.Escape(key)}""\s+""([^""]+)""", 
             RegexOptions.IgnoreCase) is { Success: true } m ? m.Groups[1].Value : null;

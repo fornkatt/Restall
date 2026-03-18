@@ -229,7 +229,7 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         try
         {
             
-            var bytes      = await _httpClient.GetByteArrayAsync(imageUrl);
+            var bytes= await _httpClient.GetByteArrayAsync(imageUrl);
             await File.WriteAllBytesAsync(savePath, bytes);
             await _logService.LogInfoAsync($"Downloaded {label} to {savePath}");
         }

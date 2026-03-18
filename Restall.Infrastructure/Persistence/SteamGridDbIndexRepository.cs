@@ -52,9 +52,9 @@ internal sealed class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
             var json = File.ReadAllText(_indexFilePath);
             return JsonSerializer.Deserialize<Dictionary<string, int>>(json) ?? [];
         }
-        catch
+        catch(Exception ex)
         {
-            _logService.LogError($"Failed to load index file {_indexFilePath}");
+            _logService.LogError($"Failed to load index file {_indexFilePath}", ex);
             return [];
         }
     }

@@ -88,17 +88,17 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
         
     }
 
-    private async Task ExecuteWithDelayedMessageAsync(Func<Task> message)
+    private async Task ExecuteWithDelayedMessageAsync(Func<Task> work)
     {
         await _messageCts.CancelAsync();
         _messageCts = new CancellationTokenSource();
         var token = _messageCts.Token;
-        // Protect data and status
+        // Protects the scan operation
         try
         {
             ScanMessage = "Scanning...";
             IsRefreshing = true;
-            await message();
+            await work();
             ScanMessage = "Completed!";
         }
         catch (Exception ex)
@@ -111,7 +111,7 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
             IsRefreshing = false;
         }
         
-        // Protect UI Timer
+        // Protects the UI timer
         try
         {
             await Task.Delay(2000, token);
@@ -120,7 +120,7 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
                 ScanMessage = string.Empty;
             }
         }
-        catch { }
+        catch(OperationCanceledException) { }
     }
     
     private bool CanRefresh() => !IsRefreshing;

@@ -13,7 +13,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
         _logService = logService;
     }
     
-public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath)
+    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath)
     {
         var uePath = FindUEBinariesFolder(rootPath);
         if (uePath != null)
@@ -87,27 +87,27 @@ public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngin
         }
         catch(Exception ex)
         {
-            _logService.LogError($"[ERROR] Something went wrong when collecting Binaries folder. {ex.Message}");
+            _logService.LogError($"Couldn't collect the files in Binaries folder", ex);
         }
     }
 
-    private string? FindFileShallow(string dir, string pattern, int maxDepth)
+    private string? FindFileShallow(string folder, string pattern, int maxDepth)
     {
-        if (maxDepth < 0 || !Directory.Exists(dir)) return null;
+        if (maxDepth < 0 || !Directory.Exists(folder)) return null;
         try
         {
-            var found = Directory.GetFiles(dir, pattern);
-            if (found.Length > 0) return found[0];
+            var match = Directory.GetFiles(folder, pattern);
+            if (match.Length > 0) return match[0];
             if (maxDepth > 0)
-                foreach (var sub in Directory.GetDirectories(dir))
+                foreach (var sub in Directory.GetDirectories(folder))
                 {
-                    var r = FindFileShallow(sub, pattern, maxDepth - 1);
-                    if (r != null) return r;
+                    var filePath = FindFileShallow(sub, pattern, maxDepth - 1);
+                    if (filePath is not null) return filePath;
                 }
         }
         catch (Exception ex)
         {
-            _logService.LogError($"[ERROR] Couldn't find any Shallow files: {ex.Message}");
+            _logService.LogError($" Failed the find shallow files", ex);
         }
 
         return null;
@@ -144,7 +144,7 @@ public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngin
             }
             catch (Exception ex)
             {
-                _logService.LogError($"[ERROR] Couldn't find any EXE files in Folders: {ex.Message}");
+                _logService.LogError($" Couldn't find any EXE files in Folders:",ex);
             }
         }
 

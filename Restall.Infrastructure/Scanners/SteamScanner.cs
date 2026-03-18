@@ -57,14 +57,8 @@ internal sealed class SteamScanner : IPlatformScannerService
             Path.Combine(home, ".steam", "steam"),
             Path.Combine(home, ".local", "share", "Steam"),
         };
-
-
-        foreach (var path in linuxPaths)
-        {
-            if (Directory.Exists(path)) return path;
-        }
-
-        return null;
+        
+        return linuxPaths.FirstOrDefault(Directory.Exists);
     }
 
     private (List<Game> games, string? error) ScanSteamLibrary(string library)
@@ -99,13 +93,13 @@ internal sealed class SteamScanner : IPlatformScannerService
                     PlatformId = $"steam:{appId}"
                 });
             }
-            catch
+            catch(Exception ex)
             {
-                _logService.LogError("Could not find Steam library: " + library);
+                _logService.LogError($"Failed to parse acf files...{acf}", ex);
             }
         }
-
         return (games, null);
+
     }
 
     private List<string> GetSteamLibraries(string path)

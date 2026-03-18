@@ -49,8 +49,7 @@ internal sealed class GOGScanner : IPlatformScannerService
     private (List<Game> games, string? error) ScanGOGLibrary()
     {
         var games = new List<Game>();
-
-
+        
         try
         {
             using var key = GameScanHelper.GetOpenRegistryKey(@"GOG.com\Games");
@@ -79,9 +78,9 @@ internal sealed class GOGScanner : IPlatformScannerService
                 });
             }
         }
-        catch
+        catch(Exception ex)
         {
-            _logService.LogError($"Could not find GOG games...{games}");
+            _logService.LogError($"Could not find GOG games...", ex);
         }
 
         return (games, null);

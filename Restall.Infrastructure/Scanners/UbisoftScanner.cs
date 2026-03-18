@@ -74,9 +74,10 @@ internal sealed class UbisoftScanner : IPlatformScannerService
         }
         catch(Exception ex)
         {
-            return(games, $"Failed Ubisoft scan...{ex.Message}");
+            _logService.LogError($"Failed to scan Ubisoft games in library",ex);
         }
-
+        
+        return (games, null);
 
     }
     
