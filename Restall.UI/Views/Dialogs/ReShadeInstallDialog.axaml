@@ -42,10 +42,6 @@
 				<Setter Property="Background" Value="Transparent"/>
 				<Setter Property="BorderBrush" Value="Transparent"/>
 			</Style>
-
-			<Style Selector="Expander /template/ ToggleButton#ExpanderHeader:pointerover /template/ Border#ToggleButtonBackground">
-				<Setter Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}"/>
-			</Style>
 		</Border.Styles>
 		<Grid RowDefinitions="Auto, Auto, Auto, Auto"
 			  ColumnDefinitions="0.5*, 0.5*"

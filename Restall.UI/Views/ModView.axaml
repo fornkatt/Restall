@@ -44,7 +44,8 @@
                             CornerRadius="6"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Stretch"
-                            Margin="0,0,4,0">
+                            Margin="0,0,4,0"
+                            IsVisible="False">
                         <TextBlock Text="Quick game scan" FontSize="14" HorizontalAlignment="Center" />
 
                     </Button>
@@ -54,7 +55,8 @@
                             VerticalAlignment="Center"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Center"
-                            Margin="0,0,4,0">
+                            Margin="0,0,4,0"
+                            IsVisible="False">
                         <TextBlock Text="Display Commander" FontSize="14" HorizontalAlignment="Center" />
 
                     </Button>
@@ -63,7 +65,8 @@
                             CornerRadius="6"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center">
+                            HorizontalContentAlignment="Center"
+                            IsVisible="False">
                         <TextBlock Text="SpecialK" FontSize="14" HorizontalAlignment="Center" />
                     </Button>
                 </Grid>
@@ -157,6 +160,26 @@
                         </Grid>
                     </Grid>
                 </Grid>
+                
+                <Border Grid.Column="1"
+                        Grid.Row="0"
+                        CornerRadius="10"
+                        Margin="10"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource GameCardNotesBorder}"
+                        ClipToBounds="True"
+                        VerticalAlignment="Top"
+                        MaxHeight="100"
+                        IsVisible="{Binding SelectedGame.IsShowingReShadeActionMessage}">
+
+                        <TextBlock TextWrapping="Wrap"
+                                   FontSize="12"
+                                   Margin="10"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Top"
+                                   Foreground="{DynamicResource GameCardText}"
+                                   Text="{Binding SelectedGame.ReShadeModActionStatus}" />
+                </Border>
 
                 <!-- RENODX -->
                 <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
@@ -281,7 +304,7 @@
                     <Grid>
                         <ScrollViewer HorizontalAlignment="Stretch"
                                       VerticalAlignment="Top"
-                                      IsVisible="{Binding !IsShowingRenoDXActionMessage}">
+                                      IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
                             <TextBlock TextWrapping="Wrap"
                                        FontSize="12"
                                        Margin="10"
@@ -296,8 +319,8 @@
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Top"
                                    Foreground="{DynamicResource GameCardText}"
-                                   IsVisible="{Binding IsShowingRenoDXActionMessage}"
-                                   Text="{Binding RenoDXModActionStatus}" />
+                                   IsVisible="{Binding SelectedGame.IsShowingRenoDXActionMessage}"
+                                   Text="{Binding SelectedGame.RenoDXModActionStatus}" />
                     </Grid>
                 </Border>
             </Grid>

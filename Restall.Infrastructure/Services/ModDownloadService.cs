@@ -108,7 +108,7 @@ public class ModDownloadService : IModDownloadService
             if (File.Exists(destinationPath))
             {
                 await _logService.LogInfoAsync($"{fileName} already downloaded by another task, skipping.");
-                progress?.Report(new DownloadProgressReportDto(fileName, 0, 0, 100));
+                progress?.Report(new DownloadProgressReportDto(fileName, 100));
                 return true;
             }
 
@@ -150,7 +150,7 @@ public class ModDownloadService : IModDownloadService
 
                 if (percent != lastReportedPercent)
                 {
-                    progress?.Report(new DownloadProgressReportDto(fileName, bytesReceived, totalBytes, percent));
+                    progress?.Report(new DownloadProgressReportDto(fileName, percent));
                     lastReportedPercent = percent;
                 }
             }

@@ -5,6 +5,7 @@ using Restall.Application.Helpers;
 using Restall.Domain.Entities;
 using System;
 using System.IO;
+using System.Threading;
 
 namespace Restall.UI.ViewModels;
 
@@ -94,6 +95,22 @@ public partial class GameModViewModel : ObservableObject
     public string? RenoDXAddonFilenameX64 => CompatibleRenoDXMod?.AddonFilename64;
     public string? RenoDXAddonFilenameX32 => CompatibleRenoDXMod?.AddonFilename32;
 
+    [ObservableProperty]
+    private string? _reShadeModActionStatus;
+    
+    [ObservableProperty]
+    private bool _isShowingReShadeActionMessage;
+    
+    internal CancellationTokenSource? ReShadeMessageCts;
+    
+    [ObservableProperty]
+    private string? _renoDXModActionStatus;
+    
+    [ObservableProperty]
+    private bool _isShowingRenoDXActionMessage;
+
+    internal CancellationTokenSource? RenoDXMessageCts;
+    
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
     [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
