@@ -12,6 +12,11 @@ namespace Restall.Infrastructure.Extensions;
 
 public static class InfrastructureServiceCollectionExtensions
 {
+    /// <summary>
+    /// Implementerar Dependency Injection som hanterar livslängden automatiskt istället för att manuellt implementera
+    /// singletons i varje enskild klass
+    /// </summary>
+    
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.AddSingleton<ILogService, LogService>();

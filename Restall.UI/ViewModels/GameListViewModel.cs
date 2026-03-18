@@ -65,32 +65,51 @@ public partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameC
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task RefreshLibraryAsync()
     {
-        await _messageCts.CancelAsync();
-        _messageCts = new CancellationTokenSource();
 
-        ScanMessage = "Scanning...";
-        IsRefreshing = true;
-        var result = await _refreshLibrary.ExecuteAsync();
-        LoadGames(result);
-        IsRefreshing = false;
+        await ExecuteWithDelayedMessageAsync(async () =>
+        {
+            var result = await _refreshLibrary.ExecuteAsync();
+            LoadGames(result);
+
+        });
         
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
         
-        await ShowCompletedMessageAsync(_messageCts.Token);
+        
     }
 
-    private async Task ShowCompletedMessageAsync(CancellationToken token)
+    private async Task ExecuteWithDelayedMessageAsync(Func<Task> message)
     {
-        ScanMessage = "Completed!";
+        await _messageCts.CancelAsync();
+        _messageCts = new CancellationTokenSource();
+        var token = _messageCts.Token;
+        // Protect data and status
         try
         {
-            await Task.Delay(1000, token);
-            ScanMessage = string.Empty;
+            ScanMessage = "Scanning...";
+            IsRefreshing = true;
+            await message();
+            ScanMessage = "Completed!";
         }
-        catch (OperationCanceledException ex)
+        catch (Exception)
         {
-            Debug.WriteLine($"Something went wrong with the cancellation token: {ex.Message}");
+            ScanMessage = "Error";
         }
+        finally
+        {
+            IsRefreshing = false;
+        }
+        
+        // Protect UI Timer
+        try
+        {
+            await Task.Delay(2000, token);
+            if (!token.IsCancellationRequested)
+            {
+                ScanMessage = string.Empty;
+            }
+        }
+        catch { }
     }
     
     private bool CanRefresh() => !IsRefreshing;

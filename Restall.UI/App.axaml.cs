@@ -17,7 +17,10 @@ public partial class App : Avalonia.Application
     {
         AvaloniaXamlLoader.Load(this);
     }
-
+    /// <summary>
+    /// Implementerar Dependency Injection som hanterar livslängden automatiskt istället för att manuellt implementera
+    /// singletons i varje enskild klass
+    /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
         var configuration = new ConfigurationBuilder()

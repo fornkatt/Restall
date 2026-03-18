@@ -7,6 +7,10 @@ namespace Restall.UI.Extensions;
 
 public static class UIServiceCollectionExtensions
 {
+    /// <summary>
+    /// Implementerar Dependency Injection som hanterar livslängden automatiskt istället för att manuellt implementera
+    /// singletons i varje enskild klass
+    /// </summary>
     public static IServiceCollection AddUIServices(this IServiceCollection services)
     {
         services.AddTransient<IModSelectionDialogService, ModSelectionDialogService>();
