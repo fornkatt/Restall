@@ -10,7 +10,7 @@ namespace Restall.Infrastructure.Services;
 internal sealed class SteamGridDbService : ISteamGridDbService
 {
     private readonly ILogService _logService;
-    private readonly ICachePathService _cacheService;
+    private readonly ICachePathService _cachePathService;
     private readonly ISteamGridDbIndexRepository _indexRepository;
     private readonly SteamGridDb? _sgdb;
     private readonly HttpClient _httpClient;
@@ -23,7 +23,7 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         HttpClient httpClient)
     {
         _logService = logService;
-        _cacheService = cacheService;
+        _cachePathService = cacheService;
         _indexRepository = indexRepository;
         _httpClient = httpClient;
         
@@ -123,9 +123,9 @@ internal sealed class SteamGridDbService : ISteamGridDbService
     private async Task SetGameImagePathsAsync(
         Game game, int sgdbId, int platformId, SteamGridDbGamePlatform platform)
     {
-        var bannerPath = _cacheService.GetSgdbBannerPath(sgdbId);
-        var iconPath   = _cacheService.GetSgdbThumbnailPath(sgdbId);
-        var logoPath = _cacheService.GetSgdbLogoPath(sgdbId);
+        var bannerPath = _cachePathService.GetSgdbBannerPath(sgdbId);
+        var iconPath   = _cachePathService.GetSgdbThumbnailPath(sgdbId);
+        var logoPath = _cachePathService.GetSgdbLogoPath(sgdbId);
         
         Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
 
@@ -152,9 +152,9 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         
         if (cachedId is not null)
         {
-            var bannerPath = _cacheService.GetSgdbBannerPath(cachedId.Value);
-            var iconPath   = _cacheService.GetSgdbThumbnailPath(cachedId.Value);
-            var logoPath = _cacheService.GetSgdbLogoPath(cachedId.Value);
+            var bannerPath = _cachePathService.GetSgdbBannerPath(cachedId.Value);
+            var iconPath   = _cachePathService.GetSgdbThumbnailPath(cachedId.Value);
+            var logoPath = _cachePathService.GetSgdbLogoPath(cachedId.Value);
 
             Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
 
@@ -195,9 +195,9 @@ internal sealed class SteamGridDbService : ISteamGridDbService
 
                 await _indexRepository.SaveSteamGridDbIdAsync(cacheKey, bestMatch.Id);
         
-                var bannerPath = _cacheService.GetSgdbBannerPath(bestMatch.Id);
-                var iconPath   = _cacheService.GetSgdbThumbnailPath(bestMatch.Id);
-                var logoPath = _cacheService.GetSgdbLogoPath(bestMatch.Id);
+                var bannerPath = _cachePathService.GetSgdbBannerPath(bestMatch.Id);
+                var iconPath   = _cachePathService.GetSgdbThumbnailPath(bestMatch.Id);
+                var logoPath = _cachePathService.GetSgdbLogoPath(bestMatch.Id);
         
                 Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
                 
@@ -266,7 +266,7 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         await DownloadImageAsync(imageUrl, savePath, "logo");
     }
     
-    private bool BannerExists(int steamGridDbId) => File.Exists(_cacheService.GetSgdbBannerPath(steamGridDbId));
-    private bool ThumbnailExists(int steamGridDbId) => File.Exists(_cacheService.GetSgdbThumbnailPath(steamGridDbId));
-    private bool LogoExists(int steamGridDbId) => File.Exists(_cacheService.GetSgdbLogoPath(steamGridDbId));
+    private bool BannerExists(int steamGridDbId) => File.Exists(_cachePathService.GetSgdbBannerPath(steamGridDbId));
+    private bool ThumbnailExists(int steamGridDbId) => File.Exists(_cachePathService.GetSgdbThumbnailPath(steamGridDbId));
+    private bool LogoExists(int steamGridDbId) => File.Exists(_cachePathService.GetSgdbLogoPath(steamGridDbId));
 }

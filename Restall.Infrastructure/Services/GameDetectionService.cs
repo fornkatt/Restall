@@ -28,7 +28,7 @@ internal sealed class GameDetectionService : IGameDetectionService
         _platformScannerService = platformScannerService;
     }
     
-     public async Task<GameScanResultDto> FindGames(IProgress<GameScanProgressReportDto>? progress = null)
+     public async Task<GameScanResultDto> FindGamesAsync(IProgress<GameScanProgressReportDto>? progress = null)
      {
           try
           {

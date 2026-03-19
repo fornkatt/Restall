@@ -35,7 +35,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IGameDetectionService, GameDetectionService>();
         services.AddSingleton<IModDetectionService, ModDetectionService>();
 
-        services.AddTransient<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
+        services.AddTransient<ILightRefreshLibraryUseCase, RefreshLibraryUseCase>();
+        services.AddTransient<IFullRefreshLibraryUseCase, RefreshLibraryUseCase>();
         services.AddTransient<IModInstallService, ModInstallService>();
         services.AddTransient<IFileExtractionService, FileExtractionService>();
         services.AddTransient<IInstallReShadeUseCase, InstallReShadeUseCase>();

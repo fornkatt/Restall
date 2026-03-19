@@ -139,6 +139,7 @@ public sealed partial class GameModViewModel : ObservableObject
             : CompatibleRenoDXMod?.AddonFilename64 ?? CompatibleRenoDXMod?.AddonFilename32;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsRenoDXSupported))]
     [NotifyPropertyChangedFor(nameof(IsUsingGenericModWhenSpecificAvailable))]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
     [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
@@ -154,6 +155,7 @@ public sealed partial class GameModViewModel : ObservableObject
     partial void OnCompatibleRenoDXModChanged(RenoDXModInfoDto? value) => ArchOverride = null;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsRenoDXSupported))]
     private RenoDXGenericModInfoDto? _compatibleRenoDXGenericMod;
 
     // Bitmaps -------------------------------------------------------------------------------

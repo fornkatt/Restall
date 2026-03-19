@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Restall.UI.ViewModels;
 
-public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
+public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>, IRecipient<WikiRefreshedMessage>
 {
     private readonly IModManagementFacade _modManagementFacade;
     private readonly IModSelectionDialogService _modSelectionDialogService;
@@ -51,6 +51,7 @@ public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGam
     [NotifyPropertyChangedFor(nameof(RenoDXModStatus))]
     [NotifyPropertyChangedFor(nameof(RenoDXNotes))]
     [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
+    [NotifyPropertyChangedFor(nameof(IsNightlyBranchAvailable))]
     private GameModViewModel? _selectedGame;
 
     [ObservableProperty]
@@ -69,6 +70,10 @@ public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGam
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
 
+    public bool IsNightlyBranchAvailable => 
+        SelectedGame is not null &&
+        !(SelectedGame.EngineName == Game.Engine.Unity && SelectedGame.CompatibleRenoDXMod is null);
+
     public bool IsRenoDXNightlyBranch
     {
         get => SelectedRenoDXBranch == RenoDX.Branch.Nightly;
@@ -81,11 +86,16 @@ public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGam
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
+        if (value?.EngineName == Game.Engine.Unity && value.CompatibleRenoDXMod is null)
+            SelectedRenoDXBranch = RenoDX.Branch.Snapshot;
+
         if (!_suppressMessage)
             Messenger.Send(new SelectedGameChangedMessage(value));
 
         NotifyAllCommandsChanged();
     }
+
+    public void Receive(WikiRefreshedMessage message) => NotifyAllCommandsChanged();
 
     public void Receive(SelectedGameChangedMessage message)
     {

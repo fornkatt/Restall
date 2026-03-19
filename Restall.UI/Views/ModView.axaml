@@ -270,6 +270,7 @@
                                   ColumnDefinitions="0.5*, 0.5*"
                                   Margin="5">
                                 <ToggleSwitch Grid.Column="0"
+                                              IsVisible="{Binding IsNightlyBranchAvailable}"
                                               VerticalAlignment="Top"
                                               IsChecked="{Binding IsRenoDXNightlyBranch, Mode=TwoWay}"
                                               OnContent="Nightly"

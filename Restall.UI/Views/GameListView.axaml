@@ -19,7 +19,7 @@
 	        
 			<Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
 			
-			<Button Grid.Column="0" Classes="toolbar-btn" Command="{Binding RefreshLibraryCommand}"
+			<Button Grid.Column="0" Classes="toolbar-btn" Command="{Binding FullRefreshLibraryCommand}"
 			        CornerRadius="6" Padding="8,6" Margin="8,6">
 				<StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
 					<TextBlock FontFamily="{StaticResource Phosphor-Fill}" FontSize="24"
@@ -47,7 +47,8 @@
 			        Classes="toolbar-btn"
 			        CornerRadius="6"
 			        Margin="8,6"
-			        HorizontalAlignment="Right">
+			        HorizontalAlignment="Right"
+					Command="{Binding LightRefreshLibraryCommand}">
 				<TextBlock FontFamily="{StaticResource Phosphor-Bold}"
 				           FontSize="20"
 				           Text="&#xE094;"/>

@@ -4,5 +4,5 @@ namespace Restall.Application.Interfaces;
 
 public interface IGameDetectionService
 {
-    Task<GameScanResultDto> FindGames(IProgress<GameScanProgressReportDto>? progress = null);
+    Task<GameScanResultDto> FindGamesAsync(IProgress<GameScanProgressReportDto>? progress = null);
 }

@@ -35,6 +35,9 @@ public sealed class ModManagementFacade : IModManagementFacade
         if (IsGamePathInvalid(request.Game, out var error))
             return error;
 
+        if (HasStaleReShadeRecord(request.Game, out var staleError))
+            return staleError;
+
         var result = await _installReShadeUseCase.ExecuteAsync(request, progress);
 
         if (result.IsSuccess && result.UpdatedGame.ReShade is not null)
@@ -61,6 +64,9 @@ public sealed class ModManagementFacade : IModManagementFacade
         if (IsGamePathInvalid(request.Game, out var error))
             return error;
 
+        if (HasStaleRenoDXRecord(request.Game, out var staleError))
+            return staleError;
+
         var result = await _installRenoDXUseCase.ExecuteAsync(request, progress);
 
         if (result.IsSuccess && result.UpdatedGame.RenoDX is not null)
@@ -79,6 +85,48 @@ public sealed class ModManagementFacade : IModManagementFacade
             return new ModOperationResultDto(false, game, "No RenoDX installation detected for this game. Please perform a full rescan.");
 
         return await _uninstallRenoDXUseCase.ExecuteAsync(game);
+    }
+
+    private static bool HasStaleReShadeRecord(Game game, out ModOperationResultDto result)
+    {
+        if (game.ReShade is { } reShade &&
+            !File.Exists(Path.Combine(game.ExecutablePath!, reShade.SelectedFilename)))
+        {
+            result = new ModOperationResultDto(
+                false,
+                game,
+                $"""
+                ReShade was recorded as {reShade.SelectedFilename} but that file no longer exists.
+                It may have been moved or renamed. Please perform a full library rescan.
+                """,
+                true
+                );
+            return true;
+        }
+
+        result = null!;
+        return false;
+    }
+
+    private static bool HasStaleRenoDXRecord(Game game, out ModOperationResultDto result)
+    {
+        if (game.RenoDX is { } renoDX &&
+            !File.Exists(Path.Combine(game.ExecutablePath!, renoDX.SelectedName!)))
+        {
+            result = new ModOperationResultDto(
+                false,
+                game,
+                $"""
+                RenoDX was recorded as {renoDX.SelectedName} but that file no longer exists.
+                It may have been moved or renamed. Please perform a full library rescan.
+                """,
+                true
+                );
+            return true;
+        }
+
+        result = null!;
+        return false;
     }
 
     private static bool IsGamePathInvalid(Game game, out ModOperationResultDto result)

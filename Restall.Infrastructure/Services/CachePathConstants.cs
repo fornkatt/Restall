@@ -4,7 +4,7 @@ internal static class CachePathConstants
 {
     internal const string DownloadCacheFolderName = "DownloadCache";
     internal const string CacheFolderName = "Cache";
-    internal const string SGDBFolderName = "SGDB";
+    internal const string SgdbFolderName = "SGDB";
     internal const string ReShadeFolderName = "ReShade";
     internal const string RenoDXFolderName = "RenoDX";
     

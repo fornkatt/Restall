@@ -15,15 +15,18 @@ namespace Restall.UI.ViewModels;
 
 public sealed partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
 {
-    private readonly IRefreshLibraryUseCase _refreshLibrary;
+    private readonly IFullRefreshLibraryUseCase _fullRefreshLibrary;
+    private readonly ILightRefreshLibraryUseCase _lightRefreshLibrary;
     private readonly ILogService _logService;
 
     public GameListViewModel(
-        IRefreshLibraryUseCase refreshLibrary,
+        IFullRefreshLibraryUseCase refreshLibrary,
+        ILightRefreshLibraryUseCase lightRefreshLibrary,
         ILogService logService
         )
     {
-        _refreshLibrary = refreshLibrary;
+        _fullRefreshLibrary = refreshLibrary;
+        _lightRefreshLibrary = lightRefreshLibrary;
         _logService = logService;
         IsActive = true;
     }
@@ -42,7 +45,8 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
     private string? _scanMessage;
     
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(RefreshLibraryCommand))]
+    [NotifyCanExecuteChangedFor(nameof(FullRefreshLibraryCommand))]
+    [NotifyCanExecuteChangedFor(nameof(LightRefreshLibraryCommand))]
     private bool _isRefreshing;
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
@@ -72,13 +76,14 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
 
         SelectedGame = Games.FirstOrDefault();
     }
+
     [RelayCommand(CanExecute = nameof(CanRefresh))]
-    private async Task RefreshLibraryAsync()
+    private async Task FullRefreshLibraryAsync()
     {
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _refreshLibrary.ExecuteAsync();
+            var result = await _fullRefreshLibrary.ExecuteFullRescanAsync();
             LoadGames(result);
 
         });
@@ -86,6 +91,34 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
         
         
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRefresh))]
+    private async Task LightRefreshLibraryAsync()
+    {
+        var existingGames = Games.Select(g => g.GetGame()).ToList();
+
+        await ExecuteWithDelayedMessageAsync(async () =>
+        {
+            var result = await _lightRefreshLibrary.ExecuteLightRescanAsync(existingGames);
+            UpdateModCompatibility(result);
+        });
+    }
+
+    private void UpdateModCompatibility(RefreshLibraryResultDto result)
+    {
+        var lookup = result.Games.ToDictionary(r => r.Game);
+
+        foreach (var gameVm in Games)
+        {
+            if (!lookup.TryGetValue(gameVm.GetGame(), out var item)) continue;
+
+            gameVm.CompatibleRenoDXMod = item.CompatibleMod;
+            gameVm.CompatibleRenoDXGenericMod = item.CompatibleGenericMod;
+            gameVm.NotifyGameStateChanged();
+        }
+
+        Messenger.Send(new WikiRefreshedMessage());
     }
 
     private async Task ExecuteWithDelayedMessageAsync(Func<Task> message)
@@ -122,6 +155,6 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
         }
         catch { }
     }
-    
+
     private bool CanRefresh() => !IsRefreshing;
 }
