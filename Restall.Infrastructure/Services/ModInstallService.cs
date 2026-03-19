@@ -33,13 +33,16 @@ internal sealed class ModInstallService : IModInstallService
                                                   $"{reShade.SelectedFilename} to {game.ExecutablePath}");
                     break;
                 }
-                case RenoDX renoDx:
+                case RenoDX renoDX:
                 {
-                    string destinationPath = Path.Combine(game.ExecutablePath!, renoDx.SelectedName!);
+                    if (renoDX.OriginalName is not null && renoDX.OriginalName != renoDX.SelectedName)
+                        await TryDeleteFileAsync(Path.Combine(game.ExecutablePath!, renoDX.OriginalName), verifyOriginalFilename: "renodx-");
+
+                    string destinationPath = Path.Combine(game.ExecutablePath!, renoDX.SelectedName!);
                     File.Copy(sourcePath, destinationPath, true);
-                    game.RenoDX = renoDx;
+                    game.RenoDX = renoDX;
                     await _logService.LogInfoAsync($"Successfully installed RenoDX as " +
-                                                  $"{renoDx.SelectedName} to {game.ExecutablePath}");
+                                                  $"{renoDX.SelectedName} to {game.ExecutablePath}");
                     break;
                 }
             }

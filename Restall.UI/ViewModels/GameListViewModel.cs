@@ -77,8 +77,6 @@ public sealed partial class GameListViewModel : ViewModelBase
         });
         
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
-        
-        
     }
 
     [RelayCommand(CanExecute = nameof(CanRefresh))]
@@ -91,6 +89,8 @@ public sealed partial class GameListViewModel : ViewModelBase
             var result = await _lightRefreshLibrary.ExecuteLightRescanAsync(existingGames);
             UpdateModCompatibility(result);
         });
+
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
     }
 
     private void UpdateModCompatibility(RefreshLibraryResultDto result)

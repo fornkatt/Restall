@@ -23,6 +23,9 @@ internal sealed class VersionCatalog : IVersionCatalog
 
     public async Task FetchVersionsAsync()
     {
+        _reShadeVersions.Clear();
+        _renoDXTags.Clear();
+
         var reShadeVersionsTask = _parseService.FetchReShadeVersionsAsync();
         var renoDXSnapshotTask = _parseService.FetchRenoDXSnapshotAsync();
         var renoDXNightlyTask = _parseService.FetchRenoDXNightlyTagsAsync();
