@@ -32,13 +32,18 @@ internal sealed class SteamScanner : IPlatformScannerService
                 Success: false,
                 Message: "Steam installation not found");
 
-        foreach (var library in GetSteamLibraries(steamPath))
-        {
-            var (libraryGames, error)  = ScanSteamLibrary(library);
-            games.AddRange(libraryGames);
-            if (error is not null) errors.Add(error);
-        }
+            
+        var (steamLibraries, libraryError)  = GetSteamLibraries(steamPath);
+        if(libraryError is not null) errors.Add(libraryError);
 
+        foreach (var library in steamLibraries)
+        {
+            var(libraryGames, error) = ScanSteamLibrary(library);
+            games.AddRange(libraryGames);
+            if(error is not null) errors.Add(error);
+            
+        }
+        
         return new GameScanResultDto(
             Platform:     Game.Platform.Steam,
             Games:        games,
@@ -105,11 +110,11 @@ internal sealed class SteamScanner : IPlatformScannerService
 
     }
 
-    private List<string> GetSteamLibraries(string path)
+    private (List<string> libraries, string? error) GetSteamLibraries(string path)
     {
         var libraries = new List<string>();
         var vdfPath = Path.Combine(path, "steamapps", "libraryfolders.vdf");
-        if (!File.Exists(vdfPath)) return libraries;
+        if (!File.Exists(vdfPath)) return (libraries,null);
 
         string content;
 
@@ -119,20 +124,19 @@ internal sealed class SteamScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            _logService.LogError("Failed to read steam's libraryfolder.vdf",ex);
-            return libraries;
+            _logService.LogError("Failed to read Steam's libraryfolders.vdf",ex);
+            return (libraries, "Failed to read Steam's libraryfolders.vdf");
         }
         
         foreach (Match match in RegexHelper.SteamLibraryRegex.Matches(content))
         {
-            var library = GameScanHelper.NormalizePath(match.Groups[1].Value.Replace(@"\\", @"\"));
-            if (Directory.Exists(library) && !libraries.Contains(library))
-            {
-                libraries.Add(library);
-            }
+            var libraryPath = GameScanHelper.NormalizePath(match.Groups[1].Value.Replace(@"\\", @"\"));
+            
+            if (Directory.Exists(libraryPath) && !libraries.Contains(libraryPath))
+                libraries.Add(libraryPath);
         }
 
-        return libraries;
+        return (libraries,null);
     }
     
 }

@@ -124,7 +124,8 @@ internal sealed class EpicScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            return (games, $"Failed to read installed.json file in Epic Heroic library: {ex.Message}");
+            _logService.LogError($"Failed to read installed.json file in Epic Heroic library", ex);
+            return (games, $"Failed to read installed.json file in Epic Heroic library.");
         }
 
         foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))

@@ -111,7 +111,8 @@ internal sealed class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            return (games, $"Failed to read installed.json file in GOG Heroic library: {ex.Message}");
+            _logService.LogError($"Failed to read installed.json file in GOG Heroic library", ex);
+            return (games, $"Failed to read installed.json file in GOG Heroic library.");
         }
 
 

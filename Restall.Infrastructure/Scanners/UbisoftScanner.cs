@@ -73,7 +73,8 @@ internal sealed class UbisoftScanner : IPlatformScannerService
         }
         catch(Exception ex)
         {
-            return (games, $"Failed to process Ubisoft games: {ex.Message}");
+            _logService.LogError("Failed to process Ubisoft library", ex);
+            return (games, $"Failed to process Ubisoft library.");
         }
         
         return (games, null);

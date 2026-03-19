@@ -72,7 +72,8 @@ internal sealed class EAScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            return (games, $"Failed to process EA games: {ex.Message}");
+            _logService.LogError("Failed to process EA library", ex);
+            return (games, $"Failed to process EA library.");
         }
 
         return (games, null);

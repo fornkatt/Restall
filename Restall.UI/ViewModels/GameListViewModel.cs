@@ -73,6 +73,14 @@ public sealed partial class GameListViewModel : ViewModelBase
         {
             var result = await _fullRefreshLibrary.ExecuteFullRescanAsync();
             LoadGames(result);
+            
+            if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
+            {
+                ScanMessage = $"{result.ErrorMessage}";
+                return true;
+            }
+
+            return false;
 
         });
         
@@ -88,6 +96,8 @@ public sealed partial class GameListViewModel : ViewModelBase
         {
             var result = await _lightRefreshLibrary.ExecuteLightRescanAsync(existingGames);
             UpdateModCompatibility(result);
+
+            return false;
         });
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
@@ -109,7 +119,7 @@ public sealed partial class GameListViewModel : ViewModelBase
         Messenger.Send(new WikiRefreshedMessage());
     }
 
-    private async Task ExecuteWithDelayedMessageAsync(Func<Task> work)
+    private async Task ExecuteWithDelayedMessageAsync(Func<Task<bool>> work)
     {
         await _messageCts.CancelAsync();
         _messageCts = new CancellationTokenSource();
@@ -119,8 +129,11 @@ public sealed partial class GameListViewModel : ViewModelBase
         {
             ScanMessage = "Scanning...";
             IsRefreshing = true;
-            await work();
-            ScanMessage = "Completed!";
+            
+            var hasWarning = await work();
+            
+            if(!hasWarning) ScanMessage = "Completed!";
+            
         }
         catch (Exception ex)
         {

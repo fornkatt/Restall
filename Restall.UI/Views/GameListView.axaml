@@ -8,8 +8,8 @@
 			 x:DataType="vm:GameListViewModel">
 	
 	
-	<Grid RowDefinitions="Auto, *" >
-		<!-- TOOLBAR SECTION -->
+	<Grid RowDefinitions="Auto, Auto,*" >
+		<!-- TOOLBAR <SECTION -->
 	<Border Grid.Row="0" 
 			Background="{DynamicResource GameCardBackground}" 
 			BorderThickness="1" 
@@ -17,9 +17,10 @@
 			Padding="8,6"
 	        Margin="8, 6" ClipToBounds="True"/>
 	        
-			<Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+			<Grid Grid.Row="0" ColumnDefinitions="Auto,*">
 			
-			<Button Grid.Column="0" Classes="toolbar-btn" Command="{Binding FullRefreshLibraryCommand}"
+			<Button Grid.Column="0" Classes="toolbar-btn" Command=
+			        "{Binding FullRefreshLibraryCommand}"
 			        CornerRadius="6" Padding="8,6" Margin="8,6">
 				<StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
 					<TextBlock FontFamily="{StaticResource Phosphor-Fill}" FontSize="24"
@@ -32,18 +33,9 @@
 					           VerticalAlignment="Center"/>
 				</StackPanel>
 			</Button>
-
 				
-				<TextBlock Grid.Column="1" 
-				           Text="{Binding ScanMessage}"
-				           Background="{DynamicResource GameCardBackground}"
-				           Foreground="{DynamicResource GameCardText}"
-				           FontSize="14"
-					       FontWeight="SemiBold"
-				           VerticalAlignment="Center"
-				           HorizontalAlignment="Left"/>
 				
-			<Button Grid.Column="2"
+			<Button Grid.Column="1"
 			        Classes="toolbar-btn"
 			        CornerRadius="6"
 			        Margin="8,6"
@@ -57,10 +49,24 @@
 
 		</Grid>
 			
+		<Border Grid.Row="1"
+		        Height="28"
+		        Background="{DynamicResource GameCardBackground}"
+		        Margin="8,0,8,4">
+			<TextBlock Text="{Binding ScanMessage}"
+			           Background="Transparent"
+			           Foreground="{DynamicResource GameCardText}"
+			           FontSize="12"
+			           FontWeight="SemiBold"
+			           VerticalAlignment="Center"
+			           HorizontalAlignment="Left"
+			           Margin="4,0"/>
+
+		</Border>
 			
 			
 	<!-- GAME LIST SECTION -->
-	<ListBox Grid.Row="1" ItemsSource="{Binding Games}"
+	<ListBox Grid.Row="2" ItemsSource="{Binding Games}"
 			 x:Name="GameList"
 			 SelectedItem="{Binding SelectedGame}"
 			 CornerRadius="20"
