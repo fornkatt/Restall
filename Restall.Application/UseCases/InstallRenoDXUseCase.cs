@@ -43,15 +43,15 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
         var isUnityGeneric = request.GenericModInfo?.Engine == SupportedEngine.Unity ||
             (request.GenericModInfo is null && request.Game.EngineName == Game.Engine.Unity);
 
-        var renoDx = new RenoDX
+        var renoDX = new RenoDX
         {
-            SelectedName = addonFilename,
+            SelectedName = request.Game.RenoDX is not null ? request.Game.RenoDX.SelectedName : addonFilename,
             OriginalName = addonFilename,
             BranchName = isUnityGeneric ? RenoDX.Branch.Snapshot : request.Branch,
             Arch = request.Arch
         };
 
-        await InvalidateCacheIfOutdatedAsync(renoDx, request.TargetVersion, isUnityGeneric);
+        await InvalidateCacheIfOutdatedAsync(renoDX, request.TargetVersion, isUnityGeneric);
 
         if (!await DownloadAsync(isUnityGeneric, request, addonFilename, progress))
         {
@@ -59,24 +59,24 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
             return new ModOperationResultDto(false, request.Game, "Failed to download file.");
         }
 
-        var filePath = _cachePathService.GetRenoDXCachePath(renoDx);
+        var filePath = _cachePathService.GetRenoDXCachePath(renoDX);
 
         var renoDxVersion = _modDetectionService.GetRenoDXFileVersion(filePath);
-        renoDx.Version = renoDxVersion;
+        renoDX.Version = renoDxVersion;
 
-        var result = await _modInstallService.InstallModAsync(request.Game, renoDx, filePath);
+        var result = await _modInstallService.InstallModAsync(request.Game, renoDX, filePath);
 
         if (result.IsSuccess)
-            await _logService.LogInfoAsync($"Successfully installed RenoDX as {renoDx.SelectedName} to game: {request.Game.Name}");
+            await _logService.LogInfoAsync($"Successfully installed RenoDX as {renoDX.SelectedName} to game: {request.Game.Name}");
         else
             await _logService.LogWarningAsync($"Could not install RenoDX to game: {request.Game.Name}");
 
         return result;
     }
 
-    private async Task InvalidateCacheIfOutdatedAsync(RenoDX renoDx, string? targetVersion, bool forceInvalidate = false)
+    private async Task InvalidateCacheIfOutdatedAsync(RenoDX renoDX, string? targetVersion, bool forceInvalidate = false)
     {
-        var cachedFilePath = _cachePathService.GetRenoDXCachePath(renoDx);
+        var cachedFilePath = _cachePathService.GetRenoDXCachePath(renoDX);
         if (!File.Exists(cachedFilePath)) return;
 
         if (!forceInvalidate)
@@ -93,7 +93,7 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
         try
         {
             File.Delete(cachedFilePath);
-            await _logService.LogInfoAsync($"Stale cache invalidated for {renoDx.OriginalName}");
+            await _logService.LogInfoAsync($"Stale cache invalidated for {renoDX.OriginalName}");
         }
         catch (Exception ex)
         {

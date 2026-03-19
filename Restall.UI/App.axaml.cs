@@ -28,7 +28,7 @@ public partial class App : Avalonia.Application
     {
         var crashLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs", "crash.log");
 
-        // Fall back to primitive logging if crash occurs as a last resort during initialization or if LogService cannot be reached.
+        // Fall back logging if crash occurs as a last resort during initialization or if LogService cannot be reached.
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
         {
             var ex = e.ExceptionObject as Exception;
