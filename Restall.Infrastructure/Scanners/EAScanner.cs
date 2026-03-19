@@ -9,8 +9,7 @@ internal sealed class EAScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
     
-    public EAScanner(
-        ILogService logService)
+    public EAScanner(ILogService logService)
     {
         _logService = logService;
     }

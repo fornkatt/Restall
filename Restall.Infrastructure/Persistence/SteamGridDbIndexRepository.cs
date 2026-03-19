@@ -6,23 +6,20 @@ namespace Restall.Infrastructure.Persistence;
 internal sealed class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
 {
     private readonly ILogService _logService;
-    private readonly ICachePathService _cachePathService;
     private const string s_indexFileName = "index.json";
     private static readonly JsonSerializerOptions s_jsonOptions = new() { WriteIndented = true };
-    private readonly Dictionary<string, int>? _index = [];
+    private readonly Dictionary<string, int>? _index;
     private readonly string _indexFilePath;
 
     public SteamGridDbIndexRepository(ILogService logService,
         ICachePathService cachePathService)
     {
         _logService = logService;
-        _cachePathService = cachePathService;
         
         _indexFilePath = Path.Combine(cachePathService.GetSgdbCacheDirectory(), s_indexFileName);
 
         Directory.CreateDirectory(cachePathService.GetSgdbCacheDirectory());
         _index = LoadIndex();
-        
     }
     
     public int? TryGetSteamGridDbId(string cacheKey) => _index.TryGetValue(cacheKey, out var steamGridDbId) ? steamGridDbId : null;
@@ -31,7 +28,7 @@ internal sealed class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
     public async Task SaveSteamGridDbIdAsync(string cacheKey, int steamGridDbId)
     {
         _index![cacheKey] = steamGridDbId;
-        ;
+        
         try
         {
             var json = JsonSerializer.Serialize(_index, s_jsonOptions);

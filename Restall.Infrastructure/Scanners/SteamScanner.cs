@@ -10,8 +10,7 @@ internal sealed class SteamScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
     
-    public SteamScanner(
-        ILogService logService)
+    public SteamScanner(ILogService logService)
     {
         _logService = logService;
     }

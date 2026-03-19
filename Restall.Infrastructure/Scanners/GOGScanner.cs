@@ -10,8 +10,7 @@ internal sealed class GOGScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
     
-    public GOGScanner(
-        ILogService logService)
+    public GOGScanner(ILogService logService)
     {
         _logService = logService;
     }

@@ -9,8 +9,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
     
-    public UbisoftScanner(
-        ILogService logService)
+    public UbisoftScanner(ILogService logService)
     {
         _logService = logService;
     }

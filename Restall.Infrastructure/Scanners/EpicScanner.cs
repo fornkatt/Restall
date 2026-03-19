@@ -10,11 +10,9 @@ internal sealed class EpicScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
 
-    public EpicScanner(
-        ILogService logService)
+    public EpicScanner(ILogService logService)
     {
         _logService = logService;
-        
     }
     
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEpic);
