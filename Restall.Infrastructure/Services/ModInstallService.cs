@@ -114,12 +114,12 @@ internal sealed class ModInstallService : IModInstallService
         }
         catch (UnauthorizedAccessException ex)
         {
-            await _logService.LogErrorAsync($"Access denied trying to delete {path}. Please ensure the game is not running and try again.");
+            await _logService.LogErrorAsync($"Access denied trying to delete {path}. Please ensure the game is not running and try again.", ex);
             return false;
         }
         catch (IOException ex)
         {
-            await _logService.LogErrorAsync($"File locked at {path}. Could not delete.");
+            await _logService.LogErrorAsync($"File locked at {path}. Could not delete.", ex);
             return false;
         }
         catch (Exception ex)
