@@ -9,9 +9,9 @@ internal sealed class ModDownloadService : IModDownloadService
 {
     private const string s_reShadeStartUrl = "https://reshade.me/downloads/ReShade_Setup_";
     private const string s_reShadeEndUrl = "_Addon.exe";
-    private const string s_renoDxSnapshotDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/snapshot/";
-    private const string s_renoDxNightlyDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/";
-    private const string s_renoDxUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
+    private const string s_renoDXSnapshotDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/snapshot/";
+    private const string s_renoDXNightlyDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/";
+    private const string s_renoDXUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
 
     private readonly HttpClient _httpClient;
     private readonly ICachePathService _cachePathService;
@@ -56,7 +56,7 @@ internal sealed class ModDownloadService : IModDownloadService
                     await _logService.LogWarningAsync("RenoDX snapshot branch requires a filename to download.");
                     return false;
                 }
-                downloadUrl = $"{s_renoDxSnapshotDownloadBaseUrl}{addonFileName}";
+                downloadUrl = $"{s_renoDXSnapshotDownloadBaseUrl}{addonFileName}";
                 fileName = addonFileName;
                 break;
             case RenoDX.Branch.Nightly:
@@ -65,7 +65,7 @@ internal sealed class ModDownloadService : IModDownloadService
                     await _logService.LogWarningAsync("RenoDX nightly branch requires both addon filename and version.");
                     return false;
                 }
-                downloadUrl = $"{s_renoDxNightlyDownloadBaseUrl}nightly-{version}/{addonFileName}";
+                downloadUrl = $"{s_renoDXNightlyDownloadBaseUrl}nightly-{version}/{addonFileName}";
                 fileName = addonFileName;
                 break;
             default:
@@ -79,7 +79,7 @@ internal sealed class ModDownloadService : IModDownloadService
 
     public async Task<bool> DownloadUnityRenoDXAsync(string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
     {
-        var downloadUrl = s_renoDxUnityDownloadBaseUrl + addonFileName;
+        var downloadUrl = s_renoDXUnityDownloadBaseUrl + addonFileName;
         var cacheDir = _cachePathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Snapshot);
         return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
     }

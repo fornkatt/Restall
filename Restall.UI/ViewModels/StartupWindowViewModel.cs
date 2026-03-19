@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace Restall.UI.ViewModels;
 
+// Extends ObservableObject directly rather than ViewModelBase.
+// It doesn't participate in the messenger system, it communicates via an event and is then disposed.
 public sealed partial class StartupWindowViewModel : ObservableObject
 {
-    private readonly IRefreshLibraryUseCase _refreshLibrary;
+    private readonly IFullRefreshLibraryUseCase _refreshLibrary;
     private readonly ILogService _logService;
 
     public event Action<RefreshLibraryResultDto>? InitializationCompleted;
@@ -19,7 +21,7 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
     public StartupWindowViewModel(
         ILogService logService,
-        IRefreshLibraryUseCase refreshLibrary
+        IFullRefreshLibraryUseCase refreshLibrary
         )
     {
         _logService = logService;
@@ -36,7 +38,7 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
         StatusMessage = "Scanning for games...";
 
-        var result = await _refreshLibrary.ExecuteAsync(progress);
+        var result = await _refreshLibrary.ExecuteFullRescanAsync(progress);
 
         foreach (var item in result.Games)
         {

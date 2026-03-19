@@ -72,7 +72,10 @@ internal sealed class ModInstallService : IModInstallService
 
         return deleted
             ? new ModOperationResultDto(true, game, "Uninstalled!")
-            : new ModOperationResultDto(false, game, "Uninstall failed. Please ensure all files are removed from the game directory.", true);
+            : new ModOperationResultDto(false, game, """
+            Uninstall failed. Please ensure all files are removed from the game directory.
+            Or perform a full rescan to pick up stray .dll or .asi ReShade files.
+            """, true);
     }
 
     public async Task<ModOperationResultDto> UninstallRenoDXAsync(Game game)
@@ -84,7 +87,10 @@ internal sealed class ModInstallService : IModInstallService
 
         return deleted
             ? new ModOperationResultDto(true, game, "Uninstalled!")
-            : new ModOperationResultDto(false, game, "Uninstall failed. Please ensure all files are removed from the game directory.", true);
+            : new ModOperationResultDto(false, game, """
+            Uninstall failed. Please ensure all files are removed from the game directory.
+            Or perform a full rescan to pick up stray .addon32 or .addon64 RenoDX files.
+            """, true);
     }
 
     private async Task<bool> TryDeleteFileAsync(string path, string? verifyOriginalFilename = null)

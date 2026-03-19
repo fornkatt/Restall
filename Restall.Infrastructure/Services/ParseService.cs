@@ -145,7 +145,7 @@ internal sealed class ParseService : IParseService
             var markdown = await HttpClient.GetStringAsync(s_renoDxUrl);
             var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-            Engine? currentEngine = null;
+            SupportedEngine? currentEngine = null;
             bool inTable = false;
             bool headerSkipped = false;
 
@@ -155,14 +155,14 @@ internal sealed class ParseService : IParseService
 
                 if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase))
                 {
-                    currentEngine = Engine.Unreal;
+                    currentEngine = SupportedEngine.Unreal;
                     inTable = false;
                     headerSkipped = false;
                     continue;
                 }
                 if (line.StartsWith("### Unity Engine", StringComparison.OrdinalIgnoreCase))
                 {
-                    currentEngine = Engine.Unity;
+                    currentEngine = SupportedEngine.Unity;
                     inTable = false;
                     headerSkipped = false;
                     continue;
@@ -231,6 +231,14 @@ internal sealed class ParseService : IParseService
             }
 
             await _logService.LogInfoAsync($"Parsed {genericWikiMods.Count} generic RenoDX mods from wiki.");
+        }
+        catch (HttpRequestException ex)
+        {
+            await _logService.LogErrorAsync($"RenoDX GitHub wiki page is unreachable. ({(int?)ex.StatusCode})", ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            await _logService.LogErrorAsync($"Request for RenoDX wiki page timed out.", ex);
         }
         catch (Exception ex)
         {

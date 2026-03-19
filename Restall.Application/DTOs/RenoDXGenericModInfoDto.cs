@@ -3,7 +3,7 @@
 public record RenoDXGenericModInfoDto(
     string Name,
     string Status,
-    Engine Engine,
+    SupportedEngine Engine,
     string? Notes = null
 )
 
@@ -14,10 +14,10 @@ public record RenoDXGenericModInfoDto(
     private string GetAddonFilename(string bit) =>
         Engine switch
         {
-            Engine.Unreal => $"renodx-unrealengine.addon{bit}",
-            Engine.Unity => $"renodx-unityengine.addon{bit}",
+            SupportedEngine.Unreal => $"renodx-unrealengine.addon{bit}",
+            SupportedEngine.Unity => $"renodx-unityengine.addon{bit}",
             _ => throw new ArgumentOutOfRangeException(nameof(Engine))
         };
 }
 
-public enum Engine { Unreal, Unity }
+public enum SupportedEngine { Unreal, Unity }

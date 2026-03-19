@@ -40,26 +40,27 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 "This game has no wiki entry or is Discord/Nexus only and no existing RenoDX installation was detected."
                 );
 
+        var isUnityGeneric = request.GenericModInfo?.Engine == SupportedEngine.Unity ||
+            (request.GenericModInfo is null && request.Game.EngineName == Game.Engine.Unity);
+
         var renoDx = new RenoDX
         {
             SelectedName = addonFilename,
             OriginalName = addonFilename,
-            BranchName = request.Branch,
+            BranchName = isUnityGeneric ? RenoDX.Branch.Snapshot : request.Branch,
             Arch = request.Arch
         };
 
-        var isUnityEngine = request.GenericModInfo?.Engine == Engine.Unity ||
-            (request.GenericModInfo is null && request.Game.EngineName == Game.Engine.Unity);
+        await InvalidateCacheIfOutdatedAsync(renoDx, request.TargetVersion, isUnityGeneric);
 
-        await InvalidateCacheIfOutdatedAsync(renoDx, request.TargetVersion, isUnityEngine);
-
-        if (!await DownloadAsync(isUnityEngine, request, addonFilename, progress))
+        if (!await DownloadAsync(isUnityGeneric, request, addonFilename, progress))
         {
             await _logService.LogWarningAsync($"Failed to download RenoDX: {addonFilename}");
             return new ModOperationResultDto(false, request.Game, "Failed to download file.");
         }
 
         var filePath = _cachePathService.GetRenoDXCachePath(renoDx);
+
         var renoDxVersion = _modDetectionService.GetRenoDXFileVersion(filePath);
         renoDx.Version = renoDxVersion;
 
@@ -78,10 +79,16 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
         var cachedFilePath = _cachePathService.GetRenoDXCachePath(renoDx);
         if (!File.Exists(cachedFilePath)) return;
 
-        if (string.IsNullOrWhiteSpace(targetVersion)) return;
+        if (!forceInvalidate)
+        {
+            if (string.IsNullOrWhiteSpace(targetVersion)) return;
 
-        var cachedVersion = _modDetectionService.GetRenoDXFileVersion(cachedFilePath);
-        if (!IsCacheOutdated(cachedVersion, targetVersion)) return;
+            if (!DateOnly.TryParseExact(targetVersion, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None,
+                out _)) return;
+
+            var cachedVersion = _modDetectionService.GetRenoDXFileVersion(cachedFilePath);
+            if (!IsCacheOutdated(cachedVersion, targetVersion)) return;
+        }
 
         try
         {

@@ -1,10 +1,11 @@
 ﻿using Restall.Application.DTOs;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces;
+using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
-public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase
+public sealed class RefreshLibraryUseCase : IFullRefreshLibraryUseCase, ILightRefreshLibraryUseCase
 {
     private readonly ILogService _logService;
     private readonly IGameDetectionService _gameDetectionService;
@@ -33,9 +34,9 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase
         _modCatalog = modCatalog;
     }
 
-    public async Task<RefreshLibraryResultDto> ExecuteAsync(IProgress<GameScanProgressReportDto>? progress = null)
+    public async Task<RefreshLibraryResultDto> ExecuteFullRescanAsync(IProgress<GameScanProgressReportDto>? progress = null)
     {
-        var gameTask = _gameDetectionService.FindGames(progress);
+        var gameTask = _gameDetectionService.FindGamesAsync(progress);
         var versionTask = _versionCatalog.FetchVersionsAsync();
         var wikiTask = _modCatalog.FetchModsAsync();
 
@@ -43,9 +44,19 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase
 
         var gameScanResults = gameTask.Result;
 
-        var sortedGames = gameScanResults.Games
-            .OrderBy(g => g.Name);
+        var games = gameTask.Result.Games.OrderBy(g => g.Name);
+        return await BuildResultAsync(games, gameTask.Result.Success, gameTask.Result.Message);
+    }
 
+    public async Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames, IProgress<GameScanProgressReportDto>? progress = null)
+    {
+        await Task.WhenAll(_versionCatalog.FetchVersionsAsync(), _modCatalog.FetchModsAsync());
+
+        return await BuildResultAsync(existingGames.OrderBy(g => g.Name), true, null);
+    }
+
+    private async Task<RefreshLibraryResultDto> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success, string? errorMessage)
+    {
         HashSet<Task> artworkTasks = [];
         List<GameInitResultDto> results = [];
 
@@ -83,8 +94,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase
 
         await Task.WhenAll(artworkTasks);
 
-        await _logService.LogInfoAsync("Game library successfully loaded.");
-        return new RefreshLibraryResultDto(results, gameScanResults.Success, gameScanResults.Message);
+        return new RefreshLibraryResultDto(results, success, errorMessage);
     }
 
     private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, IReadOnlyList<RenoDXModInfoDto> mods)
