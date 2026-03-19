@@ -137,7 +137,6 @@ public sealed partial class GameListViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            ScanMessage = "Error";
             await _logService.LogErrorAsync("An error occured during scanning", ex);
         }
         finally
