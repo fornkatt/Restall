@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Restall.UI.ViewModels;
 
-public sealed partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
+public sealed partial class GameListViewModel : ViewModelBase
 {
     private readonly IRefreshLibraryUseCase _fullRefreshLibrary;
     private readonly ILightRefreshLibraryUseCase _lightRefreshLibrary;
@@ -28,12 +28,9 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
         _fullRefreshLibrary = refreshLibrary;
         _lightRefreshLibrary = lightRefreshLibrary;
         _logService = logService;
-        IsActive = true;
     }
 
     private CancellationTokenSource _messageCts = new();
-    
-    private bool _suppressMessage;
 
     [ObservableProperty]
     private ObservableCollection<GameModViewModel> _games = [];
@@ -49,18 +46,9 @@ public sealed partial class GameListViewModel : ViewModelBase, IRecipient<Select
     [NotifyCanExecuteChangedFor(nameof(LightRefreshLibraryCommand))]
     private bool _isRefreshing;
 
-    partial void OnSelectedGameChanged(GameModViewModel? value)
-    {
-        if (!_suppressMessage)
-            Messenger.Send(new SelectedGameChangedMessage(value));
-    }
+    partial void OnSelectedGameChanged(GameModViewModel? value) => Messenger.Send(new SelectedGameChangedMessage(value));
 
-    public void Receive(SelectedGameChangedMessage message)
-    {
-        _suppressMessage = true;
-        SelectedGame = message.Value;
-        _suppressMessage = false;
-    }
+    public void ApplySelectedGame(GameModViewModel? value) => SelectedGame = value;
     
     public void LoadGames(RefreshLibraryResultDto result)
     {

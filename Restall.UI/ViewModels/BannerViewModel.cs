@@ -1,15 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Messaging;
-using Restall.UI.Messages;
 
 namespace Restall.UI.ViewModels;
 
-public sealed partial class BannerViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
+public sealed partial class BannerViewModel : ViewModelBase
 {
     [ObservableProperty]
     private GameModViewModel? _selectedGame;
 
-    public void Receive(SelectedGameChangedMessage message) => SelectedGame = message.Value;
-
-    public BannerViewModel() => IsActive = true;
+    public void ApplySelectedGame(GameModViewModel? value) => SelectedGame = value;
 }

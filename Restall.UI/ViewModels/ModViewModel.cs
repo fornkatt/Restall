@@ -1,12 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using Restall.Application.DTOs;
 using Restall.Application.Interfaces;
 using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 using Restall.UI.Interfaces;
-using Restall.UI.Messages;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -15,13 +13,11 @@ using System.Threading.Tasks;
 
 namespace Restall.UI.ViewModels;
 
-public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>, IRecipient<WikiRefreshedMessage>
+public sealed partial class ModViewModel : ViewModelBase
 {
     private readonly IModManagementFacade _modManagementFacade;
     private readonly IModSelectionDialogService _modSelectionDialogService;
     private readonly IVersionCatalog _versionCatalog;
-
-    private bool _suppressMessage;
 
     public ModViewModel(
     IModManagementFacade modManagementFacade,
@@ -32,8 +28,6 @@ public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGam
         _modManagementFacade = modManagementFacade;
         _modSelectionDialogService = modSelectionDialogService;
         _versionCatalog = versionCatalog;
-
-        IsActive = true;
     }
 
     [ObservableProperty]
@@ -89,20 +83,12 @@ public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGam
         if (value?.EngineName == Game.Engine.Unity && value.CompatibleRenoDXMod is null)
             SelectedRenoDXBranch = RenoDX.Branch.Snapshot;
 
-        if (!_suppressMessage)
-            Messenger.Send(new SelectedGameChangedMessage(value));
-
         NotifyAllCommandsChanged();
     }
 
-    public void Receive(WikiRefreshedMessage message) => NotifyAllCommandsChanged();
+    public void ApplyWikiRefresh() => NotifyAllCommandsChanged();
 
-    public void Receive(SelectedGameChangedMessage message)
-    {
-        _suppressMessage = true;
-        SelectedGame = message.Value;
-        _suppressMessage = false;
-    }
+    public void ApplySelectedGame(GameModViewModel? value) => SelectedGame = value;
 
     private void NotifyAllCommandsChanged()
     {

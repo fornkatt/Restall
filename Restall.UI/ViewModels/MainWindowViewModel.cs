@@ -4,10 +4,10 @@ using Restall.UI.Messages;
 
 namespace Restall.UI.ViewModels;
 
-public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
+public sealed partial class MainWindowViewModel : ViewModelBase,
+    IRecipient<SelectedGameChangedMessage>,
+    IRecipient<WikiRefreshedMessage>
 {
-    private bool _suppressMessage;
-
     public BannerViewModel BannerViewModel { get; }
     public GameListViewModel GameListViewModel { get; }
     public ModViewModel ModViewModel { get; }
@@ -35,14 +35,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Sele
     {
         OnPropertyChanged(nameof(IsGameSelected));
 
-        if (!_suppressMessage)
-            Messenger.Send(new SelectedGameChangedMessage(value));
+        GameListViewModel.ApplySelectedGame(value);
+        ModViewModel.ApplySelectedGame(value);
+        BannerViewModel.ApplySelectedGame(value);
     }
 
-    public void Receive(SelectedGameChangedMessage message)
-    {
-        _suppressMessage = true;
-        SelectedGame = message.Value;
-        _suppressMessage = false;
-    }
+    public void Receive(SelectedGameChangedMessage message) => SelectedGame = message.Value;
+
+    public void Receive(WikiRefreshedMessage message) => ModViewModel.ApplyWikiRefresh();
 }
