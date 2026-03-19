@@ -14,10 +14,10 @@ internal sealed class EpicScanner : IPlatformScannerService
     {
         _logService = logService;
     }
-    
+
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEpic);
     public Game.Platform Platform => Game.Platform.Epic;
-    
+
     private GameScanResultDto ScanEpic()
     {
         var games = new List<Game>();
@@ -30,25 +30,24 @@ internal sealed class EpicScanner : IPlatformScannerService
             {
                 var (epicLibrary, error) = ScanEpicLibrary(ueInstallPath);
                 games.AddRange(epicLibrary);
-                if(error is not null) errors.Add(error);
+                if (error is not null) errors.Add(error);
             }
         }
 
         var epicHeroicPath = GetHeroicInstallPath();
-        
+
         if (epicHeroicPath is not null && Directory.Exists(epicHeroicPath))
         {
             var (epicHeroicLibrary, error) = ScanHeroicLibrary(epicHeroicPath);
             games.AddRange(epicHeroicLibrary);
-            if(error is not null) errors.Add(error);
+            if (error is not null) errors.Add(error);
         }
-        
+
         return new GameScanResultDto(
-            Platform:     Game.Platform.Epic,
-            Games:        games,
-            Success:      games.Count > 0,
+            Platform: Game.Platform.Epic,
+            Games: games,
+            Success: games.Count > 0,
             Message: errors.Count > 0 ? string.Join("; ", errors) : null);
-        
     }
 
     private string? GetInstallPath()
@@ -71,38 +70,33 @@ internal sealed class EpicScanner : IPlatformScannerService
                 var rootPath = GameScanHelper.ExtractJsonString(json, "InstallLocation");
                 var catalogItemId = GameScanHelper.ExtractJsonString(json, "CatalogItemId");
 
-                if (rootPath != null)
+                if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(rootPath))
+                    continue;
+
+
+                if (!Directory.Exists(rootPath))
+                    continue;
+
+                if (GameScanHelper.NonGame(rootPath))
+                    continue;
+
+                games.Add(new Game
                 {
-                    if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(rootPath))
-                        continue;
-
-
-                    if (!Directory.Exists(rootPath))
-                        continue;
-                    
-                    if (GameScanHelper.NonGame(rootPath))
-                        continue;
-                    
-                    games.Add(new Game
-                    {
-                        Name = name,
-                        InstallFolder = rootPath,
-                        PlatformName = Platform,
-                        PlatformId = $"epic:{catalogItemId}"
-                    });
-                }
-
+                    Name = name,
+                    InstallFolder = rootPath,
+                    PlatformName = Platform,
+                    PlatformId = $"epic:{catalogItemId}"
+                });
             }
             catch (Exception ex)
             {
-                    
-                _logService.LogError($"Failed to scan Epic Manifest: {file}",ex);           
+                _logService.LogError($"Failed to scan Epic Manifest", ex);
             }
-            
         }
-        return (games, null);
 
+        return (games, null);
     }
+
     private string? GetHeroicInstallPath()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -120,51 +114,62 @@ internal sealed class EpicScanner : IPlatformScannerService
         var installedJsonPath = Path.Combine(configDir, "installed.json");
 
 
-        if (!File.Exists(installedJsonPath)) return (games,null);
-        
+        if (!File.Exists(installedJsonPath)) return (games, null);
+
+        string json;
 
         try
         {
-            var json = File.ReadAllText(installedJsonPath);
+            json = File.ReadAllText(installedJsonPath);
+        }
+        catch (Exception ex)
+        {
+            return (games, $"Failed to read installed.json file in Epic Heroic library: {ex.Message}");
+        }
 
-            foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
+        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
+        {
+            try
             {
                 var blockValue = match.Value;
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
-                    is {Success: true} pm ? pm.Groups[1].Value.Replace("\\\\","\\") : null;
+                    is { Success: true } pm
+                    ? pm.Groups[1].Value.Replace("\\\\", "\\")
+                    : null;
                 installPath = GameScanHelper.NormalizePath(installPath);
                 if (string.IsNullOrEmpty(installPath)) continue;
-                
+
                 var title = RegexHelper.HeroicTitleRegex.Match(blockValue)
-                    is {Success: true} tm ? tm.Groups[1].Value : null;
-                
+                    is { Success: true } tm
+                    ? tm.Groups[1].Value
+                    : null;
+
                 var name = !string.IsNullOrWhiteSpace(title)
                     ? title
                     : Path.GetFileName(installPath);
-                
-                if(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(installPath)) continue;
-                
+
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(installPath)) continue;
+
                 var appName = RegexHelper.HeroicAppNameRegex.Match(blockValue)
-                    is { Success: true } am ? am.Groups[1].Value : null;
-                
+                    is { Success: true } am
+                    ? am.Groups[1].Value
+                    : null;
+
                 games.Add(new Game
                 {
                     Name = name,
                     InstallFolder = installPath,
                     PlatformName = Game.Platform.Epic,
                     PlatformId = $"epic:{appName}"
-                    
                 });
-                
             }
-            
-            return (games,null);
-            
-        }
-        catch (Exception ex)
-        {
-            return(games,$"Something went wrong with Epic Heroic: {ex.Message}");
+            catch (Exception ex)
+            {
+                _logService.LogError($"Failed to scan the json block in Epic Heroic library", ex);
+            }
         }
 
+
+        return (games, null);
     }
 }

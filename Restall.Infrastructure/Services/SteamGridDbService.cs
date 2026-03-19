@@ -124,9 +124,9 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         Game game, int sgdbId, int platformId, SteamGridDbGamePlatform platform)
     {
         var bannerPath = _cachePathService.GetSgdbBannerPath(sgdbId);
-        var iconPath   = _cachePathService.GetSgdbThumbnailPath(sgdbId);
+        var iconPath = _cachePathService.GetSgdbThumbnailPath(sgdbId);
         var logoPath = _cachePathService.GetSgdbLogoPath(sgdbId);
-        
+
         Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
 
 
@@ -152,7 +152,7 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         if (cachedId is not null)
         {
             var bannerPath = _cachePathService.GetSgdbBannerPath(cachedId.Value);
-            var iconPath   = _cachePathService.GetSgdbThumbnailPath(cachedId.Value);
+            var iconPath = _cachePathService.GetSgdbThumbnailPath(cachedId.Value);
             var logoPath = _cachePathService.GetSgdbLogoPath(cachedId.Value);
 
             Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
@@ -213,6 +213,10 @@ internal sealed class SteamGridDbService : ISteamGridDbService
             game.LogoPathString = LogoExists(bestMatch.Id) ? logoPath : null;
             return;
         }
+        catch (SteamGridDbNotFoundException)
+        {
+            await _logService.LogInfoAsync($"No SGDB entry found for '{searchTerm}'");
+        }
         catch (Exception ex)
         {
             await _logService.LogWarningAsync($"SGDB name search failed for '{searchTerm}': {ex.Message}");
@@ -247,7 +251,8 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         if (BannerExists(sgdb)) return; // File exists
 
         var heroes = await fetchBanner(); // File is missing, open the envelope NOW!
-        var imageUrl = (heroes?.Where(h => !h.IsNsfw)!).FirstOrDefault(h => h.Format is SteamGridDbFormats.Png)
+        var imageUrl = (heroes?.Where(h => !h.IsNsfw)!).
+            FirstOrDefault(h => h.Format is SteamGridDbFormats.Png)
             ?.FullImageUrl;
         await DownloadImageAsync(imageUrl, bannerPath, "banner");
     }
@@ -268,8 +273,11 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         var imageUrl = logos?.FirstOrDefault()?.FullImageUrl;
         await DownloadImageAsync(imageUrl, savePath, "logo");
     }
-    
+
     private bool BannerExists(int steamGridDbId) => File.Exists(_cachePathService.GetSgdbBannerPath(steamGridDbId));
-    private bool ThumbnailExists(int steamGridDbId) => File.Exists(_cachePathService.GetSgdbThumbnailPath(steamGridDbId));
+
+    private bool ThumbnailExists(int steamGridDbId) =>
+        File.Exists(_cachePathService.GetSgdbThumbnailPath(steamGridDbId));
+
     private bool LogoExists(int steamGridDbId) => File.Exists(_cachePathService.GetSgdbLogoPath(steamGridDbId));
 }

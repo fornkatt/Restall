@@ -105,12 +105,12 @@ internal sealed class GameDetectionService : IGameDetectionService
           }
           catch (Exception ex)
           {
-              await _logService.LogErrorAsync($"Something went wrong with FindGames: {ex.Message}");
+              await _logService.LogErrorAsync($"Failed to scan libraries",ex);
               return new GameScanResultDto(
                   Platform:     Game.Platform.Unknown,
                   Games:        [],
                   Success:      false,
-                  Message: ex.Message);
+                  Message: "Failed to scan game libraries. Please try rescanning.");
           }
          
          

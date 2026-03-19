@@ -45,7 +45,6 @@ internal sealed class UbisoftScanner : IPlatformScannerService
         try
         {
             using var key = GameScanHelper.GetOpenRegistryKey(@"\Ubisoft\Launcher\Installs");
-
             if (key is null) return (games, null);
 
 #pragma warning disable CA1416 // Handled before method is called
@@ -71,11 +70,10 @@ internal sealed class UbisoftScanner : IPlatformScannerService
                 });
             }
 #pragma warning restore CA1416 // Validate platform compatibility
-            return (games,null);
         }
         catch(Exception ex)
         {
-            _logService.LogError($"Failed to scan Ubisoft games in library",ex);
+            return (games, $"Failed to process Ubisoft games: {ex.Message}");
         }
         
         return (games, null);

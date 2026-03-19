@@ -66,6 +66,8 @@ internal sealed class SteamScanner : IPlatformScannerService
         var games = new List<Game>();
         var steamapps = Path.Combine(library, "steamapps");
         if (!Directory.Exists(steamapps)) return (games, null);
+
+        
         foreach (var acf in Directory.GetFiles(steamapps, "appmanifest_*.acf"))
         {
             try
@@ -98,6 +100,7 @@ internal sealed class SteamScanner : IPlatformScannerService
                 _logService.LogError($"Failed to parse acf files...{acf}", ex);
             }
         }
+        
         return (games, null);
 
     }
@@ -107,7 +110,20 @@ internal sealed class SteamScanner : IPlatformScannerService
         var libraries = new List<string>();
         var vdfPath = Path.Combine(path, "steamapps", "libraryfolders.vdf");
         if (!File.Exists(vdfPath)) return libraries;
-        foreach (Match match in RegexHelper.SteamLibraryRegex.Matches(File.ReadAllText(vdfPath)))
+
+        string content;
+
+        try
+        {
+            content = File.ReadAllText(vdfPath);
+        }
+        catch (Exception ex)
+        {
+            _logService.LogError("Failed to read steam's libraryfolder.vdf",ex);
+            return libraries;
+        }
+        
+        foreach (Match match in RegexHelper.SteamLibraryRegex.Matches(content))
         {
             var library = GameScanHelper.NormalizePath(match.Groups[1].Value.Replace(@"\\", @"\"));
             if (Directory.Exists(library) && !libraries.Contains(library))
