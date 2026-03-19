@@ -13,9 +13,9 @@ public sealed partial class GameModViewModel : ObservableObject
 {
     private readonly Game _game;
 
-    private const int BannerTargetWidth = 1000;
-    private const int LogoTargetWidth = 300;
-    private const int ThumbnailTargetWidth = 32;
+    private const int s_bannerTargetWidth = 1000;
+    private const int s_logoTargetWidth = 300;
+    private const int s_thumbnailTargetWidth = 32;
 
     private Lazy<Bitmap?> _bannerBitmap;
     private Lazy<Bitmap?> _logoBitmap;
@@ -29,9 +29,9 @@ public sealed partial class GameModViewModel : ObservableObject
         _thumbnailPathString = game.ThumbnailPathString;
         NormalizedName = GameNameHelper.NormalizeName(game.Name!);
 
-        _bannerBitmap = CreateLazyBitmap(_bannerPathString, BannerTargetWidth);
-        _logoBitmap = CreateLazyBitmap(_logoPathString, LogoTargetWidth);
-        _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, ThumbnailTargetWidth);
+        _bannerBitmap = CreateLazyBitmap(_bannerPathString, s_bannerTargetWidth);
+        _logoBitmap = CreateLazyBitmap(_logoPathString, s_logoTargetWidth);
+        _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, s_thumbnailTargetWidth);
     }
 
     public string NormalizedName { get; }
@@ -101,7 +101,7 @@ public sealed partial class GameModViewModel : ObservableObject
     [ObservableProperty]
     private bool _isShowingReShadeActionMessage;
     
-    internal CancellationTokenSource? ReShadeMessageCts;
+    internal CancellationTokenSource? _reShadeMessageCts;
     
     [ObservableProperty]
     private string? _renoDXModActionStatus;
@@ -109,7 +109,7 @@ public sealed partial class GameModViewModel : ObservableObject
     [ObservableProperty]
     private bool _isShowingRenoDXActionMessage;
 
-    internal CancellationTokenSource? RenoDXMessageCts;
+    internal CancellationTokenSource? _renoDXMessageCts;
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
@@ -165,21 +165,21 @@ public sealed partial class GameModViewModel : ObservableObject
     private string? _bannerPathString;
 
     partial void OnBannerPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _bannerBitmap, value, BannerTargetWidth);
+        ResetLazyBitmap(ref _bannerBitmap, value, s_bannerTargetWidth);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LogoBitmap))]
     private string? _logoPathString;
 
     partial void OnLogoPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _logoBitmap, value, LogoTargetWidth);
+        ResetLazyBitmap(ref _logoBitmap, value, s_logoTargetWidth);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
     private string? _thumbnailPathString;
 
     partial void OnThumbnailPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _thumbnailBitmap, value, ThumbnailTargetWidth);
+        ResetLazyBitmap(ref _thumbnailBitmap, value, s_thumbnailTargetWidth);
 
     public Bitmap? BannerBitmap => _bannerBitmap.Value;
     public Bitmap? LogoBitmap => _logoBitmap.Value;

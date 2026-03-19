@@ -56,6 +56,7 @@ internal sealed class GOGScanner : IPlatformScannerService
             if (key is null) return (games, null);
 
 
+#pragma warning disable CA1416 // Already checked before method is called
             foreach (var subName in key.GetSubKeyNames())
             {
                 using var gameKey = key.OpenSubKey(subName);
@@ -76,8 +77,9 @@ internal sealed class GOGScanner : IPlatformScannerService
                     PlatformId = $"gog:{subName}"
                 });
             }
+#pragma warning restore CA1416 // Already checked before method is called
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logService.LogError($"Could not find GOG games...", ex);
         }

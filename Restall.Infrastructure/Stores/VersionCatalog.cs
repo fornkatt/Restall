@@ -42,14 +42,24 @@ internal sealed class VersionCatalog : IVersionCatalog
             $"RenoDX Nightly: {renoDXNightlyTask.Result.Count} tags.");
     }
 
-    public string? GetLatestReShadeVersion(ReShade.Branch branch) =>
-        _reShadeVersions.TryGetValue(branch, out var versions) ? versions.FirstOrDefault() : null;
+    public string? GetLatestReShadeVersion(ReShade.Branch branch)
+    {
+        if (!_reShadeVersions.TryGetValue(branch, out var versions) || versions.Count == 0)
+            return null;
+
+        return versions[0];
+    }
 
     public IReadOnlyList<string> GetAvailableReShadeVersions(ReShade.Branch branch) =>
         _reShadeVersions.TryGetValue(branch, out var versions) ? versions : [];
 
-    public RenoDXTagInfoDto? GetLatestRenoDXVersionByTag(RenoDX.Branch branch) =>
-        _renoDXTags.TryGetValue(branch, out var versions) ? versions.FirstOrDefault() : null;
+    public RenoDXTagInfoDto? GetLatestRenoDXVersionByTag(RenoDX.Branch branch)
+    {
+        if (!_renoDXTags.TryGetValue(branch, out var versions) || versions.Count == 0)
+            return null;
+
+        return versions[0];
+    }
 
     public IReadOnlyList<RenoDXTagInfoDto> GetAllRenoDXNightlies() =>
         _renoDXTags.TryGetValue(RenoDX.Branch.Nightly, out var versions) ? versions : [];

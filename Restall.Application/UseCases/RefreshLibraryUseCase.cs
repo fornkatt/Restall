@@ -5,7 +5,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
-public sealed class RefreshLibraryUseCase : IFullRefreshLibraryUseCase, ILightRefreshLibraryUseCase
+public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefreshLibraryUseCase
 {
     private readonly ILogService _logService;
     private readonly IGameDetectionService _gameDetectionService;

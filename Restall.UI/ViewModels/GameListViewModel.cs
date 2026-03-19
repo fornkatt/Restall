@@ -15,12 +15,12 @@ namespace Restall.UI.ViewModels;
 
 public sealed partial class GameListViewModel : ViewModelBase, IRecipient<SelectedGameChangedMessage>
 {
-    private readonly IFullRefreshLibraryUseCase _fullRefreshLibrary;
+    private readonly IRefreshLibraryUseCase _fullRefreshLibrary;
     private readonly ILightRefreshLibraryUseCase _lightRefreshLibrary;
     private readonly ILogService _logService;
 
     public GameListViewModel(
-        IFullRefreshLibraryUseCase refreshLibrary,
+        IRefreshLibraryUseCase refreshLibrary,
         ILightRefreshLibraryUseCase lightRefreshLibrary,
         ILogService logService
         )

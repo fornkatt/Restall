@@ -206,7 +206,9 @@ internal sealed class FileExtractionService : IFileExtractionService
     {
         try
         {
+#pragma warning disable CA1416 // Already handled
             var unixFileMode = File.GetUnixFileMode(path);
+#pragma warning restore CA1416
             return (unixFileMode & UnixFileMode.UserExecute) != 0;
         }
         catch

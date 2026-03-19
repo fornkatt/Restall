@@ -22,15 +22,16 @@ internal sealed class SteamScanner : IPlatformScannerService
         var games = new List<Game>();
         var errors = new List<string>();
         var steamPath = GetInstallPath();
-
-        if (steamPath is null)
-            return new GameScanResultDto( 
-                Game.Platform.Steam,
-                [], 
-                Success: false, 
-                Message: "Steam installation not found");
         
         steamPath = GameScanHelper.NormalizePath(steamPath);
+
+        if (string.IsNullOrWhiteSpace(steamPath))
+            return new GameScanResultDto(
+                Game.Platform.Steam,
+                [],
+                Success: false,
+                Message: "Steam installation not found");
+
         foreach (var library in GetSteamLibraries(steamPath))
         {
             var (libraryGames, error)  = ScanSteamLibrary(library);

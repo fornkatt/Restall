@@ -48,6 +48,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
 
             if (key is null) return (games, null);
 
+#pragma warning disable CA1416 // Handled before method is called
             foreach (var subName in key.GetSubKeyNames())
             {
                 using var gameKey = key.OpenSubKey(subName);
@@ -69,6 +70,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
                     PlatformId = $"uplay:{subName}"
                 });
             }
+#pragma warning restore CA1416 // Validate platform compatibility
             return (games,null);
         }
         catch(Exception ex)

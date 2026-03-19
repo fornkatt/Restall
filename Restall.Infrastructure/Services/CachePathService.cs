@@ -16,12 +16,12 @@ internal sealed class CachePathService : ICachePathService
     
     public string GetSgdbCacheDirectory() => _sgdbCacheBaseDir;
     public string GetSgdbBannerPath(int steamGridDbId) =>
-        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.BannerFileName);
+        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.s_bannerFileName);
 
     public string GetSgdbThumbnailPath(int steamGridDbId) =>
-        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.IconFileName);
+        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.s_iconFileName);
 
-    public string GetSgdbLogoPath(int steamGridDbId) => Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.LogoFileName);
+    public string GetSgdbLogoPath(int steamGridDbId) => Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.s_logoFileName);
 
     public string GetReShadeCachePath(ReShade reShade) =>
         Path.Combine(_reShadeCacheBaseDir, reShade.BranchName.ToString(), reShade.Version!);

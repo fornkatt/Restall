@@ -71,7 +71,7 @@ internal sealed class GameDetectionService : IGameDetectionService
               {
                   Parallel.ForEach(deduped, s_engineParallelOptions, game =>
                   {
-                      if (string.IsNullOrEmpty(game.InstallFolder)) return;
+                      if (game is null || string.IsNullOrWhiteSpace(game.InstallFolder)) return;
 
                       var rootKey = (GameScanHelper.NormalizePath(game.InstallFolder) ?? game.InstallFolder).ToLowerInvariant();
 
@@ -91,7 +91,7 @@ internal sealed class GameDetectionService : IGameDetectionService
               });
               
               var validGames = deduped
-                  .Where(g => !string.IsNullOrEmpty(g.ExecutablePath))
+                  .Where(g => g is not null && !string.IsNullOrWhiteSpace(g.ExecutablePath))
                   .ToList();
 
               

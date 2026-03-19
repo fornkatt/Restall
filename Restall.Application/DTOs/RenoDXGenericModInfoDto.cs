@@ -16,7 +16,7 @@ public record RenoDXGenericModInfoDto(
         {
             SupportedEngine.Unreal => $"renodx-unrealengine.addon{bit}",
             SupportedEngine.Unity => $"renodx-unityengine.addon{bit}",
-            _ => throw new ArgumentOutOfRangeException(nameof(Engine))
+            _ => "unknown"
         };
 }
 

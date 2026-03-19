@@ -11,7 +11,7 @@ namespace Restall.UI.ViewModels;
 // It doesn't participate in the messenger system, it communicates via an event and is then disposed.
 public sealed partial class StartupWindowViewModel : ObservableObject
 {
-    private readonly IFullRefreshLibraryUseCase _refreshLibrary;
+    private readonly IRefreshLibraryUseCase _refreshLibrary;
     private readonly ILogService _logService;
 
     public event Action<RefreshLibraryResultDto>? InitializationCompleted;
@@ -21,7 +21,7 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
     public StartupWindowViewModel(
         ILogService logService,
-        IFullRefreshLibraryUseCase refreshLibrary
+        IRefreshLibraryUseCase refreshLibrary
         )
     {
         _logService = logService;

@@ -8,7 +8,7 @@ internal sealed class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
     private readonly ILogService _logService;
     private const string s_indexFileName = "index.json";
     private static readonly JsonSerializerOptions s_jsonOptions = new() { WriteIndented = true };
-    private readonly Dictionary<string, int>? _index;
+    private readonly Dictionary<string, int> _index;
     private readonly string _indexFilePath;
 
     public SteamGridDbIndexRepository(ILogService logService,
@@ -27,7 +27,7 @@ internal sealed class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
 
     public async Task SaveSteamGridDbIdAsync(string cacheKey, int steamGridDbId)
     {
-        _index![cacheKey] = steamGridDbId;
+        _index[cacheKey] = steamGridDbId;
         
         try
         {
@@ -40,7 +40,7 @@ internal sealed class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
         }
     }
     
-    private Dictionary<string, int>? LoadIndex()
+    private Dictionary<string, int> LoadIndex()
     {
 
         try

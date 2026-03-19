@@ -9,7 +9,7 @@ internal sealed class ModDetectionService : IModDetectionService
 {
     private readonly ILogService _logService;
 
-    internal const long DllScanMaxBytes = 10 * 1024 * 1024;
+    internal const long s_dllScanMaxBytes = 10 * 1024 * 1024;
 
     public ModDetectionService(
         ILogService logService
@@ -22,7 +22,7 @@ internal sealed class ModDetectionService : IModDetectionService
     {
         var fileList = new HashSet<ReShade>();
 
-        await ScanFilesAsync(executablePath, ["*.dll", "*.asi"], DllScanMaxBytes, async (file, versionInfo) =>
+        await ScanFilesAsync(executablePath, ["*.dll", "*.asi"], s_dllScanMaxBytes, async (file, versionInfo) =>
         {
             if (!string.IsNullOrWhiteSpace(versionInfo.ProductName) &&
                 versionInfo.ProductName.Equals("ReShade", StringComparison.OrdinalIgnoreCase) &&

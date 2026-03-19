@@ -5,10 +5,10 @@ namespace Restall.Infrastructure.Helpers;
 
 internal static class GameScanHelper
 {
-    private const string SoftwareRegistryPath = @"SOFTWARE\";
-    private const string Wow64RegistryPath = @"SOFTWARE\Wow6432Node\";
+    private const string s_softwareRegistryPath = @"SOFTWARE\";
+    private const string s_wow64RegistryPath = @"SOFTWARE\Wow6432Node\";
 
-    internal static string? NormalizePath(string path)
+    internal static string? NormalizePath(string? path)
     {
         if(string.IsNullOrEmpty(path)) return null;
         var normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
@@ -22,22 +22,23 @@ internal static class GameScanHelper
     internal static string? ExtractJsonString(string json, string key) =>
         Regex.Match(json, $@"""{Regex.Escape(key)}""\s*:\s*""([^""\\]*(\\.[^""\\]*)*)""")
             is { Success: true } m ? NormalizePath(m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/")) : null;
-    
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Already checked at call site")]
     internal static string? ReadRegistry(string keyPath, string valueName)
     {
         try
         {
-            var fullPath = keyPath.StartsWith(SoftwareRegistryPath, StringComparison.OrdinalIgnoreCase) ? keyPath : SoftwareRegistryPath + keyPath;
-            
+            var fullPath = keyPath.StartsWith(s_softwareRegistryPath, StringComparison.OrdinalIgnoreCase) ? keyPath : s_softwareRegistryPath + keyPath;
+
             using var currentUserKey =  Registry.CurrentUser.OpenSubKey(fullPath);
             var value =  currentUserKey?.GetValue(valueName) as string;
-            if(value != null) return value;
+            if (value != null) return value;
             
             using var localMachineKey = Registry.LocalMachine.OpenSubKey(fullPath);
             value  = localMachineKey?.GetValue(valueName) as string;
             if(value != null) return value;
             
-            var wow64Path = fullPath.Replace(SoftwareRegistryPath, Wow64RegistryPath);
+            var wow64Path = fullPath.Replace(s_softwareRegistryPath, s_wow64RegistryPath);
             using var wow64Key = Registry.LocalMachine.OpenSubKey(wow64Path);
             return wow64Key?.GetValue(valueName) as string;
             
@@ -45,24 +46,26 @@ internal static class GameScanHelper
         catch { return null; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Already checked at call site")]
     internal static RegistryKey? GetOpenRegistryKey(string keyPath)
     {
         try
         {
-            var fullPath = keyPath.StartsWith(SoftwareRegistryPath, StringComparison.OrdinalIgnoreCase)
+            var fullPath = keyPath.StartsWith(s_softwareRegistryPath, StringComparison.OrdinalIgnoreCase)
                 ? keyPath
-                : SoftwareRegistryPath + keyPath;
+                : s_softwareRegistryPath + keyPath;
             
             var key = Registry.LocalMachine.OpenSubKey(fullPath);
             if (key != null) return key;
             
-            var wow64path = fullPath.Replace(SoftwareRegistryPath, Wow64RegistryPath);
+            var wow64path = fullPath.Replace(s_softwareRegistryPath, s_wow64RegistryPath);
             return Registry.LocalMachine.OpenSubKey(wow64path);
            
         }
         catch { return null; }
     }
-    
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Already checked at call site")]
     internal static string? GetRegistryValue(RegistryKey key, params string[] valueNames)
     {
         foreach (var name in valueNames)

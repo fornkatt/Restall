@@ -8,7 +8,7 @@
 			 x:DataType="vm:GameListViewModel">
 	
 	
-	<Grid RowDefinitions="Auto ,*" >
+	<Grid RowDefinitions="Auto, *" >
 		<!-- TOOLBAR SECTION -->
 	<Border Grid.Row="0" 
 			Background="{DynamicResource GameCardBackground}" 

@@ -159,9 +159,9 @@ public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGam
     {
         var game = SelectedGame!;
 
-        game.ReShadeMessageCts?.Cancel();
+        game._reShadeMessageCts?.Cancel();
         var cts = new CancellationTokenSource();
-        game.ReShadeMessageCts = cts;
+        game._reShadeMessageCts = cts;
 
         var progress = new Progress<DownloadProgressReportDto>(report =>
         {
@@ -270,9 +270,9 @@ public sealed partial class ModViewModel : ViewModelBase, IRecipient<SelectedGam
     {
         var game = SelectedGame!;
 
-        game.RenoDXMessageCts?.Cancel();
+        game._renoDXMessageCts?.Cancel();
         var cts = new CancellationTokenSource();
-        game.RenoDXMessageCts = cts;
+        game._renoDXMessageCts = cts;
 
         var progress = new Progress<DownloadProgressReportDto>(report =>
         {
