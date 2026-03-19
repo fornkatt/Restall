@@ -51,7 +51,7 @@ internal sealed class EAScanner : IPlatformScannerService
                 if (gameKey is null) continue;
 
                 var installDir = GameScanHelper.NormalizePath(
-                    GameScanHelper.GetRegistryValue(gameKey, "Install Dir", "InstallLocation", "InstallDir"));;
+                    GameScanHelper.GetRegistryValue(gameKey, "Install Dir", "InstallLocation", "InstallDir"));
                 
                 if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir)) continue;
 
@@ -68,7 +68,7 @@ internal sealed class EAScanner : IPlatformScannerService
                     PlatformId = $"origin:{subName}"
                 });
             }
-#pragma warning restore CA1416 // Already checked before method is called
+
         }
         catch (Exception ex)
         {

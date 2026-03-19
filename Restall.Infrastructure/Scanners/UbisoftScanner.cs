@@ -69,7 +69,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
                     PlatformId = $"uplay:{subName}"
                 });
             }
-#pragma warning restore CA1416 // Validate platform compatibility
+
         }
         catch(Exception ex)
         {

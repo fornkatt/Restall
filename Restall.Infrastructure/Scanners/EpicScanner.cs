@@ -70,10 +70,9 @@ internal sealed class EpicScanner : IPlatformScannerService
                 var rootPath = GameScanHelper.ExtractJsonString(json, "InstallLocation");
                 var catalogItemId = GameScanHelper.ExtractJsonString(json, "CatalogItemId");
 
-                if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(rootPath))
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(rootPath))
                     continue;
-
-
+                
                 if (!Directory.Exists(rootPath))
                     continue;
 
