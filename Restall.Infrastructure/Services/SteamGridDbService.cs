@@ -196,9 +196,9 @@ internal sealed class SteamGridDbService : ISteamGridDbService
 
             await _indexRepository.SaveSteamGridDbIdAsync(cacheKey, bestMatch.Id);
 
-            var bannerPath = _cacheService.GetSgdbBannerPath(bestMatch.Id);
-            var iconPath = _cacheService.GetSgdbThumbnailPath(bestMatch.Id);
-            var logoPath = _cacheService.GetSgdbLogoPath(bestMatch.Id);
+            var bannerPath = _cachePathService.GetSgdbBannerPath(bestMatch.Id);
+            var iconPath = _cachePathService.GetSgdbThumbnailPath(bestMatch.Id);
+            var logoPath = _cachePathService.GetSgdbLogoPath(bestMatch.Id);
 
             Directory.CreateDirectory(Path.GetDirectoryName(bannerPath)!);
 
