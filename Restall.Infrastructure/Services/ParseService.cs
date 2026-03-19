@@ -192,7 +192,7 @@ internal sealed class ParseService : IParseService
                 if (currentEngine is not null)
                 {
                     if (cells.Length < 2) continue;
-                    var name = HtmlEntity.DeEntitize(cells[0].Trim());
+                    var name = ExtractMarkdownLinkText(HtmlEntity.DeEntitize(cells[0].Trim()));
                     if (string.IsNullOrWhiteSpace(name)) continue;
                     var status = cells[1].Trim();
                     var notes = cells.Length >= 3 ? cells[2].Trim() : null;
@@ -209,7 +209,7 @@ internal sealed class ParseService : IParseService
                 else
                 {
                     if (cells.Length < 4) continue;
-                    var name = HtmlEntity.DeEntitize(cells[0].Trim());
+                    var name = ExtractMarkdownLinkText(HtmlEntity.DeEntitize(cells[0].Trim()));
                     if (string.IsNullOrWhiteSpace(name)) continue;
                     var maintainer = cells[1].Trim();
                     if (string.IsNullOrWhiteSpace(maintainer))
@@ -246,6 +246,17 @@ internal sealed class ParseService : IParseService
         }
 
         return new RenoDXWikiParseResultDto(wikiMods, genericWikiMods);
+    }
+
+    private static string ExtractMarkdownLinkText(string text)
+    {
+        var bracketEnd = text.IndexOf("](", StringComparison.Ordinal);
+        if (bracketEnd < 0) return text;
+
+        var bracketStart = text.LastIndexOf('[', bracketEnd);
+        if (bracketStart < 0) return text;
+
+        return text[(bracketStart + 1)..bracketEnd].Trim();
     }
 
     private string? ExtractMarkdownUrl(string markdown, string urlContains)

@@ -113,9 +113,9 @@ internal sealed class SteamGridDbService : ISteamGridDbService
 
             await SetGameImagePathsAsync(game, resolvedId.Value, platformId, sgdbPlatform.Value);
         }
-        catch (SteamGridDbNotFoundException)
+        catch (SteamGridDbNotFoundException ex)
         {
-            await _logService.LogInfoAsync($"No SGDB entry for {game.Name} — trying name search");
+            await _logService.LogErrorAsync($"No SGDB entry for {game.Name} — trying name search", ex);
             await DownloadByNameSearchAsync(game);
         }
     }
@@ -213,13 +213,13 @@ internal sealed class SteamGridDbService : ISteamGridDbService
             game.LogoPathString = LogoExists(bestMatch.Id) ? logoPath : null;
             return;
         }
-        catch (SteamGridDbNotFoundException)
+        catch (SteamGridDbNotFoundException ex)
         {
-            await _logService.LogInfoAsync($"No SGDB entry found for '{searchTerm}'");
+            await _logService.LogErrorAsync($"No SGDB entry found for '{searchTerm}'", ex);
         }
         catch (Exception ex)
         {
-            await _logService.LogWarningAsync($"SGDB name search failed for '{searchTerm}': {ex.Message}");
+            await _logService.LogErrorAsync($"SGDB name search failed for '{searchTerm}'", ex);
         }
 
         await _logService.LogWarningAsync($"No SGDB match found for {game.Name}");
@@ -252,7 +252,7 @@ internal sealed class SteamGridDbService : ISteamGridDbService
 
         var heroes = await fetchBanner(); // File is missing, open the envelope NOW!
         var imageUrl = (heroes?.Where(h => !h.IsNsfw)!).
-            FirstOrDefault(h => h.Format is SteamGridDbFormats.Png)
+            FirstOrDefault(h => h.Format is SteamGridDbFormats.Png || h.Format is SteamGridDbFormats.Jpeg)
             ?.FullImageUrl;
         await DownloadImageAsync(imageUrl, bannerPath, "banner");
     }
