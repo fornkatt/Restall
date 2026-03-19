@@ -47,7 +47,7 @@ internal sealed class EpicScanner : IPlatformScannerService
             Platform: Game.Platform.Epic,
             Games: games,
             Success: games.Count > 0,
-            Message: errors.Count > 0 ? string.Join("; ", errors) : null);
+            Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 
     private string? GetInstallPath()

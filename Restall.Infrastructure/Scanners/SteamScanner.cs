@@ -48,7 +48,7 @@ internal sealed class SteamScanner : IPlatformScannerService
             Platform:     Game.Platform.Steam,
             Games:        games,
             Success:      games.Count > 0,
-            Message: errors.Count > 0 ? string.Join("; ", errors) : null);
+            Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 
     private string? GetInstallPath()

@@ -41,7 +41,7 @@ internal sealed class GOGScanner : IPlatformScannerService
             Platform: Game.Platform.GOG,
             Games: games,
             Success: games.Count > 0,
-            Message: errors.Count > 0 ? string.Join("; ", errors) : null);
+            Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 
     private (List<Game> games, string? error) ScanGOGLibrary()
