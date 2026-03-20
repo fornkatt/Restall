@@ -2,6 +2,10 @@
 
 namespace Restall.Application.DTOs;
 
+/// <summary>
+/// Not used yet. For a future implementation to prompt for a deep scan of mods under certain conditions.
+/// </summary>
+/// <param name="ShouldPromptForDeepScan"></param>
 public record ModOperationResultDto(
     bool IsSuccess,
     Game UpdatedGame,

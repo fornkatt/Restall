@@ -6,17 +6,14 @@ namespace Restall.Application.Services;
 
 public sealed class UpdateCheckService : IUpdateCheckService
 {
-    private readonly ILogService _logService;
     private readonly IVersionCatalog _versionCatalog;
     
     private const string s_dateFormat = "yyyyMMdd";
 
     public UpdateCheckService(
-        ILogService logService,
         IVersionCatalog versionCatalog
         )
     {
-        _logService = logService;
         _versionCatalog = versionCatalog;
     }
 

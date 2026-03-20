@@ -53,7 +53,7 @@ internal sealed class GameDetectionService : IGameDetectionService
                       CompletedPlatform: result.Platform.ToString(),
                       ScannersCompleted: completed,
                       TotalScanners:     totalScanners,
-                      Success:           result.Success,
+                      IsSuccess:           result.IsSuccess,
                       Message:      result.Message
                       ));
                   
@@ -98,7 +98,7 @@ internal sealed class GameDetectionService : IGameDetectionService
               return new GameScanResultDto(
                   Platform:     Game.Platform.Unknown,
                   Games:        validGames!,
-                  Success:      validGames.Count > 0,
+                  IsSuccess:      validGames.Count > 0,
                   Message: allErrors.Count > 0 ? string.Join("; ", allErrors) : null);
               
 
@@ -109,7 +109,7 @@ internal sealed class GameDetectionService : IGameDetectionService
               return new GameScanResultDto(
                   Platform:     Game.Platform.Unknown,
                   Games:        [],
-                  Success:      false,
+                  IsSuccess:      false,
                   Message: "Failed to scan game libraries. Please try rescanning.");
           }
          

@@ -33,7 +33,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
         return new GameScanResultDto(
             Platform:     Game.Platform.Ubisoft,
             Games:        games,
-            Success:      games.Count > 0,
+            IsSuccess:      games.Count > 0,
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
         
     }

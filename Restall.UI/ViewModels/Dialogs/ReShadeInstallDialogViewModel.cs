@@ -132,6 +132,6 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
     [RelayCommand]
     private void Cancel() => CloseRequested?.Invoke(this, EventArgs.Empty);
 
-    public record ReShadeFileNameOption(ReShade.FileName Value, string Display);
+    public record ReShadeFileNameOption(ReShade.Filename Value, string Display);
     public record ReShadeExtensionOption(ReShade.FileExtension Value, string Display);
 }

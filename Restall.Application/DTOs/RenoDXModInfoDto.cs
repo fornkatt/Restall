@@ -1,10 +1,5 @@
 ﻿namespace Restall.Application.DTOs;
 
-/// <summary>
-/// 
-/// For use in ParseService
-/// 
-///</summary>
 public record RenoDXModInfoDto(
     string Name,
     string? DiscordUrl,

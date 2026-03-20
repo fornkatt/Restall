@@ -9,6 +9,11 @@ using System.Threading;
 
 namespace Restall.UI.ViewModels;
 
+/// <summary>
+/// We wrap a Game domain entity in a ViewModel and flatten the Game entity's properties into simpler types
+/// that we can easily bind to our UI and use in our other ViewModels to calculate for example button visibilty
+/// and text/notes visibility
+/// </summary>
 public sealed partial class GameModViewModel : ObservableObject
 {
     private readonly Game _game;

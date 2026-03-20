@@ -3,21 +3,21 @@ namespace Restall.Domain.Entities;
 public sealed class ReShade
 {
     public enum Branch { Unknown, Stable, Nightly, RenoDX }
-    public enum FileName { Dxgi, D3d12, D3d11, Version, ReShade32, ReShade64 }
+    public enum Filename { Dxgi, D3d12, D3d11, Version, ReShade32, ReShade64 }
     public enum FileExtension { Dll, Asi }
     public enum Architecture { x32 = 32, x64 = 64 }
 
     public Architecture Arch { get; set; } = Architecture.x64;
 
-    public static readonly IReadOnlyDictionary<FileName, string> FullFileName =
-        new Dictionary<FileName, string>
+    public static readonly IReadOnlyDictionary<Filename, string> FullFileName =
+        new Dictionary<Filename, string>
     {
-        [FileName.Dxgi] = "dxgi",
-        [FileName.D3d12] = "d3d12",
-        [FileName.D3d11] = "d3d11",
-        [FileName.Version] = "version",
-        [FileName.ReShade32] = "ReShade32",
-        [FileName.ReShade64] = "ReShade64"
+        [Filename.Dxgi] = "dxgi",
+        [Filename.D3d12] = "d3d12",
+        [Filename.D3d11] = "d3d11",
+        [Filename.Version] = "version",
+        [Filename.ReShade32] = "ReShade32",
+        [Filename.ReShade64] = "ReShade64"
     };
 
     public static readonly IReadOnlyDictionary<FileExtension, string> Extension =
@@ -32,7 +32,7 @@ public sealed class ReShade
     public string SelectedFilename { get; set; } = string.Empty;
     public string? Version { get; set; }
 
-    public static string GetFileName(FileName fileType, FileExtension extension)
+    public static string GetFileName(Filename fileType, FileExtension extension)
     {
         return $"{FullFileName[fileType]}{Extension[extension]}";
     }

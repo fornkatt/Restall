@@ -45,7 +45,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
         var gameScanResults = gameTask.Result;
 
         var games = gameTask.Result.Games.OrderBy(g => g.Name);
-        return await BuildResultAsync(games, gameTask.Result.Success, gameTask.Result.Message);
+        return await BuildResultAsync(games, gameTask.Result.IsSuccess, gameTask.Result.Message);
     }
 
     public async Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames, IProgress<GameScanProgressReportDto>? progress = null)

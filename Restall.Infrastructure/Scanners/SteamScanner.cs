@@ -29,7 +29,7 @@ internal sealed class SteamScanner : IPlatformScannerService
             return new GameScanResultDto(
                 Game.Platform.Steam,
                 [],
-                Success: false,
+                IsSuccess: false,
                 Message: "Steam installation not found");
 
             
@@ -47,7 +47,7 @@ internal sealed class SteamScanner : IPlatformScannerService
         return new GameScanResultDto(
             Platform:     Game.Platform.Steam,
             Games:        games,
-            Success:      games.Count > 0,
+            IsSuccess:      games.Count > 0,
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 

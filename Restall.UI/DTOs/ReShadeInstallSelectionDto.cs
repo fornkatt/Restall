@@ -4,6 +4,6 @@ namespace Restall.UI.DTOs;
 
 public record ReShadeInstallSelectionDto(
     string Version,
-    ReShade.FileName FileName,
+    ReShade.Filename Filename,
     ReShade.FileExtension FileExtension
     );

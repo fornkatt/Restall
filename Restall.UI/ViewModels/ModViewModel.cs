@@ -201,7 +201,7 @@ public sealed partial class ModViewModel : ViewModelBase
             SelectedReShadeBranch,
             SelectedGame.SelectedReShadeInstallArch,
             selection.Version,
-            ReShade.GetFileName(selection.FileName, selection.FileExtension)
+            ReShade.GetFileName(selection.Filename, selection.FileExtension)
         );
 
         await ExecuteReShadeActionAsync(
