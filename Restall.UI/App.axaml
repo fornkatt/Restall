@@ -1,0 +1,54 @@
+<Application xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 x:Class="Restall.UI.App"
+			 xmlns:local="using:Restall.UI"
+			 RequestedThemeVariant="Default">
+
+	<Application.DataTemplates>
+		<local:ViewLocator/>
+	</Application.DataTemplates>
+
+	<Application.Styles>
+		<FluentTheme />
+		<StyleInclude Source="avares://Restall.UI/Styles/ButtonStyles.axaml"/>
+	</Application.Styles>
+
+	<Application.Resources>
+		<ResourceDictionary>
+			<!-- Icon Fonts: https://phosphoricons.com/ -->
+			<FontFamily x:Key="Phosphor">avares://Restall.UI/Assets/Fonts#Phosphor</FontFamily>
+			<FontFamily x:Key="Phosphor-Bold">avares://Restall.UI/Assets/Fonts#Phosphor-Bold</FontFamily>
+			<FontFamily x:Key="Phosphor-Fill">avares://Restall.UI/Assets/Fonts#Phosphor-Fill</FontFamily>
+			
+			<!-- Themes -->
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<SolidColorBrush x:Key="AppBackground" Color="#ececec"/>
+					<SolidColorBrush x:Key="GameListSelection" Color="#f2f2f2"/>
+					<SolidColorBrush x:Key="GameListHover" Color="#d6d6d6"/>
+					<SolidColorBrush x:Key="GameCardBackground" Color="#ffffff"/>
+					<SolidColorBrush x:Key="GameCardText" Color="#2c2c2c"/>
+					<SolidColorBrush x:Key="GameCardBorder" Color="#fafafa"/>
+					<SolidColorBrush x:Key="GameCardNotesBorder" Color="#d4d4d4"/>
+					<SolidColorBrush x:Key="ModCardButton" Color="#e7e7e7"/>
+					<SolidColorBrush x:Key="ModCardButtonHover" Color="#f4f4f4"/>
+					<SolidColorBrush x:Key="ModCardButtonText" Color="#2c2c2c"/>
+					<SolidColorBrush x:Key="DialogBorder" Color="#dedede"/>
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Dark">
+					<SolidColorBrush x:Key="AppBackground" Color="#151515"/>
+					<SolidColorBrush x:Key="GameListSelection" Color="#333333"/>
+					<SolidColorBrush x:Key="GameListHover" Color="#3d3d3d"/>
+					<SolidColorBrush x:Key="GameCardBackground" Color="#272727"/>
+					<SolidColorBrush x:Key="GameCardText" Color="#e1e1e1"/>
+					<SolidColorBrush x:Key="GameCardBorder" Color="#2c2c2c"/>
+					<SolidColorBrush x:Key="GameCardNotesBorder" Color="#5c5c5c"/>
+					<SolidColorBrush x:Key="ModCardButton" Color="#484848"/>
+					<SolidColorBrush x:Key="ModCardButtonHover" Color="#727272"/>
+					<SolidColorBrush x:Key="ModCardButtonText" Color="#e1e1e1"/>
+					<SolidColorBrush x:Key="DialogBorder" Color="#2e2e2e"/>
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
+</Application>
