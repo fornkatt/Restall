@@ -15,10 +15,11 @@ internal static class GameScanHelper
         return normalized.Trim().TrimEnd(Path.DirectorySeparatorChar);
     }
     
+    // Dynamic inject at runtime for VdfValue and the result can vary compared to RegexHelper that is fixed at compile time with GeneredRegex
     internal static string? ExtractVdfValue(string vdfContent, string key)
         => Regex.Match(vdfContent, $@"""{Regex.Escape(key)}""\s+""([^""]+)""", 
             RegexOptions.IgnoreCase) is { Success: true } m ? m.Groups[1].Value : null;
-    
+    //Same thing as VdfValue, but it also handles escaped characters and normalises the path
     internal static string? ExtractJsonString(string json, string key) =>
         Regex.Match(json, $@"""{Regex.Escape(key)}""\s*:\s*""([^""\\]*(\\.[^""\\]*)*)""")
             is { Success: true } m ? NormalizePath(m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/")) : null;

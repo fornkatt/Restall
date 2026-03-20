@@ -215,6 +215,7 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         }
         catch (SteamGridDbNotFoundException ex)
         {
+            //Double exception because SteamGridDb is being caught separately due to a game might not exist
             await _logService.LogErrorAsync($"No SGDB entry found for '{searchTerm}'", ex);
         }
         catch (Exception ex)
@@ -251,7 +252,7 @@ internal sealed class SteamGridDbService : ISteamGridDbService
         if (BannerExists(sgdb)) return; // File exists
 
         var heroes = await fetchBanner(); // File is missing, open the envelope NOW!
-        var imageUrl = (heroes?.Where(h => !h.IsNsfw)!).
+        var imageUrl = (heroes?.Where(h => !h.IsNsfw)!). 
             FirstOrDefault(h => h.Format is SteamGridDbFormats.Png || h.Format is SteamGridDbFormats.Jpeg)
             ?.FullImageUrl;
         await DownloadImageAsync(imageUrl, bannerPath, "banner");

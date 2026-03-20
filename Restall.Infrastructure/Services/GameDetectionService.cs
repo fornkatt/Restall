@@ -6,7 +6,14 @@ using System.Collections.Concurrent;
 
 namespace Restall.Infrastructure.Services;
 
-
+/// <summary>
+/// For more information how I handle each scanner, check out GOGScanner
+///
+/// Collecting all the results across all the scanners and remove duplicates that is being found.
+/// The main purpose of GameDetectionService is I am running the detection in parallel by using ConcurrentDictionary 
+/// and it is simply because I want to avoid scanning the same folder twice across the parallel threads 
+/// only games with a detected "ExecutablePath" are returned as valid.
+/// </summary>
 internal sealed class GameDetectionService : IGameDetectionService
 {
     private readonly ILogService _logService;
@@ -59,6 +66,7 @@ internal sealed class GameDetectionService : IGameDetectionService
                   
               }
               
+              //Remove duplicate entries by checking installfolder and sorting by platformId
               var deduped = allGames
                   .GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
                   .Select(g => g.OrderByDescending(x => x.PlatformId != null).First())
@@ -90,6 +98,7 @@ internal sealed class GameDetectionService : IGameDetectionService
                   });
               });
               
+              //Validating after the smart sorting
               var validGames = deduped
                   .Where(g => g is not null && !string.IsNullOrWhiteSpace(g.ExecutablePath))
                   .ToList();

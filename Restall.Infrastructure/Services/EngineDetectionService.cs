@@ -21,7 +21,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
             return (uePath, Game.Engine.Unreal);
         }
     
-        var unityPlayer = FindFileShallow(rootPath, "UnityPlayer.dll", maxDepth: 2);
+        var unityPlayer = FindFileShallow(rootPath, "UnityPlayer.dll", maxDepth: 2); 
         if (unityPlayer != null)
         {
             return (Path.GetDirectoryName(unityPlayer), Game.Engine.Unity);
@@ -40,7 +40,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
         CollectUEBinaries(root, 0, candidates);
         if (candidates.Count == 0) return null;
 
-        // Prefer folders that contain a Shipping exe
+        
         var withShipping = candidates.FirstOrDefault(c =>
             Directory.GetFiles(c, "*Shipping.exe").Length > 0 ||
             Directory.GetFiles(c, "*.exe").Any(f =>
@@ -51,7 +51,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
 
     private void CollectUEBinaries(string dir, int depth, List<string> results)
     {
-        if (depth > 5 || string.IsNullOrEmpty(dir)) return;
+        if (depth > 5 || string.IsNullOrEmpty(dir)) return; //Hard limit in Unreal Engine folders
 
         try
         {
@@ -59,10 +59,10 @@ internal sealed class EngineDetectionService : IEngineDetectionService
             {
                 var name = Path.GetFileName(sub);
                     
-                // Skip Engine folder — its Binaries are for the engine, not the game
+                // Skipping the Engine folder because their binaries are for engine only
                 if (name.Equals("Engine", StringComparison.OrdinalIgnoreCase)) continue;
 
-                // Found a Binaries folder — look inside for Win64/WinGDK
+               
                 if (name.Equals("Binaries", StringComparison.OrdinalIgnoreCase))
                 {
                     foreach (var binSub in Directory.GetDirectories(sub))
@@ -77,11 +77,11 @@ internal sealed class EngineDetectionService : IEngineDetectionService
                         
                     }
 
-                    // Don't recurse further into Binaries
+                    // Stop recurse further in the Binaries folder
                     continue;
                 }
 
-                // Recurse into non-Engine, non-Binaries subfolders
+                // Recurse into non-Engine and non-Binaries subfolders
                 CollectUEBinaries(sub, depth + 1, results);
             }
         }
@@ -97,9 +97,9 @@ internal sealed class EngineDetectionService : IEngineDetectionService
         try
         {
             var match = Directory.GetFiles(folder, pattern);
-            if (match.Length > 0) return match[0];
+            if (match.Length > 0) return match[0]; 
             if (maxDepth > 0)
-                foreach (var sub in Directory.GetDirectories(folder))
+                foreach (var sub in Directory.GetDirectories(folder)) // Recurse , decrementing maxDepth each time 
                 {
                     var filePath = FindFileShallow(sub, pattern, maxDepth - 1);
                     if (filePath is not null) return filePath;
@@ -127,18 +127,18 @@ internal sealed class EngineDetectionService : IEngineDetectionService
 
 
         var queue = new Queue<(string path, int depth)>();
-        queue.Enqueue((root, 0));
+        queue.Enqueue((root, 0)); // Start BFS from the root game folder
         while (queue.Count > 0)
         {
             var (dir, depth) = queue.Dequeue();
-            if (depth > 4) continue;
+            if (depth > 4) continue; //Hard Limit
             try
             {
                 if (Directory.GetFiles(dir, "*.exe").Length > 0) return dir;
                 foreach (var sub in Directory.GetDirectories(dir))
                 {
                     var folderName = Path.GetFileName(sub);
-                    if (!GameScanHelper.NonGame(folderName))
+                    if (!GameScanHelper.NonGame(folderName)) //Skip redistributables and tools
                         queue.Enqueue((sub, depth + 1));
                 }
             }
