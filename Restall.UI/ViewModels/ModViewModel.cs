@@ -20,9 +20,9 @@ public sealed partial class ModViewModel : ViewModelBase
     private readonly IVersionCatalog _versionCatalog;
 
     public ModViewModel(
-    IModManagementFacade modManagementFacade,
-    IModSelectionDialogService modSelectionDialogService,
-    IVersionCatalog versionCatalog
+        IModManagementFacade modManagementFacade,
+        IModSelectionDialogService modSelectionDialogService,
+        IVersionCatalog versionCatalog
     )
     {
         _modManagementFacade = modManagementFacade;
@@ -38,7 +38,6 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(UpdateRenoDXButtonText))]
     [NotifyPropertyChangedFor(nameof(UninstallRenoDXButtonText))]
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
-    [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
     [NotifyPropertyChangedFor(nameof(ReShadeVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
@@ -52,6 +51,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(ReShadeLatestVersionForBranch))]
     [NotifyPropertyChangedFor(nameof(ReShadeVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateReShadeCommand))]
     private ReShade.Branch _selectedReShadeBranch = ReShade.Branch.Stable;
 
     public string? ReShadeLatestVersionForBranch =>
@@ -62,6 +62,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsRenoDXNightlyBranch))]
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
     private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
 
     public bool IsNightlyBranchAvailable => 
@@ -74,9 +75,8 @@ public sealed partial class ModViewModel : ViewModelBase
         set => SelectedRenoDXBranch = value ? RenoDX.Branch.Nightly : RenoDX.Branch.Snapshot;
     }
 
-    public string? RenoDXLatestVersionForBranch => SelectedGame?.EngineName == Game.Engine.Unity
-        ? "No version info"
-        : _versionCatalog.GetLatestRenoDXVersionByTag(SelectedRenoDXBranch)?.Version;
+    public string? RenoDXLatestVersionForBranch =>
+        _versionCatalog.GetLatestRenoDXVersionByTag(SelectedRenoDXBranch)?.Version;
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
@@ -162,6 +162,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
         var result = await work(progress);
 
+        game.ReShadeUpdateCheck = result.UpdateCheckResult;
         game.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
         game.ReShadeModActionStatus = result.IsSuccess ? successMessage : result.Message;
@@ -215,7 +216,7 @@ public sealed partial class ModViewModel : ViewModelBase
     private async Task UpdateReShadeAsync()
     {
         var installedFilename = SelectedGame?.ReShadeFilename;
-        var latestVersion = _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
+        var latestVersion = ReShadeLatestVersionForBranch;
 
         if (installedFilename is null || latestVersion is null) return;
 
@@ -242,11 +243,9 @@ public sealed partial class ModViewModel : ViewModelBase
     private bool CanUninstallReShade => SelectedGame?.HasReShade ?? false;
 
     public bool CanShowReShadeUpdate =>
-        SelectedGame?.HasReShade == true &&
-        SelectedGame.ReShadeBranchName == SelectedReShadeBranch &&
-        ReShadeLatestVersionForBranch is not null &&
-        SelectedGame.ReShadeVersion is not null &&
-        ReShadeLatestVersionForBranch != SelectedGame.ReShadeVersion;
+        SelectedGame?.HasReShade == true                            &&
+        SelectedGame.ReShadeBranchName == SelectedReShadeBranch     &&
+        SelectedGame.ReShadeUpdateCheck?.UpdateAvailable == true;
 
     /* ---RENODX-------------------------------------------------------------------------------------------------------------- */
     private async Task ExecuteRenoDXActionAsync(
@@ -273,6 +272,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
         var result = await work(progress);
 
+        game.RenoDXUpdateCheck = result.UpdateCheckResult;
         game.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
         game.RenoDXModActionStatus = result.IsSuccess ? successMessage : result.Message;
@@ -431,10 +431,8 @@ public sealed partial class ModViewModel : ViewModelBase
     private bool CanUninstallRenoDX => SelectedGame?.HasRenoDX ?? false;
 
     public bool CanShowRenoDXUpdate =>
-        SelectedGame?.HasRenoDX == true                             &&
-        SelectedGame.EngineName != Game.Engine.Unity                &&
-        SelectedGame.RenoDXBranchName == SelectedRenoDXBranch       &&
-        RenoDXLatestVersionForBranch is not null                    &&
-        SelectedGame.RenoDXVersion is not null                      &&
-        RenoDXLatestVersionForBranch != SelectedGame.RenoDXVersion;
+        SelectedGame?.HasRenoDX == true                         &&
+        SelectedGame.EngineName != Game.Engine.Unity            &&
+        SelectedGame.RenoDXBranchName == SelectedRenoDXBranch   &&
+        SelectedGame.RenoDXUpdateCheck?.UpdateAvailable == true;
 }

@@ -39,6 +39,12 @@ public sealed partial class GameModViewModel : ObservableObject
         _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, s_thumbnailTargetWidth);
     }
 
+    [ObservableProperty]
+    private UpdateCheckResultDto? _reShadeUpdateCheck;
+    
+    [ObservableProperty]
+    private UpdateCheckResultDto? _renoDXUpdateCheck;
+    
     public string NormalizedName { get; }
     public string? Name => _game.Name;
     public Game.Platform PlatformName => _game.PlatformName;

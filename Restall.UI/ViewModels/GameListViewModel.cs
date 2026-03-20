@@ -58,7 +58,9 @@ public sealed partial class GameListViewModel : ViewModelBase
             Games.Add(new GameModViewModel(item.Game)
             {
                 CompatibleRenoDXMod = item.CompatibleMod,
-                CompatibleRenoDXGenericMod = item.CompatibleGenericMod
+                CompatibleRenoDXGenericMod = item.CompatibleGenericMod,
+                ReShadeUpdateCheck = item.ReShadeUpdateResult,
+                RenoDXUpdateCheck = item.RenoDXUpdateResult
             });
         }
 
@@ -113,6 +115,8 @@ public sealed partial class GameListViewModel : ViewModelBase
 
             gameVm.CompatibleRenoDXMod = item.CompatibleMod;
             gameVm.CompatibleRenoDXGenericMod = item.CompatibleGenericMod;
+            gameVm.ReShadeUpdateCheck = item.ReShadeUpdateResult;
+            gameVm.RenoDXUpdateCheck = item.RenoDXUpdateResult;
             gameVm.NotifyGameStateChanged();
         }
 
