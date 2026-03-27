@@ -168,13 +168,6 @@
       "restall.domain": {
         "type": "Project"
       }
-    },
-    "net10.0/win-x64": {
-      "System.Security.Cryptography.Pkcs": {
-        "type": "Transitive",
-        "resolved": "10.0.2",
-        "contentHash": "TVb4L6atqzRB33qBy4FVdmQMmDGzzBGwiwqI6u5WnJ6ag275pPLJgPWIVzYzT5hqTACrWyfHbttqylbexvur9w=="
-      }
     }
   }
 }
