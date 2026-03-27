@@ -1,5 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:10.0.200-noble AS base
-WORKDIR /src
+WORKDIR /build
 
 COPY global.json .
 COPY Restall.slnx .
