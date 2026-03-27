@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:10.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/sdk:10.0.200-noble AS base
 WORKDIR /src
 
 COPY global.json .
@@ -9,10 +9,10 @@ COPY src/Restall.Infrastructure/Restall.Infrastructure.csproj src/Restall.Infras
 COPY src/Restall.UI/Restall.UI.csproj                     src/Restall.UI/
 
 FROM base AS restore-linux
-RUN dotnet restore src/Restall.UI/Restall.UI.csproj -r linux-x64
+RUN dotnet restore src/Restall.UI/Restall.UI.csproj -r linux-x64 --locked-mode
 
 FROM base AS restore-windows
-RUN dotnet restore src/Restall.UI/Restall.UI.csproj -r win-x64
+RUN dotnet restore src/Restall.UI/Restall.UI.csproj -r win-x64 --locked-mode
 
 FROM restore-linux AS linux
 COPY . .

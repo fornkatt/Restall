@@ -2,5 +2,6 @@
   <PropertyGroup>
     <BaseOutputPath>$(MSBuildProjectDirectory)\bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
+	<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 </Project>
