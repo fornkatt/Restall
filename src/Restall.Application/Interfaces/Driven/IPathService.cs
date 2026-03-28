@@ -2,7 +2,7 @@
 
 namespace Restall.Application.Interfaces.Driven;
 
-public interface ICachePathService
+public interface IPathService
 {
     string GetReShadeCachePath(ReShade reShade);
     string GetRenoDXCachePath(RenoDX renoDx);
@@ -17,4 +17,5 @@ public interface ICachePathService
     string GetSgdbLogoPath(int steamGridDbId);
     string GetSgdbCacheDirectory();
 
+    string GetDefaultLogPath();
 }

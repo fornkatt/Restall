@@ -12,13 +12,13 @@ internal sealed class SteamGridDbIndexRepository : ISteamGridDbIndexRepository
     private readonly string _indexFilePath;
 
     public SteamGridDbIndexRepository(ILogService logService,
-        ICachePathService cachePathService)
+        IPathService pathService)
     {
         _logService = logService;
         
-        _indexFilePath = Path.Combine(cachePathService.GetSgdbCacheDirectory(), s_indexFileName);
+        _indexFilePath = Path.Combine(pathService.GetSgdbCacheDirectory(), s_indexFileName);
 
-        Directory.CreateDirectory(cachePathService.GetSgdbCacheDirectory());
+        Directory.CreateDirectory(pathService.GetSgdbCacheDirectory());
         _index = LoadIndex();
     }
     

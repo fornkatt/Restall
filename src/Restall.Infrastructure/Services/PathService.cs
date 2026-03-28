@@ -3,25 +3,34 @@ using Restall.Domain.Entities;
 
 namespace Restall.Infrastructure.Services;
 
-internal sealed class CachePathService : ICachePathService
+internal sealed class PathService : IPathService
 {
+    private const string s_appName = "Restall";
+
+    private static readonly string s_baseDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), s_appName);
+
     private const string s_downloadCacheFolderName = "DownloadCache";
     private const string s_cacheFolderName = "Cache";
     private const string s_sgdbFolderName = "SGDB";
-    
-    private readonly string _reShadeCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_cacheFolderName, "ReShade");
-    private readonly string _reShadeDownloadCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_downloadCacheFolderName, "ReShade");
-    private readonly string _renoDXDownloadCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_downloadCacheFolderName, "RenoDX");
-    private readonly string _sgdbCacheBaseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_cacheFolderName, s_sgdbFolderName);
+
+    private const string s_bannerFileName = "banner.png";
+    private const string s_iconFileName = "icon.png";
+    private const string s_logoFileName = "logo.png";
+
+    private readonly string _defaultLogPath = Path.Combine(s_baseDirectory, "Logs");
+    private readonly string _reShadeCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, "ReShade");
+    private readonly string _reShadeDownloadCacheBaseDir = Path.Combine(s_baseDirectory, s_downloadCacheFolderName, "ReShade");
+    private readonly string _renoDXDownloadCacheBaseDir = Path.Combine(s_baseDirectory, s_downloadCacheFolderName, "RenoDX");
+    private readonly string _sgdbCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, s_sgdbFolderName);
     
     public string GetSgdbCacheDirectory() => _sgdbCacheBaseDir;
     public string GetSgdbBannerPath(int steamGridDbId) =>
-        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.s_bannerFileName);
+        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), s_bannerFileName);
 
     public string GetSgdbThumbnailPath(int steamGridDbId) =>
-        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.s_iconFileName);
+        Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), s_iconFileName);
 
-    public string GetSgdbLogoPath(int steamGridDbId) => Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), CachePathConstants.s_logoFileName);
+    public string GetSgdbLogoPath(int steamGridDbId) => Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), s_logoFileName);
 
     public string GetReShadeCachePath(ReShade reShade) =>
         Path.Combine(_reShadeCacheBaseDir, reShade.BranchName.ToString(), reShade.Version!);
@@ -41,5 +50,5 @@ internal sealed class CachePathService : ICachePathService
     public string GetReShadeExtractedFilePath(ReShade reShade) =>
         Path.Combine(GetReShadeCachePath(reShade), reShade.OriginalFileName);
 
-
+    public string GetDefaultLogPath() => _defaultLogPath;
 }

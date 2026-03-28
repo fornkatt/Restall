@@ -5,22 +5,28 @@ namespace Restall.Infrastructure.Services;
 
 internal sealed class LogService : ILogService
 {
-    private readonly string _defaultLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
-    private const string s_defaultLogFileName = "restall_log.txt";
+    private readonly string _logsDirectory;
+
+    private const string s_defaultLogFilename = "restall_log.txt";
+
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    private void Log(string message, MessageType messageType, Exception? exception = null,
-        string logFileName = s_defaultLogFileName)
+    public LogService(IPathService pathService)
     {
-        string logFilePath = GetLogFilePath(logFileName);
+        _logsDirectory = pathService.GetDefaultLogPath();
+    }
+
+    private void Log(string message, MessageType messageType, Exception? exception = null,
+        string logFilename = s_defaultLogFilename)
+    {
+        string logFilePath = Path.Combine(_logsDirectory, logFilename);
         
         string logFormat = FormatLogMessage(message, messageType, exception);
         
         _semaphore.Wait();
         try
         {
-            if (!Directory.Exists(_defaultLogPath))
-                Directory.CreateDirectory(_defaultLogPath);
+            Directory.CreateDirectory(_logsDirectory);
 
             File.AppendAllText(logFilePath, logFormat);
         }
@@ -35,17 +41,16 @@ internal sealed class LogService : ILogService
     }
     
     private async Task LogAsync(string message, MessageType messageType, Exception? exception = null,
-        string logFileName = s_defaultLogFileName)
+        string logFilename = s_defaultLogFilename)
     {
-        string logFilePath = GetLogFilePath(logFileName);
+        string logFilePath = Path.Combine(_logsDirectory, logFilename);
         
         string logFormat = FormatLogMessage(message, messageType, exception);
         
         await _semaphore.WaitAsync();
         try
         {
-            if (!Directory.Exists(_defaultLogPath))
-                Directory.CreateDirectory(_defaultLogPath);
+            Directory.CreateDirectory(_logsDirectory);
 
             await File.AppendAllTextAsync(logFilePath, logFormat);
         }
@@ -64,22 +69,17 @@ internal sealed class LogService : ILogService
         return $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | {messageType} | {message}" +
                $"{(exception != null ? $" || {exception.Message}" : "")}{Environment.NewLine}";
     }
-
-    private static string GetLogFilePath(string logFileName)
-    {
-        return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs", logFileName);
-    }
     
-    public void LogInfo(string message, string logFileName = s_defaultLogFileName) =>
-        Log(message, MessageType.Info, null, logFileName);
-    public void LogWarning(string message, string logFileName = s_defaultLogFileName) =>
-        Log(message, MessageType.Warning, null, logFileName);
-    public void LogError(string message, Exception? exception = null, string logFileName = s_defaultLogFileName) =>
-        Log(message, MessageType.Error, exception, logFileName);
-    public async Task LogInfoAsync(string message, string logFileName = s_defaultLogFileName) =>
-        await LogAsync(message, MessageType.Info, null, logFileName);
-    public async Task LogWarningAsync(string message, string logFileName = s_defaultLogFileName) =>
-        await LogAsync(message, MessageType.Warning,  null, logFileName);
-    public async Task LogErrorAsync(string message, Exception? exception = null, string logFileName = s_defaultLogFileName) =>
-        await LogAsync(message, MessageType.Error, exception, logFileName);
+    public void LogInfo(string message, string logFilename = s_defaultLogFilename) =>
+        Log(message, MessageType.Info, null, logFilename);
+    public void LogWarning(string message, string logFilename = s_defaultLogFilename) =>
+        Log(message, MessageType.Warning, null, logFilename);
+    public void LogError(string message, Exception? exception = null, string logFilename = s_defaultLogFilename) =>
+        Log(message, MessageType.Error, exception, logFilename);
+    public async Task LogInfoAsync(string message, string logFilename = s_defaultLogFilename) =>
+        await LogAsync(message, MessageType.Info, null, logFilename);
+    public async Task LogWarningAsync(string message, string logFilename = s_defaultLogFilename) =>
+        await LogAsync(message, MessageType.Warning,  null, logFilename);
+    public async Task LogErrorAsync(string message, Exception? exception = null, string logFilename = s_defaultLogFilename) =>
+        await LogAsync(message, MessageType.Error, exception, logFilename);
 }

@@ -24,8 +24,8 @@ public static class InfrastructureServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
+        services.AddSingleton<IPathService, PathService>();
         services.AddSingleton<ILogService, LogService>();
-        services.AddSingleton<ICachePathService, CachePathService>();
 
         services.AddHttpClient("ParseService", c => c.DefaultRequestHeaders.UserAgent.ParseAdd("Restall"));
         services.AddSingleton<IParseService, ParseService>();

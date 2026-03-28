@@ -14,19 +14,19 @@ internal sealed class ModDownloadService : IModDownloadService
     private const string s_renoDXUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
 
     private readonly HttpClient _httpClient;
-    private readonly ICachePathService _cachePathService;
+    private readonly IPathService _pathService;
     private readonly ILogService _logService;
 
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> s_downloadLocks = new(); 
 
     public ModDownloadService(
         HttpClient httpClient,
-        ICachePathService cachePathService,
+        IPathService pathService,
         ILogService logService
         )
     {
         _httpClient = httpClient;
-        _cachePathService = cachePathService;
+        _pathService = pathService;
         _logService = logService;
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
     }
@@ -73,21 +73,21 @@ internal sealed class ModDownloadService : IModDownloadService
                 return false;
         }
 
-        var cacheDir = _cachePathService.GetRenoDXDownloadCachePath(branch);
+        var cacheDir = _pathService.GetRenoDXDownloadCachePath(branch);
         return await DownloadFileAsync(downloadUrl, cacheDir, fileName, progress);
     }
 
     public async Task<bool> DownloadUnityRenoDXAsync(string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
     {
         var downloadUrl = s_renoDXUnityDownloadBaseUrl + addonFileName;
-        var cacheDir = _cachePathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Snapshot);
+        var cacheDir = _pathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Snapshot);
         return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
     }
 
     public async Task<bool> DownloadReShadeAsync(ReShade.Branch branch, string version, IProgress<DownloadProgressReportDto>? progress = null)
     {
         var downloadUrl = $"{s_reShadeStartUrl}{version}{s_reShadeEndUrl}";
-        var installerPath = _cachePathService.GetReShadeInstallerFilePath(branch, version);
+        var installerPath = _pathService.GetReShadeInstallerFilePath(branch, version);
 
         return await DownloadFileAsync(downloadUrl, Path.GetDirectoryName(installerPath)!, Path.GetFileName(installerPath), progress);
     }

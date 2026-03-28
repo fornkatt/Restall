@@ -8,21 +8,21 @@ namespace Restall.Application.UseCases;
 
 public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
 {
-    private readonly ICachePathService _cachePathService;
+    private readonly IPathService _pathService;
     private readonly IModDownloadService _modDownloadService;
     private readonly IFileExtractionService _fileExtractionService;
     private readonly IModInstallService _modInstallService;
     private readonly ILogService _logService;
 
     public InstallReShadeUseCase(
-        ICachePathService cachePathService,
+        IPathService pathService,
         IModDownloadService modDownloadService,
         IFileExtractionService fileExtractionService,
         IModInstallService modInstallService,
         ILogService logService
         )
     {
-        _cachePathService = cachePathService;
+        _pathService = pathService;
         _modDownloadService = modDownloadService;
         _fileExtractionService = fileExtractionService;
         _modInstallService = modInstallService;
@@ -39,7 +39,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
             SelectedFilename = request.SelectedFilename,
         };
 
-        var extractedFilePath = _cachePathService.GetReShadeExtractedFilePath(reShade);
+        var extractedFilePath = _pathService.GetReShadeExtractedFilePath(reShade);
 
         if (!File.Exists(extractedFilePath))
         {
@@ -65,7 +65,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
 
     private async Task<bool> EnsureDownloadedAsync(ReShade reShade, IProgress<DownloadProgressReportDto>? progress)
     {
-        var installerPath = _cachePathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version!);
+        var installerPath = _pathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version!);
 
         if (File.Exists(installerPath))
         {
@@ -78,8 +78,8 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
 
     private bool ExtractFromDownload(ReShade reShade)
     {
-        var installerPath = _cachePathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version!);
-        var extractedCacheDir = _cachePathService.GetReShadeCachePath(reShade);
+        var installerPath = _pathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version!);
+        var extractedCacheDir = _pathService.GetReShadeCachePath(reShade);
 
         return _fileExtractionService.ExtractFiles(installerPath, [reShade.OriginalFileName], extractedCacheDir);
     }

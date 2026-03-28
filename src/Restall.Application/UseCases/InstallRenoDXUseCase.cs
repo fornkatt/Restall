@@ -11,21 +11,21 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
     private readonly IModDownloadService _modDownloadService;
     private readonly IModInstallService _modInstallService;
     private readonly IModDetectionService _modDetectionService;
-    private readonly ICachePathService _cachePathService;
+    private readonly IPathService _pathService;
     private readonly ILogService _logService;
 
     public InstallRenoDXUseCase(
         IModDownloadService modDownloadService,
         IModInstallService modInstallService,
         IModDetectionService modDetectionService,
-        ICachePathService cachePathService,
+        IPathService pathService,
         ILogService logService
         )
     {
         _modDownloadService = modDownloadService;
         _modInstallService = modInstallService;
         _modDetectionService = modDetectionService;
-        _cachePathService = cachePathService;
+        _pathService = pathService;
         _logService = logService;
     }
 
@@ -60,7 +60,7 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
             return new ModOperationResultDto(false, request.Game, "Failed to download file.");
         }
 
-        var filePath = _cachePathService.GetRenoDXCachePath(renoDX);
+        var filePath = _pathService.GetRenoDXCachePath(renoDX);
 
         var renoDxVersion = _modDetectionService.GetRenoDXFileVersion(filePath);
         renoDX.Version = renoDxVersion;
@@ -77,7 +77,7 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
     private async Task InvalidateCacheIfOutdatedAsync(RenoDX renoDX, string? targetVersion, bool forceInvalidate = false)
     {
-        var cachedFilePath = _cachePathService.GetRenoDXCachePath(renoDX);
+        var cachedFilePath = _pathService.GetRenoDXCachePath(renoDX);
         if (!File.Exists(cachedFilePath)) return;
 
         if (!forceInvalidate)
