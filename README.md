@@ -41,7 +41,7 @@ It automates the detection of game installations across multiple launchers and s
 | <img src=".github/assets/windows-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Windows | <img src=".github/assets/linux-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Linux |
 | :--- | :--- |
 | • Download and install the latest version of Docker and run it | • Install the **docker package** for your distribution <br> &nbsp;&nbsp;&nbsp;&nbsp;• _Install the `docker-buildx` plugin if it is not included in your distribution package_ <br> • Open up the terminal and run ```systemctl start docker``` <br> • Run ```usermod -aG docker $USER``` to add your user to the docker group <br> • Run ```newgrp docker``` to apply changes or relog |
-| • Double-click ```build-windows_win.bat``` to build Windows binaries <br> • _Alternatively, use `build-linux_win.bat` for Linux binaries_ | • Navigate to the repo and run ```chmod +x build-linux_linux.sh``` <br> • _Alternatively, use `chmod +x build-windows_linux.sh`_ |
+| • Double-click ```build-windows_win.bat``` to build Windows binaries <br> • _Alternatively, use `build-linux_win.bat` for Linux binaries_ | • Navigate to the repo and run ```chmod +x build-linux_linux.sh``` <br> &nbsp;&nbsp;&nbsp;&nbsp;- Run```./build-linux_linux.sh``` to build Linux Binaries <br> • _Alternatively, use `chmod +x build-windows_linux.sh` <br> &nbsp;&nbsp;&nbsp;&nbsp;- Run```./build-windows_linux.sh``` to build Windows Binaries_  |
 | • The final build will be in `dist/windows` or `dist/linux`. | • The final build will be in `dist/linux` or `dist/windows`. |
 
 
