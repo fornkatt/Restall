@@ -6,8 +6,6 @@
 * [Building the Project](#building-the-project)
     * [Prerequisites](#prerequisites)
     * [Cloning the Repository](#cloning-the-repository)
-    * [Building for Windows](#building-for-windows)
-    * [Building for Linux](#building-for-linux)
 * [How to use Restall](#how-to-use-restall)
 * [Technical Aspects](#technical-aspects)
 * [Screenshots](#screenshots)
@@ -33,6 +31,7 @@ It automates the detection of game installations across multiple launchers and s
 ## Building the Project
 
 ### Prerequisites
+* [Git](https://git-scm.com/install)
 * [Docker Desktop](https://www.docker.com/get-started/) for Windows 10/11 
 * the `docker` package for Linux 
 
