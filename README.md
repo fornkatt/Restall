@@ -33,7 +33,7 @@ It automates the detection of game installations across multiple launchers and s
 ## Building the Project
 
 ### Prerequisites
-* [Docker Desktop](https://www.docker.com/get-started/)** for Windows 10/11 
+* [Docker Desktop](https://www.docker.com/get-started/) for Windows 10/11 
 * the `docker` package for Linux 
 
 ### Cloning the Repository
