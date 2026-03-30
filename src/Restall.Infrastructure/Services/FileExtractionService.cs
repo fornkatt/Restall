@@ -7,8 +7,6 @@ internal sealed class FileExtractionService : IFileExtractionService
 {
     private readonly ILogService _logService;
 
-    private readonly string _tools7zBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "7z");
-
     public FileExtractionService(ILogService logService)
     {
         _logService = logService;
@@ -20,27 +18,21 @@ internal sealed class FileExtractionService : IFileExtractionService
 
         if (toolPath == null)
         {
-            _logService.LogInfo($"No extraction tool found. Ensure Windows tar or 7zip is installed if on Linux. Alternatively install 7zip to" +
-                                          $" {Path.Combine(_tools7zBasePath, "7z")}" +
-                                          $" or reinstall the program to restore bundled executables.");
+            _logService.LogInfo(
+                OperatingSystem.IsLinux()
+                ? "No extraction tool found. Ensure bsdtar (libarchive-tools) is installed."
+                : "No extraction tool found. Ensure tar is available on your system.");
             return false;
         }
 
         var fileList = string.Join(" ", filesToExtract.Select(f => $"\"{f}\""));
 
-        var isTar = Path.GetFileNameWithoutExtension(toolPath)
-            .Equals("tar", StringComparison.OrdinalIgnoreCase);
-
         Directory.CreateDirectory(destinationPath);
-
-        var arguments = isTar
-            ? $"-xf \"{fileToOpen}\" -C \"{destinationPath}\" {fileList}"
-            : $"e \"{fileToOpen}\" -o\"{destinationPath}\" {fileList} -y";
 
         var startInfo = new ProcessStartInfo
         {
             FileName = toolPath,
-            Arguments = arguments,
+            Arguments = $"-xf \"{fileToOpen}\" -C \"{destinationPath}\" {fileList}",
             UseShellExecute = false,
             CreateNoWindow = true,
             RedirectStandardOutput = true,
@@ -53,7 +45,7 @@ internal sealed class FileExtractionService : IFileExtractionService
             using var process = Process.Start(startInfo);
             if (process == null)
             {
-                _logService.LogInfo("Unable to start extraction process or unsupported operating system.");
+                _logService.LogInfo("Unable to start extraction process.");
                 return false;
             }
 
@@ -79,40 +71,23 @@ internal sealed class FileExtractionService : IFileExtractionService
 
     private string? GetExtractionToolPath()
     {
-        string windowsSevenZipPath = Path.Combine(_tools7zBasePath, "7za.exe");
-        string linuxSevenZipPath = Path.Combine(_tools7zBasePath, "7zzs");
-        
         if (OperatingSystem.IsWindows())
-        {
-            var tarPath = FindWindowsTar();
-            if (tarPath is not null) return tarPath;
-
-            return !File.Exists(windowsSevenZipPath) ? null : windowsSevenZipPath;
-        }
+            return FindExtractionTool("where", "tar");
 
         if (OperatingSystem.IsLinux())
-        {
-            var systemPath = FindSystemSevenZip();
-            if (systemPath is not null) return systemPath;
-            
-            if (!File.Exists(linuxSevenZipPath)) return null;
-            
-            EnsureExecutable(linuxSevenZipPath);
-            return linuxSevenZipPath;
-        }
+            return FindExtractionTool("which", "bsdtar");
 
         return null;
     }
 
-    /* Windows methods */
-    private string? FindWindowsTar()
+    private string? FindExtractionTool(string finder, string tool)
     {
         try
         {
             var process = Process.Start(new ProcessStartInfo
             {
-                FileName = "where",
-                Arguments = "tar",
+                FileName = finder,
+                Arguments = tool,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true
@@ -128,93 +103,9 @@ internal sealed class FileExtractionService : IFileExtractionService
         }
         catch (Exception ex)
         {
-            _logService.LogError("Could not find system tar.exe", ex);
+            _logService.LogError($"Could not find {tool}", ex);
         }
 
         return null;
-    }
-
-    /* Linux methods */
-    private string? FindSystemSevenZip()
-    {
-        string[] candidates = ["7zz", "7z", "7za"];
-
-        foreach (var candidate in candidates)
-        {
-            try
-            {
-                var process = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "which",
-                    Arguments = candidate,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                });
-
-                if (process == null) continue;
-
-                var output = process.StandardOutput.ReadToEnd().Trim();
-                process.WaitForExit();
-
-                if (process.ExitCode == 0 && !string.IsNullOrEmpty(output))
-                {
-                    return candidate;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logService.LogError("Could not find suitable system 7-Zip candidate.", ex);
-            }
-        }
-
-        return null;
-    }
-
-    private void EnsureExecutable(string path)
-    {
-        if (!File.Exists(path))
-        {
-            _logService.LogInfo($"File {path} not found.");
-            return;
-        }
-
-        if (IsExecutable(path))
-        {
-            _logService.LogInfo($"File {path} is already executable.");
-            return;
-        }
-
-        try
-        {
-            var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = "chmod",
-                Arguments = $"+x \"{path}\"",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            });
-            process?.WaitForExit();
-        }
-        catch (Exception ex)
-        {
-            _logService.LogError($"Could not find executable at {path}", ex);
-        }
-    }
-
-    private bool IsExecutable(string path)
-    {
-        try
-        {
-#pragma warning disable CA1416 // Already handled
-            var unixFileMode = File.GetUnixFileMode(path);
-#pragma warning restore CA1416
-            return (unixFileMode & UnixFileMode.UserExecute) != 0;
-        }
-        catch
-        {
-            _logService.LogError($"Failed to asses executable status of {path}, please ensure the file exists.");
-            return false;
-        }
     }
 }
