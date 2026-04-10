@@ -36,7 +36,8 @@ It automates the detection of game installations across multiple launchers and s
 * the `docker` package for Linux 
 
 ### Cloning the Repository
-* ```git clone https://github.com/fornkatt/Restall.git cd Restall```
+* ```git clone https://github.com/fornkatt/Restall.git```
+* ```cd Restall```
 
 | <img src=".github/assets/windows-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Windows | <img src=".github/assets/linux-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Linux |
 | :--- | :--- |
