@@ -1,0 +1,330 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Restall.UI.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Restall.UI.Views.ModView"
+             x:DataType="vm:ModViewModel">
+
+    <Grid ColumnDefinitions="*"
+          RowDefinitions=".25*,.75*">
+
+        <!-- GAME CARD -->
+        <Border Grid.Row="0" CornerRadius="20" Margin="5, 5, 5, 5" Background="{DynamicResource GameCardBackground}">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="10,10,10,0">
+                <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedGame.Name}" FontSize="20" FontWeight="Bold" Margin="10,0,0,0"
+                               Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"
+                               VerticalAlignment="Center" />
+                    <Button Classes="game-card-btn" CornerRadius="6" Command="{Binding OpenInExplorerCommand}"
+                            VerticalAlignment="Center">
+                        <TextBlock FontFamily="{StaticResource Phosphor-Fill}" FontSize="20" Text="&#xE256;" />
+                    </Button>
+                </StackPanel>
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" FontSize="12" Margin="10, 0, 0, 0"
+                           Text="{Binding SelectedGame.PlatformName}" Foreground="{DynamicResource GameCardText}"
+                           TextWrapping="Wrap" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" FontSize="12" Margin="10, 0, 0, 0"
+                           Text="{Binding SelectedGame.EngineName}" Foreground="{DynamicResource GameCardText}"
+                           TextWrapping="Wrap" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" FontSize="12" Margin="10, 0, 0, 0"
+                           Text="{Binding SelectedGame.InstallFolder}" Foreground="{DynamicResource GameCardText}"
+                           TextWrapping="Wrap" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" FontSize="12" Margin="10, 0, 0, 0"
+                           Text="{Binding SelectedGame.ExecutablePath}" Foreground="{DynamicResource GameCardText}"
+                           TextWrapping="Wrap" />
+
+                <Grid Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2"
+                      ColumnDefinitions="*, *, *" ColumnSpacing="5"
+                      Margin="5,30,5,5">
+                    <Button Grid.Column="0"
+                            Classes="game-card-btn"
+                            CornerRadius="6"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Stretch"
+                            Margin="0,0,4,0"
+                            IsVisible="False">
+                        <TextBlock Text="Quick game scan" FontSize="14" HorizontalAlignment="Center" />
+
+                    </Button>
+                    <Button Grid.Column="1"
+                            Classes="game-card-btn"
+                            CornerRadius="6"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Margin="0,0,4,0"
+                            IsVisible="False">
+                        <TextBlock Text="Display Commander" FontSize="14" HorizontalAlignment="Center" />
+
+                    </Button>
+                    <Button Grid.Column="2"
+                            Classes="game-card-btn"
+                            CornerRadius="6"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            IsVisible="False">
+                        <TextBlock Text="SpecialK" FontSize="14" HorizontalAlignment="Center" />
+                    </Button>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- MOD CARD -->
+        <Border Grid.Row="1" Margin="5" CornerRadius="20" Background="{DynamicResource GameCardBackground}">
+            <Grid RowDefinitions="Auto, Auto"
+                  ColumnDefinitions="0.5*, 0.5*">
+
+                <!-- RESHADE -->
+                <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                      ColumnDefinitions="0.5*, 0.5*"
+                      RowDefinitions="Auto, Auto, Auto, Auto, Auto"
+                      Margin="10">
+                    <Grid Grid.Row="0" Grid.Column="0"
+                          ColumnDefinitions="0.75*, 0.25*">
+                        <Grid Grid.Column="0"
+                              Grid.ColumnSpan="2"
+                              ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="ReShade" FontWeight="Bold" FontSize="28"
+                                       Foreground="{DynamicResource GameCardText}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       Text="Not installed" FontSize="16"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource GameCardText}"
+                                       IsVisible="{Binding !SelectedGame.HasReShade}" />
+                            <StackPanel Grid.Row="0" Grid.Column="1"
+                                        Margin="5"
+                                        HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedGame.ReShadeFilename}" FontSize="10"
+                                               Foreground="{DynamicResource GameCardText}" />
+                                    <TextBlock Text="{Binding SelectedGame.ReShadeArch}" FontSize="10"
+                                               Foreground="{DynamicResource GameCardText}"
+                                               Margin="5, 0, 0, 0" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedGame.ReShadeBranch}" FontSize="10"
+                                               Foreground="{DynamicResource GameCardText}" />
+                                    <TextBlock Text=" | " FontSize="10"
+                                               Foreground="{DynamicResource GameCardText}"
+                                               IsVisible="{Binding SelectedGame.HasReShade}" />
+                                    <TextBlock Text="{Binding SelectedGame.ReShadeVersion}" FontSize="10"
+                                               Foreground="{Binding ReShadeVersionTextColor}" />
+                                    <TextBlock Text=" -> " FontSize="10" Foreground="{DynamicResource GameCardText}"
+                                               IsVisible="{Binding CanShowReShadeUpdate}" />
+                                    <TextBlock Text="{Binding ReShadeLatestVersionForBranch}" FontSize="10"
+                                               Foreground="#1ab652"
+                                               IsVisible="{Binding CanShowReShadeUpdate}" />
+                                </StackPanel>
+                            </StackPanel>
+                            <Button Classes="mod-card-btn"
+                                    Grid.Column="0" Grid.Row="1"
+                                    Grid.ColumnSpan="2"
+                                    Content="{Binding InstallReShadeButtonText}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                    HorizontalAlignment="Stretch"
+                                    CornerRadius="6"
+                                    Command="{Binding InstallReShadeCommand}"
+                                    Background="{DynamicResource ModCardButton}"
+                                    Foreground="{DynamicResource ModCardButtonText}"
+                                    Margin="0, 5, 5, 5" />
+                            <Button Classes="mod-card-btn"
+                                    Grid.Column="0" Grid.Row="2"
+                                    Grid.ColumnSpan="2"
+                                    Content="{Binding UpdateReShadeButtonText}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                    HorizontalAlignment="Stretch"
+                                    CornerRadius="6"
+                                    Command="{Binding UpdateReShadeCommand}"
+                                    Background="{DynamicResource ModCardButton}"
+                                    Foreground="{DynamicResource ModCardButtonText}"
+                                    Margin="0, 5, 5, 5" />
+                            <Button Classes="mod-card-btn"
+                                    Grid.Column="0" Grid.Row="3"
+                                    Grid.ColumnSpan="2"
+                                    Content="{Binding UninstallReShadeButtonText}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                    HorizontalAlignment="Stretch"
+                                    CornerRadius="6"
+                                    Command="{Binding UninstallReShadeCommand}"
+                                    Background="{DynamicResource ModCardButton}"
+                                    Foreground="{DynamicResource ModCardButtonText}"
+                                    Margin="0, 5, 5, 5" />
+                        </Grid>
+                    </Grid>
+                </Grid>
+                
+                <Border Grid.Column="1"
+                        Grid.Row="0"
+                        CornerRadius="10"
+                        Margin="10"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource GameCardNotesBorder}"
+                        ClipToBounds="True"
+                        VerticalAlignment="Top"
+                        MaxHeight="100"
+                        IsVisible="{Binding SelectedGame.IsShowingReShadeActionMessage}">
+
+                        <TextBlock TextWrapping="Wrap"
+                                   FontSize="12"
+                                   Margin="10"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Top"
+                                   Foreground="{DynamicResource GameCardText}"
+                                   Text="{Binding SelectedGame.ReShadeModActionStatus}" />
+                </Border>
+
+                <!-- RENODX -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                           IsVisible="{Binding !SelectedGame.IsRenoDXSupported}"
+                           Text="RenoDX not supported"
+                           FontWeight="Bold"
+                           FontSize="28"
+                           Foreground="{DynamicResource GameCardText}"
+                           Margin="10, 10, 0, 0" />
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                      ColumnDefinitions="0.5*, 0.5*"
+                      RowDefinitions="Auto, Auto, Auto, Auto, Auto"
+                      Margin="10"
+                      IsVisible="{Binding SelectedGame.IsRenoDXSupported}">
+                    <Grid Grid.Row="0" Grid.Column="0"
+                          ColumnDefinitions="0.75*, 0.25*">
+                        <Grid Grid.Column="0"
+                              Grid.ColumnSpan="2"
+                              ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="RenoDX" FontWeight="Bold" FontSize="28"
+                                       Foreground="{DynamicResource GameCardText}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       Text="Not installed" FontSize="16"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource GameCardText}"
+                                       IsVisible="{Binding !SelectedGame.HasRenoDX}" />
+                            <StackPanel Grid.Row="0" Grid.Column="1"
+                                        Margin="5"
+                                        HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedGame.RenoDXName}" FontSize="10"
+                                               Foreground="{DynamicResource GameCardText}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedGame.RenoDXBranch}" FontSize="10"
+                                               Foreground="{DynamicResource GameCardText}" />
+                                    <TextBlock Text=" | " FontSize="10"
+                                               Foreground="{DynamicResource GameCardText}"
+                                               IsVisible="{Binding SelectedGame.HasRenoDX}" />
+                                    <TextBlock Text="{Binding SelectedGame.RenoDXVersion}" FontSize="10"
+                                               Foreground="{Binding RenoDXVersionTextColor}" />
+                                    <TextBlock Text=" -> " FontSize="10" Foreground="{DynamicResource GameCardText}"
+                                               IsVisible="{Binding CanShowRenoDXUpdate}" />
+                                    <TextBlock Text="{Binding RenoDXLatestVersionForBranch}" FontSize="10"
+                                               Foreground="#1ab652"
+                                               IsVisible="{Binding CanShowRenoDXUpdate}" />
+                                </StackPanel>
+                            </StackPanel>
+                            <Button Classes="mod-card-btn"
+                                    Grid.Column="0" Grid.Row="1"
+                                    Grid.ColumnSpan="2"
+                                    Content="{Binding InstallRenoDXButtonText}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                    HorizontalAlignment="Stretch"
+                                    CornerRadius="6"
+                                    Command="{Binding InstallRenoDXCommand}"
+                                    Background="{DynamicResource ModCardButton}"
+                                    Foreground="{DynamicResource ModCardButtonText}"
+                                    Margin="0, 5, 5, 5" />
+                            <Button Classes="mod-card-btn"
+                                    Grid.Column="0" Grid.Row="2"
+                                    Grid.ColumnSpan="2"
+                                    Content="{Binding UpdateRenoDXButtonText}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                    HorizontalAlignment="Stretch"
+                                    CornerRadius="6"
+                                    Command="{Binding UpdateRenoDXCommand}"
+                                    Background="{DynamicResource ModCardButton}"
+                                    Foreground="{DynamicResource ModCardButtonText}"
+                                    Margin="0, 5, 5, 5" />
+                            <Button Classes="mod-card-btn"
+                                    Grid.Column="0" Grid.Row="3"
+                                    Grid.ColumnSpan="2"
+                                    Content="{Binding UninstallRenoDXButtonText}"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                    HorizontalAlignment="Stretch"
+                                    CornerRadius="6"
+                                    Command="{Binding UninstallRenoDXCommand}"
+                                    Background="{DynamicResource ModCardButton}"
+                                    Foreground="{DynamicResource ModCardButtonText}"
+                                    Margin="0, 5, 5, 5" />
+                            <Grid Grid.Column="0" Grid.Row="4"
+                                  Grid.ColumnSpan="2"
+                                  ColumnDefinitions="0.5*, 0.5*"
+                                  Margin="5">
+                                <ToggleSwitch Grid.Column="0"
+                                              IsVisible="{Binding IsNightlyBranchAvailable}"
+                                              VerticalAlignment="Top"
+                                              IsChecked="{Binding IsRenoDXNightlyBranch, Mode=TwoWay}"
+                                              OnContent="Nightly"
+                                              OffContent="Snapshot"
+                                              FontSize="12"
+                                              FontWeight="SemiBold"
+                                              Foreground="{DynamicResource GameCardText}"
+                                              Margin="5" />
+                                <TextBlock Grid.Column="1"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           FontSize="12"
+                                           Foreground="#1ab652"
+                                           Margin="5"
+                                           IsVisible="{Binding SelectedGame.IsUsingGenericModWhenSpecificAvailable}"
+                                           Text="{Binding SpecificRenoDXModAvailableWarning}" />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Border Grid.Column="1"
+                        Grid.Row="1"
+                        CornerRadius="10"
+                        Margin="10"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource GameCardNotesBorder}"
+                        ClipToBounds="True"
+                        VerticalAlignment="Top"
+                        MaxHeight="150"
+                        IsVisible="{Binding SelectedGame.IsRenoDXSupported}">
+                    <Grid>
+                        <ScrollViewer HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Top"
+                                      IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
+                            <TextBlock TextWrapping="Wrap"
+                                       FontSize="12"
+                                       Margin="10"
+                                       HorizontalAlignment="Left"
+                                       Foreground="{DynamicResource GameCardText}"
+                                       Text="{Binding RenoDXNotes}" />
+                        </ScrollViewer>
+                        
+                        <TextBlock TextWrapping="Wrap"
+                                   FontSize="12"
+                                   Margin="10"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Top"
+                                   Foreground="{DynamicResource GameCardText}"
+                                   IsVisible="{Binding SelectedGame.IsShowingRenoDXActionMessage}"
+                                   Text="{Binding SelectedGame.RenoDXModActionStatus}" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
