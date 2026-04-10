@@ -1,0 +1,10 @@
+﻿**/bin/
+**/obj/
+**/Logs/
+.vs/
+.idea/
+**/*.user
+**/*.suo
+dist/
+**/TestResults/
+**/*.nupkg
