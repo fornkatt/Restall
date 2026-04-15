@@ -67,11 +67,6 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         var result = await _modInstallService.InstallModAsync(request.Game, renoDX, filePath);
 
-        if (result.IsSuccess)
-            await _logService.LogInfoAsync($"Successfully installed RenoDX as {renoDX.SelectedName} to game: {request.Game.Name}");
-        else
-            await _logService.LogWarningAsync($"Could not install RenoDX to game: {request.Game.Name}");
-
         return result;
     }
 

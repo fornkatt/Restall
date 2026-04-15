@@ -12,21 +12,18 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
     private readonly IModDownloadService _modDownloadService;
     private readonly IFileExtractionService _fileExtractionService;
     private readonly IModInstallService _modInstallService;
-    private readonly ILogService _logService;
 
     public InstallReShadeUseCase(
         IPathService pathService,
         IModDownloadService modDownloadService,
         IFileExtractionService fileExtractionService,
-        IModInstallService modInstallService,
-        ILogService logService
+        IModInstallService modInstallService
         )
     {
         _pathService = pathService;
         _modDownloadService = modDownloadService;
         _fileExtractionService = fileExtractionService;
         _modInstallService = modInstallService;
-        _logService = logService;
     }
 
     public async Task<ModOperationResultDto> ExecuteAsync(InstallReShadeRequest request, IProgress<DownloadProgressReportDto>? progress = null)
@@ -55,11 +52,6 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
 
         var result = await _modInstallService.InstallModAsync(request.Game, reShade, extractedFilePath);
 
-        if (result.IsSuccess)
-            await _logService.LogInfoAsync($"Successfully installed ReShade version {reShade.Version} as {reShade.SelectedFilename} to game: {request.Game.Name}");
-        else
-            await _logService.LogWarningAsync($"Could not install ReShade to game: {request.Game.Name}");
-
         return result;
     }
 
@@ -68,10 +60,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         var installerPath = _pathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version!);
 
         if (File.Exists(installerPath))
-        {
-            await _logService.LogInfoAsync($"ReShade {reShade.Version} installer already in download cache, skipping download.");
             return true;
-        }
 
         return await _modDownloadService.DownloadReShadeAsync(reShade.BranchName, reShade.Version!, progress);
     }
