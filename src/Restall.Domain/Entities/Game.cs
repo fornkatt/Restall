@@ -14,6 +14,8 @@ public sealed class Game
     public string? BannerPathString { get; set; }
     public string? LogoPathString { get; set; }
     public string? ThumbnailPathString { get; set; }
+    
+    public string? GameCoverPathString { get; set; }
     public RenoDX? RenoDX { get; set; }
     public ReShade? ReShade { get; set; }
 

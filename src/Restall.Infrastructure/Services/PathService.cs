@@ -12,18 +12,26 @@ internal sealed class PathService : IPathService
     private const string s_downloadCacheFolderName = "DownloadCache";
     private const string s_cacheFolderName = "Cache";
     private const string s_sgdbFolderName = "SGDB";
+    private const string s_pcgwFolderName = "PCGamingWiki";
 
     private const string s_bannerFileName = "banner.png";
     private const string s_iconFileName = "icon.png";
     private const string s_logoFileName = "logo.png";
-
+    private const string s_gameCoverFileName = "cover.png";
+    
     private readonly string _defaultLogPath = Path.Combine(s_baseDirectory, "Logs");
     private readonly string _reShadeCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, "ReShade");
     private readonly string _reShadeDownloadCacheBaseDir = Path.Combine(s_baseDirectory, s_downloadCacheFolderName, "ReShade");
     private readonly string _renoDXDownloadCacheBaseDir = Path.Combine(s_baseDirectory, s_downloadCacheFolderName, "RenoDX");
     private readonly string _sgdbCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, s_sgdbFolderName);
+    private readonly string _pcgwCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, s_pcgwFolderName);
     
+    //PC GAMING WIKI PATHS
     public string GetSgdbCacheDirectory() => _sgdbCacheBaseDir;
+    public string GetArtworkCacheDirectory() => _pcgwCacheBaseDir;
+    public string GetGameArtworkCover(string slug) => Path.Combine(_pcgwCacheBaseDir,slug,  s_gameCoverFileName);
+    public string GetGameArtThumbnailPath(string slug) => Path.Combine(_pcgwCacheBaseDir, slug, s_iconFileName);
+    
     public string GetSgdbBannerPath(int steamGridDbId) =>
         Path.Combine(_sgdbCacheBaseDir, steamGridDbId.ToString(), s_bannerFileName);
 

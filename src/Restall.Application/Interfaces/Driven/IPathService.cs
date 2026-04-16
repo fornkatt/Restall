@@ -17,5 +17,9 @@ public interface IPathService
     string GetSgdbLogoPath(int steamGridDbId);
     string GetSgdbCacheDirectory();
 
+    string GetArtworkCacheDirectory();
+    string GetGameArtworkCover(string slug);
+    string GetGameArtThumbnailPath(string slug);
+
     string GetDefaultLogPath();
 }

@@ -59,8 +59,8 @@ internal static class GameScanHelper
             var key = Registry.LocalMachine.OpenSubKey(fullPath);
             if (key != null) return key;
             
-            var wow64path = fullPath.Replace(s_softwareRegistryPath, s_wow64RegistryPath);
-            return Registry.LocalMachine.OpenSubKey(wow64path);
+            var wow64Path = fullPath.Replace(s_softwareRegistryPath, s_wow64RegistryPath);
+            return Registry.LocalMachine.OpenSubKey(wow64Path);
            
         }
         catch { return null; }
@@ -76,6 +76,33 @@ internal static class GameScanHelper
         }
         return null;
     }
+    
+    //TODO: MOVE NONGAMEEXECUTABLE, NONGAME, GETPREFERREDEXESUBFOLDERS TO MANIFEST 
+    internal static bool NonGameExecutable(string exeNameWithoutExtension)
+    {
+        var keywords = new HashSet<string>()
+        {
+            "UbisoftConnectInstaller",
+            "EpicOnlineServiceInstaller",
+            "DirectXSetup",
+            "DXSETUP",
+            "vcredist",
+            "UnityCrashHandler",
+            "CrashReportClient",
+            "launcher",
+            "helper",
+            "crashpad",
+            "crashreport",
+            "setup",
+            "install",
+            "unins",
+            "redist",
+
+        };
+
+        return keywords.Any(k => exeNameWithoutExtension.Contains(k, StringComparison.OrdinalIgnoreCase));
+    }
+    
     
     internal static bool NonGame(string name)
     {
@@ -110,6 +137,7 @@ internal static class GameScanHelper
 
     internal static string[] GetPreferredExeSubFolders() => 
     [
+        "bin",
         Path.Combine("bin", "x64"),
         Path.Combine("bin", "x86"),
         Path.Combine("bin", "win64")
