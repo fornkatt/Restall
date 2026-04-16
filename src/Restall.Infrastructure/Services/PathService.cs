@@ -12,7 +12,7 @@ internal sealed class PathService : IPathService
     private const string s_downloadCacheFolderName = "DownloadCache";
     private const string s_cacheFolderName = "Cache";
     private const string s_sgdbFolderName = "SGDB";
-    private const string s_pcgwFolderName = "PCGamingWiki";
+    private const string s_artworkFolderName = "Artwork";
 
     private const string s_bannerFileName = "banner.png";
     private const string s_iconFileName = "icon.png";
@@ -24,9 +24,9 @@ internal sealed class PathService : IPathService
     private readonly string _reShadeDownloadCacheBaseDir = Path.Combine(s_baseDirectory, s_downloadCacheFolderName, "ReShade");
     private readonly string _renoDXDownloadCacheBaseDir = Path.Combine(s_baseDirectory, s_downloadCacheFolderName, "RenoDX");
     private readonly string _sgdbCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, s_sgdbFolderName);
-    private readonly string _pcgwCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, s_pcgwFolderName);
+    private readonly string _pcgwCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, s_artworkFolderName);
     
-    //PC GAMING WIKI PATHS
+    //ARTWORK PATHS FOR PC GAMING WIKI
     public string GetSgdbCacheDirectory() => _sgdbCacheBaseDir;
     public string GetArtworkCacheDirectory() => _pcgwCacheBaseDir;
     public string GetGameArtworkCover(string slug) => Path.Combine(_pcgwCacheBaseDir,slug,  s_gameCoverFileName);

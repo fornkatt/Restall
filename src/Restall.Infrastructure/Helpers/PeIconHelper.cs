@@ -1,6 +1,9 @@
 namespace Restall.Infrastructure.Helpers;
 
-public class PeIconHelper
+//TODO: EXTRACT ICONS FROM THE INSTALLATION FOLDER
+internal static class PeIconHelper
 {
+    
+    
     
 }

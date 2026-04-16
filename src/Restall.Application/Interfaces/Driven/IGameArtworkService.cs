@@ -1,6 +1,8 @@
+using Restall.Domain.Entities;
+
 namespace Restall.Application.Interfaces.Driven;
 
 public interface IGameArtworkService
 {
-    Task EnrichGameArtworkAsync(string slug);
+    Task EnrichGameArtworkAsync(Game game);
 }
