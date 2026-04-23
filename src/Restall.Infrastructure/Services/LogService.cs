@@ -6,22 +6,25 @@ namespace Restall.Infrastructure.Services;
 internal sealed class LogService : ILogService
 {
     private readonly string _logsDirectory;
-
-    private const string s_defaultLogFilename = "restall_log.txt";
+    private readonly string _defaultLogFilename;
 
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
     public LogService(IPathService pathService)
     {
         _logsDirectory = pathService.GetDefaultLogPath();
+        _defaultLogFilename = $"{DateTime.Now:yyyy-MM-dd}_restall_log.txt";
     }
+    
+    private string ResolveFilename(string? logFilename) =>
+        logFilename ?? _defaultLogFilename;
 
     private void Log(string message, MessageType messageType, Exception? exception = null,
-        string logFilename = s_defaultLogFilename)
+        string? logFilename = null)
     {
-        string logFilePath = Path.Combine(_logsDirectory, logFilename);
+        var logFilePath = Path.Combine(_logsDirectory, ResolveFilename(logFilename));
         
-        string logFormat = FormatLogMessage(message, messageType, exception);
+        var logFormat = FormatLogMessage(message, messageType, exception);
         
         _semaphore.Wait();
         try
@@ -41,11 +44,11 @@ internal sealed class LogService : ILogService
     }
     
     private async Task LogAsync(string message, MessageType messageType, Exception? exception = null,
-        string logFilename = s_defaultLogFilename)
+        string? logFilename = null)
     {
-        string logFilePath = Path.Combine(_logsDirectory, logFilename);
+        var logFilePath = Path.Combine(_logsDirectory, ResolveFilename(logFilename));
         
-        string logFormat = FormatLogMessage(message, messageType, exception);
+        var logFormat = FormatLogMessage(message, messageType, exception);
         
         await _semaphore.WaitAsync();
         try
@@ -66,20 +69,20 @@ internal sealed class LogService : ILogService
     
     private static string FormatLogMessage(string message, MessageType messageType, Exception? exception)
     {
-        return $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | {messageType} | {message}" +
+        return $"{DateTime.Now:HH:mm:ss} | {messageType} | {message}" +
                $"{(exception != null ? $" || {exception.Message}" : "")}{Environment.NewLine}";
     }
     
-    public void LogInfo(string message, string logFilename = s_defaultLogFilename) =>
+    public void LogInfo(string message, string? logFilename = null) =>
         Log(message, MessageType.Info, null, logFilename);
-    public void LogWarning(string message, string logFilename = s_defaultLogFilename) =>
+    public void LogWarning(string message, string? logFilename = null) =>
         Log(message, MessageType.Warning, null, logFilename);
-    public void LogError(string message, Exception? exception = null, string logFilename = s_defaultLogFilename) =>
+    public void LogError(string message, Exception? exception = null, string? logFilename = null) =>
         Log(message, MessageType.Error, exception, logFilename);
-    public async Task LogInfoAsync(string message, string logFilename = s_defaultLogFilename) =>
+    public async Task LogInfoAsync(string message, string? logFilename = null) =>
         await LogAsync(message, MessageType.Info, null, logFilename);
-    public async Task LogWarningAsync(string message, string logFilename = s_defaultLogFilename) =>
+    public async Task LogWarningAsync(string message, string? logFilename = null) =>
         await LogAsync(message, MessageType.Warning,  null, logFilename);
-    public async Task LogErrorAsync(string message, Exception? exception = null, string logFilename = s_defaultLogFilename) =>
+    public async Task LogErrorAsync(string message, Exception? exception = null, string? logFilename = null) =>
         await LogAsync(message, MessageType.Error, exception, logFilename);
 }
