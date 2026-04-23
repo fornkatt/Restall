@@ -1,4 +1,5 @@
 ﻿using PeNet.Header.Resource;
+using Restall.Application.Common;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -9,66 +10,109 @@ internal sealed class ModDetectionService : IModDetectionService
 {
     private readonly ILogService _logService;
 
-    internal const long s_dllScanMaxBytes = 10 * 1024 * 1024;
+    private const long s_dllScanMaxBytes = 10 * 1024 * 1024;
 
     public ModDetectionService(
         ILogService logService
-        )
+    )
     {
         _logService = logService;
     }
 
-    public async Task<HashSet<ReShade>?> DetectInstalledReShadeAsync(string executablePath)
+    public async Task<Result<HashSet<ReShade>>> DetectInstalledReShadeAsync(string executablePath)
     {
         var fileList = new HashSet<ReShade>();
 
-        await ScanFilesAsync(executablePath, ["*.dll", "*.asi"], s_dllScanMaxBytes, async (file, versionInfo) =>
+        try
         {
-            if (!string.IsNullOrWhiteSpace(versionInfo.ProductName) &&
-                versionInfo.ProductName.Equals("ReShade", StringComparison.OrdinalIgnoreCase) &&
-                !string.IsNullOrWhiteSpace(versionInfo.ProductVersion))
+            await ScanFilesAsync(executablePath, ["*.dll", "*.asi"], s_dllScanMaxBytes, async (file, versionInfo) =>
             {
-                fileList.Add(new ReShade
+                if (!string.IsNullOrWhiteSpace(versionInfo.ProductName) &&
+                    versionInfo.ProductName.Equals("ReShade", StringComparison.OrdinalIgnoreCase) &&
+                    !string.IsNullOrWhiteSpace(versionInfo.ProductVersion))
                 {
-                    SelectedFilename = Path.GetFileName(file),
-                    Version = versionInfo.ProductVersion,
-                    BranchName = ReShade.Branch.Stable,
-                    Arch = versionInfo.OriginalFilename?.Contains("64") == true
-                        ? ReShade.Architecture.x64
-                        : ReShade.Architecture.x32
-                });
-                await _logService.LogInfoAsync($"Found ReShade as: {file}");
-            }
-        });
+                    fileList.Add(new ReShade
+                    {
+                        SelectedFilename = Path.GetFileName(file),
+                        Version = versionInfo.ProductVersion,
+                        BranchName = ReShade.Branch.Stable,
+                        Arch = versionInfo.OriginalFilename?.Contains("64") == true
+                            ? ReShade.Architecture.x64
+                            : ReShade.Architecture.x32
+                    });
+                    await _logService.LogInfoAsync($"Found ReShade as: {file}");
+                }
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Result<HashSet<ReShade>>.Err("Permission denied scanning directory.", ResultError.PermissionDenied,
+                ex);
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            return Result<HashSet<ReShade>>.Err("Game directory not found.", ResultError.FileSystemError, ex);
+        }
+        catch (IOException ex)
+        {
+            return Result<HashSet<ReShade>>.Err("Failed to scan game directory.", ResultError.FileSystemError, ex);
+        }
 
-        return fileList;
+        return Result<HashSet<ReShade>>.Ok(fileList);
     }
 
-    public async Task<HashSet<RenoDX>?> DetectInstalledRenoDXAsync(string executablePath)
+    public async Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executablePath)
     {
         var fileList = new HashSet<RenoDX>();
 
-        await ScanFilesAsync(executablePath, ["*.addon64", "*.addon32"], long.MaxValue, async (file, versionInfo) =>
+        try
         {
-            if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
-                versionInfo.OriginalFilename.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) &&
-                !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
+            await ScanFilesAsync(executablePath, ["*.addon64", "*.addon32"], long.MaxValue, async (file, versionInfo) =>
             {
-                fileList.Add(new RenoDX
+                if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
+                    versionInfo.OriginalFilename.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) &&
+                    !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
                 {
-                    SelectedName = Path.GetFileName(file),
-                    OriginalName = versionInfo.OriginalFilename,
-                    BranchName = RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
-                    Version = ParseRenoDXVersion(versionInfo.FileVersion),
-                    Arch = versionInfo.OriginalFilename.Contains("64") == true
-                        ? RenoDX.Architecture.x64
-                        : RenoDX.Architecture.x32
-                });
-                await _logService.LogInfoAsync($"Found RenoDX as: {file}");
-            }
-        });
+                    fileList.Add(new RenoDX
+                    {
+                        SelectedName = Path.GetFileName(file),
+                        OriginalName = versionInfo.OriginalFilename,
+                        BranchName =
+                            RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
+                        Version = ParseRenoDXVersion(versionInfo.FileVersion),
+                        Arch = versionInfo.OriginalFilename.Contains("64")
+                            ? RenoDX.Architecture.x64
+                            : RenoDX.Architecture.x32
+                    });
+                    await _logService.LogInfoAsync($"Found RenoDX as: {file}");
+                }
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Result<HashSet<RenoDX>>.Err("Permission denied scanning directory.", ResultError.PermissionDenied,
+                ex);
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            return Result<HashSet<RenoDX>>.Err("Game directory not found.", ResultError.FileSystemError, ex);
+        }
+        catch (IOException ex)
+        {
+            return Result<HashSet<RenoDX>>.Err("Failed to scan game directory.", ResultError.FileSystemError, ex);
+        }
 
-        return fileList;
+        return Result<HashSet<RenoDX>>.Ok(fileList);
+    }
+
+    public Result<string?> GetRenoDXFileVersion(string filePath)
+    {
+        var versionInfo = PeVersionHelper.GetVersionInfo(filePath);
+
+        if (versionInfo is { IsSuccess: false })
+            return Result<string?>.Err(versionInfo.ErrorMessage, versionInfo.Error, versionInfo.Exception);
+
+        return Result<string?>.Ok(ParseRenoDXVersion(versionInfo.Value?.FileVersion));
     }
 
     private async Task ScanFilesAsync(
@@ -83,33 +127,17 @@ internal sealed class ModDetectionService : IModDetectionService
 
         foreach (var file in files)
         {
-            try
+            var versionInfo = PeVersionHelper.GetVersionInfo(file, maxScanBytes);
+            switch (versionInfo)
             {
-                var versionInfo = PeVersionHelper.GetVersionInfo(file, maxScanBytes);
-                if (versionInfo is null) continue;
-                await handler(file, versionInfo);
+                case { IsSuccess: false }:
+                    await _logService.LogErrorAsync(versionInfo.ErrorMessage ?? $"Failed to read {file}",
+                        versionInfo.Exception);
+                    continue;
+                case { IsSuccess: true, Value: not null }:
+                    await handler(file, versionInfo.Value);
+                    break;
             }
-            catch (Exception ex)
-            {
-                await _logService.LogErrorAsync($"Failed to read file {file}: ", ex);
-            }
-        }
-    }
-
-    public string? GetRenoDXFileVersion(string filePath)
-    {
-        try
-        {
-
-            var versionInfo = PeVersionHelper.GetVersionInfo(filePath);
-            if (versionInfo is null) return null;
-            
-            return ParseRenoDXVersion(versionInfo.FileVersion);
-        }
-        catch (Exception ex)
-        {
-            _logService.LogError("Failed to parse RenoDX file version.", ex);
-            return null;
         }
     }
 

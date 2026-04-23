@@ -1,12 +1,12 @@
 ﻿using Restall.Domain.Entities;
 
-namespace Restall.Application.DTOs;
+namespace Restall.Application.DTOs.Results;
 
 public record RefreshLibraryResultDto(
     IReadOnlyList<GameInitResultDto> Games,
     bool IsSuccess,
     string? ErrorMessage = null
-    );
+);
 
 public record GameInitResultDto(
     Game Game,
@@ -14,4 +14,4 @@ public record GameInitResultDto(
     RenoDXGenericModInfoDto? CompatibleGenericMod,
     UpdateCheckResultDto? ReShadeUpdateResult = null,
     UpdateCheckResultDto? RenoDXUpdateResult = null
-    );
+);

@@ -3,6 +3,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Text.RegularExpressions;
+using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
 /// <summary>

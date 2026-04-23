@@ -44,6 +44,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddTransient<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
         services.AddTransient<IModInstallService, ModInstallService>();
         services.AddTransient<IFileExtractionService, FileExtractionService>();
+        services.AddTransient<IFileService, FileService>();
         services.AddTransient<IInstallReShadeUseCase, InstallReShadeUseCase>();
         services.AddTransient<IUninstallReShadeUseCase, UninstallReShadeUseCase>();
         services.AddTransient<IInstallRenoDXUseCase, InstallRenoDXUseCase>();

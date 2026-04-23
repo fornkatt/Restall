@@ -1,4 +1,5 @@
 ﻿using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
@@ -45,8 +46,8 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
 
         var gameScanResults = gameTask.Result;
 
-        var games = gameTask.Result.Games.OrderBy(g => g.Name);
-        return await BuildResultAsync(games, gameTask.Result.IsSuccess, gameTask.Result.Message);
+        var games = gameScanResults.Games.OrderBy(g => g.Name);
+        return await BuildResultAsync(games, gameScanResults.IsSuccess, gameScanResults.Message);
     }
 
     public async Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames, IProgress<GameScanProgressReportDto>? progress = null)
@@ -63,11 +64,11 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
 
         foreach (var game in sortedGames)
         {
-            var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game!.ExecutablePath!);
-            var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game!.ExecutablePath!);
+            var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
+            var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
 
-            game.ReShade = reShade?.FirstOrDefault();
-            game.RenoDX = renoDx?.FirstOrDefault();
+            game.ReShade = reShade.Value?.FirstOrDefault();
+            game.RenoDX = renoDx.Value?.FirstOrDefault();
 
             var reShadeUpdateResult = game.ReShade is not null
                 ? _updateCheckService.CheckReShadeUpdate(game.ReShade)

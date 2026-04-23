@@ -1,4 +1,5 @@
 ﻿using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 
