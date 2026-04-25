@@ -8,8 +8,8 @@
 		x:DataType="vm:MainWindowViewModel"
 		Icon="/Assets/avalonia-logo.ico"
 		Title="Restall"
-		Width="1000"
-		Height="1200"
+		Width="1130"
+		Height="1330"
 		Background="{DynamicResource AppBackground}"
 		WindowStartupLocation="CenterScreen">
 	 
@@ -20,12 +20,10 @@
 		</Grid.ColumnDefinitions>
 
 		<Grid.RowDefinitions>
-			<RowDefinition Height="280"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
-
-		<ContentControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding BannerViewModel}"/>
-		<ContentControl Grid.Row="1" Grid.Column="0" Content="{Binding GameListViewModel}"/>
-		<ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding ModViewModel}"/>
+		
+		<ContentControl Grid.Row="0" Grid.Column="0" Content="{Binding GameListViewModel}"/>
+		<ContentControl Grid.Row="0" Grid.Column="1" Content="{Binding ModViewModel}"/>
 	</Grid>
 </Window>

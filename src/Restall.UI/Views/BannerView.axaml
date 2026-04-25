@@ -8,9 +8,9 @@
 			 x:DataType="viewModels:BannerViewModel">
 
 	<Grid>
-		<Image Source="{Binding SelectedGame.BannerBitmap}"
-			   Stretch="UniformToFill"
-			   MinWidth="800" MaxWidth="1000" HorizontalAlignment="Center" />
+		<!-- <Image Source="{Binding SelectedGame.BannerBitmap}" -->
+		<!-- 	   Stretch="UniformToFill" -->
+		<!-- 	   MinWidth="800" MaxWidth="1000" HorizontalAlignment="Center" /> -->
 		<Image Source="{Binding SelectedGame.LogoBitmap}"
 			   Width="150" Height="180"
 			   HorizontalAlignment="Right"

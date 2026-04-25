@@ -61,6 +61,7 @@ internal sealed class SteamScanner : IPlatformScannerService
         {
             Path.Combine(home, ".steam", "steam"),
             Path.Combine(home, ".local", "share", "Steam"),
+            Path.Combine(home, "snap",   "steam", "common", ".local", "share", "Steam")
         };
         
         return linuxPaths.FirstOrDefault(Directory.Exists);

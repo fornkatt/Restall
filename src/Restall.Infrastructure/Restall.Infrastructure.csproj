@@ -17,6 +17,8 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
         <PackageReference Include="PeNet" Version="6.0.0"/>
         <PackageReference Include="craftersmine.SteamGridDB.Net" Version="1.1.7"/>
+        <PackageReference Include="SkiaSharp" Version="3.119.2" />
+        <PackageReference Include="System.Net.Http.WinHttpHandler" Version="10.0.6" />
     </ItemGroup>
 
 </Project>

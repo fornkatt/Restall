@@ -10,7 +10,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
 {
     private readonly ILogService _logService;
     private readonly IGameDetectionService _gameDetectionService;
-    private readonly ISteamGridDbService _steamGridDbService;
+    private readonly IGameArtworkService _gameArtworkService;
     private readonly IModDetectionService _modDetectionService;
     private readonly IUpdateCheckService _updateCheckService;
     private readonly IVersionCatalog _versionCatalog;
@@ -19,7 +19,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
     public RefreshLibraryUseCase(
         ILogService logService,
         IGameDetectionService gameDetectionService,
-        ISteamGridDbService steamGridDbService,
+        IGameArtworkService gameArtworkService,
         IModDetectionService modDetectionService,
         IUpdateCheckService updateCheckService,
         IVersionCatalog versionCatalog,
@@ -28,7 +28,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
     {
         _logService = logService;
         _gameDetectionService = gameDetectionService;
-        _steamGridDbService = steamGridDbService;
+        _gameArtworkService = gameArtworkService;
         _modDetectionService = modDetectionService;
         _updateCheckService = updateCheckService;
         _versionCatalog = versionCatalog;
@@ -82,7 +82,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
                 ? FindGenericMod(game.Name, _modCatalog.GetRenoDXGenericWikiMods())
                 : null;
 
-            artworkTasks.Add(_steamGridDbService.EnrichGameArtworkAsync(game));
+            artworkTasks.Add(_gameArtworkService.EnrichGameArtworkAsync(game));
 
             results.Add(new GameInitResultDto(
                 game,

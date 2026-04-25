@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Restall.Application.Interfaces.Driven;
 using Restall.UI.Interfaces;
 using Restall.UI.Services;
 using Restall.UI.ViewModels;
@@ -18,8 +19,9 @@ public static class UIServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddUIServices(this IServiceCollection services)
     {
+        services.AddSingleton<IImageResizeService, ImageResizeService>();
         services.AddTransient<IModSelectionDialogService, ModSelectionDialogService>();
-
+    
         services.AddTransient<StartupWindowViewModel>();
         services.AddTransient<BannerViewModel>();
         services.AddTransient<GameListViewModel>();

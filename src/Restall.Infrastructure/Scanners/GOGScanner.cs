@@ -68,7 +68,7 @@ internal sealed class GOGScanner : IPlatformScannerService
                 if (gameKey is null) continue;
 
                 //Value patterns in registry
-                var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName");
+                var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName", "gameName");
                 var path = GameScanHelper.GetRegistryValue(gameKey, "PATH", "path");
 
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path)) continue;
