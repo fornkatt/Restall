@@ -33,7 +33,7 @@ public sealed class ModSelectionDialogService : IModSelectionDialogService
 
         var versions = _versionCatalog.GetAvailableReShadeVersions(ReShade.Branch.Stable);
 
-        if (versions.Count == 0)
+        if (versions.Length == 0)
         {
             await _logService.LogWarningAsync("No ReShade versions available.");
             return null;
@@ -56,7 +56,7 @@ public sealed class ModSelectionDialogService : IModSelectionDialogService
 
         var versions = _versionCatalog.GetAllRenoDXNightlies();
 
-        if (versions.Count == 0)
+        if (versions.Length == 0)
         {
             await _logService.LogWarningAsync("No RenoDX nightlies available.");
             return null;

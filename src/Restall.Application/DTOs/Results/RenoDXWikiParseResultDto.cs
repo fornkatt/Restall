@@ -1,6 +1,8 @@
-﻿namespace Restall.Application.DTOs.Results;
+﻿using System.Collections.Immutable;
+
+namespace Restall.Application.DTOs.Results;
 
 public record RenoDXWikiParseResultDto(
-    IReadOnlyList<RenoDXModInfoDto> WikiMods,
-    IReadOnlyList<RenoDXGenericModInfoDto> GenericWikiMods
+    ImmutableArray<RenoDXModInfoDto> WikiMods,
+    ImmutableArray<RenoDXGenericModInfoDto> GenericWikiMods
 );

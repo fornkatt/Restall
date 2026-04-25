@@ -21,6 +21,9 @@ public sealed partial class ModViewModel : ViewModelBase
     private readonly IModSelectionDialogService _modSelectionDialogService;
     private readonly IVersionCatalog _versionCatalog;
 
+    private const string s_upToDateTextColor = "#eb5a2f";
+    private const string s_updateAvailableTextColor = "#1ab652";
+
     public ModViewModel(
         IModManagementFacade modManagementFacade,
         IModSelectionDialogService modSelectionDialogService,
@@ -190,7 +193,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public string? ReShadeVersionTextColor =>
         SelectedGame?.HasReShade == true
-            ? (CanShowReShadeUpdate ? "#eb5a2f" : "#1ab652")
+            ? (CanShowReShadeUpdate ? s_upToDateTextColor : s_updateAvailableTextColor)
             : null;
 
     public string InstallReShadeButtonText =>
@@ -361,7 +364,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public string? RenoDXVersionTextColor =>
         SelectedGame?.HasRenoDX == true
-            ? (CanShowRenoDXUpdate ? "#eb5a2f" : "#1ab652")
+            ? (CanShowRenoDXUpdate ? s_upToDateTextColor : s_updateAvailableTextColor)
             : null;
 
     public string InstallRenoDXButtonText =>

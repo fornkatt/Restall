@@ -1,4 +1,5 @@
-﻿using Restall.Application.DTOs;
+﻿using System.Collections.Immutable;
+using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
@@ -99,7 +100,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
         return new RefreshLibraryResultDto(results, success, errorMessage);
     }
 
-    private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, IReadOnlyList<RenoDXModInfoDto> mods)
+    private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, ImmutableArray<RenoDXModInfoDto> mods)
     {
         if (string.IsNullOrWhiteSpace(gameName)) return null;
 
@@ -111,7 +112,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
     }
 
     private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName,
-        IReadOnlyList<RenoDXGenericModInfoDto> mods)
+        ImmutableArray<RenoDXGenericModInfoDto> mods)
     {
         if (string.IsNullOrWhiteSpace(gameName)) return null;
 

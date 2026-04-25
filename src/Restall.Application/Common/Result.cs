@@ -16,11 +16,11 @@ public sealed record Result(bool IsSuccess, string? ErrorMessage = null,
 }
 
 /// <summary>
-/// A custom Result type which can be used as Result<![CDATA[<T>]]> to return a value. Auto-sets IsSuccess bool on Ok or Err.
+/// A custom Result type which can be used as Result<![CDATA[<T>]]> to return a value. Auto-sets IsSuccess bool on Success or Error.
 /// Use this type to easily return messages, errors and exceptions to propagate them for useful logging and user facing messages.
 /// <br/><br/>
 /// The messages returned by this type should be useful for logging and not be used to write messages to users. Instead, 
-/// return a ResultError with Result.Err and match on the ResultError in a switch expression at UseCase level to write manual user-friendly messages.
+/// return a ErrorType with Result.Error and match on the ErrorType in a switch expression at UseCase level to write manual user-friendly messages.
 /// </summary>
 public sealed record Result<T>(bool IsSuccess, T? Value = default, string? ErrorMessage = null,
     Exception? Exception = null,  ErrorType ErrorType = ErrorType.Unknown)
