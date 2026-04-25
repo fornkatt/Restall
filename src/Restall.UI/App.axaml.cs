@@ -31,20 +31,30 @@ public partial class App : Avalonia.Application
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
-        var crashLogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Restall", "Logs", "crash.log");
+        var crashLogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Restall", "Logs", $"{DateTime.Now:yyyy-MM-dd}_crash.log");
 
         // Fall back logging if crash occurs as a last resort during initialization or if LogService cannot be reached.
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
         {
             var ex = e.ExceptionObject as Exception;
+
+            if (ex is TaskCanceledException or OperationCanceledException)
+                return;
+            
             Directory.CreateDirectory(Path.GetDirectoryName(crashLogPath)!);
             File.AppendAllText(crashLogPath, $"{DateTime.Now}: {ex}{Environment.NewLine}");
         };
 
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
+            if (e.Exception.InnerExceptions.All(ex => ex is TaskCanceledException or OperationCanceledException))
+            {
+                e.SetObserved();
+                return;
+            }
+            
             Directory.CreateDirectory(Path.GetDirectoryName(crashLogPath)!);
-            File.AppendAllText(crashLogPath, $"{DateTime.Now} {e.Exception}{Environment.NewLine}");
+            File.AppendAllText(crashLogPath, $"{DateTime.Now:HH:mm:ss} {e.Exception}{Environment.NewLine}");
         };
 
         var configuration = new ConfigurationBuilder()

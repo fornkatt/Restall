@@ -2,15 +2,13 @@
 
 public interface ILogService
 {
-    private const string DefaultLogFileName = "restall_log.txt";
+    void LogInfo(string message, string? logFileName = null);
+    void LogWarning(string message, string? logFileName = null);
+    void LogError(string message, Exception? exception = null, string? logFileName = null);
     
-    void LogInfo(string message, string logFileName = DefaultLogFileName);
-    void LogWarning(string message, string logFileName = DefaultLogFileName);
-    void LogError(string message, Exception? exception = null, string logFileName = DefaultLogFileName);
-    
-    Task LogInfoAsync(string message, string logFileName = DefaultLogFileName);
-    Task LogWarningAsync(string message, string logFileName = DefaultLogFileName);
-    Task LogErrorAsync(string message, Exception? exception = null, string logFileName = DefaultLogFileName);
+    Task LogInfoAsync(string message, string? logFileName = null);
+    Task LogWarningAsync(string message, string? logFileName = null);
+    Task LogErrorAsync(string message, Exception? exception = null, string? logFileName = null);
 }
 
 public enum MessageType

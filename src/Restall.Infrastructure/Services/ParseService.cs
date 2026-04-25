@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -17,12 +18,15 @@ internal sealed class ParseService : IParseService
 
     private const string s_renoDxUrl = "https://raw.githubusercontent.com/wiki/clshortfuse/renodx/Mods.md";
     private const string s_renoDxTagsUrl = "https://github.com/clshortfuse/renodx/tags";
-    private const string s_renoDxReleasesTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
+
+    private const string
+        s_renoDxReleasesTagUrl =
+            "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
 
     public ParseService(
         ILogService logService,
         IHttpClientFactory httpClientFactory
-        )
+    )
     {
         _logService = logService;
         _httpClientFactory = httpClientFactory;
@@ -30,25 +34,18 @@ internal sealed class ParseService : IParseService
 
     public async Task<IReadOnlyList<string>> FetchReShadeVersionsAsync()
     {
-        try
-        {
-            var versions = await FetchReShadeVersionsFromGitHubTagsAsync();
-            var siteVersion = await FetchLatestReShadeVersionFromSiteAsync();
+        var versions = await FetchReShadeVersionsFromGitHubTagsAsync();
+        var siteVersion = await FetchLatestReShadeVersionFromSiteAsync();
 
-            if (siteVersion is not null && !versions.Contains(siteVersion))
-            {
-                versions.Insert(0, siteVersion);
-                await _logService.LogInfoAsync($"reshade.me has a newer version not yet on GitHub tags: {siteVersion}");
-            }
-
-            await _logService.LogInfoAsync($"Fetched {versions.Count} stable ReShade versions. Latest: {versions.FirstOrDefault()}");
-            return versions;
-        }
-        catch (Exception ex)
+        if (siteVersion is not null && !versions.Contains(siteVersion))
         {
-            await _logService.LogErrorAsync("Unexpected error occured during parsing. Failed to fetch stable ReShade versions.", ex);
-            return [];
+            versions.Insert(0, siteVersion);
+            await _logService.LogInfoAsync($"reshade.me has a newer version not yet on GitHub tags: {siteVersion}");
         }
+
+        await _logService.LogInfoAsync(
+            $"Fetched {versions.Count} stable ReShade versions. Latest: {versions.FirstOrDefault()}");
+        return versions;
     }
 
     public async Task<RenoDXTagInfoDto?> FetchRenoDXSnapshotAsync()
@@ -61,7 +58,7 @@ internal sealed class ParseService : IParseService
             DateOnly? date = null;
             if (timeNode is not null)
             {
-                var datetime = timeNode.GetAttributeValue("datetime", string.Empty);
+                var datetime = timeNode?.GetAttributeValue("datetime", string.Empty);
                 if (DateTime.TryParse(datetime, out var parsed))
                     date = DateOnly.FromDateTime(parsed.ToUniversalTime());
             }
@@ -99,40 +96,38 @@ internal sealed class ParseService : IParseService
                 }
             }
 
-            await _logService.LogInfoAsync($"Successfully parsed RenoDX snapshot: {date.Value}\n{string.Join(Environment.NewLine, commitNotes)}");
+            await _logService.LogInfoAsync(
+                $"Successfully parsed RenoDX snapshot: {date.Value}\n{string.Join(Environment.NewLine, commitNotes)}");
             return new RenoDXTagInfoDto(date.Value, RenoDX.Branch.Snapshot, commitNotes);
         }
-        catch (Exception ex)
+        catch (HttpRequestException ex)
         {
-            await _logService.LogErrorAsync("Failed to fetch latest RenoDX snapshot", ex);
+            await _logService.LogErrorAsync("RenoDX snapshot page is unreachable", ex);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            await _logService.LogErrorAsync("Request for the RenoDX snapshot page timed out.", ex);
             return null;
         }
     }
 
     public async Task<IReadOnlyList<RenoDXTagInfoDto>> FetchRenoDXNightlyTagsAsync()
     {
-        try
+        var nightlyTags = await FetchRenoDXNightlyTagNamesAsync();
+
+        if (nightlyTags.Count <= 0)
         {
-            var nightlyTags = await FetchRenoDXNightlyTagNamesAsync();
-
-            if (nightlyTags.Count <= 0)
-            {
-                await _logService.LogWarningAsync("No nightly RenoDX tags found.");
-                return [];
-            }
-
-            var tagInfoResults = await Task.WhenAll(nightlyTags.Select(FetchRenoDXNighlyReleaseInfoAsync));
-            var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToList();
-
-            await _logService.LogInfoAsync($"Fetched {tagInfos.Count} nightly RenoDX versions. " +
-                $"Latest: {tagInfos.FirstOrDefault()?.Version}");
-            return tagInfos;
-        }
-        catch (Exception ex)
-        {
-            await _logService.LogErrorAsync("Failed to fetch nightly RenoDX versions.", ex);
+            await _logService.LogWarningAsync("No nightly RenoDX tags found.");
             return [];
         }
+
+        var tagInfoResults = await Task.WhenAll(nightlyTags.Select(FetchRenoDXNighlyReleaseInfoAsync));
+        var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToList();
+
+        await _logService.LogInfoAsync($"Fetched {tagInfos.Count} nightly RenoDX versions. " +
+                                       $"Latest: {tagInfos.FirstOrDefault()?.Version}");
+        return tagInfos;
     }
 
     public async Task<RenoDXWikiParseResultDto> FetchRenoDXWikiModsAsync()
@@ -146,8 +141,8 @@ internal sealed class ParseService : IParseService
             var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
             SupportedEngine? currentEngine = null;
-            bool inTable = false;
-            bool headerSkipped = false;
+            var inTable = false;
+            var headerSkipped = false;
 
             foreach (var rawLine in lines)
             {
@@ -160,6 +155,7 @@ internal sealed class ParseService : IParseService
                     headerSkipped = false;
                     continue;
                 }
+
                 if (line.StartsWith("### Unity Engine", StringComparison.OrdinalIgnoreCase))
                 {
                     currentEngine = SupportedEngine.Unity;
@@ -167,6 +163,7 @@ internal sealed class ParseService : IParseService
                     headerSkipped = false;
                     continue;
                 }
+
                 if (line.StartsWith('#'))
                 {
                     currentEngine = null;
@@ -204,7 +201,7 @@ internal sealed class ParseService : IParseService
                         Status: status,
                         Notes: notes,
                         Engine: currentEngine.Value
-                        ));
+                    ));
                 }
                 else
                 {
@@ -218,14 +215,14 @@ internal sealed class ParseService : IParseService
                     var status = cells[3].Trim();
 
                     wikiMods.Add(new RenoDXModInfoDto(
-                    Name: name,
-                    DiscordUrl: ExtractMarkdownUrl(linksCell, "discord"),
-                    SnapshotUrl64: ExtractMarkdownUrl(linksCell, ".addon64"),
-                    SnapshotUrl32: ExtractMarkdownUrl(linksCell, ".addon32"),
-                    NexusUrl: ExtractMarkdownUrl(linksCell, "nexusmods.com"),
-                    Maintainer: maintainer,
-                    Notes: null,
-                    Status: status
+                        Name: name,
+                        DiscordUrl: ExtractMarkdownUrl(linksCell, "discord"),
+                        SnapshotUrl64: ExtractMarkdownUrl(linksCell, ".addon64"),
+                        SnapshotUrl32: ExtractMarkdownUrl(linksCell, ".addon32"),
+                        NexusUrl: ExtractMarkdownUrl(linksCell, "nexusmods.com"),
+                        Maintainer: maintainer,
+                        Notes: null,
+                        Status: status
                     ));
                 }
             }
@@ -238,11 +235,7 @@ internal sealed class ParseService : IParseService
         }
         catch (TaskCanceledException ex)
         {
-            await _logService.LogErrorAsync($"Request for RenoDX wiki page timed out.", ex);
-        }
-        catch (Exception ex)
-        {
-            await _logService.LogErrorAsync("Failed to fetch RenoDX wiki mods.", ex);
+            await _logService.LogErrorAsync("Request for RenoDX wiki page timed out.", ex);
         }
 
         return new RenoDXWikiParseResultDto(wikiMods, genericWikiMods);
@@ -265,10 +258,10 @@ internal sealed class ParseService : IParseService
 
         while (true)
         {
-            int linkOpen = markdown.IndexOf("](", start, StringComparison.Ordinal);
+            var linkOpen = markdown.IndexOf("](", start, StringComparison.Ordinal);
             if (linkOpen < 0) return null;
-            int urlStart = linkOpen + 2;
-            int urlEnd = markdown.IndexOf(')', urlStart);
+            var urlStart = linkOpen + 2;
+            var urlEnd = markdown.IndexOf(')', urlStart);
             if (urlEnd < 0) return null;
             var url = markdown[urlStart..urlEnd];
             if (url.Contains(urlContains, StringComparison.OrdinalIgnoreCase))
@@ -285,9 +278,14 @@ internal sealed class ParseService : IParseService
             var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
             return match.Success ? match.Groups[1].Value : null;
         }
-        catch (Exception ex)
+        catch (HttpRequestException ex)
         {
-            await _logService.LogErrorAsync("Could not fetch latest ReShade version from reshade.me.", ex);
+            await _logService.LogErrorAsync("reshade.me could not be reached", ex);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            await _logService.LogErrorAsync("Request for reshade.me timed out", ex);
             return null;
         }
     }
@@ -326,18 +324,13 @@ internal sealed class ParseService : IParseService
         }
         catch (HttpRequestException ex)
         {
-            await _logService.LogErrorAsync($"GitHub tags page for ReShade is unreachable. ({(int?)ex.StatusCode})", ex);
+            await _logService.LogErrorAsync($"GitHub tags page for ReShade is unreachable. ({(int?)ex.StatusCode})",
+                ex);
             return versions;
         }
         catch (TaskCanceledException ex)
         {
             await _logService.LogErrorAsync("GitHub tags page for ReShade timed out.", ex);
-            return versions;
-        }
-        catch (Exception ex)
-        {
-            await _logService.LogErrorAsync("Unable to parse ReShade GitHub tags page. " +
-                "Page structure likely changed or other unexpected error.", ex);
             return versions;
         }
 
@@ -381,12 +374,6 @@ internal sealed class ParseService : IParseService
             await _logService.LogErrorAsync("GitHub tags page for RenoDX timed out.", ex);
             return tags;
         }
-        catch (Exception ex)
-        {
-            await _logService.LogErrorAsync("Unable to parse RenoDX GitHub tags page." +
-                "Page structure might have changed or other unextected error.", ex);
-            return tags;
-        }
 
         return tags;
     }
@@ -397,7 +384,7 @@ internal sealed class ParseService : IParseService
         {
             var dateStr = nightlyTag["nightly-".Length..];
             if (!DateOnly.TryParseExact(dateStr, "yyyyMMdd", null,
-                System.Globalization.DateTimeStyles.None, out var date))
+                    System.Globalization.DateTimeStyles.None, out var date))
             {
                 await _logService.LogWarningAsync($"Could not parse date from nightly tag: {nightlyTag}");
                 return null;
@@ -428,7 +415,7 @@ internal sealed class ParseService : IParseService
             }
 
             await _logService.LogInfoAsync($"Parsed RenoDX nightly: {nightlyTag}" +
-                $"{(commitNotes is not null ? $"\n{string.Join(Environment.NewLine, commitNotes)}" : string.Empty)}");
+                                           $"{(commitNotes is not null ? $"\n{string.Join(Environment.NewLine, commitNotes)}" : string.Empty)}");
 
             return new RenoDXTagInfoDto(date, RenoDX.Branch.Nightly, commitNotes);
         }
@@ -440,12 +427,6 @@ internal sealed class ParseService : IParseService
         catch (TaskCanceledException ex)
         {
             await _logService.LogErrorAsync($"Request timed out while fetching {nightlyTag}", ex);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            await _logService.LogErrorAsync($"Failed to fetch release info for {nightlyTag}." +
-                $"Page structure might have changed or other unexpected error.", ex);
             return null;
         }
     }

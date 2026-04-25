@@ -4,6 +4,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using System;
 using System.Threading.Tasks;
+using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
