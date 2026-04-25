@@ -28,11 +28,11 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
         {
             await _logService.LogErrorAsync(result.ErrorMessage ?? $"Failed to uninstall ReShade from {game.Name}", result.Exception);
 
-            var userMessage = result.Error switch
+            var userMessage = result.ErrorType switch
             {
-                ResultError.PermissionDenied => $"Permission denied uninstalling ReShade from {game.Name}. Check you app permissions and try again.",
-                ResultError.FileSystemError => $"Failed to uninstall ReShade from {game.Name}. The disk may be full or the file may be locked (game running?).",
-                ResultError.FileNotFound => "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
+                ErrorType.PermissionDenied => $"Permission denied uninstalling ReShade from {game.Name}. Check you app permissions and try again.",
+                ErrorType.FileSystemError => $"Failed to uninstall ReShade from {game.Name}. The disk may be full or the file may be locked (game running?).",
+                ErrorType.FileNotFound => "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
                 _ => $"Failed to uninstall ReShade from {game.Name}. Check the log for details."
             };
 

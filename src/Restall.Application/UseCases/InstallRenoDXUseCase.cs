@@ -71,15 +71,15 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
             await _logService.LogErrorAsync(
                 downloadResult.ErrorMessage ?? $"Failed to download RenoDX: {addonFilename}", downloadResult.Exception);
 
-            var userMessage = downloadResult.Error switch
+            var userMessage = downloadResult.ErrorType switch
             {
-                ResultError.PermissionDenied =>
+                ErrorType.PermissionDenied =>
                     $"Permission denied writing {addonFilename} to the cache folder. Check your app permissions and try again.",
-                ResultError.FileSystemError =>
+                ErrorType.FileSystemError =>
                     $"Failed to write {addonFilename} to disk. The disk may be full or the file may be locked.",
-                ResultError.NetworkTimeout =>
+                ErrorType.NetworkTimeout =>
                     $"Connection timed out while downloading {addonFilename}. Please check your internet connection and try again.",
-                ResultError.DownloadFailed =>
+                ErrorType.DownloadFailed =>
                     $"Download failed for {addonFilename}. The server may be unavailable or the file may no longer exist.",
                 _ => $"Failed to download {addonFilename}. Check log for details."
             };
@@ -104,11 +104,11 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
             await _logService.LogErrorAsync(result.ErrorMessage ?? $"Failed to install {addonFilename}",
                 result.Exception);
 
-            var userMessage = result.Error switch
+            var userMessage = result.ErrorType switch
             {
-                ResultError.PermissionDenied =>
+                ErrorType.PermissionDenied =>
                     $"Permission denied writing {addonFilename} to the game folder. Check your app permissions and try again.",
-                ResultError.FileSystemError =>
+                ErrorType.FileSystemError =>
                     $"Failed to write {addonFilename} to disk. The disk may be full or the file may be locked.",
                 _ => $"Failed to install {addonFilename}. Check log for details."
             };

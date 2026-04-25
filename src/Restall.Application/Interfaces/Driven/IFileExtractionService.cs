@@ -10,15 +10,15 @@ public interface IFileExtractionService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.ToolNotFound"/>
+    /// <see cref="ErrorType.ToolNotFound"/>
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// <br/>
-    /// <see cref="ResultError.ProcessStartFailed"/>
+    /// <see cref="ErrorType.ProcessStartFailed"/>
     /// <br/>
-    /// <see cref="ResultError.ExtractionFailed"/>
+    /// <see cref="ErrorType.ExtractionFailed"/>
     /// </para>
     /// </summary>
     Result ExtractFiles(string fileToOpen, string[] filesToExtract, string destinationPath);

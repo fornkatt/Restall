@@ -52,14 +52,14 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
             {
                 await _logService.LogErrorAsync(downloaded.ErrorMessage ?? "Failed to download ReShade installer.", downloaded.Exception);
 
-                var userMessage = downloaded.Error switch
+                var userMessage = downloaded.ErrorType switch
                 {
-                    ResultError.PermissionDenied => "Permission denied downloading the ReShade installer to cache. " +
+                    ErrorType.PermissionDenied => "Permission denied downloading the ReShade installer to cache. " +
                                                     "Please ensure your have read/write access to the appropriate directories and try again.",
-                    ResultError.FileSystemError => "Something went wrong writing cache directories or downloading files to cache. " +
+                    ErrorType.FileSystemError => "Something went wrong writing cache directories or downloading files to cache. " +
                                                    "Please ensure the destination is not in use and the disk is not full and try again.",
-                    ResultError.DownloadFailed => "Could not download ReShade installer. The server may be unavailable or  the file may no longer exist.",
-                    ResultError.NetworkTimeout => "Connection timed out while downloading ReShade installer. Please check your internet connection and try again.",
+                    ErrorType.DownloadFailed => "Could not download ReShade installer. The server may be unavailable or  the file may no longer exist.",
+                    ErrorType.NetworkTimeout => "Connection timed out while downloading ReShade installer. Please check your internet connection and try again.",
                     _ => "Failed to download ReShade installer. Check logs for details."
                 };
                 
@@ -76,18 +76,18 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
             {
                 await _logService.LogErrorAsync(extractionResult.ErrorMessage ?? "Failed to extract files from installer", extractionResult.Exception);
 
-                var userMessage = extractionResult.Error switch
+                var userMessage = extractionResult.ErrorType switch
                 {
-                    ResultError.ToolNotFound => OperatingSystem.IsLinux() 
+                    ErrorType.ToolNotFound => OperatingSystem.IsLinux() 
                     ? "bsdtar not found. Please install libarchive-tools and try again."
                     : "tar not found. Enure it is available on your system.",
-                    ResultError.PermissionDenied => "Permission denied extracting the ReShade installer files to cache. " +
+                    ErrorType.PermissionDenied => "Permission denied extracting the ReShade installer files to cache. " +
                                                     "Please ensure your have read/write access to the appropriate directories and try again.",
-                    ResultError.FileSystemError => "Something went wrong writing cache directories or files to cache. " +
+                    ErrorType.FileSystemError => "Something went wrong writing cache directories or files to cache. " +
                                                    "Please ensure the destination is not in use and the disk is not full and try again.",
-                    ResultError.ProcessStartFailed => "Extraction process failed to start. " +
+                    ErrorType.ProcessStartFailed => "Extraction process failed to start. " +
                                                       "The binary may be corrupt or missing execute permissions. Check logs for more details.",
-                    ResultError.ExtractionFailed => "File extraction failed. " +
+                    ErrorType.ExtractionFailed => "File extraction failed. " +
                                                     "Please ensure the files are not in use and there's enough disk space available and try again.",
                     _ => "An unexpected error occured during file extraction. Check logs for more details."
                 };
@@ -102,11 +102,11 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         {
             await _logService.LogErrorAsync(result.ErrorMessage ?? "Failed to install ReShade.", result.Exception);
 
-            var userMessage = result.Error switch
+            var userMessage = result.ErrorType switch
             {
-                ResultError.PermissionDenied => "Permission denied installing ReShade to the game directory. " +
+                ErrorType.PermissionDenied => "Permission denied installing ReShade to the game directory. " +
                                                 "Please ensure your have read/write access to the appropriate directories and try again.",
-                ResultError.FileSystemError => "Something went wrong writing ReShade files to the game folder. " +
+                ErrorType.FileSystemError => "Something went wrong writing ReShade files to the game folder. " +
                                                "Please ensure the destination is not in use and the disk is not full and try again.",
                 _ => "Failed to install ReShade. Check logs for details."
             };
@@ -122,7 +122,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         var installerPath = _pathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version!);
 
         if (File.Exists(installerPath))
-            return Result.Ok();
+            return Result.Success();
 
         return await _modDownloadService.DownloadReShadeAsync(reShade.BranchName, reShade.Version!, progress);
     }

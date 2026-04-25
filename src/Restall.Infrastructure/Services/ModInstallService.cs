@@ -44,17 +44,17 @@ internal sealed class ModInstallService : IModInstallService
                 }
             }
 
-            return Result<Game>.Ok(game);
+            return Result<Game>.Success(game);
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Result<Game>.Err($"Access denied writing to {game.ExecutablePath}. Game might be running.",
-                ResultError.PermissionDenied, ex);
+            return Result<Game>.Error($"Access denied writing to {game.ExecutablePath}. Game might be running.",
+                ErrorType.PermissionDenied, ex);
         }
         catch (IOException ex)
         {
-            return Result<Game>.Err("Install failed. Disk may be full or the game folder was moved.",
-                ResultError.FileSystemError, ex);
+            return Result<Game>.Error("Install failed. Disk may be full or the game folder was moved.",
+                ErrorType.FileSystemError, ex);
         }
     }
 
@@ -64,10 +64,10 @@ internal sealed class ModInstallService : IModInstallService
         var deleted = _fileService.TryDeleteFile(expectedPath);
 
         if (!deleted.IsSuccess)
-            return Result<Game>.Err(deleted.ErrorMessage, deleted.Error, deleted.Exception);
+            return Result<Game>.Error(deleted.ErrorMessage, deleted.ErrorType, deleted.Exception);
 
         game.ReShade = null;
-        return Result<Game>.Ok(game);
+        return Result<Game>.Success(game);
     }
 
     public Result<Game> UninstallRenoDX(Game game)
@@ -76,10 +76,10 @@ internal sealed class ModInstallService : IModInstallService
         var deleted = _fileService.TryDeleteFile(expectedPath, verifyOriginalFilename: "renodx-");
 
         if (!deleted.IsSuccess)
-            return Result<Game>.Err(deleted.ErrorMessage, deleted.Error, deleted.Exception);
+            return Result<Game>.Error(deleted.ErrorMessage, deleted.ErrorType, deleted.Exception);
 
         game.RenoDX = null;
-        return Result<Game>.Ok(game);
+        return Result<Game>.Success(game);
     }
 
     public async Task<Result<Game>> RemoveAllReShadeFilesAsync(Game game)
@@ -120,7 +120,7 @@ internal sealed class ModInstallService : IModInstallService
             : "No ReShade files found to uninstall.");
     
         game.ReShade = null;
-        return Result<Game>.Ok(game);
+        return Result<Game>.Success(game);
     }
     
     public async Task<Result<Game>> RemoveAllRenoDXFilesAsync(Game game)
@@ -162,6 +162,6 @@ internal sealed class ModInstallService : IModInstallService
             : "No RenoDX files found to remove.");
     
         game.RenoDX = null;
-        return Result<Game>.Ok(game);
+        return Result<Game>.Success(game);
     }
 }

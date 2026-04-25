@@ -14,9 +14,9 @@ internal static class PeVersionHelper
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
     internal static Result<StringTable?> GetVersionInfo(string filePath, long maxScanBytes = long.MaxValue)
@@ -24,30 +24,30 @@ internal static class PeVersionHelper
         try
         {
             if (new FileInfo(filePath).Length > maxScanBytes)
-                return Result<StringTable?>.Ok(null);
+                return Result<StringTable?>.Success(null);
 
             var pe = new PeFile(filePath);
-            return Result<StringTable?>.Ok(pe.Resources?.VsVersionInfo?.StringFileInfo.StringTable.FirstOrDefault());
+            return Result<StringTable?>.Success(pe.Resources?.VsVersionInfo?.StringFileInfo.StringTable.FirstOrDefault());
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Result<StringTable?>.Err("Access denied reading file.", ResultError.PermissionDenied, ex);
+            return Result<StringTable?>.Error("Access denied reading file.", ErrorType.PermissionDenied, ex);
         }
         catch (FileNotFoundException ex)
         {
-            return Result<StringTable?>.Err("File not found.", ResultError.FileSystemError, ex);
+            return Result<StringTable?>.Error("File not found.", ErrorType.FileSystemError, ex);
         }
         catch (PathTooLongException ex)
         {
-            return Result<StringTable?>.Err("File path is too long.", ResultError.FileSystemError, ex);
+            return Result<StringTable?>.Error("File path is too long.", ErrorType.FileSystemError, ex);
         }
         catch (IOException ex)
         {
-            return Result<StringTable?>.Err("Failed to read file.", ResultError.FileSystemError, ex);
+            return Result<StringTable?>.Error("Failed to read file.", ErrorType.FileSystemError, ex);
         }
         catch (SecurityException ex)
         {
-            return Result<StringTable?>.Err("Permission denied.", ResultError.PermissionDenied, ex);
+            return Result<StringTable?>.Error("Permission denied.", ErrorType.PermissionDenied, ex);
         }
     }
 }

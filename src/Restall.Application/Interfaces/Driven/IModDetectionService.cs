@@ -11,9 +11,9 @@ public interface IModDetectionService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
     Task<Result<HashSet<ReShade>>> DetectInstalledReShadeAsync(string executablePath);
@@ -24,9 +24,9 @@ public interface IModDetectionService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
     Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executablePath);
@@ -37,9 +37,9 @@ public interface IModDetectionService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
     Result<string?> GetRenoDXFileVersion(string filePath);

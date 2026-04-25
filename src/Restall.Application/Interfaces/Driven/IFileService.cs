@@ -10,11 +10,11 @@ public interface IFileService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// <br/>
-    /// <see cref="ResultError.FileNotFound"/>
+    /// <see cref="ErrorType.FileNotFound"/>
     /// </para>
     /// </summary>
     Result TryDeleteFile(string filePath, string? verifyOriginalFilename = null);

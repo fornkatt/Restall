@@ -43,7 +43,7 @@ internal sealed class ModDownloadService : IModDownloadService
             case RenoDX.Branch.Wiki:
                 if (string.IsNullOrWhiteSpace(wikiSnapshotUrl))
                 {
-                    return Result.Err("RenoDX wiki branch requires a wiki snapshot URL.");
+                    return Result.Error("RenoDX wiki branch requires a wiki snapshot URL.");
                 }
                 downloadUrl = wikiSnapshotUrl;
                 fileName = Path.GetFileName(new Uri(wikiSnapshotUrl).AbsolutePath);
@@ -51,7 +51,7 @@ internal sealed class ModDownloadService : IModDownloadService
             case RenoDX.Branch.Snapshot:
                 if (string.IsNullOrWhiteSpace(addonFileName))
                 {
-                    return Result.Err("RenoDX snapshot branch requires a filename to download.");
+                    return Result.Error("RenoDX snapshot branch requires a filename to download.");
                 }
                 downloadUrl = $"{s_renoDXSnapshotDownloadBaseUrl}{addonFileName}";
                 fileName = addonFileName;
@@ -59,13 +59,13 @@ internal sealed class ModDownloadService : IModDownloadService
             case RenoDX.Branch.Nightly:
                 if (string.IsNullOrWhiteSpace(addonFileName) || string.IsNullOrWhiteSpace(version))
                 {
-                    return Result.Err("RenoDX nightly branch requires both addon filename and version.");
+                    return Result.Error("RenoDX nightly branch requires both addon filename and version.");
                 }
                 downloadUrl = $"{s_renoDXNightlyDownloadBaseUrl}nightly-{version}/{addonFileName}";
                 fileName = addonFileName;
                 break;
             default:
-                return Result.Err($"Branch {branch} does not support automated downloads.");
+                return Result.Error($"Branch {branch} does not support automated downloads.");
         }
         var cacheDir = _pathService.GetRenoDXDownloadCachePath(branch);
         return await DownloadFileAsync(downloadUrl, cacheDir, fileName, progress);
@@ -95,11 +95,11 @@ internal sealed class ModDownloadService : IModDownloadService
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Result.Err("Permission denied creating download directory.", ResultError.PermissionDenied, ex);
+            return Result.Error("Permission denied creating download directory.", ErrorType.PermissionDenied, ex);
         }
         catch (IOException ex)
         {
-            return Result.Err("Failed to create download directory.", ResultError.FileSystemError, ex);
+            return Result.Error("Failed to create download directory.", ErrorType.FileSystemError, ex);
         }
         
         var destinationPath = Path.Combine(directory, fileName);
@@ -113,7 +113,7 @@ internal sealed class ModDownloadService : IModDownloadService
             {
                 await _logService.LogInfoAsync($"{fileName} already downloaded by another task, skipping.");
                 progress?.Report(new DownloadProgressReportDto(fileName, 100));
-                return Result.Ok();
+                return Result.Success();
             }
 
             return await PerformDownloadAsync(url, destinationPath, fileName, progress);
@@ -159,20 +159,20 @@ internal sealed class ModDownloadService : IModDownloadService
             }
 
             await _logService.LogInfoAsync($"Successfully downloaded {filename} to {Path.GetDirectoryName(destinationPath)}");
-            return Result.Ok();
+            return Result.Success();
         }
         catch (TaskCanceledException ex)
         {
             progress?.Report(new DownloadProgressReportDto(filename, -1));
-            return Result.Err($"Download timed out for {filename} from {url}", ResultError.NetworkTimeout, ex);
+            return Result.Error($"Download timed out for {filename} from {url}", ErrorType.NetworkTimeout, ex);
         }
         catch (HttpRequestException ex)
         {
-            return Result.Err($"Server error downloading {filename}. ({(int?)ex.StatusCode}): {url}", ResultError.DownloadFailed, ex);
+            return Result.Error($"Server error downloading {filename}. ({(int?)ex.StatusCode}): {url}", ErrorType.DownloadFailed, ex);
         }
         catch (IOException ex)
         {
-            return Result.Err($"Disk write failed for {filename}. Disk may be full or path locked.", ResultError.FileSystemError, ex);
+            return Result.Error($"Disk write failed for {filename}. Disk may be full or path locked.", ErrorType.FileSystemError, ex);
         }
         catch (Exception ex)
         {
@@ -184,7 +184,7 @@ internal sealed class ModDownloadService : IModDownloadService
                     await _logService.LogErrorAsync($"Could not cleanup partial download at {destinationPath}", cleanupEx);
                 }
             }
-            return Result.Err($"Failed to download {filename} from {url}", ResultError.Unknown, ex);
+            return Result.Error($"Failed to download {filename} from {url}", ErrorType.Unknown, ex);
         }
     }
 }

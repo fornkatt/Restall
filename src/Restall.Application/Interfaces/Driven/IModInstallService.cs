@@ -12,9 +12,9 @@ public interface IModInstallService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
     Task<Result<Game>> InstallModAsync<T>(Game game, T modToInstall, string sourcePath) where T: class;
@@ -25,9 +25,9 @@ public interface IModInstallService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
     Result<Game> UninstallReShade(Game game);
@@ -38,9 +38,9 @@ public interface IModInstallService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
     Result<Game> UninstallRenoDX(Game game);

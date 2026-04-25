@@ -13,9 +13,9 @@ internal sealed class FileExtractionService : IFileExtractionService
 
         if (toolPath == null)
         {
-            return Result.Err(OperatingSystem.IsLinux()
+            return Result.Error(OperatingSystem.IsLinux()
                 ? "No extraction tool found. Ensure bsdtar (libarchive-tools) is installed."
-                : "No extraction tool found. Ensure tar is available on your system.", ResultError.ToolNotFound);
+                : "No extraction tool found. Ensure tar is available on your system.", ErrorType.ToolNotFound);
         }
 
         var fileList = string.Join(" ", filesToExtract.Select(f => $"\"{f}\""));
@@ -26,11 +26,11 @@ internal sealed class FileExtractionService : IFileExtractionService
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Result.Err("Permission denied creating destination directory", ResultError.PermissionDenied, ex);
+            return Result.Error("Permission denied creating destination directory", ErrorType.PermissionDenied, ex);
         }
         catch (IOException ex)
         {
-            return Result.Err("Failed to create destination directory", ResultError.FileSystemError, ex);
+            return Result.Error("Failed to create destination directory", ErrorType.FileSystemError, ex);
         }
 
         var startInfo = new ProcessStartInfo
@@ -48,7 +48,7 @@ internal sealed class FileExtractionService : IFileExtractionService
             using var process = Process.Start(startInfo);
             if (process == null)
             {
-                return Result.Err("Unable to start extraction process.", ResultError.ProcessStartFailed);
+                return Result.Error("Unable to start extraction process.", ErrorType.ProcessStartFailed);
             }
 
             process.WaitForExit();
@@ -56,18 +56,18 @@ internal sealed class FileExtractionService : IFileExtractionService
             if (process.ExitCode != 0)
             {
                 var stderr = process.StandardError.ReadToEnd();
-                return Result.Err($"""
+                return Result.Error($"""
                                    Extraction failed with exit code
                                    {process.ExitCode}: {stderr}
-                                   """, ResultError.ExtractionFailed);
+                                   """, ErrorType.ExtractionFailed);
             }
         }
         catch (Win32Exception ex)
         {
-            return Result.Err("Failed to start extraction process", ResultError.ProcessStartFailed, ex);
+            return Result.Error("Failed to start extraction process", ErrorType.ProcessStartFailed, ex);
         }
 
-        return Result.Ok();
+        return Result.Success();
     }
 
     private string? GetExtractionToolPath()

@@ -46,19 +46,19 @@ internal sealed class ModDetectionService : IModDetectionService
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Result<HashSet<ReShade>>.Err("Permission denied scanning directory.", ResultError.PermissionDenied,
+            return Result<HashSet<ReShade>>.Error("Permission denied scanning directory.", ErrorType.PermissionDenied,
                 ex);
         }
         catch (DirectoryNotFoundException ex)
         {
-            return Result<HashSet<ReShade>>.Err("Game directory not found.", ResultError.FileSystemError, ex);
+            return Result<HashSet<ReShade>>.Error("Game directory not found.", ErrorType.FileSystemError, ex);
         }
         catch (IOException ex)
         {
-            return Result<HashSet<ReShade>>.Err("Failed to scan game directory.", ResultError.FileSystemError, ex);
+            return Result<HashSet<ReShade>>.Error("Failed to scan game directory.", ErrorType.FileSystemError, ex);
         }
 
-        return Result<HashSet<ReShade>>.Ok(fileList);
+        return Result<HashSet<ReShade>>.Success(fileList);
     }
 
     public async Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executablePath)
@@ -90,19 +90,19 @@ internal sealed class ModDetectionService : IModDetectionService
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Result<HashSet<RenoDX>>.Err("Permission denied scanning directory.", ResultError.PermissionDenied,
+            return Result<HashSet<RenoDX>>.Error("Permission denied scanning directory.", ErrorType.PermissionDenied,
                 ex);
         }
         catch (DirectoryNotFoundException ex)
         {
-            return Result<HashSet<RenoDX>>.Err("Game directory not found.", ResultError.FileSystemError, ex);
+            return Result<HashSet<RenoDX>>.Error("Game directory not found.", ErrorType.FileSystemError, ex);
         }
         catch (IOException ex)
         {
-            return Result<HashSet<RenoDX>>.Err("Failed to scan game directory.", ResultError.FileSystemError, ex);
+            return Result<HashSet<RenoDX>>.Error("Failed to scan game directory.", ErrorType.FileSystemError, ex);
         }
 
-        return Result<HashSet<RenoDX>>.Ok(fileList);
+        return Result<HashSet<RenoDX>>.Success(fileList);
     }
 
     public Result<string?> GetRenoDXFileVersion(string filePath)
@@ -110,9 +110,9 @@ internal sealed class ModDetectionService : IModDetectionService
         var versionInfo = PeVersionHelper.GetVersionInfo(filePath);
 
         if (versionInfo is { IsSuccess: false })
-            return Result<string?>.Err(versionInfo.ErrorMessage, versionInfo.Error, versionInfo.Exception);
+            return Result<string?>.Error(versionInfo.ErrorMessage, versionInfo.ErrorType, versionInfo.Exception);
 
-        return Result<string?>.Ok(ParseRenoDXVersion(versionInfo.Value?.FileVersion));
+        return Result<string?>.Success(ParseRenoDXVersion(versionInfo.Value?.FileVersion));
     }
 
     private async Task ScanFilesAsync(

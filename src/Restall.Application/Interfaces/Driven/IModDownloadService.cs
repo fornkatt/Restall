@@ -12,13 +12,13 @@ public interface IModDownloadService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// <br/>
-    /// <see cref="ResultError.NetworkTimeout"/>
+    /// <see cref="ErrorType.NetworkTimeout"/>
     /// <br/>
-    /// <see cref="ResultError.DownloadFailed"/>
+    /// <see cref="ErrorType.DownloadFailed"/>
     /// </para>
     /// </summary>
     Task<Result> DownloadReShadeAsync(ReShade.Branch branch, string version, IProgress<DownloadProgressReportDto>? progress = null);
@@ -29,13 +29,13 @@ public interface IModDownloadService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// <br/>
-    /// <see cref="ResultError.NetworkTimeout"/>
+    /// <see cref="ErrorType.NetworkTimeout"/>
     /// <br/>
-    /// <see cref="ResultError.DownloadFailed"/>
+    /// <see cref="ErrorType.DownloadFailed"/>
     /// </para>
     /// </summary>
     Task<Result> DownloadRenoDXAsync(RenoDX.Branch branch, string? addonFileName = null, string? version = null,
@@ -47,13 +47,13 @@ public interface IModDownloadService
     /// <para>
     /// Possible ResultErrors:
     /// <br/>
-    /// <see cref="ResultError.PermissionDenied"/>
+    /// <see cref="ErrorType.PermissionDenied"/>
     /// <br/>
-    /// <see cref="ResultError.FileSystemError"/>
+    /// <see cref="ErrorType.FileSystemError"/>
     /// <br/>
-    /// <see cref="ResultError.NetworkTimeout"/>
+    /// <see cref="ErrorType.NetworkTimeout"/>
     /// <br/>
-    /// <see cref="ResultError.DownloadFailed"/>
+    /// <see cref="ErrorType.DownloadFailed"/>
     /// </para>
     /// </summary>
     Task<Result> DownloadUnityRenoDXAsync(string addonFileName, IProgress<DownloadProgressReportDto>? progress = null);

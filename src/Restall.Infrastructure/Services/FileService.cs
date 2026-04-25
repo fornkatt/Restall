@@ -10,7 +10,7 @@ internal sealed class FileService : IFileService
     {
         if (!File.Exists(path))
         {
-            return Result.Err($"File not found at expected location: {path}", ResultError.FileNotFound);
+            return Result.Error($"File not found at expected location: {path}", ErrorType.FileNotFound);
         }
 
         try
@@ -21,26 +21,26 @@ internal sealed class FileService : IFileService
 
                 if (originalFilename?.StartsWith(verifyOriginalFilename, StringComparison.OrdinalIgnoreCase) != true)
                 {
-                    return Result.Err(
+                    return Result.Error(
                         $"File at {path} did not match expected prefix '{verifyOriginalFilename}' (was: '{originalFilename}'). Skipping deletion.");
                 }
             }
 
             File.Delete(path);
-            return Result.Ok();
+            return Result.Success();
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Result.Err($"Access denied trying to delete {path}. Please ensure the game is not running and try again.",
-                ResultError.PermissionDenied, ex);
+            return Result.Error($"Access denied trying to delete {path}. Please ensure the game is not running and try again.",
+                ErrorType.PermissionDenied, ex);
         }
         catch (IOException ex)
         {
-            return Result.Err($"File locked at {path}. Could not delete.", ResultError.FileSystemError, ex);
+            return Result.Error($"File locked at {path}. Could not delete.", ErrorType.FileSystemError, ex);
         }
         catch (Exception ex)
         {
-            return Result.Err($"Unexpected error occured. Failed to delete file at {path}", ResultError.Unknown, ex);
+            return Result.Error($"Unexpected error occured. Failed to delete file at {path}", ErrorType.Unknown, ex);
         }
     }
 }
