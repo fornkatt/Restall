@@ -26,10 +26,7 @@ internal sealed class ModInstallService : IModInstallService
             {
                 case ReShade reShade:
                 {
-                    if (game.ReShade is not null)
-                        _fileService.TryDeleteFile(Path.Combine(game.ExecutablePath!, game.ReShade.SelectedFilename));
-
-                    string destinationPath = Path.Combine(game.ExecutablePath!, reShade.SelectedFilename);
+                    var destinationPath = Path.Combine(game.ExecutablePath!, reShade.SelectedFilename);
                     File.Copy(sourcePath, destinationPath, true);
                     game.ReShade = reShade;
                     await _logService.LogInfoAsync($"Successfully installed ReShade as " +
@@ -38,11 +35,7 @@ internal sealed class ModInstallService : IModInstallService
                 }
                 case RenoDX renoDX:
                 {
-                    if (renoDX.OriginalName is not null && renoDX.OriginalName != renoDX.SelectedName)
-                        _fileService.TryDeleteFile(Path.Combine(game.ExecutablePath!, renoDX.OriginalName),
-                            verifyOriginalFilename: "renodx-");
-
-                    string destinationPath = Path.Combine(game.ExecutablePath!, renoDX.SelectedName!);
+                    var destinationPath = Path.Combine(game.ExecutablePath!, renoDX.SelectedName!);
                     File.Copy(sourcePath, destinationPath, true);
                     game.RenoDX = renoDX;
                     await _logService.LogInfoAsync($"Successfully installed RenoDX as " +

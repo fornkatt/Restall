@@ -5,6 +5,8 @@ namespace Restall.Infrastructure.Services;
 
 internal sealed class LogService : ILogService
 {
+    private const int s_maxLogFiles = 10;
+    
     private readonly string _logsDirectory;
     private readonly string _defaultLogFilename;
 
@@ -32,6 +34,8 @@ internal sealed class LogService : ILogService
             Directory.CreateDirectory(_logsDirectory);
 
             File.AppendAllText(logFilePath, logFormat);
+            
+            EnforceLogFileLimit();
         }
         catch (Exception ex)
         {
@@ -56,6 +60,8 @@ internal sealed class LogService : ILogService
             Directory.CreateDirectory(_logsDirectory);
 
             await File.AppendAllTextAsync(logFilePath, logFormat);
+            
+            EnforceLogFileLimit();
         }
         catch (Exception ex)
         {
@@ -71,6 +77,19 @@ internal sealed class LogService : ILogService
     {
         return $"{DateTime.Now:HH:mm:ss} | {messageType} | {message}" +
                $"{(exception != null ? $" || {exception.Message}" : "")}{Environment.NewLine}";
+    }
+
+    private void EnforceLogFileLimit()
+    {
+        var logFiles = Directory.GetFiles(_logsDirectory, "*_restall_log.txt")
+            .OrderBy(File.GetCreationTimeUtc)
+            .ToList();
+
+        while (logFiles.Count > s_maxLogFiles)
+        {
+            File.Delete(logFiles.First());
+            logFiles.RemoveAt(0);
+        }
     }
     
     public void LogInfo(string message, string? logFilename = null) =>
