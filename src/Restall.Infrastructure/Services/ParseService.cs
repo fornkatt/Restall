@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using System.Collections.Immutable;
+using HtmlAgilityPack;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
@@ -32,7 +33,7 @@ internal sealed class ParseService : IParseService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<IReadOnlyList<string>> FetchReShadeVersionsAsync()
+    public async Task<ImmutableArray<string>> FetchReShadeVersionsAsync()
     {
         var versions = await FetchReShadeVersionsFromGitHubTagsAsync();
         var siteVersion = await FetchLatestReShadeVersionFromSiteAsync();
@@ -45,7 +46,7 @@ internal sealed class ParseService : IParseService
 
         await _logService.LogInfoAsync(
             $"Fetched {versions.Count} stable ReShade versions. Latest: {versions.FirstOrDefault()}");
-        return versions;
+        return [..versions];
     }
 
     public async Task<RenoDXTagInfoDto?> FetchRenoDXSnapshotAsync()
@@ -112,20 +113,20 @@ internal sealed class ParseService : IParseService
         }
     }
 
-    public async Task<IReadOnlyList<RenoDXTagInfoDto>> FetchRenoDXNightlyTagsAsync()
+    public async Task<ImmutableArray<RenoDXTagInfoDto>> FetchRenoDXNightlyTagsAsync()
     {
         var nightlyTags = await FetchRenoDXNightlyTagNamesAsync();
 
-        if (nightlyTags.Count <= 0)
+        if (nightlyTags.Length <= 0)
         {
             await _logService.LogWarningAsync("No nightly RenoDX tags found.");
             return [];
         }
 
         var tagInfoResults = await Task.WhenAll(nightlyTags.Select(FetchRenoDXNighlyReleaseInfoAsync));
-        var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToList();
+        var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToImmutableArray();
 
-        await _logService.LogInfoAsync($"Fetched {tagInfos.Count} nightly RenoDX versions. " +
+        await _logService.LogInfoAsync($"Fetched {tagInfos.Length} nightly RenoDX versions. " +
                                        $"Latest: {tagInfos.FirstOrDefault()?.Version}");
         return tagInfos;
     }
@@ -238,7 +239,7 @@ internal sealed class ParseService : IParseService
             await _logService.LogErrorAsync("Request for RenoDX wiki page timed out.", ex);
         }
 
-        return new RenoDXWikiParseResultDto(wikiMods, genericWikiMods);
+        return new RenoDXWikiParseResultDto([..wikiMods], [..genericWikiMods]);
     }
 
     private static string ExtractMarkdownLinkText(string text)
@@ -337,7 +338,7 @@ internal sealed class ParseService : IParseService
         return versions;
     }
 
-    private async Task<List<string>> FetchRenoDXNightlyTagNamesAsync(string? pageUrl = null)
+    private async Task<ImmutableArray<string>> FetchRenoDXNightlyTagNamesAsync(string? pageUrl = null)
     {
         var tags = new List<string>();
 
@@ -351,7 +352,7 @@ internal sealed class ParseService : IParseService
             if (tagNodes is null)
             {
                 await _logService.LogWarningAsync("No nightly tag links found on RenoDX tags page.");
-                return tags;
+                return ImmutableArray<string>.Empty;
             }
 
             foreach (var node in tagNodes)
@@ -367,15 +368,15 @@ internal sealed class ParseService : IParseService
         catch (HttpRequestException ex)
         {
             await _logService.LogErrorAsync($"GitHub tags page for RenoDX is unreachable. ({(int?)ex.StatusCode})", ex);
-            return tags;
+            return [..tags];
         }
         catch (TaskCanceledException ex)
         {
             await _logService.LogErrorAsync("GitHub tags page for RenoDX timed out.", ex);
-            return tags;
+            return [..tags];
         }
 
-        return tags;
+        return [..tags];
     }
 
     private async Task<RenoDXTagInfoDto?> FetchRenoDXNighlyReleaseInfoAsync(string nightlyTag)
