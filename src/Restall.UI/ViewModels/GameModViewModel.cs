@@ -6,6 +6,7 @@ using Restall.Domain.Entities;
 using System;
 using System.IO;
 using System.Threading;
+using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
