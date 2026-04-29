@@ -31,9 +31,8 @@ It automates the detection of game installations across multiple launchers and s
 ## Building the Project
 
 ### Prerequisites
-* [Git](https://git-scm.com/install)
 * [Docker Desktop](https://www.docker.com/get-started/) for Windows 10/11 
-* the `docker` package for Linux 
+* the `docker` package for Linux.
 
 ### Cloning the Repository
 * ```git clone https://github.com/fornkatt/Restall.git```
@@ -95,4 +94,7 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 ## Upcoming Features
 
 > This section will be updated as new features are planned and confirmed.
-
+* Direct links to Nexus downloads for RenoDX mods.
+* Nightly (actions) branch support for ReShade.
+* Package Windows installer and Flatpak package for Linux.
+* Generate .desktop file for Linux users after building.
