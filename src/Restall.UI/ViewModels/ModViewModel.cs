@@ -125,8 +125,6 @@ public sealed partial class ModViewModel : ViewModelBase
             FileName = url,
             UseShellExecute = true
         });
-        
-        Debug.WriteLine(url);
     }
 
     /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
