@@ -412,11 +412,9 @@ public sealed partial class ModViewModel : ViewModelBase
         get
         {
             if (SelectedGame?.HasRenoDX == true) return "Reinstall";
-            if (SelectedGame?.CompatibleRenoDXMod is { HasWikiFilename: false })
-            {
-                if (SelectedGame.HasNexusLink) return "Get from Nexus";
-                if (SelectedGame.HasDiscordLink) return "Get from Discord";
-            }
+            if (CanOpenNexusLink) return "Get from Nexus";
+            if (CanOpenDiscordLink) return "Get from Discord";
+            
             return "Install";
         }
     }
