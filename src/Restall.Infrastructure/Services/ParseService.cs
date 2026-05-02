@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
@@ -148,6 +149,8 @@ internal sealed class ParseService : IParseService
             foreach (var rawLine in lines)
             {
                 var line = rawLine.Trim();
+                
+                if (line.StartsWith("# Deprecated mods")) break;
 
                 if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase))
                 {
@@ -189,6 +192,8 @@ internal sealed class ParseService : IParseService
 
                 if (currentEngine is not null)
                 {
+                    var architecture = Architecture.x64;
+                    
                     if (cells.Length < 2) continue;
                     var name = ExtractMarkdownLinkText(HtmlEntity.DeEntitize(cells[0].Trim()));
                     if (string.IsNullOrWhiteSpace(name)) continue;
@@ -197,10 +202,14 @@ internal sealed class ParseService : IParseService
                     if (string.IsNullOrWhiteSpace(notes))
                         notes = null;
 
+                    if (notes is not null && RegexHelper.Match32BitRegex.IsMatch(notes))
+                        architecture = Architecture.x32;
+
                     genericWikiMods.Add(new RenoDXGenericModInfoDto(
                         Name: name,
                         Status: status,
                         Notes: notes,
+                        Architecture: architecture,
                         Engine: currentEngine.Value
                     ));
                 }
@@ -212,12 +221,12 @@ internal sealed class ParseService : IParseService
                     var maintainer = cells[1].Trim();
                     if (string.IsNullOrWhiteSpace(maintainer))
                         maintainer = "Unknown";
-                    var linksCell = cells[2];
+                    var linksCell = cells[2].Trim();
                     var status = cells[3].Trim();
 
                     wikiMods.Add(new RenoDXModInfoDto(
                         Name: name,
-                        DiscordUrl: ExtractMarkdownUrl(linksCell, "discord"),
+                        DiscordUrl: ExtractMarkdownUrl(linksCell, "discord.com"),
                         SnapshotUrl64: ExtractMarkdownUrl(linksCell, ".addon64"),
                         SnapshotUrl32: ExtractMarkdownUrl(linksCell, ".addon32"),
                         NexusUrl: ExtractMarkdownUrl(linksCell, "nexusmods.com"),
@@ -227,8 +236,6 @@ internal sealed class ParseService : IParseService
                     ));
                 }
             }
-
-            await _logService.LogInfoAsync($"Parsed {genericWikiMods.Count} generic RenoDX mods from wiki.");
         }
         catch (HttpRequestException ex)
         {
@@ -253,20 +260,23 @@ internal sealed class ParseService : IParseService
         return text[(bracketStart + 1)..bracketEnd].Trim();
     }
 
-    private string? ExtractMarkdownUrl(string markdown, string urlContains)
+    private static string? ExtractMarkdownUrl(string markdown, string urlContains)
     {
         var start = 0;
 
         while (true)
         {
-            var linkOpen = markdown.IndexOf("](", start, StringComparison.Ordinal);
-            if (linkOpen < 0) return null;
-            var urlStart = linkOpen + 2;
-            var urlEnd = markdown.IndexOf(')', urlStart);
+            var urlEnd = markdown.IndexOf(')', start);
             if (urlEnd < 0) return null;
-            var url = markdown[urlStart..urlEnd];
+            
+            var urlStart = markdown.LastIndexOf('(', urlEnd);
+            if (urlStart < 0) return null;
+            
+            var url = markdown[(urlStart + 1)..urlEnd];
+            
             if (url.Contains(urlContains, StringComparison.OrdinalIgnoreCase))
                 return url;
+            
             start = urlEnd + 1;
         }
     }

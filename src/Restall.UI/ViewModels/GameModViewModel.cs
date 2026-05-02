@@ -12,7 +12,7 @@ namespace Restall.UI.ViewModels;
 
 /// <summary>
 /// We wrap a Game domain entity in a ViewModel and flatten the Game entity's properties into simpler types
-/// that we can easily bind to our UI and use in our other ViewModels to calculate for example button visibilty
+/// that we can easily bind to our UI and use in our other ViewModels to calculate for example button visibility
 /// and text/notes visibility
 /// </summary>
 public sealed partial class GameModViewModel : ObservableObject
@@ -100,12 +100,15 @@ public sealed partial class GameModViewModel : ObservableObject
     public RenoDX.Branch? RenoDXBranchName => _game.RenoDX?.BranchName;
     public string? RenoDXArch => _game.RenoDX?.Arch.ToString();
 
-    public bool RenoDXSupportsX64 => CompatibleRenoDXMod?.SupportsX64 ?? false;
-    public bool RenoDXSupportsX32 => CompatibleRenoDXMod?.SupportsX32 ?? false;
+    public bool RenoDXSupportsX64 => CompatibleRenoDXMod?.SupportsX64 ?? CompatibleRenoDXGenericMod?.SupportsX64 ?? false;
+    public bool RenoDXSupportsX32 => CompatibleRenoDXMod?.SupportsX32 ?? CompatibleRenoDXGenericMod?.SupportsX32 ?? false;
     public bool RenoDXIsDualArch => CompatibleRenoDXMod?.IsDualArch ?? false;
 
     public string? RenoDXAddonFilenameX64 => CompatibleRenoDXMod?.AddonFilename64;
     public string? RenoDXAddonFilenameX32 => CompatibleRenoDXMod?.AddonFilename32;
+
+    public bool HasDiscordLink => CompatibleRenoDXMod?.DiscordUrl is not null;
+    public bool HasNexusLink => CompatibleRenoDXMod?.NexusUrl is not null;
 
     [ObservableProperty]
     private string? _reShadeModActionStatus;
@@ -131,7 +134,10 @@ public sealed partial class GameModViewModel : ObservableObject
     private RenoDX.Architecture? _archOverride;
 
     public RenoDX.Architecture SelectedRenoDXInstallArch =>
-        ArchOverride ?? (CompatibleRenoDXMod?.SupportsX32 == true && CompatibleRenoDXMod?.SupportsX64 != true
+        ArchOverride ?? (
+            (CompatibleRenoDXMod is not null
+                ? CompatibleRenoDXMod.SupportsX32 && !CompatibleRenoDXMod.SupportsX64
+                : CompatibleRenoDXGenericMod?.SupportsX32 == true)
             ? RenoDX.Architecture.x32
             : RenoDX.Architecture.x64);
 
@@ -165,9 +171,14 @@ public sealed partial class GameModViewModel : ObservableObject
     private RenoDXModInfoDto? _compatibleRenoDXMod;
 
     partial void OnCompatibleRenoDXModChanged(RenoDXModInfoDto? value) => ArchOverride = null;
+    partial void OnCompatibleRenoDXGenericModChanged(RenoDXGenericModInfoDto? value) => ArchOverride = null;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsRenoDXSupported))]
+    [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
+    [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
+    [NotifyPropertyChangedFor(nameof(RenoDXSupportsX64))]
+    [NotifyPropertyChangedFor(nameof(RenoDXSupportsX32))]
     private RenoDXGenericModInfoDto? _compatibleRenoDXGenericMod;
 
     // Bitmaps -------------------------------------------------------------------------------
