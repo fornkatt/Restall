@@ -16,6 +16,9 @@ public static partial class GameNameHelper
         @"^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$",
         RegexOptions.IgnoreCase)]
     private static partial Regex RomanNumeralRegex();
+    
+    [GeneratedRegex(@"\s*\(.*?\)\s*")]
+    private static partial Regex ParentheticalRegex();
 
     private static readonly Dictionary<char, int> RomanValues = new()
     {
@@ -28,8 +31,9 @@ public static partial class GameNameHelper
         if (string.IsNullOrWhiteSpace(name)) return string.Empty;
         
         var withoutEdition = StripEditionSuffix(name);
+        var withoutParentheticals = ParentheticalRegex().Replace(withoutEdition, " ").Trim();
 
-        var cleanedName = NonWordCharsRegex().Replace(withoutEdition, string.Empty)
+        var cleanedName = NonWordCharsRegex().Replace(withoutParentheticals, string.Empty)
             .Replace("  ", " ")
             .Trim()
             .ToLowerInvariant();
