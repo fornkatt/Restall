@@ -12,34 +12,38 @@ public static partial class GameNameHelper
         if (string.IsNullOrWhiteSpace(name)) return string.Empty;
 
         return NonWordCharsRegex().Replace(name, string.Empty)
-                                  .Replace("  ", " ")
-                                  .Trim()
-                                  .ToLowerInvariant();
+            .Replace("  ", " ")
+            .Trim()
+            .ToLowerInvariant();
     }
-    
+
     [GeneratedRegex(
         @"(\s*[-–:]\s*|\s+)(ultimate|complete|definitive|gold|deluxe|premium|anniversary|enhanced|enchanted|directors cut|remastered|remake|goty|game of the year|standard)(\s+edition)?\s*$"
         ,
         RegexOptions.IgnoreCase)]
     private static partial Regex EditionSuffixRegex();
-    
+
 
     public static string StripEditionSuffix(string editionSuffix) =>
-        EditionSuffixRegex().Replace(editionSuffix, 
+        EditionSuffixRegex().Replace(editionSuffix,
                 string.Empty)
             .Trim();
 
     public static bool FuzzyNameMatch(string a, string b)
     {
-        if (!a.Contains(b) && !b.Contains(a))
-            return false;
-
         var aWords = a.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var bWords = b.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var aSet = new HashSet<string>(aWords);
         var bSet = new HashSet<string>(bWords);
 
-        int shared = aWords.Count(w => bSet.Contains(w));
-        int maxWords = Math.Max(aWords.Length, bWords.Length);
+        var aContainsAllBWords = bWords.All(w => aSet.Contains(w));
+        var bContainsAllAWords = aWords.All(w => bSet.Contains(w));
+
+        if (!aContainsAllBWords && !bContainsAllAWords)
+            return false;
+
+        var shared = aWords.Count(w => bSet.Contains(w));
+        var maxWords = Math.Max(aWords.Length, bWords.Length);
 
         if (maxWords > 0 && (double)shared / maxWords >= 0.5)
             return true;
