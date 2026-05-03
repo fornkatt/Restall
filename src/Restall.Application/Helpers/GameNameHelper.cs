@@ -4,6 +4,12 @@ namespace Restall.Application.Helpers;
 
 public static partial class GameNameHelper
 {
+    private static readonly Dictionary<char, int> RomanValues = new()
+    {
+        ['i'] = 1, ['v'] = 5, ['x'] = 10, ['l'] = 50,
+        ['c'] = 100, ['d'] = 500, ['m'] = 1000
+    };
+    
     [GeneratedRegex(@"[^\w\s]")]
     private static partial Regex NonWordCharsRegex();
 
@@ -19,12 +25,9 @@ public static partial class GameNameHelper
     
     [GeneratedRegex(@"\s*\(.*?\)\s*")]
     private static partial Regex ParentheticalRegex();
-
-    private static readonly Dictionary<char, int> RomanValues = new()
-    {
-        ['i'] = 1, ['v'] = 5, ['x'] = 10, ['l'] = 50,
-        ['c'] = 100, ['d'] = 500, ['m'] = 1000
-    };
+    
+    [GeneratedRegex(@"'s\b", RegexOptions.IgnoreCase)]
+    private static partial Regex PossessiveRegex();
 
     public static string NormalizeName(string name)
     {
@@ -32,8 +35,9 @@ public static partial class GameNameHelper
         
         var withoutEdition = StripEditionSuffix(name);
         var withoutParentheticals = ParentheticalRegex().Replace(withoutEdition, " ").Trim();
+        var withoutPossessiveness = PossessiveRegex().Replace(withoutParentheticals, string.Empty).Trim();
 
-        var cleanedName = NonWordCharsRegex().Replace(withoutParentheticals, string.Empty)
+        var cleanedName = NonWordCharsRegex().Replace(withoutPossessiveness, string.Empty)
             .Replace("  ", " ")
             .Trim()
             .ToLowerInvariant();
@@ -107,7 +111,7 @@ public static partial class GameNameHelper
             var nextIsVariantCode = !isLast 
                                     && words[index + 1].Length == 1 
                                     && char.IsLetter(words[index + 1][0]);
-            var prevLooksLikeSeries = index >= 2 
+            var prevLooksLikeSeries = index >= 1 
                                       && words[index - 1].Length > 1;
 
             return isLast || nextIsVariantCode || prevLooksLikeSeries
