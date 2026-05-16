@@ -70,6 +70,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
                         var binName = Path.GetFileName(binSub);
                         
                             bool targetFolder = binName.Equals("Win64", StringComparison.OrdinalIgnoreCase)
+                                                || binName.Equals("Win32", StringComparison.OrdinalIgnoreCase)
                                                    || binName.Equals("WinGDK", StringComparison.OrdinalIgnoreCase);
                             if (targetFolder && Directory.GetFiles(binSub, "*.exe").Length > 0)
                                 results.Add(binSub);
