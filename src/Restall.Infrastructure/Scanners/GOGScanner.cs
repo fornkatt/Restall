@@ -161,7 +161,7 @@ internal sealed class GOGScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = installPath,
                     PlatformName = Game.Platform.GOG,
-                    PlatformId = $"gog:{appName}"
+                    PlatformId = appName
                 });
             }
             catch (Exception ex)

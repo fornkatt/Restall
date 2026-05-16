@@ -161,7 +161,7 @@ internal sealed class EpicScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = installPath,
                     PlatformName = Game.Platform.Epic,
-                    PlatformId = $"epic:{appName}"
+                    PlatformId = appName
                 });
             }
             catch (Exception ex)
