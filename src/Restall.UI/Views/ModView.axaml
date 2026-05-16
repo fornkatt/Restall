@@ -227,7 +227,7 @@
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                     HorizontalAlignment="Stretch"
                                     CornerRadius="6"
-                                    Command="{Binding InstallRenoDXCommand}"
+                                    Command="{Binding RenoDXInstallButtonClickCommand}"
                                     Background="{DynamicResource ModCardButton}"
                                     Foreground="{DynamicResource ModCardButtonText}"
                                     Margin="0, 5, 5, 5" />
@@ -294,12 +294,24 @@
                         <ScrollViewer HorizontalAlignment="Stretch"
                                       VerticalAlignment="Top"
                                       IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
-                            <TextBlock TextWrapping="Wrap"
-                                       FontSize="12"
-                                       Margin="10"
-                                       HorizontalAlignment="Left"
-                                       Foreground="{DynamicResource GameCardText}"
-                                       Text="{Binding RenoDXNotes}" />
+                            <Grid RowDefinitions="Auto, Auto">
+                                <TextBlock Grid.Row="0" TextWrapping="Wrap"
+                                           FontSize="12"
+                                           Margin="10"
+                                           HorizontalAlignment="Left"
+                                           Foreground="{DynamicResource GameCardText}"
+                                           Text="{Binding RenoDXNotes}" />
+                                <HyperlinkButton Grid.Row="1"
+                                                 IsVisible="{Binding SelectedGame.HasNexusLink}"
+                                                 NavigateUri="{Binding SelectedGame.CompatibleRenoDXMod.NexusUrl}"
+                                                 FontSize="12"
+                                                 Margin="10"
+                                                 Padding="0"
+                                                 HorizontalAlignment="Left"
+                                                 ToolTip.Tip="{Binding SelectedGame.CompatibleRenoDXMod.NexusUrl}">
+                                    Nexus
+                                </HyperlinkButton>
+                            </Grid>
                         </ScrollViewer>
 
                         <TextBlock TextWrapping="Wrap"
