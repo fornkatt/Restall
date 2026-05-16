@@ -11,10 +11,7 @@ internal sealed class GameCoverService : IGameCoverService
     private readonly ILogService _logService;
     private readonly HttpClient _httpClient;
     private readonly IImageResizeService _imageResizeService;
-
-    private const string PcgwCargoByAppIdUrl =
-        "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game.Steam_AppID%20HOLDS%20%22{0}%22&format=json";
-
+    
     private const string PcgwCargoByPageNameUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageName%3D%22{0}%22&format=json";
 
@@ -75,18 +72,19 @@ internal sealed class GameCoverService : IGameCoverService
         game.PlatformName switch
         {
             Game.Platform.Steam => await TryGetSteamLocalCover(game)
-                                   ?? await ResolvePcgwCoverUrlAsync(game),
+                                   ?? await ResolvePcgwBySearchAsync(game.Name ?? string.Empty),
 
             Game.Platform.GOG => await TryGetGogLocalCover(game)
                                  ?? await TryResolveGogApiCoverAsync(game)
                                  ?? await TryResolveHeroicCoverAsync(game)
-                                 ?? await ResolvePcgwCoverUrlAsync(game),
+                                 ?? await ResolvePcgwBySearchAsync(game.Name ?? string.Empty),
 
             Game.Platform.Epic => await TryResolveHeroicCoverAsync(game)
-                                  ?? await ResolvePcgwCoverUrlAsync(game),
+                                  ?? await ResolvePcgwBySearchAsync(game.Name ?? string.Empty),
 
-            //Fallback
-            _ => await ResolvePcgwCoverUrlAsync(game)
+            //Fallback for other platforms
+            _ => await ResolvePcgwBySearchAsync(game.Name ?? string.Empty)
+            
         };
 
 
@@ -94,7 +92,7 @@ internal sealed class GameCoverService : IGameCoverService
     {
         if (string.IsNullOrWhiteSpace(game.PlatformId)) return null;
 
-        var appId = StripPrefix(game.PlatformId, "steam:");
+        var appId = game.PlatformId;
         var steamRoot = FindSteamRoot();
         if (steamRoot is null)
         {
@@ -158,7 +156,7 @@ internal sealed class GameCoverService : IGameCoverService
     {
         if (!OperatingSystem.IsWindows() || string.IsNullOrWhiteSpace(game.PlatformId)) return null;
 
-        var productId = StripPrefix(game.PlatformId, "gog:");
+        var productId = game.PlatformId;
         var webCacheRoot = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
             "GOG.com", "Galaxy", "webcache");
@@ -200,7 +198,7 @@ internal sealed class GameCoverService : IGameCoverService
     {
         if (string.IsNullOrWhiteSpace(game.PlatformId)) return null;
 
-        var productId = StripPrefix(game.PlatformId, "gog:");
+        var productId = game.PlatformId;
         try
         {
             var url = string.Format(GogApiV2ProductUrl, productId);
@@ -237,9 +235,7 @@ internal sealed class GameCoverService : IGameCoverService
 
         if (!File.Exists(cacheFile)) return null;
 
-        var gameId = isGog
-            ? StripPrefix(game.PlatformId ?? string.Empty, "gog:")
-            : StripPrefix(game.PlatformId ?? string.Empty, "epic:");
+        var gameId = game.PlatformId ?? string.Empty;
         var normalizedName = GameNameHelper.NormalizeName(game.Name ?? string.Empty);
 
         try
@@ -304,30 +300,13 @@ internal sealed class GameCoverService : IGameCoverService
 
     // PCGamingWiki (fallback) -------------------------------------------------------------
 
-    private async Task<string?> ResolvePcgwCoverUrlAsync(Game game)
-    {
-        //Last resort for Steam CDN
-        if (game.PlatformName == Game.Platform.Steam &&
-            !string.IsNullOrWhiteSpace(game.PlatformId))
-        {
-            var appId = StripPrefix(game.PlatformId, "steam:");
-            return await TryPcgwCargoAsync(
-                string.Format(PcgwCargoByAppIdUrl, Uri.EscapeDataString(appId)));
-        }
-
-
-        return await ResolvePcgwBySearchAsync(game.Name ?? string.Empty);
-    }
 
     private async Task<string?> ResolvePcgwBySearchAsync(string gameName)
     {
-        var pass1Url = string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName));
-        
-        await _logService.LogInfoAsync($"PCGW Pass 1 URL [{gameName}] → [{pass1Url}]");
-        var exactUrl = await TryPcgwCargoAsync(pass1Url);
+        var exactUrl = 
+            await TryPcgwCargoAsync(string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName)));
         if (exactUrl is not null) return exactUrl;
-
-        // Pass 2: Media wiki search - handles fuzzy name match differences
+        
         try
         {
             var searchApiUrl = string.Format(PcgwSearchUrl, Uri.EscapeDataString(gameName));
@@ -337,8 +316,7 @@ internal sealed class GameCoverService : IGameCoverService
             var json = await response.Content.ReadAsStringAsync();
             var pageId = ParseTopSearchPageId(json);
             if (pageId is null) return null;
-
-            //Reading the cargoquery via ParseCargoCoverUrl
+            
             return await TryPcgwCargoAsync(string.Format(PcgwCargoByPageIdUrl, pageId));
         }
         catch (Exception ex)
@@ -350,14 +328,13 @@ internal sealed class GameCoverService : IGameCoverService
 
     private static string? ParseTopSearchPageId(string json)
     {
-        //Reads the SearchUrl and selects the page id
         using var doc = JsonDocument.Parse(json);
         var searchResults = doc.RootElement
             .GetProperty("query")
             .GetProperty("search");
 
-        if (searchResults.GetArrayLength() == 0) return null;
-        return searchResults[0].GetProperty("pageid").GetInt32().ToString();
+        return searchResults.GetArrayLength() == 0 ? null 
+            : searchResults[0].GetProperty("pageid").GetInt32().ToString();
     }
 
     private async Task<string?> TryPcgwCargoAsync(string apiUrl)
@@ -390,18 +367,8 @@ internal sealed class GameCoverService : IGameCoverService
         var coverUrl = coverUrlProp.GetString();
         return string.IsNullOrWhiteSpace(coverUrl) ? null : coverUrl;
     }
-
-    // Shared -------------------------------------------------------------------------------
-
-    //TODO: Remove since PlatformId was being used for SteamGridDbService and now when it's not being used.
-    // I don't have to strip them down and just use var appId = game.PlatformId instead of game.PlatformId, "steam:"
-    private static string StripPrefix(string value, string prefix) =>
-        value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-            ? value[prefix.Length..]
-            : value;
-
-
-    private async Task<bool> TryDownloadCoverAsync(string? gameName, string coverPath, string url)
+    
+    private async Task TryDownloadCoverAsync(string? gameName, string coverPath, string url)
     {
         try
         {
@@ -413,7 +380,8 @@ internal sealed class GameCoverService : IGameCoverService
                 bytes = await response.Content.ReadAsByteArrayAsync();
             }
             else if (!OperatingSystem.IsWindows() &&
-                     ((int)response.StatusCode == 403 || (int)response.StatusCode == 503))
+                     ((int)response.StatusCode == 403 ||
+                      (int)response.StatusCode == 503))
             {
                 await _logService.LogInfoAsync
                     ($"HttpClient blocked by Cloudflare for [{gameName}] — retrying via curl");
@@ -421,47 +389,48 @@ internal sealed class GameCoverService : IGameCoverService
             }
             else
             {
-                return false;
+                return;
             }
 
-            if (bytes.Length == 0) return false;
+            if (bytes.Length == 0) return;
 
             bytes = await _imageResizeService.ReSizeImageToWidthAsync(bytes, 600);
 
             await File.WriteAllBytesAsync(coverPath, bytes);
             await _logService.LogInfoAsync($"Downloaded cover for [{gameName}]");
-            return true;
+
         }
         catch (HttpRequestException) when (!OperatingSystem.IsWindows())
         {
             await _logService.LogInfoAsync
                 ($"HttpClient failed for [{gameName}] — retrying via curl");
             var bytes = await DownloadViaCurlAsync(url);
-            if (bytes.Length == 0) return false;
+            if (bytes.Length == 0) return;
 
             bytes = await _imageResizeService.ReSizeImageToWidthAsync(bytes, 600);
 
             await File.WriteAllBytesAsync(coverPath, bytes);
             await _logService.LogInfoAsync($"Downloaded cover for [{gameName}]");
-            return true;
+
         }
         catch (HttpRequestException ex) when ((int?)ex.StatusCode == 404)
         {
-            //Silent call
-            return false;
+            await _logService.LogWarningAsync
+                ("Using a silent call in Status Code 404");
         }
         catch (HttpRequestException ex) when ((int?)ex.StatusCode == 403)
         {
             await _logService.LogWarningAsync
                 ($"403 Forbidden [{gameName}] — [{url}]");
-            return false;
+            
         }
         catch (Exception ex)
         {
             await _logService.LogErrorAsync
                 ($"Failed to download cover for [{gameName}]", ex);
-            return false;
+            
         }
+        
     }
 
     // Curl Download -------------------------------------------------------------------------------

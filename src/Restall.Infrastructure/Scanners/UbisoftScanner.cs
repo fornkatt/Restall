@@ -67,7 +67,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = installDir,
                     PlatformName = Platform,
-                    PlatformId = $"uplay:{subName}"
+                    PlatformId = subName
                 });
             }
 

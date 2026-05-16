@@ -85,7 +85,7 @@ internal sealed class EpicScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = rootPath,
                     PlatformName = Platform,
-                    PlatformId = $"epic:{catalogItemId}"
+                    PlatformId = catalogItemId
                 });
             }
             catch (Exception ex)

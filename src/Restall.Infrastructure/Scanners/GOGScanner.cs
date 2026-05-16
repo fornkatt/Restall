@@ -80,7 +80,7 @@ internal sealed class GOGScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = path,
                     PlatformName = Platform,
-                    PlatformId = $"gog:{subName}" //exact name usage for API search in SteamGridDb
+                    PlatformId = subName
                 });
             }
 

@@ -99,7 +99,7 @@ internal sealed class SteamScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = rootPath,
                     PlatformName = Platform,
-                    PlatformId = $"steam:{appId}"
+                    PlatformId = appId
                 });
             }
             catch(Exception ex)
