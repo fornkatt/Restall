@@ -8,8 +8,9 @@
 		x:DataType="vm:MainWindowViewModel"
 		Icon="/Assets/avalonia-logo.ico"
 		Title="Restall"
-		Width="1130"
-		Height="1330"
+		Width="1000"
+		Height="750"
+		MinHeight="750"
 		Background="{DynamicResource AppBackground}"
 		WindowStartupLocation="CenterScreen">
 	 

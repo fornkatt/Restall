@@ -29,7 +29,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IEngineDetectionService, EngineDetectionService>();
         services.AddSingleton<IGameDetectionService, GameDetectionService>();
         services.AddSingleton<IModDetectionService, ModDetectionService>();
-
+        services.AddSingleton<IGameIconService, GameIconService>();
+        
+        services.AddTransient<IGameArtworkService, GameArtworkService>();
         services.AddTransient<ILightRefreshLibraryUseCase, RefreshLibraryUseCase>();
         services.AddTransient<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
         services.AddTransient<IModInstallService, ModInstallService>();
@@ -42,7 +44,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddTransient<IModManagementFacade, ModManagementFacade>();
 
         services.AddHttpClient<IModDownloadService, ModDownloadService>();
-        services.AddHttpClient<IGameArtworkService, GameArtworkService>(c =>
+        services.AddHttpClient<IGameCoverService, GameCoverService>(c =>
             {
                 c.DefaultRequestHeaders.UserAgent.ParseAdd("Restall/1.0");
 

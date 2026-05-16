@@ -5,7 +5,7 @@ using Restall.Application.Interfaces.Driven;
 
 namespace Restall.UI.Services;
 
-public class ImageResizeService : IImageResizeService
+public sealed class ImageResizeService : IImageResizeService
 {
     public Task<byte[]> ReSizeImageToWidthAsync(byte[] imageBytes, int width)
     {

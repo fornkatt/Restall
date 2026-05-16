@@ -20,14 +20,15 @@
     
     <!-- ModView Game Card buttons -->
     <Style Selector="Button.game-card-btn">
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Background" Value="{DynamicResource ModCardButton}"/>
         <Setter Property="Foreground" Value="{DynamicResource ModCardButtonText}"/>
     </Style>
     <Style Selector="Button.game-card-btn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ModCardButtonHover}"/>
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
     <Style Selector="Button.game-card-btn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource GameListSelection}"/>
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
     <Style Selector="Button.game-card-btn:disabled">
         <Setter Property="Opacity" Value="0.35"/>

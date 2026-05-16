@@ -50,6 +50,12 @@
           "System.Security.Cryptography.Pkcs": "10.0.2"
         }
       },
+      "System.Net.Http.WinHttpHandler": {
+        "type": "Direct",
+        "requested": "[10.0.6, )",
+        "resolved": "10.0.6",
+        "contentHash": "h8X2efYuJ2QJmCQsRBVKMep62JxRT7sjWWkYIr2UbMJIg3r1YQPCYjGjtiyx34C6HGljj/6/RxGtVXHmDuG1yQ=="
+      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "10.0.5",

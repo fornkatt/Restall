@@ -56,7 +56,14 @@ public sealed partial class GameModViewModel : ObservableObject
     public Game.Platform PlatformName => _game.PlatformName;
     public Game.Engine EngineName => _game.EngineName;
     public string? ExecutablePath => _game.ExecutablePath;
+
+    public string? ExecutablePathDisplay => OperatingSystem.IsWindows()
+        ? ExecutablePath?.Replace(@"\", "\\\u200B")
+        : ExecutablePath?.Replace("/", "/\u200B");
     public string? InstallFolder => _game.InstallFolder;
+    public string? InstallFolderDisplay => OperatingSystem.IsWindows()
+        ? InstallFolder?.Replace(@"\", "\\\u200B")
+        : InstallFolder?.Replace("/", "/\u200B");
     public bool HasRenoDX => _game.HasRenoDX;
     public bool HasReShade => _game.HasReShade;
     public bool IsRenoDXSupported =>
