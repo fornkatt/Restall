@@ -29,8 +29,8 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IEngineDetectionService, EngineDetectionService>();
         services.AddSingleton<IGameDetectionService, GameDetectionService>();
         services.AddSingleton<IModDetectionService, ModDetectionService>();
-        services.AddSingleton<IGameIconService, GameIconService>();
         
+        services.AddTransient<IGameIconService, GameIconService>();
         services.AddTransient<IGameArtworkService, GameArtworkService>();
         services.AddTransient<ILightRefreshLibraryUseCase, RefreshLibraryUseCase>();
         services.AddTransient<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
