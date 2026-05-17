@@ -25,7 +25,6 @@ public sealed partial class GameModViewModel : ObservableObject
 
     
     private Lazy<Bitmap?> _coverBitMap;
-    //private Lazy<Bitmap?> _logoBitmap;
     private Lazy<Bitmap?> _thumbnailBitmap;
 
     public GameModViewModel(Game game)
