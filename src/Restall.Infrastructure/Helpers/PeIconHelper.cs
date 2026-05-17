@@ -1,141 +1,127 @@
 using System.Text;
 using PeNet;
-using PeNet.Header.Pe;
-
 
 namespace Restall.Infrastructure.Helpers;
 
 internal static class PeIconHelper
 {
-    //Icon Collections
-    private const int RtIcon                = 3;
-    private const int RtGroupIcon           = 14;
-    private const int GrpIconDirHeaderSize  = 6;
-    private const int GrpIconDirCountOffset = 4;
-    private const int GrpIconEntrySize      = 14;
-    private const int GrpIconHeaderSize     = 6;
-    private const int FullIconSize          = 256;
-    private const uint IcoDataOffset        = 22;
+    private const int RtIcon = 3;
+    private const int RtGroupIcon = 14;
+    
+    private const int GrpCountOffset = 4;
+    private const int GrpHeaderSize = 6;
+    private const int GrpEntrySize = 14;
+    private const int GrpWidthOffset = 0;
+    private const int GrpHeightOffset = 1;
+    private const int GrpBitCountOffset = 6;
+    private const int GrpIdOffset = 12;
+    private const int SizeOf256 = 256;
+    
+    private const byte PngMagic0 = 0x89;
+    private const byte PngMagic1 = 0x50; 
+    private const byte PngMagic2 = 0x4E; 
+    private const byte PngMagic3 = 0x47;
 
-  
-    private readonly record struct GrpIconEntry(
-        byte Width, byte Height, byte ColorCount,
-        ushort Planes, ushort BitCount, ushort Id);
+    private const int BmpWidthOffset = 4;
+    private const int BmpHeightOffset = 8;
 
+    private const ushort IcoReserved = 0;
+    private const ushort IcoTypeIcon = 1;
+    private const int IcoDirHeaderSize = 6;
+    private const int IcoDirEntrySize = 16;
+    
+    
     internal static byte[]? ExtractLargestIconAsPng(string executablePath)
     {
         var fileBytes = File.ReadAllBytes(executablePath);
-        var peFile = new PeFile(fileBytes);
+        var pe = new PeFile(fileBytes);
+        
+         var groupBytes = ReadResource(pe,fileBytes,typeId: RtGroupIcon, resourceId: null);
+         if (groupBytes is null || groupBytes.Length < GrpHeaderSize) return null;
 
-        // Step 1: Read RT_GROUP_ICON (14) → raw GRPICONDIR bytes
-        var groupDataEntry = peFile.ImageResourceDirectory
-            ?.DirectoryEntries
-            ?.FirstOrDefault(e => e is { ID: RtGroupIcon, ResourceDirectory: not null })
-            ?.ResourceDirectory?.DirectoryEntries?.FirstOrDefault()
-            ?.ResourceDirectory?.DirectoryEntries?.FirstOrDefault()
-            ?.ResourceDataEntry;
+         int count = BitConverter.ToUInt16(groupBytes, GrpCountOffset);
 
-        if (groupDataEntry is null) return null;
-
-        var groupBytes = ReadResourceBytes(peFile, fileBytes, groupDataEntry);
-        if (groupBytes is null || groupBytes.Length < GrpIconDirHeaderSize) return null;
-
-        // Step 2: Parse GRPICONDIR — header is 6 bytes, then 14-byte entries
-        var count = BitConverter.ToUInt16(groupBytes, GrpIconDirCountOffset);
-        if (count == 0) return null;
-
-        var entries = ParseGrpIconEntries(groupBytes, count);
-        if (entries.Length == 0) return null;
-
-        // Step 3: Pick largest by area (width/height 0 means 256), then highest bit depth
-        var best = entries
-            .OrderByDescending(e => (e.Width == 0 ? FullIconSize : e.Width)
-                                    * (e.Height == 0 ? FullIconSize : e.Height))
-            .ThenByDescending(e => e.BitCount)
-            .First();
-
-        // Step 4: Look up RT_ICON (3) by the resource ID from the group entry
-        var iconDataEntry = peFile.ImageResourceDirectory
-            ?.DirectoryEntries
-            ?.FirstOrDefault(e => e is { ID: RtIcon, ResourceDirectory: not null })
-            ?.ResourceDirectory?.DirectoryEntries
-            ?.FirstOrDefault(e => e?.ID == best.Id)
-            ?.ResourceDirectory?.DirectoryEntries?.FirstOrDefault()
-            ?.ResourceDataEntry;
-
-        if (iconDataEntry is null) return null;
-
-        // Step 5: Read actual pixel bytes (PNG or BITMAPINFOHEADER+pixels)
-        var iconBytes = ReadResourceBytes(peFile, fileBytes, iconDataEntry);
-        if (iconBytes is null) return null;
-
-        // Step 6: Already PNG (Vista+ stores 256×256 as PNG) → return directly, otherwise wrap in .ico
-        return IsPng(iconBytes) ? iconBytes : BuildIcoStream(iconBytes, best).ToArray();
+         if (count == 0) return null;
+         
+         var bestId = Enumerable.Range(0, count)
+             .Select(i => GrpHeaderSize + i * GrpEntrySize)
+             .Where(o => o + GrpEntrySize <= groupBytes.Length)
+             .Select(o => (
+                 Area:     (groupBytes[o + GrpWidthOffset]  == 0 ? SizeOf256 : groupBytes[o + GrpWidthOffset]) *
+                           (groupBytes[o + GrpHeightOffset] == 0 ? SizeOf256 : groupBytes[o + GrpHeightOffset]),
+                 BitCount: BitConverter.ToUInt16(groupBytes, o + GrpBitCountOffset),
+                 Id:       BitConverter.ToUInt16(groupBytes, o + GrpIdOffset)))
+             .OrderByDescending(e => e.Area)
+             .ThenByDescending(e => e.BitCount)
+             .FirstOrDefault().Id;
+         if (bestId == 0) return null;
+         
+         var iconBytes = ReadResource(pe, fileBytes, typeId: RtIcon, resourceId: bestId);
+         if (iconBytes is null) return null;
+         
+         return IsPng(iconBytes) ? iconBytes : WrapInIco(iconBytes);
     }
-
-    private static GrpIconEntry[] ParseGrpIconEntries(byte[] data, ushort count)
+    
+    private static byte[]? ReadResource(PeFile pe, byte[] fileBytes, int typeId, ushort? resourceId)
     {
-        var entries = new List<GrpIconEntry>(count);
-        for (int i = 0; i < count; i++)
-        {
-            int o = GrpIconHeaderSize + i * GrpIconEntrySize;
-            if (o + GrpIconEntrySize > data.Length) break;
+        var resourceType = pe.ImageResourceDirectory?.DirectoryEntries?
+            .FirstOrDefault(e => e?.ID == typeId)?
+            .ResourceDirectory;
+        
+        var resourceEntry = resourceId is null
+            ? resourceType?.DirectoryEntries?.FirstOrDefault()
+            : resourceType?.DirectoryEntries?.FirstOrDefault(e => e!.ID == resourceId);
 
-            entries.Add(new GrpIconEntry(
-                Width:      data[o],
-                Height:     data[o + 1],
-                ColorCount: data[o + 2],
-                // data[o + 3] = Reserved
-                // data[o + 4..7] = BytesInRes (unused — size sourced from ImageResourceDataEntry.Size1)
-                Planes:     BitConverter.ToUInt16(data, o + 4),
-                BitCount:   BitConverter.ToUInt16(data, o + 6),
-                Id:         BitConverter.ToUInt16(data, o + 12)
-            ));
-        }
-        return entries.ToArray();
+        var languageData = resourceEntry?.ResourceDirectory?.DirectoryEntries?.FirstOrDefault()?.ResourceDataEntry;
+        if (languageData is null) return null;
+        
+        var resourceSection = pe.ImageSectionHeaders?.FirstOrDefault(s => 
+            languageData.OffsetToData >= s.VirtualAddress && 
+            languageData.OffsetToData < s.VirtualAddress + s.SizeOfRawData);
+        
+        if(resourceSection is null) return null;
+        
+        var offset = (int)(languageData.OffsetToData - resourceSection.VirtualAddress + resourceSection.PointerToRawData);
+        var size = (int)languageData.Size1;
+        
+        return offset + size <= fileBytes.Length ? fileBytes[offset..(offset + size)] : null;
     }
+    
+    internal static bool IsPng(byte[] data) =>
+        data.Length >= 4 && 
+        data[0] == PngMagic0 
+        && data[1] == PngMagic1 
+        && data[2] == PngMagic2 
+        && data[3] == PngMagic3;
 
-    private static byte[]? ReadResourceBytes(PeFile peFile, byte[] fileBytes, ImageResourceDataEntry dataEntry)
+    private static byte[] WrapInIco(byte[] iconData)
     {
-        var rva = dataEntry.OffsetToData;
-        var section = peFile.ImageSectionHeaders?
-            .FirstOrDefault(s => rva >= s.VirtualAddress && rva < s.VirtualAddress + s.SizeOfRawData);
-        if (section is null) return null;
+        int width = iconData.Length >= BmpWidthOffset + 4 ? 
+            BitConverter.ToInt32(iconData, BmpWidthOffset) : 0;
+        int height = iconData.Length >= BmpHeightOffset + 4 ?
+            BitConverter.ToInt32(iconData, BmpHeightOffset) / 2 : 0;
+        int icoDataOffSet = IcoDirHeaderSize + IcoDirEntrySize;
 
-        var fileOffset = (int)(rva - section.VirtualAddress + section.PointerToRawData);
-        var size       = (int)dataEntry.Size1;
-
-        if (fileOffset + size > fileBytes.Length) return null;
-        return fileBytes[fileOffset..(fileOffset + size)];
-    }
-
-    private static bool IsPng(byte[] data) =>
-        data.Length >= 8 &&
-        data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47; // \x89PNG
-
-    private static MemoryStream BuildIcoStream(byte[] iconData, GrpIconEntry entry)
-    {
-        var ms = new MemoryStream();
+        using var ms = new MemoryStream();
         using var writer = new BinaryWriter(ms, Encoding.UTF8, leaveOpen: true);
-
-        // ICONDIR (6 bytes)
-        writer.Write((ushort)0);  // reserved
-        writer.Write((ushort)1);  // type = ICO
-        writer.Write((ushort)1);  // image count
-
-        // ICONDIRENTRY (16 bytes)
-        writer.Write(entry.Width);
-        writer.Write(entry.Height);
-        writer.Write(entry.ColorCount);
-        writer.Write((byte)0);    // reserved
-        writer.Write(entry.Planes);
-        writer.Write(entry.BitCount);
+        
+        writer.Write(IcoReserved);
+        writer.Write(IcoTypeIcon);
+        writer.Write((ushort)1);
+        
+        writer.Write((byte)(width > 255 ? 0 : width));         
+        writer.Write((byte)(height > 255 ? 0 : height));         
+        writer.Write((byte)0);                         
+        writer.Write((byte)0);                         
+        writer.Write((ushort)1);                       
+        writer.Write((ushort)32);                      
         writer.Write((uint)iconData.Length);
-        writer.Write((uint)IcoDataOffset); // image data starts at byte 22 (6 + 16)
+        writer.Write((uint)icoDataOffSet);             
 
         writer.Write(iconData);
+        writer.Flush();
+        
+        return ms.ToArray();
 
-        ms.Seek(0, SeekOrigin.Begin);
-        return ms;
     }
 }

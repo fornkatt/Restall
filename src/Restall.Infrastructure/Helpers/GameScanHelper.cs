@@ -15,7 +15,6 @@ internal static class GameScanHelper
         return normalized.Trim().TrimEnd(Path.DirectorySeparatorChar);
     }
     
-    // Dynamic inject at runtime for VdfValue and the result can vary compared to RegexHelper that is fixed at compile time with GeneredRegex
     internal static string? ExtractVdfValue(string vdfContent, string key)
         => Regex.Match(vdfContent, $@"""{Regex.Escape(key)}""\s+""([^""]+)""", 
             RegexOptions.IgnoreCase) is { Success: true } m ? m.Groups[1].Value : null;
@@ -77,7 +76,6 @@ internal static class GameScanHelper
         return null;
     }
     
-    //TODO: MOVE NONGAMEEXECUTABLE, NONGAME, GETPREFERREDEXESUBFOLDERS TO MANIFEST 
     internal static bool NonGameExecutable(string exeNameWithoutExtension)
     {
         var keywords = new HashSet<string>()

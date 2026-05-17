@@ -1,4 +1,3 @@
-using Restall.Application.DTOs;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -6,13 +5,7 @@ using System.Text.RegularExpressions;
 using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
-/// <summary>
-/// I selected GOG Scanner as main reference for giving an understanding how all the scanners work
-/// 
-/// Each scanner are following the same pattern, scan the platform, registry or file,
-/// collect the games into a tuple and pass on the results.
-/// All launchers are going through the process of scanning two sources, registry and json
-/// </summary>
+
 internal sealed class GOGScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
@@ -120,13 +113,12 @@ internal sealed class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            //error handling handled both through the UI for the user and through the logs for developers
             _logService.LogError($"Failed to read installed.json file in GOG Heroic library", ex);
             return (games, $"Failed to read installed.json file in GOG Heroic library.");
         }
 
 
-        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json)) //all data inside the installed.json file
+        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
         {
             try
             {

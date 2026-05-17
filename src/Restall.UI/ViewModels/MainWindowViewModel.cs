@@ -13,7 +13,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase,
     IRecipient<SelectedGameChangedMessage>,
     IRecipient<WikiRefreshedMessage>
 {
-    public BannerViewModel BannerViewModel { get; }
     public GameListViewModel GameListViewModel { get; }
     public ModViewModel ModViewModel { get; }
 
@@ -23,12 +22,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase,
     public bool IsGameSelected => SelectedGame is not null;
 
     public MainWindowViewModel(
-        BannerViewModel bannerViewModel,
         GameListViewModel gameListViewModel,
         ModViewModel modViewModel
         )
     {
-        BannerViewModel = bannerViewModel;
+        
         GameListViewModel = gameListViewModel;
         ModViewModel = modViewModel;
 
@@ -42,7 +40,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase,
 
         GameListViewModel.ApplySelectedGame(value);
         ModViewModel.ApplySelectedGame(value);
-        BannerViewModel.ApplySelectedGame(value);
+        
     }
 
     public void Receive(SelectedGameChangedMessage message) => SelectedGame = message.Value;

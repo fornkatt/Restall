@@ -19,29 +19,24 @@ public sealed partial class GameModViewModel : ObservableObject
 {
     private readonly Game _game;
 
-    //private const int s_bannerTargetWidth = 1000;
+    
     private const int s_coverTargetWidth = 600;
-    private const int s_logoTargetWidth = 300;
     private const int s_thumbnailTargetWidth = 32;
 
-    //private Lazy<Bitmap?> _bannerBitmap;
+    
     private Lazy<Bitmap?> _coverBitMap;
-    private Lazy<Bitmap?> _logoBitmap;
+    //private Lazy<Bitmap?> _logoBitmap;
     private Lazy<Bitmap?> _thumbnailBitmap;
 
     public GameModViewModel(Game game)
     {
         _game = game;
         
-        //_bannerPathString = game.BannerPathString;
         _coverPathString = game.GameCoverPathString;
-        _logoPathString = game.LogoPathString;
         _thumbnailPathString = game.ThumbnailPathString;
         NormalizedName = GameNameHelper.NormalizeName(game.Name!);
         
-        //_bannerBitmap = CreateLazyBitmap(_bannerPathString, s_bannerTargetWidth);
         _coverBitMap = CreateLazyBitmap(_coverPathString, s_coverTargetWidth);
-        _logoBitmap = CreateLazyBitmap(_logoPathString, s_logoTargetWidth);
         _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, s_thumbnailTargetWidth);
     }
     
@@ -194,12 +189,6 @@ public sealed partial class GameModViewModel : ObservableObject
     private RenoDXGenericModInfoDto? _compatibleRenoDXGenericMod;
 
     // Bitmaps -------------------------------------------------------------------------------
-
-    //[ObservableProperty]
-    //[NotifyPropertyChangedFor(nameof(BannerBitmap))]
-    //private string? _bannerPathString;
-    // partial void OnBannerPathStringChanged(string? value) =>
-    //     ResetLazyBitmap(ref _bannerBitmap, value, s_bannerTargetWidth);
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CoverBitmap))]
@@ -208,22 +197,13 @@ public sealed partial class GameModViewModel : ObservableObject
         ResetLazyBitmap(ref _coverBitMap,value, s_coverTargetWidth);
     
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(LogoBitmap))]
-    private string? _logoPathString;
-
-    partial void OnLogoPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _logoBitmap, value, s_logoTargetWidth);
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
     private string? _thumbnailPathString;
 
     partial void OnThumbnailPathStringChanged(string? value) =>
         ResetLazyBitmap(ref _thumbnailBitmap, value, s_thumbnailTargetWidth);
-
-    //public Bitmap? BannerBitmap => _bannerBitmap.Value;
+    
     public Bitmap? CoverBitmap => _coverBitMap.Value;
-    public Bitmap? LogoBitmap => _logoBitmap.Value;
     public Bitmap? ThumbnailBitmap => _thumbnailBitmap.Value;
 
     private static Lazy<Bitmap?> CreateLazyBitmap(string? path, int targetWidth) =>
@@ -246,7 +226,5 @@ public sealed partial class GameModViewModel : ObservableObject
 
         lazy = CreateLazyBitmap(newPath, targetWidth);
     }
-    
-    
     
 }

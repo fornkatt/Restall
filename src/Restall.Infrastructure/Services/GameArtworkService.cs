@@ -14,7 +14,6 @@ internal sealed class GameArtworkService : IGameArtworkService
     private readonly IGameCoverService _gameCoverService;
     private readonly IGameIconService _gameIconService;
 
-
     public GameArtworkService(ILogService logService,
         IPathService pathService,
         IGameCoverService gameCoverService,
@@ -24,7 +23,6 @@ internal sealed class GameArtworkService : IGameArtworkService
         _pathService = pathService;
         _gameCoverService = gameCoverService;
         _gameIconService = gameIconService;
-
 
         Directory.CreateDirectory(pathService.GetArtworkCacheDirectory());
     }
