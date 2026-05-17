@@ -89,8 +89,7 @@ internal sealed class GOGScanner : IPlatformScannerService
     private string? GetHeroicInstallPath()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-        //Windows and Linux path
+        
         var heroicPath = OperatingSystem.IsWindows()
             ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store")
             : Path.Combine(home, ".config", "heroic", "gog_store");

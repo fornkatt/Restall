@@ -13,7 +13,7 @@
         <!-- GAME CARD -->
         <Border Grid.Row="0" CornerRadius="20" Margin="5" Background="{DynamicResource GameCardBackground}">
             <Grid ColumnDefinitions="Auto,*">
-                
+
                 <!--- GAME COVER -->
                 <Border Grid.Column="0" CornerRadius="6" Margin="10" ClipToBounds="True"
                         Width="200" Height="280"
@@ -23,41 +23,65 @@
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center" />
                 </Border>
-                
+
                 <!--- GAME INFO -->
                 <Grid Grid.Column="1"
                       ColumnDefinitions="*"
                       RowDefinitions="Auto,Auto,Auto,Auto, Auto"
                       Margin="8"
                       VerticalAlignment="Top">
-        
+
                     <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding SelectedGame.Name}"
                                FontSize="20" FontWeight="Bold"
                                Foreground="{DynamicResource GameCardText}"
+                               Padding="6,0,0,0"
                                TextWrapping="Wrap" />
-        
+
                     <TextBlock Grid.Row="1" Text="{Binding SelectedGame.PlatformName}"
-                               FontSize="12" Foreground="{DynamicResource GameCardText}" />
-        
-                    <TextBlock Grid.Row="2" Text="{Binding SelectedGame.EngineName}"
-                               FontSize="12" Foreground="{DynamicResource GameCardText}" />
-        
-                    <TextBlock Grid.Row="3" Text="{Binding SelectedGame.InstallFolderDisplay}"
                                FontSize="12" Foreground="{DynamicResource GameCardText}"
-                               TextWrapping="Wrap" />
-        
-                    <Border Grid.Row="4" CornerRadius="6" Background="{DynamicResource GameCardNotesBorder}"
-                            Padding="4,4" Margin="0,6,0,0">
-                        <Button Classes="game-card-btn" Command="{Binding OpenInExplorerCommand}"
-                                Padding="0" Background="Transparent" BorderThickness="0">
-                            
-                                <TextBlock
-                                           Text="{Binding SelectedGame.ExecutablePathDisplay}"
-                                           FontSize="12" Foreground="{DynamicResource GameCardText}"
-                                           Opacity="0.8" FontStyle="Italic"
-                                           TextWrapping="Wrap"/>
-                        </Button>
-                    </Border>
+                               Padding="6,0,0,0" />
+
+                    <TextBlock Grid.Row="2" Text="{Binding SelectedGame.EngineName}"
+                               FontSize="12"
+                               Foreground="{DynamicResource GameCardText}"
+                               Padding="6,0,0,0" />
+
+                    <Button Classes="game-card-btn"
+                            Grid.Row="3"
+                            Command="{Binding OpenInExplorerCommand}"
+                            CommandParameter="{Binding SelectedGame.InstallFolder}"
+                            CornerRadius="2"
+                            Background="{DynamicResource ModCardButton}"
+                            BorderThickness="0"
+                            Padding="0"
+                            HorizontalContentAlignment="Left"
+                            Margin="0,6,0,0">
+                        <TextBlock
+                            Text="{Binding SelectedGame.InstallFolderDisplay}"
+                            FontSize="12" Foreground="{DynamicResource ModCardButtonText}"
+                            Opacity="0.8"
+                            Padding="6,4"
+                            TextWrapping="Wrap" />
+                    </Button>
+
+                    <Button Classes="game-card-btn"
+                            Grid.Row="4"
+                            Command="{Binding OpenInExplorerCommand}"
+                            CommandParameter="{Binding SelectedGame.ExecutablePath}"
+                            CornerRadius="2"
+                            Background="{DynamicResource ModCardButton}"
+                            BorderThickness="0"
+                            Padding="0"
+                            HorizontalContentAlignment="Left"
+                            Margin="0,6,0,0">
+                        <TextBlock
+                            Text="{Binding SelectedGame.ExecutablePathDisplay}"
+                            FontSize="12" Foreground="{DynamicResource ModCardButtonText}"
+                            Opacity="0.8"
+                            Padding="6,4"
+                            TextWrapping="Wrap" />
+                    </Button>
+
                 </Grid>
             </Grid>
         </Border>

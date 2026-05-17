@@ -4,7 +4,7 @@ using Restall.Application.Interfaces.Driven;
 
 namespace Restall.UI.Services;
 
-public sealed class IconConverterService : IIconConverterService
+internal sealed class IconConverterService : IIconConverterService
 {
     public byte[] IcoToPng(byte[] icoBytes, int width)
     {

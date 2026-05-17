@@ -14,13 +14,10 @@ internal sealed class GameCoverService : IGameCoverService
     
     private const string PcgwCargoByPageNameUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageName%3D%22{0}%22&format=json";
-
     private const string PcgwSearchUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=query&list=search&srsearch={0}&srnamespace=0&srlimit=3&format=json";
-
     private const string PcgwCargoByPageIdUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageID%3D{0}&format=json";
-
     private const string GogApiV2ProductUrl = "https://api.gog.com/v2/games/{0}";
 
 
@@ -67,7 +64,6 @@ internal sealed class GameCoverService : IGameCoverService
     }
 
     // Platform dispatch -------------------------------------------------------------------
-
     private async Task<string?> ResolveCoverSourceAsync(Game game) =>
         game.PlatformName switch
         {
@@ -87,7 +83,7 @@ internal sealed class GameCoverService : IGameCoverService
             
         };
 
-
+    // Steam ---------------------------------------------------------------------------------
     private async Task<string?> TryGetSteamLocalCover(Game game)
     {
         if (string.IsNullOrWhiteSpace(game.PlatformId)) return null;
@@ -149,9 +145,8 @@ internal sealed class GameCoverService : IGameCoverService
 
         return null;
     }
-
+    
     // GOG ---------------------------------------------------------------------------------
-
     private async Task<string?> TryGetGogLocalCover(Game game)
     {
         if (!OperatingSystem.IsWindows() || string.IsNullOrWhiteSpace(game.PlatformId)) return null;
@@ -223,7 +218,6 @@ internal sealed class GameCoverService : IGameCoverService
     }
 
     // Heroic (GOG + Epic) -----------------------------------------------------------------
-
     private async Task<string?> TryResolveHeroicCoverAsync(Game game)
     {
         var heroicPath = GetHeroicConfigPath();
@@ -297,10 +291,8 @@ internal sealed class GameCoverService : IGameCoverService
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "heroic")
             : null;
     }
-
+    
     // PCGamingWiki (fallback) -------------------------------------------------------------
-
-
     private async Task<string?> ResolvePcgwBySearchAsync(string gameName)
     {
         var exactUrl = 
@@ -432,7 +424,7 @@ internal sealed class GameCoverService : IGameCoverService
         }
         
     }
-
+    
     // Curl Download -------------------------------------------------------------------------------
     private async Task<byte[]> DownloadViaCurlAsync(string url)
     {

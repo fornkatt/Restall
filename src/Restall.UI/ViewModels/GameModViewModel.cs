@@ -10,11 +10,6 @@ using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
-/// <summary>
-/// We wrap a Game domain entity in a ViewModel and flatten the Game entity's properties into simpler types
-/// that we can easily bind to our UI and use in our other ViewModels to calculate for example button visibility
-/// and text/notes visibility
-/// </summary>
 public sealed partial class GameModViewModel : ObservableObject
 {
     private readonly Game _game;
@@ -77,11 +72,9 @@ public sealed partial class GameModViewModel : ObservableObject
         _game.RenoDX?.OriginalName is { } installedName         &&
         installedName != mod.AddonFilename64                    &&
         installedName != mod.AddonFilename32;
-
-    // Get the actual game object
+    
     internal Game GetGame() => _game;
-
-    // Call when installing or uninstalling ReShade/RenoDX to notify the VM these have changed since they are derived from _game
+    
     internal void NotifyGameStateChanged()
     {
         OnPropertyChanged(nameof(RenoDXBranchName));
