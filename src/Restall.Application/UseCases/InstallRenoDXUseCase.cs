@@ -97,6 +97,27 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         renoDX.Version = renoDxVersion.Value;
 
+        if (request.Game.RenoDX is { } existingRenoDX)
+        {
+            var deleteResult =
+                _fileService.TryDeleteFile(Path.Combine(request.Game.ExecutablePath!, existingRenoDX.SelectedName ?? addonFilename));
+
+            if (!deleteResult.IsSuccess)
+            {
+                await _logService.LogErrorAsync(deleteResult.ErrorMessage ?? "Failed to delete existing RenoDX file.", deleteResult.Exception);
+                
+                var userMessage = deleteResult.ErrorType switch
+                {
+                    ErrorType.PermissionDenied => "Permission denied deleting existing RenoDX file. Please ensure you have write access to the game directory and try again.",
+                    ErrorType.FileSystemError => "Something went wrong uninstalling an existing RenoDX file. Please ensure the file is not in use and the disk is not full and try again.",
+                    ErrorType.FileNotFound => "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
+                    _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details." 
+                };
+                
+                return new ModOperationResultDto(false, request.Game, userMessage);
+            }
+        }
+
         var result = await _modInstallService.InstallModAsync(request.Game, renoDX, filePath);
 
         if (!result.IsSuccess)

@@ -14,6 +14,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
     private readonly IModDownloadService _modDownloadService;
     private readonly IFileExtractionService _fileExtractionService;
     private readonly IModInstallService _modInstallService;
+    private readonly IFileService _fileService;
     private readonly ILogService _logService;
 
     public InstallReShadeUseCase(
@@ -21,6 +22,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         IModDownloadService modDownloadService,
         IFileExtractionService fileExtractionService,
         IModInstallService modInstallService,
+        IFileService fileService,
         ILogService logService
     )
     {
@@ -28,6 +30,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         _modDownloadService = modDownloadService;
         _fileExtractionService = fileExtractionService;
         _modInstallService = modInstallService;
+        _fileService = fileService;
         _logService = logService;
     }
 
@@ -80,7 +83,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 {
                     ErrorType.ToolNotFound => OperatingSystem.IsLinux() 
                     ? "bsdtar not found. Please install libarchive-tools and try again."
-                    : "tar not found. Enure it is available on your system.",
+                    : "tar not found. Ensure it is available on your system.",
                     ErrorType.PermissionDenied => "Permission denied extracting the ReShade installer files to cache. " +
                                                     "Please ensure your have read/write access to the appropriate directories and try again.",
                     ErrorType.FileSystemError => "Something went wrong writing cache directories or files to cache. " +
@@ -90,6 +93,27 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                     ErrorType.ExtractionFailed => "File extraction failed. " +
                                                     "Please ensure the files are not in use and there's enough disk space available and try again.",
                     _ => "An unexpected error occured during file extraction. Check logs for more details."
+                };
+                
+                return new ModOperationResultDto(false, request.Game, userMessage);
+            }
+        }
+
+        if (request.Game.ReShade is { } existingReShade)
+        {
+            var deleteResult =
+                _fileService.TryDeleteFile(Path.Combine(request.Game.ExecutablePath!, existingReShade.SelectedFilename));
+
+            if (!deleteResult.IsSuccess)
+            {
+                await _logService.LogErrorAsync(deleteResult.ErrorMessage ?? "Failed to delete existing ReShade file.", deleteResult.Exception);
+
+                var userMessage = deleteResult.ErrorType switch
+                {
+                    ErrorType.PermissionDenied => "Permission denied deleting existing ReShade file. Please ensure you have write access to the game directory and try again.",
+                    ErrorType.FileSystemError => "Something went wrong uninstalling an existing ReShade file. Please ensure the file is not in use and the disk is not full and try again.",
+                    ErrorType.FileNotFound => "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
+                    _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details." 
                 };
                 
                 return new ModOperationResultDto(false, request.Game, userMessage);
