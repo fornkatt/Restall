@@ -57,11 +57,12 @@ internal sealed class SteamScanner : IPlatformScannerService
         if (OperatingSystem.IsWindows()) return GameScanHelper.ReadRegistry(@"Valve\Steam", "SteamPath");
         
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
+        //TODO: DEFINE THESE IN PATHSERVICE TO HAVE A CENTRALIZED STATE SERVICE
         var linuxPaths = new[]
         {
             Path.Combine(home, ".steam", "steam"),
             Path.Combine(home, ".local", "share", "Steam"),
+            Path.Combine(home, "snap",   "steam", "common", ".local", "share", "Steam")
         };
         
         return linuxPaths.FirstOrDefault(Directory.Exists);
@@ -98,7 +99,7 @@ internal sealed class SteamScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = rootPath,
                     PlatformName = Platform,
-                    PlatformId = $"steam:{appId}"
+                    PlatformId = appId
                 });
             }
             catch(Exception ex)

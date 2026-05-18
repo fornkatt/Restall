@@ -8,18 +8,24 @@
     
     <!-- GameListView Toolbar Section Buttons -->
     <Style Selector="Button.toolbar-btn">
-        <Setter Property="Background" Value="{DynamicResource GameCardBackground}"/>
-        <Setter Property="Foreground" Value="{DynamicResource GameCardText}"/>
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
     <Style Selector="Button.toolbar-btn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource GameListHover}"/>
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
     <Style Selector="Button.toolbar-btn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource GameListSelection}"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button.toolbar-btn:pointerover">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button.toolbar-btn:pressed">
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
     
     <!-- ModView Game Card buttons -->
     <Style Selector="Button.game-card-btn">
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Background" Value="{DynamicResource ModCardButton}"/>
         <Setter Property="Foreground" Value="{DynamicResource ModCardButtonText}"/>
     </Style>

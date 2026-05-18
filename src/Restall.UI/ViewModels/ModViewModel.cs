@@ -129,9 +129,8 @@ public sealed partial class ModViewModel : ViewModelBase
 
     /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
     [RelayCommand]
-    private void OpenInExplorer()
+    private void OpenInExplorer(string? folder)
     {
-        var folder = SelectedGame?.ExecutablePath;
         if (!Directory.Exists(folder)) return;
 
         if (OperatingSystem.IsWindows())

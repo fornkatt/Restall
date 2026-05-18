@@ -1,27 +1,20 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Net;
+using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Facades;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.Services;
 using Restall.Application.UseCases;
-using Restall.Infrastructure.Persistence;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
 using Restall.Infrastructure.Stores;
+
 
 namespace Restall.Infrastructure.Extensions;
 
 public static class InfrastructureServiceCollectionExtensions
 {
-    /// <summary>
-    /// Implementerar Dependency Injection istället för att manuellt implementera
-    /// Singletons i varje enskild klass som behöver leva hela appens livslängd och behöver information från samma ställe.
-    /// T.ex. hade det varit problematiskt om ModCatalog och VersionCatalog är Transient då alla delar av appen
-    /// behöver få ut samma information från dem så det inte blir mismatch.
-    ///
-    /// Vi har också sett till att inga Transients injiceras i Singletons då de då befordras till Singleton och
-    /// det kan få oönskade sidoeffekter.
-    /// </summary>
+    //TODO: TAKE A CLOSER LOOK WHAT IS NEEDED TO BE SINGLETONS OR TRANSIENT IN OUR DI
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.AddSingleton<IPathService, PathService>();
@@ -33,13 +26,13 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IVersionCatalog, VersionCatalog>();
         services.AddSingleton<IModCatalog, ModCatalog>();
 
-        services.AddSingleton<ISteamGridDbIndexRepository, SteamGridDbIndexRepository>();
-
         services.AddPlatformScanners();
         services.AddSingleton<IEngineDetectionService, EngineDetectionService>();
         services.AddSingleton<IGameDetectionService, GameDetectionService>();
         services.AddSingleton<IModDetectionService, ModDetectionService>();
-
+        
+        services.AddTransient<IGameIconService, GameIconService>();
+        services.AddTransient<IGameArtworkService, GameArtworkService>();
         services.AddTransient<ILightRefreshLibraryUseCase, RefreshLibraryUseCase>();
         services.AddTransient<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
         services.AddTransient<IModInstallService, ModInstallService>();
@@ -52,7 +45,22 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddTransient<IModManagementFacade, ModManagementFacade>();
 
         services.AddHttpClient<IModDownloadService, ModDownloadService>();
-        services.AddHttpClient<ISteamGridDbService, SteamGridDbService>();
+        services.AddHttpClient<IGameCoverService, GameCoverService>(c =>
+            {
+                c.DefaultRequestHeaders.UserAgent.ParseAdd("Restall/1.0");
+
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+                OperatingSystem.IsWindows()
+                    ? new WinHttpHandler
+                        { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate }
+                    : new SocketsHttpHandler
+                    {
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate |
+                                                 DecompressionMethods.Brotli
+                    });
+        
+
 
         return services;
     }

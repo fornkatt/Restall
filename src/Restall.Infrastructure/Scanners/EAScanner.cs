@@ -66,7 +66,7 @@ internal sealed class EAScanner : IPlatformScannerService
                     Name = displayName,
                     InstallFolder = installDir,
                     PlatformName = Platform,
-                    PlatformId = $"origin:{subName}"
+                    PlatformId = subName
                 });
             }
 

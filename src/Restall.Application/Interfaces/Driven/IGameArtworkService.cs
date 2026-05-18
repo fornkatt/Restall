@@ -2,7 +2,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.Interfaces.Driven;
 
-public interface ISteamGridDbService
+public interface IGameArtworkService
 {
     Task EnrichGameArtworkAsync(Game game);
 }

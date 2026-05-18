@@ -10,36 +10,30 @@ using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
-/// <summary>
-/// We wrap a Game domain entity in a ViewModel and flatten the Game entity's properties into simpler types
-/// that we can easily bind to our UI and use in our other ViewModels to calculate for example button visibility
-/// and text/notes visibility
-/// </summary>
 public sealed partial class GameModViewModel : ObservableObject
 {
     private readonly Game _game;
 
-    private const int s_bannerTargetWidth = 1000;
-    private const int s_logoTargetWidth = 300;
+    
+    private const int s_coverTargetWidth = 600;
     private const int s_thumbnailTargetWidth = 32;
 
-    private Lazy<Bitmap?> _bannerBitmap;
-    private Lazy<Bitmap?> _logoBitmap;
+    
+    private Lazy<Bitmap?> _coverBitMap;
     private Lazy<Bitmap?> _thumbnailBitmap;
 
     public GameModViewModel(Game game)
     {
         _game = game;
-        _bannerPathString = game.BannerPathString;
-        _logoPathString = game.LogoPathString;
+        
+        _coverPathString = game.GameCoverPathString;
         _thumbnailPathString = game.ThumbnailPathString;
         NormalizedName = GameNameHelper.NormalizeName(game.Name!);
-
-        _bannerBitmap = CreateLazyBitmap(_bannerPathString, s_bannerTargetWidth);
-        _logoBitmap = CreateLazyBitmap(_logoPathString, s_logoTargetWidth);
+        
+        _coverBitMap = CreateLazyBitmap(_coverPathString, s_coverTargetWidth);
         _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, s_thumbnailTargetWidth);
     }
-
+    
     [ObservableProperty]
     private UpdateCheckResultDto? _reShadeUpdateCheck;
     
@@ -51,7 +45,14 @@ public sealed partial class GameModViewModel : ObservableObject
     public Game.Platform PlatformName => _game.PlatformName;
     public Game.Engine EngineName => _game.EngineName;
     public string? ExecutablePath => _game.ExecutablePath;
+
+    public string? ExecutablePathDisplay => OperatingSystem.IsWindows()
+        ? ExecutablePath?.Replace(@"\", "\\\u200B")
+        : ExecutablePath?.Replace("/", "/\u200B");
     public string? InstallFolder => _game.InstallFolder;
+    public string? InstallFolderDisplay => OperatingSystem.IsWindows()
+        ? InstallFolder?.Replace(@"\", "\\\u200B")
+        : InstallFolder?.Replace("/", "/\u200B");
     public bool HasRenoDX => _game.HasRenoDX;
     public bool HasReShade => _game.HasReShade;
     public bool IsRenoDXSupported =>
@@ -71,11 +72,9 @@ public sealed partial class GameModViewModel : ObservableObject
         _game.RenoDX?.OriginalName is { } installedName         &&
         installedName != mod.AddonFilename64                    &&
         installedName != mod.AddonFilename32;
-
-    // Get the actual game object
+    
     internal Game GetGame() => _game;
-
-    // Call when installing or uninstalling ReShade/RenoDX to notify the VM these have changed since they are derived from _game
+    
     internal void NotifyGameStateChanged()
     {
         OnPropertyChanged(nameof(RenoDXBranchName));
@@ -182,30 +181,21 @@ public sealed partial class GameModViewModel : ObservableObject
     private RenoDXGenericModInfoDto? _compatibleRenoDXGenericMod;
 
     // Bitmaps -------------------------------------------------------------------------------
-
+    
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(BannerBitmap))]
-    private string? _bannerPathString;
-
-    partial void OnBannerPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _bannerBitmap, value, s_bannerTargetWidth);
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(LogoBitmap))]
-    private string? _logoPathString;
-
-    partial void OnLogoPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _logoBitmap, value, s_logoTargetWidth);
-
+    [NotifyPropertyChangedFor(nameof(CoverBitmap))]
+    private string? _coverPathString;
+    partial void OnCoverPathStringChanged(string? value) =>
+        ResetLazyBitmap(ref _coverBitMap,value, s_coverTargetWidth);
+    
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
     private string? _thumbnailPathString;
 
     partial void OnThumbnailPathStringChanged(string? value) =>
         ResetLazyBitmap(ref _thumbnailBitmap, value, s_thumbnailTargetWidth);
-
-    public Bitmap? BannerBitmap => _bannerBitmap.Value;
-    public Bitmap? LogoBitmap => _logoBitmap.Value;
+    
+    public Bitmap? CoverBitmap => _coverBitMap.Value;
     public Bitmap? ThumbnailBitmap => _thumbnailBitmap.Value;
 
     private static Lazy<Bitmap?> CreateLazyBitmap(string? path, int targetWidth) =>
@@ -228,4 +218,5 @@ public sealed partial class GameModViewModel : ObservableObject
 
         lazy = CreateLazyBitmap(newPath, targetWidth);
     }
+    
 }

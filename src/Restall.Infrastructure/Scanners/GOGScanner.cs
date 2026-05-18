@@ -1,4 +1,3 @@
-using Restall.Application.DTOs;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -6,13 +5,7 @@ using System.Text.RegularExpressions;
 using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
-/// <summary>
-/// I selected GOG Scanner as main reference for giving an understanding how all the scanners work
-/// 
-/// Each scanner are following the same pattern, scan the platform, registry or file,
-/// collect the games into a tuple and pass on the results.
-/// All launchers are going through the process of scanning two sources, registry and json
-/// </summary>
+
 internal sealed class GOGScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
@@ -69,7 +62,7 @@ internal sealed class GOGScanner : IPlatformScannerService
                 if (gameKey is null) continue;
 
                 //Value patterns in registry
-                var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName");
+                var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName", "gameName");
                 var path = GameScanHelper.GetRegistryValue(gameKey, "PATH", "path");
 
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path)) continue;
@@ -80,7 +73,7 @@ internal sealed class GOGScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = path,
                     PlatformName = Platform,
-                    PlatformId = $"gog:{subName}" //exact name usage for API search in SteamGridDb
+                    PlatformId = subName
                 });
             }
 
@@ -96,8 +89,7 @@ internal sealed class GOGScanner : IPlatformScannerService
     private string? GetHeroicInstallPath()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-        //Windows and Linux path
+        
         var heroicPath = OperatingSystem.IsWindows()
             ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store")
             : Path.Combine(home, ".config", "heroic", "gog_store");
@@ -120,13 +112,12 @@ internal sealed class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            //error handling handled both through the UI for the user and through the logs for developers
             _logService.LogError($"Failed to read installed.json file in GOG Heroic library", ex);
             return (games, $"Failed to read installed.json file in GOG Heroic library.");
         }
 
 
-        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json)) //all data inside the installed.json file
+        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
         {
             try
             {
@@ -161,7 +152,7 @@ internal sealed class GOGScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = installPath,
                     PlatformName = Game.Platform.GOG,
-                    PlatformId = $"gog:{appName}"
+                    PlatformId = appName
                 });
             }
             catch (Exception ex)
