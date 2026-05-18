@@ -76,6 +76,7 @@ internal static class GameScanHelper
         return null;
     }
     
+    //TODO: CREATE MANIFEST FOR NONGAMEEXECUTABLE, NONGAME AND GETPREFERREDEXESUBFOLDERS
     internal static bool NonGameExecutable(string exeNameWithoutExtension)
     {
         var keywords = new HashSet<string>()

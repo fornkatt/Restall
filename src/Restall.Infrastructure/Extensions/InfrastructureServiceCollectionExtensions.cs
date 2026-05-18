@@ -14,6 +14,7 @@ namespace Restall.Infrastructure.Extensions;
 
 public static class InfrastructureServiceCollectionExtensions
 {
+    //TODO: TAKE A CLOSER LOOK WHAT IS NEEDED TO BE SINGLETONS OR TRANSIENT IN OUR DI
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.AddSingleton<IPathService, PathService>();

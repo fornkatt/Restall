@@ -57,7 +57,7 @@ internal sealed class SteamScanner : IPlatformScannerService
         if (OperatingSystem.IsWindows()) return GameScanHelper.ReadRegistry(@"Valve\Steam", "SteamPath");
         
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
+        //TODO: DEFINE THESE IN PATHSERVICE TO HAVE A CENTRALIZED STATE SERVICE
         var linuxPaths = new[]
         {
             Path.Combine(home, ".steam", "steam"),

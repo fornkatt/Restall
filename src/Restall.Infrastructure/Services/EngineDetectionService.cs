@@ -79,6 +79,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
                 CollectUEBinaries(sub, depth + 1, results);
             }
         }
+        //TODO: RETURNS THE RESULTS IN THE FUTURE AND CATCH GENERAL EXCEPTIONS IN FACADES AND USECASES
         catch (Exception ex)
         {
             _logService.LogError($"Couldn't collect the files in Binaries folder", ex);
