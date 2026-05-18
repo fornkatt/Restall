@@ -103,6 +103,7 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 * Wiki name matching override support.
 * Install/Exec folder override.
 * Add support for adding custom games.
+* Add ability to symlink ReShade from a centralized folder and include/remove individual games from symlinking.
 * In-app editor for reshade.ini
 * Settings for preferred nit, paperwhite and ui brightness values for RenoDX and disable tutorial by default in reshade.ini on install.
 * Package Windows installer and Flatpak package for Linux.
