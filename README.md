@@ -75,7 +75,6 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 | :--- | :--- |
 | CommunityToolkit.Mvvm | MVVM pattern & source generators |
 | PeNet | PE file parsing for mod compatibility checks |
-| SteamGridDB API | Fetching game artwork |
 | HtmlAgilityPack | Web scraping for mod metadata |
 | Docker | Cross-platform build environment |
 
@@ -108,3 +107,5 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 * Settings for preferred nit, paperwhite and ui brightness values for RenoDX and disable tutorial by default in reshade.ini on install.
 * Package Windows installer and Flatpak package for Linux.
 * Generate .desktop file for Linux users after building.
+* Faugus support.
+* Xbox Game Pass support.
