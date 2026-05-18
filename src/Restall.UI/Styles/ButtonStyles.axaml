@@ -11,17 +11,12 @@
         <Setter Property="Background" Value="Transparent"/>
     </Style>
     <Style Selector="Button.toolbar-btn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="{DynamicResource GameListHover}"/>
     </Style>
     <Style Selector="Button.toolbar-btn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="{DynamicResource GameListSelection}"/>
     </Style>
-    <Style Selector="Button.toolbar-btn:pointerover">
-        <Setter Property="Background" Value="Transparent"/>
-    </Style>
-    <Style Selector="Button.toolbar-btn:pressed">
-        <Setter Property="Background" Value="Transparent"/>
-    </Style>
+    
     
     <!-- ModView Game Card buttons -->
     <Style Selector="Button.game-card-btn">
