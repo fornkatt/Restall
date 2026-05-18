@@ -94,7 +94,16 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 ## Upcoming Features
 
 > This section will be updated as new features are planned and confirmed.
-* Direct links to Nexus downloads for RenoDX mods.
 * Nightly (actions) branch support for ReShade.
+* RenoDX branch support for ReShade.
+* Vulkan ReShade support.
+* Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH).
+* Remember choices in app like branch, overrides etc per game.
+* Architecture override on game card.
+* Wiki name matching override support.
+* Install/Exec folder override.
+* Add support for adding custom games.
+* In-app editor for reshade.ini
+* Settings for preferred nit, paperwhite and ui brightness values for RenoDX and disable tutorial by default in reshade.ini on install.
 * Package Windows installer and Flatpak package for Linux.
 * Generate .desktop file for Linux users after building.
