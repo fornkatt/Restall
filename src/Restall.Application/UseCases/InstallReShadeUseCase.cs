@@ -83,7 +83,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 {
                     ErrorType.ToolNotFound => OperatingSystem.IsLinux() 
                     ? "bsdtar not found. Please install libarchive-tools and try again."
-                    : "tar not found. Enure it is available on your system.",
+                    : "tar not found. Ensure it is available on your system.",
                     ErrorType.PermissionDenied => "Permission denied extracting the ReShade installer files to cache. " +
                                                     "Please ensure your have read/write access to the appropriate directories and try again.",
                     ErrorType.FileSystemError => "Something went wrong writing cache directories or files to cache. " +
