@@ -64,29 +64,40 @@ internal sealed class GameDetectionService : IGameDetectionService
                   .Select(g => g.OrderByDescending(x => x.PlatformId != null).First())
                   .ToList<Game?>();
               
-              var engineCache = new ConcurrentDictionary<string, (string? path, Game.Engine engine)>(
-                  StringComparer.OrdinalIgnoreCase);
+              var engineCache = new ConcurrentDictionary<(string root, Game.Platform platform),
+              (string? path, Game.Engine engine)>();
 
               await Task.Run(() =>
               {
                   Parallel.ForEach(deduped, s_engineParallelOptions, game =>
                   {
                       if (game is null || string.IsNullOrWhiteSpace(game.InstallFolder)) return;
-
-                      var rootKey = (GameScanHelper.NormalizePath(game.InstallFolder) ?? game.InstallFolder).ToLowerInvariant();
+                      
+                      var normalized = GameScanHelper.NormalizePath(game.InstallFolder)!.ToLowerInvariant();
+                      var rootKey = (normalized, game.PlatformName);
 
                       if (engineCache.TryGetValue(rootKey, out var cached))
                       {
                           game.ExecutablePath = cached.path;
-                          game.EngineName     = cached.engine;
+                          game.EngineName = cached.engine;
                           return;
                       }
 
-                      var (executablePath, engine) =
-                          _engineDetectionService.DetectExecutablePathAndEngine(game.InstallFolder);
-                      game.ExecutablePath = executablePath;
-                      game.EngineName     = engine;
-                      engineCache[rootKey] = (executablePath, engine);
+                      if (game.PlatformName == Game.Platform.Xbox)
+                      {
+                          var (_, engine) = _engineDetectionService.DetectExecutablePathAndEngine(game.InstallFolder,
+                              game.PlatformName);
+                          game.EngineName = engine;
+                          engineCache[rootKey] = (game.ExecutablePath, engine);
+                          return;
+                      }
+                      
+                      var (executablePath, detectedEngine) =
+                          _engineDetectionService.DetectExecutablePathAndEngine(game.InstallFolder, game.PlatformName);
+                      
+                      game.ExecutablePath  = executablePath;
+                      game.EngineName = detectedEngine;
+                      engineCache[rootKey] = (executablePath, detectedEngine);
                   });
               });
               

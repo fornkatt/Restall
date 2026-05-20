@@ -1,8 +1,7 @@
-using System.Text.Json;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
-using Restall.Infrastructure.Helpers;
+
 
 
 namespace Restall.Infrastructure.Services;
@@ -13,16 +12,19 @@ internal sealed class GameArtworkService : IGameArtworkService
     private readonly IPathService _pathService;
     private readonly IGameCoverService _gameCoverService;
     private readonly IGameIconService _gameIconService;
+    private readonly IImageResizeService _imageResizeService;
 
     public GameArtworkService(ILogService logService,
         IPathService pathService,
         IGameCoverService gameCoverService,
-        IGameIconService gameIconService)
+        IGameIconService gameIconService
+        , IImageResizeService imageResizeService)
     {
         _logService = logService;
         _pathService = pathService;
         _gameCoverService = gameCoverService;
         _gameIconService = gameIconService;
+        _imageResizeService = imageResizeService;
 
         Directory.CreateDirectory(pathService.GetArtworkCacheDirectory());
     }
@@ -37,10 +39,17 @@ internal sealed class GameArtworkService : IGameArtworkService
 
             Directory.CreateDirectory(Path.GetDirectoryName(coverPath)!);
             Directory.CreateDirectory(Path.GetDirectoryName(iconPath)!);
-
+            
             await _gameCoverService.DownloadCoverIfMissingAsync(game, coverPath);
-            await _gameIconService.ExtractIconIfMissingAsync(game.ExecutablePath, game.Name, iconPath);
-
+            
+            if (!File.Exists(iconPath))
+            {
+                if(game.ThumbnailPathString is not null && File.Exists(game.ThumbnailPathString))
+                    File.Copy(game.ThumbnailPathString, iconPath, overwrite: true);
+                else 
+                    await _gameIconService.ExtractIconIfMissingAsync(game.ExecutablePath, game.Name, iconPath);
+            }
+            
             game.GameCoverPathString = File.Exists(coverPath) ? coverPath : string.Empty;
             game.ThumbnailPathString = File.Exists(iconPath) ? iconPath : string.Empty;
         }
