@@ -97,6 +97,7 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 * RenoDX branch support for ReShade.
 * Vulkan ReShade support.
 * Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH).
+* LUMA mod support.
 * Remember choices in app like branch, overrides etc per game.
 * Architecture override on game card.
 * Wiki name matching override support.
