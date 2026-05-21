@@ -34,56 +34,51 @@ internal sealed class XboxScanner : IPlatformScannerService
             IsSuccess: games.Count > 0,
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
-    
+
     private (List<Game> games, string? error) ScanXboxLibrary(string installPath)
     {
         var games = new List<Game>();
 
-        try
+        foreach (var gameDir in Directory.EnumerateDirectories(installPath))
         {
-            foreach (var gameDir in Directory.EnumerateDirectories(installPath))
+            try
             {
-                try
-                {
-                    var contentDir = Path.Combine(gameDir, "Content");
-                    if (!Directory.Exists(contentDir)) continue;
-                    
-                    var configPath = Path.Combine(gameDir, "Content", "MicrosoftGame.config");
-                    if (!File.Exists(configPath)) continue;
+                var contentDir = Path.Combine(gameDir, "Content");
+                if (!Directory.Exists(contentDir)) continue;
 
-                    var (name, storeId, iconFile) = ParseMicrosoftGameConfig(configPath);
-                    
-                    var resolvedName = name ?? Path.GetFileName(gameDir);
-                    
-                    var iconPath = iconFile is not null ? Path.Combine(gameDir, "Content", iconFile) : null;
-                    
-                    if (string.IsNullOrWhiteSpace(resolvedName)) continue;
-                    
-                    games.Add(new Game
-                    {
-                        Name = resolvedName,
-                        InstallFolder = gameDir,
-                        ExecutablePath = contentDir,
-                        ThumbnailPathString = File.Exists(iconPath) ? iconPath : null,
-                        PlatformName = Platform,
-                        PlatformId = storeId
-                    });
+                var configPath = Path.Combine(gameDir, "Content", "MicrosoftGame.config");
+                if (!File.Exists(configPath)) continue;
 
-                }
-                catch (Exception ex)
+                var (name, storeId, iconFile) = ParseMicrosoftGameConfig(configPath);
+
+                var resolvedName = name ?? Path.GetFileName(gameDir);
+
+                var iconPath = iconFile is not null ? Path.Combine(gameDir, "Content", iconFile) : null;
+
+                if (string.IsNullOrWhiteSpace(resolvedName)) continue;
+
+                games.Add(new Game
                 {
-                    _logService.LogError("Failed to process Xbox Games", ex);
-                }
+                    Name = resolvedName,
+                    InstallFolder = gameDir,
+                    ExecutablePath = contentDir,
+                    ThumbnailPathString = File.Exists(iconPath) ? iconPath : null,
+                    PlatformName = Platform,
+                    PlatformId = storeId
+                });
+
             }
-        }
-        catch (Exception ex)
-        {
-            _logService.LogError("Failed to scan Xbox Game Library", ex);
-            return (games, "Failed to scan Xbox Game Library");
-        }
+            catch (Exception ex)
+            {
+                _logService.LogError("Failed to scan Xbox Game Library", ex);
+                return (games, "Failed to scan Xbox Game Library");
+            }
 
+        }
+        
         return (games, null);
     }
+
 
     private static (string? name, string? storeId, string? iconFile) ParseMicrosoftGameConfig(string configPath)
     {
