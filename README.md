@@ -27,6 +27,7 @@ It automates the detection of game installations across multiple launchers and s
 |  GOG |  GOG (via [Heroic](https://heroicgameslauncher.com/)) |
 |  Ubisoft Connect | |
 |  EA App | |
+|  Xbox Game Pass | |
 ---
 ## Building the Project
 
@@ -109,4 +110,3 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 * Package Windows installer and Flatpak package for Linux.
 * Generate .desktop file for Linux users after building.
 * Faugus support.
-* Xbox Game Pass support.
