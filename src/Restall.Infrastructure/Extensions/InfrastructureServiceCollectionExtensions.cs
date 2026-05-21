@@ -72,6 +72,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IPlatformScannerService, GOGScanner>();
         services.AddSingleton<IPlatformScannerService, UbisoftScanner>();
         services.AddSingleton<IPlatformScannerService, EAScanner>();
+        services.AddSingleton<IPlatformScannerService, XboxScanner>();
         return services;
     }
     

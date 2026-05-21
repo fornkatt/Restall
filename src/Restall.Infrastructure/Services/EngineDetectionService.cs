@@ -13,22 +13,23 @@ internal sealed class EngineDetectionService : IEngineDetectionService
         _logService = logService;
     }
 
-    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath)
+    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath, Game.Platform platform)
     {
         var uePath = FindUEBinariesFolder(rootPath);
-        if (uePath != null)
-        {
-            return (uePath, Game.Engine.Unreal);
-        }
-
         var unityPlayer = FindFileShallow(rootPath, "UnityPlayer.dll", maxDepth: 2);
-        if (unityPlayer != null)
-        {
-            return (Path.GetDirectoryName(unityPlayer), Game.Engine.Unity);
-        }
 
-        var exeFolder = FindShallowExeFolder(rootPath);
-        return (exeFolder, Game.Engine.Unknown);
+        Game.Engine engine =
+            uePath != null ? Game.Engine.Unreal :
+            unityPlayer != null ? Game.Engine.Unity :
+            Game.Engine.Unknown;
+        
+        if(platform == Game.Platform.Xbox)
+            return (rootPath, engine);
+
+        if (uePath != null) return (uePath, Game.Engine.Unreal);
+        if (unityPlayer != null) return (Path.GetDirectoryName(unityPlayer), Game.Engine.Unity);
+        
+        return (FindShallowExeFolder(rootPath), Game.Engine.Unknown);
     }
 
 
