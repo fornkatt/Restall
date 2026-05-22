@@ -137,6 +137,7 @@ internal static class GameScanHelper
     internal static string[] GetPreferredExeSubFolders() => 
     [
         "bin",
+        Path.Combine("bin", "x64_dx12"),
         Path.Combine("bin", "x64"),
         Path.Combine("bin", "x86"),
         Path.Combine("bin", "win64")
