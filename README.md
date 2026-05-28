@@ -9,6 +9,7 @@
 * [How to use Restall](#how-to-use-restall)
 * [Technical Aspects](#technical-aspects)
 * [Screenshots](#screenshots)
+* [Notes](#notes)
 * [Upcoming Features](#upcoming-features)
 ---
 ## What is Restall?
@@ -42,8 +43,9 @@ It automates the detection of game installations across multiple launchers and s
 | <img src=".github/assets/windows-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Windows | <img src=".github/assets/linux-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Linux |
 | :--- | :--- |
 | • Download and install the latest version of Docker and run it | • Install the **docker package** for your distribution <br> &nbsp;&nbsp;&nbsp;&nbsp;• _Install the `docker-buildx` plugin if it is not included in your distribution package_ <br> • Open up the terminal and run ```systemctl start docker``` <br> • Run ```usermod -aG docker $USER``` to add your user to the docker group <br> • Run ```newgrp docker``` to apply changes or relog |
-| • Double-click ```build-windows_win.bat``` to build Windows binaries <br> • _Alternatively, use `build-linux_win.bat` for Linux binaries_ | • Navigate to the repo and run ```chmod +x build-linux_linux.sh``` <br> &nbsp;&nbsp;&nbsp;&nbsp;- Run```./build-linux_linux.sh``` to build Linux Binaries <br> • _Alternatively, use `chmod +x build-windows_linux.sh` <br> &nbsp;&nbsp;&nbsp;&nbsp;- Run```./build-windows_linux.sh``` to build Windows Binaries_  |
-| • The final build will be in `dist/windows` or `dist/linux`. | • The final build will be in `dist/linux` or `dist/windows`. |
+| • Double-click ```build-windows_win.bat``` to build Windows binaries <br> • _Alternatively, use `build-linux_win.bat` for Linux binaries_ | • Navigate to the repo and run ```./build-linux_linux.sh``` to build Linux Binaries <br> • _Alternatively, run ```./build-windows_linux.sh``` to build Windows Binaries_  |
+| • The final build will be in `dist\windows` or `dist\linux`. | • The final build will be in `dist/linux` or `dist/windows`. | <br>
+| • The cache and logs will be in `%LOCALAPPDATA%\Restall`. | • The cache and logs will be in `~/.local/Restall`. |
 
 
 ---
@@ -56,7 +58,7 @@ It automates the detection of game installations across multiple launchers and s
 
 * Below is a quick demo of the full workflow:
 
-<img src=".github/assets/howtodemo.gif" width="800" alt="Restall Demo"/>
+<img src=".github/assets/howtodemonewui.gif" width="800" alt="Restall Demo"/>
 
 --- 
 
@@ -87,9 +89,13 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 
 | Dark Mode | Light Mode |
 | :---: | :---: |
-| <img src=".github/assets/homepage-dark.png" width="500" alt="Darkmode"> | <img src=".github/assets/homepage-light.png" width="500" alt="Lightmode"> |
+| <img src=".github/assets/restall-new-ui-dark.png" width="500" alt="Darkmode"> | <img src=".github/assets/restall-new-ui-light.png" width="500" alt="Lightmode"> |
 
 ---
+
+## Notes
+
+Currently the app fetches version and files from the Snapshot/Nightly tags on the RenoDX wiki. The plan is to expand this support to allow for fetching from the creator's own GitHub page.
 
 ## Upcoming Features
 
@@ -97,8 +103,10 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 * Nightly (actions) branch support for ReShade.
 * RenoDX branch support for ReShade.
 * Vulkan ReShade support.
-* Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH).
-* LUMA mod support.
+* Ability to install basic HDR shaders.
+* Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH. The links on the main wiki's mods page).
+* [LUMA](https://github.com/Filoppi/Luma-Framework/wiki) mod support.
+* [ReLimiter](https://github.com/RankFTW/ReLimiter) support.
 * Remember choices in app like branch, overrides etc per game.
 * Architecture override on game card.
 * Wiki name matching override support.
