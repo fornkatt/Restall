@@ -23,7 +23,7 @@ It automates the detection of game installations across multiple launchers and s
 
 | <img src=".github/assets/windows-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Windows | <img src=".github/assets/linux-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Linux |
 | :--- | :--- |
-|  Steam |  Steam (Native/Proton) |
+|  Steam |  Steam |
 |  Epic Games Launcher | Epic Games (via [Heroic](https://heroicgameslauncher.com/)) |
 |  GOG |  GOG (via [Heroic](https://heroicgameslauncher.com/)) |
 |  Ubisoft Connect | |
