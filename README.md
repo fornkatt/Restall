@@ -7,9 +7,9 @@
     * [Prerequisites](#prerequisites)
     * [Cloning the Repository](#cloning-the-repository)
 * [How to use Restall](#how-to-use-restall)
+* [Notes](#notes)
 * [Technical Aspects](#technical-aspects)
 * [Screenshots](#screenshots)
-* [Notes](#notes)
 * [Upcoming Features](#upcoming-features)
 ---
 ## What is Restall?
@@ -47,8 +47,8 @@ It automates the detection of game installations across multiple launchers and s
 | • The final build will be in `dist\windows` or `dist\linux`. | • The final build will be in `dist/linux` or `dist/windows`. | <br>
 | • The cache and logs will be in `%LOCALAPPDATA%\Restall`. | • The cache and logs will be in `~/.local/Restall`. |
 
-
 ---
+
 ## How to use Restall
 ### The general workflows looks like:
 * Launch Restall - it will automatically detect your installed game launchers
@@ -61,6 +61,12 @@ It automates the detection of game installations across multiple launchers and s
 <img src=".github/assets/howtodemonewui.gif" width="800" alt="Restall Demo"/>
 
 --- 
+
+## Notes
+
+Currently the app fetches version and files from the Snapshot/Nightly tags on the RenoDX wiki. The plan is to expand this support to allow for fetching from the creator's own GitHub page.
+
+---
 
 ## Technical Aspects
 ### Core Frameworks & Language
@@ -92,10 +98,6 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 | <img src=".github/assets/restall-new-ui-dark.png" width="500" alt="Darkmode"> | <img src=".github/assets/restall-new-ui-light.png" width="500" alt="Lightmode"> |
 
 ---
-
-## Notes
-
-Currently the app fetches version and files from the Snapshot/Nightly tags on the RenoDX wiki. The plan is to expand this support to allow for fetching from the creator's own GitHub page.
 
 ## Upcoming Features
 
