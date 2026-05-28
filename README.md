@@ -3,15 +3,17 @@
 ---
 ## Table of Contents
 * [What is Restall?](#what-is-restall)
+* [How to use Restall](#how-to-use-restall)
+* [Supported launchers](#supported-launchers)
 * [Building the Project](#building-the-project)
     * [Prerequisites](#prerequisites)
     * [Cloning the Repository](#cloning-the-repository)
-* [How to use Restall](#how-to-use-restall)
 * [Notes](#notes)
-* [Technical Aspects](#technical-aspects)
-* [Screenshots](#screenshots)
 * [Upcoming Features](#upcoming-features)
+* [Technical Aspects](#technical-aspects)
+
 ---
+
 ## What is Restall?
 **Restall** is a desktop application for Windows and Linux for managing [ReShade](https://reshade.me/) and [RenoDX](https://github.com/clshortfuse/renodx/) modifications. 
 
@@ -19,7 +21,30 @@
 
 It automates the detection of game installations across multiple launchers and simplifies the mod management, **_Install, Update and Delete_**, of post-processing and HDR enhancement tools.
 
-### Supported Launchers
+---
+
+## How to use Restall
+### The general workflows looks like:
+* Launch Restall - it will automatically detect your installed game launchers
+    * Select a game from the detected game list
+        * Choose a mod Select a desired version from the list
+            * Install, Update or Delete the mod directly from the application
+
+* Below is a quick demo of the full workflow:
+
+<img src=".github/assets/howtodemonewui.gif" width="800" alt="Restall Demo"/>
+
+### Screenshots
+
+* Restall features a dynamic theme system and offers full support for Dark- and Light mode.
+
+| Dark Mode | Light Mode |
+| :---: | :---: |
+| <img src=".github/assets/restall-new-ui-dark.png" width="500" alt="Darkmode"> | <img src=".github/assets/restall-new-ui-light.png" width="500" alt="Lightmode"> |
+
+---
+
+## Supported Launchers
 
 | <img src=".github/assets/windows-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Windows | <img src=".github/assets/linux-logo.svg" width="22" valign="middle"/>&nbsp;&nbsp;Linux |
 | :--- | :--- |
@@ -49,53 +74,9 @@ It automates the detection of game installations across multiple launchers and s
 
 ---
 
-## How to use Restall
-### The general workflows looks like:
-* Launch Restall - it will automatically detect your installed game launchers
-    * Select a game from the detected game list
-        * Choose a mod Select a desired version from the list
-            * Install, Update or Delete the mod directly from the application
-
-* Below is a quick demo of the full workflow:
-
-<img src=".github/assets/howtodemonewui.gif" width="800" alt="Restall Demo"/>
-
---- 
-
 ## Notes
 
-Currently the app fetches version and files from the Snapshot/Nightly tags on the RenoDX wiki. The plan is to expand this support to allow for fetching from the creator's own GitHub page.
-
----
-
-## Technical Aspects
-### Core Frameworks & Language
-<p>
-<img src=".github/assets/csharp-logo.svg/" width="32" height="32" alt="CSharp">
-<img src=".github/assets/avalonia-logo.svg/" width="32" height="32" alt="Avalonia">
-</p>
-
-Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** for rendering.
-
----
-
-### Libraries & Tools
-| Library/Tool | Purpose |
-| :--- | :--- |
-| CommunityToolkit.Mvvm | MVVM pattern & source generators |
-| PeNet | PE file parsing for mod compatibility checks |
-| HtmlAgilityPack | Web scraping for mod metadata |
-| Docker | Cross-platform build environment |
-
----
-
-## Screenshots
-
-* Restall features a dynamic theme system and offers full support for Dark- and Light mode.
-
-| Dark Mode | Light Mode |
-| :---: | :---: |
-| <img src=".github/assets/restall-new-ui-dark.png" width="500" alt="Darkmode"> | <img src=".github/assets/restall-new-ui-light.png" width="500" alt="Lightmode"> |
+#### Currently the app fetches version and files from the Snapshot/Nightly tags on the RenoDX wiki. The plan is to expand this support to allow for fetching from the creator's own GitHub page.
 
 ---
 
@@ -120,3 +101,24 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 * Package Windows installer and Flatpak package for Linux.
 * Generate .desktop file for Linux users after building.
 * Faugus support.
+
+---
+
+## Technical Aspects
+### Core Frameworks & Language
+<p>
+<img src=".github/assets/csharp-logo.svg/" width="32" height="32" alt="CSharp">
+<img src=".github/assets/avalonia-logo.svg/" width="32" height="32" alt="Avalonia">
+</p>
+
+Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** for rendering.
+
+---
+
+### Libraries & Tools
+| Library/Tool | Purpose |
+| :--- | :--- |
+| CommunityToolkit.Mvvm | MVVM pattern & source generators |
+| PeNet | PE file parsing for mod compatibility checks |
+| HtmlAgilityPack | Web scraping for mod metadata |
+| Docker | Cross-platform build environment |
