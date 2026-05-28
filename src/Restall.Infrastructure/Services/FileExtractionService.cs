@@ -1,33 +1,37 @@
-﻿using Restall.Application.Interfaces.Driven;
+﻿using System.ComponentModel;
+using Restall.Application.Interfaces.Driven;
 using System.Diagnostics;
+using Restall.Application.Common;
 
 namespace Restall.Infrastructure.Services;
 
 internal sealed class FileExtractionService : IFileExtractionService
 {
-    private readonly ILogService _logService;
-
-    public FileExtractionService(ILogService logService)
-    {
-        _logService = logService;
-    }
-
-    public bool ExtractFiles(string fileToOpen, string[] filesToExtract, string destinationPath)
+    public Result ExtractFiles(string fileToOpen, string[] filesToExtract, string destinationPath)
     {
         var toolPath = GetExtractionToolPath();
 
         if (toolPath == null)
         {
-            _logService.LogInfo(
-                OperatingSystem.IsLinux()
+            return Result.Error(OperatingSystem.IsLinux()
                 ? "No extraction tool found. Ensure bsdtar (libarchive-tools) is installed."
-                : "No extraction tool found. Ensure tar is available on your system.");
-            return false;
+                : "No extraction tool found. Ensure tar is available on your system.", ErrorType.ToolNotFound);
         }
 
         var fileList = string.Join(" ", filesToExtract.Select(f => $"\"{f}\""));
 
-        Directory.CreateDirectory(destinationPath);
+        try
+        {
+            Directory.CreateDirectory(destinationPath);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Result.Error("Permission denied creating destination directory", ErrorType.PermissionDenied, ex);
+        }
+        catch (IOException ex)
+        {
+            return Result.Error("Failed to create destination directory", ErrorType.FileSystemError, ex);
+        }
 
         var startInfo = new ProcessStartInfo
         {
@@ -39,14 +43,12 @@ internal sealed class FileExtractionService : IFileExtractionService
             RedirectStandardError = true
         };
 
-
         try
         {
             using var process = Process.Start(startInfo);
             if (process == null)
             {
-                _logService.LogInfo("Unable to start extraction process.");
-                return false;
+                return Result.Error("Unable to start extraction process.", ErrorType.ProcessStartFailed);
             }
 
             process.WaitForExit();
@@ -54,19 +56,18 @@ internal sealed class FileExtractionService : IFileExtractionService
             if (process.ExitCode != 0)
             {
                 var stderr = process.StandardError.ReadToEnd();
-                _logService.LogError($"Extraction failed with exit code " +
-                                               $"{process.ExitCode}: {stderr}");
-                return false;
+                return Result.Error($"""
+                                   Extraction failed with exit code
+                                   {process.ExitCode}: {stderr}
+                                   """, ErrorType.ExtractionFailed);
             }
-
-            _logService.LogInfo($"Successfully extracted ({fileList}) to {destinationPath} using {toolPath}");
-            return true;
         }
-        catch (Exception ex)
+        catch (Win32Exception ex)
         {
-            _logService.LogError("Failed to extract files", ex);
-            return false;
+            return Result.Error("Failed to start extraction process", ErrorType.ProcessStartFailed, ex);
         }
+
+        return Result.Success();
     }
 
     private string? GetExtractionToolPath()
@@ -101,9 +102,9 @@ internal sealed class FileExtractionService : IFileExtractionService
             if (process.ExitCode == 0 && !string.IsNullOrWhiteSpace(output))
                 return output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)[0].Trim();
         }
-        catch (Exception ex)
+        catch (Win32Exception)
         {
-            _logService.LogError($"Could not find {tool}", ex);
+            return null;
         }
 
         return null;

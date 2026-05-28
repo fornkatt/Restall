@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Restall.Application.DTOs;
 using Restall.Domain.Entities;
 
@@ -8,8 +9,8 @@ public interface IVersionCatalog
     Task FetchVersionsAsync();
 
     string? GetLatestReShadeVersion(ReShade.Branch branch);
-    IReadOnlyList<string> GetAvailableReShadeVersions(ReShade.Branch branch);
+    ImmutableArray<string> GetAvailableReShadeVersions(ReShade.Branch branch);
 
     RenoDXTagInfoDto? GetLatestRenoDXVersionByTag(RenoDX.Branch branch);
-    IReadOnlyList<RenoDXTagInfoDto> GetAllRenoDXNightlies();
+    ImmutableArray<RenoDXTagInfoDto> GetAllRenoDXNightlies();
 }

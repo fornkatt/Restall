@@ -1,4 +1,5 @@
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -66,7 +67,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = installDir,
                     PlatformName = Platform,
-                    PlatformId = $"uplay:{subName}"
+                    PlatformId = subName
                 });
             }
 

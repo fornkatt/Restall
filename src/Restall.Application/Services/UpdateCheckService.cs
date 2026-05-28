@@ -1,4 +1,5 @@
 ﻿using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 
@@ -49,7 +50,7 @@ public sealed class UpdateCheckService : IUpdateCheckService
 
     public UpdateCheckResultDto CheckRenoDXUpdate(RenoDX installed)
     {
-        if (installed.IsExternalSourceMod)
+        if (!installed.IsUpdateCheckSupported)
             return new UpdateCheckResultDto(false, installed.Version, null);
 
         var branch = installed.BranchName == RenoDX.Branch.Unknown

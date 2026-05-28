@@ -1,4 +1,5 @@
-﻿using Restall.Application.DTOs;
+﻿using System.Collections.Immutable;
+using Restall.Application.DTOs;
 using Restall.Application.Interfaces.Driven;
 
 namespace Restall.Infrastructure.Stores;
@@ -7,8 +8,8 @@ internal sealed class ModCatalog : IModCatalog
 {
     private readonly IParseService _parseService;
 
-    private IReadOnlyList<RenoDXModInfoDto> _renoDXWikiMods = [];
-    private IReadOnlyList<RenoDXGenericModInfoDto> _renoDXGenericWikiMods = [];
+    private ImmutableArray<RenoDXModInfoDto> _renoDXWikiMods = [];
+    private ImmutableArray<RenoDXGenericModInfoDto> _renoDXGenericWikiMods = [];
 
     public ModCatalog(
         IParseService parseService
@@ -25,7 +26,7 @@ internal sealed class ModCatalog : IModCatalog
         _renoDXGenericWikiMods = result.GenericWikiMods;
     }
 
-    public IReadOnlyList<RenoDXModInfoDto> GetRenoDXWikiMods() => _renoDXWikiMods;
+    public ImmutableArray<RenoDXModInfoDto> GetRenoDXWikiMods() => _renoDXWikiMods;
 
-    public IReadOnlyList<RenoDXGenericModInfoDto> GetRenoDXGenericWikiMods() => _renoDXGenericWikiMods;
+    public ImmutableArray<RenoDXGenericModInfoDto> GetRenoDXGenericWikiMods() => _renoDXGenericWikiMods;
 }

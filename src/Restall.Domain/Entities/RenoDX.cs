@@ -11,6 +11,6 @@ public sealed class RenoDX
     public Architecture Arch { get; set; } = Architecture.x64;
     public string? Version { get; set; }
 
-    public bool IsExternalSourceMod =>
-        OriginalName?.StartsWith("renodx-unityengine", StringComparison.OrdinalIgnoreCase) == true;
+    public bool IsUpdateCheckSupported =>
+        OriginalName is null || !OriginalName.StartsWith("renodx-unityengine", StringComparison.OrdinalIgnoreCase);
 }

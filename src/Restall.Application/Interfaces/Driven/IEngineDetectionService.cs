@@ -4,6 +4,6 @@ namespace Restall.Application.Interfaces.Driven;
 
 public interface IEngineDetectionService
 {
-    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath);
+    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath, Game.Platform platform);
 
 }

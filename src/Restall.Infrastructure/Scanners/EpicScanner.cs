@@ -3,6 +3,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Text.RegularExpressions;
+using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -84,7 +85,7 @@ internal sealed class EpicScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = rootPath,
                     PlatformName = Platform,
-                    PlatformId = $"epic:{catalogItemId}"
+                    PlatformId = catalogItemId
                 });
             }
             catch (Exception ex)
@@ -160,7 +161,7 @@ internal sealed class EpicScanner : IPlatformScannerService
                     Name = name,
                     InstallFolder = installPath,
                     PlatformName = Game.Platform.Epic,
-                    PlatformId = $"epic:{appName}"
+                    PlatformId = appName
                 });
             }
             catch (Exception ex)

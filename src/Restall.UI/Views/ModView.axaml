@@ -8,71 +8,83 @@
              x:DataType="vm:ModViewModel">
 
     <Grid ColumnDefinitions="*"
-          RowDefinitions=".25*,.75*">
+          RowDefinitions="Auto,*">
 
         <!-- GAME CARD -->
-        <Border Grid.Row="0" CornerRadius="20" Margin="5, 5, 5, 5" Background="{DynamicResource GameCardBackground}">
-            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="10,10,10,0">
-                <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6"
-                            VerticalAlignment="Center">
-                    <TextBlock Text="{Binding SelectedGame.Name}" FontSize="20" FontWeight="Bold" Margin="10,0,0,0"
-                               Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"
-                               VerticalAlignment="Center" />
-                    <Button Classes="game-card-btn" CornerRadius="6" Command="{Binding OpenInExplorerCommand}"
-                            VerticalAlignment="Center">
-                        <TextBlock FontFamily="{StaticResource Phosphor-Fill}" FontSize="20" Text="&#xE256;" />
-                    </Button>
-                </StackPanel>
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" FontSize="12" Margin="10, 0, 0, 0"
-                           Text="{Binding SelectedGame.PlatformName}" Foreground="{DynamicResource GameCardText}"
-                           TextWrapping="Wrap" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" FontSize="12" Margin="10, 0, 0, 0"
-                           Text="{Binding SelectedGame.EngineName}" Foreground="{DynamicResource GameCardText}"
-                           TextWrapping="Wrap" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" FontSize="12" Margin="10, 0, 0, 0"
-                           Text="{Binding SelectedGame.InstallFolder}" Foreground="{DynamicResource GameCardText}"
-                           TextWrapping="Wrap" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" FontSize="12" Margin="10, 0, 0, 0"
-                           Text="{Binding SelectedGame.ExecutablePath}" Foreground="{DynamicResource GameCardText}"
-                           TextWrapping="Wrap" />
+        <Border Grid.Row="0" CornerRadius="20" Margin="5" Background="{DynamicResource GameCardBackground}">
+            <Grid ColumnDefinitions="Auto,*">
 
-                <Grid Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2"
-                      ColumnDefinitions="*, *, *" ColumnSpacing="5"
-                      Margin="5,30,5,5">
-                    <Button Grid.Column="0"
-                            Classes="game-card-btn"
-                            CornerRadius="6"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Stretch"
-                            Margin="0,0,4,0"
-                            IsVisible="False">
-                        <TextBlock Text="Quick game scan" FontSize="14" HorizontalAlignment="Center" />
+                <!--- GAME COVER -->
+                <Border Grid.Column="0" CornerRadius="6" Margin="10" ClipToBounds="True"
+                        Width="200" Height="280"
+                        VerticalAlignment="Top">
+                    <Image Source="{Binding SelectedGame.CoverBitmap}"
+                           Stretch="UniformToFill"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center" />
+                </Border>
 
-                    </Button>
-                    <Button Grid.Column="1"
-                            Classes="game-card-btn"
-                            CornerRadius="6"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            Margin="0,0,4,0"
-                            IsVisible="False">
-                        <TextBlock Text="Display Commander" FontSize="14" HorizontalAlignment="Center" />
+                <!--- GAME INFO -->
+                <Grid Grid.Column="1"
+                      ColumnDefinitions="*"
+                      RowDefinitions="Auto,Auto,Auto,Auto, Auto"
+                      Margin="8"
+                      VerticalAlignment="Top">
 
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding SelectedGame.Name}"
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="{DynamicResource GameCardText}"
+                               Padding="6,0,0,0"
+                               TextWrapping="Wrap" />
+
+                    <TextBlock Grid.Row="1" Text="{Binding SelectedGame.PlatformName}"
+                               FontSize="12" Foreground="{DynamicResource GameCardText}"
+                               Padding="6,0,0,0" />
+
+                    <TextBlock Grid.Row="2" Text="{Binding SelectedGame.EngineName}"
+                               FontSize="12"
+                               Foreground="{DynamicResource GameCardText}"
+                               Padding="6,0,0,0" />
+
+                    <Button Classes="game-card-btn"
+                            Grid.Row="3"
+                            Command="{Binding OpenInExplorerCommand}"
+                            CommandParameter="{Binding SelectedGame.InstallFolder}"
+                            CornerRadius="2"
+                            Background="{DynamicResource ModCardButton}"
+                            BorderThickness="0"
+                            Padding="0"
+                            HorizontalContentAlignment="Left"
+                            Margin="0,6,0,0">
+                        <TextBlock
+                            Text="{Binding SelectedGame.InstallFolderDisplay}"
+                            FontSize="12" Foreground="{DynamicResource ModCardButtonText}"
+                            Opacity="0.8"
+                            Padding="6,4"
+                            TextWrapping="Wrap" />
                     </Button>
-                    <Button Grid.Column="2"
-                            Classes="game-card-btn"
-                            CornerRadius="6"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            IsVisible="False">
-                        <TextBlock Text="SpecialK" FontSize="14" HorizontalAlignment="Center" />
+
+                    <Button Classes="game-card-btn"
+                            Grid.Row="4"
+                            Command="{Binding OpenInExplorerCommand}"
+                            CommandParameter="{Binding SelectedGame.ExecutablePath}"
+                            CornerRadius="2"
+                            Background="{DynamicResource ModCardButton}"
+                            BorderThickness="0"
+                            Padding="0"
+                            HorizontalContentAlignment="Left"
+                            Margin="0,6,0,0">
+                        <TextBlock
+                            Text="{Binding SelectedGame.ExecutablePathDisplay}"
+                            FontSize="12" Foreground="{DynamicResource ModCardButtonText}"
+                            Opacity="0.8"
+                            Padding="6,4"
+                            TextWrapping="Wrap" />
                     </Button>
+
                 </Grid>
             </Grid>
         </Border>
-
         <!-- MOD CARD -->
         <Border Grid.Row="1" Margin="5" CornerRadius="20" Background="{DynamicResource GameCardBackground}">
             <Grid RowDefinitions="Auto, Auto"
@@ -160,7 +172,7 @@
                         </Grid>
                     </Grid>
                 </Grid>
-                
+
                 <Border Grid.Column="1"
                         Grid.Row="0"
                         CornerRadius="10"
@@ -172,13 +184,13 @@
                         MaxHeight="100"
                         IsVisible="{Binding SelectedGame.IsShowingReShadeActionMessage}">
 
-                        <TextBlock TextWrapping="Wrap"
-                                   FontSize="12"
-                                   Margin="10"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Top"
-                                   Foreground="{DynamicResource GameCardText}"
-                                   Text="{Binding SelectedGame.ReShadeModActionStatus}" />
+                    <TextBlock TextWrapping="Wrap"
+                               FontSize="12"
+                               Margin="10"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Top"
+                               Foreground="{DynamicResource GameCardText}"
+                               Text="{Binding SelectedGame.ReShadeModActionStatus}" />
                 </Border>
 
                 <!-- RENODX -->
@@ -239,7 +251,7 @@
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                     HorizontalAlignment="Stretch"
                                     CornerRadius="6"
-                                    Command="{Binding InstallRenoDXCommand}"
+                                    Command="{Binding RenoDXInstallButtonClickCommand}"
                                     Background="{DynamicResource ModCardButton}"
                                     Foreground="{DynamicResource ModCardButtonText}"
                                     Margin="0, 5, 5, 5" />
@@ -306,14 +318,26 @@
                         <ScrollViewer HorizontalAlignment="Stretch"
                                       VerticalAlignment="Top"
                                       IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
-                            <TextBlock TextWrapping="Wrap"
-                                       FontSize="12"
-                                       Margin="10"
-                                       HorizontalAlignment="Left"
-                                       Foreground="{DynamicResource GameCardText}"
-                                       Text="{Binding RenoDXNotes}" />
+                            <Grid RowDefinitions="Auto, Auto">
+                                <TextBlock Grid.Row="0" TextWrapping="Wrap"
+                                           FontSize="12"
+                                           Margin="10"
+                                           HorizontalAlignment="Left"
+                                           Foreground="{DynamicResource GameCardText}"
+                                           Text="{Binding RenoDXNotes}" />
+                                <HyperlinkButton Grid.Row="1"
+                                                 IsVisible="{Binding SelectedGame.HasNexusLink}"
+                                                 NavigateUri="{Binding SelectedGame.CompatibleRenoDXMod.NexusUrl}"
+                                                 FontSize="12"
+                                                 Margin="10"
+                                                 Padding="0"
+                                                 HorizontalAlignment="Left"
+                                                 ToolTip.Tip="{Binding SelectedGame.CompatibleRenoDXMod.NexusUrl}">
+                                    Nexus
+                                </HyperlinkButton>
+                            </Grid>
                         </ScrollViewer>
-                        
+
                         <TextBlock TextWrapping="Wrap"
                                    FontSize="12"
                                    Margin="10"

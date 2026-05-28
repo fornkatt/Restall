@@ -415,6 +415,11 @@
         "resolved": "2.88.9",
         "contentHash": "wb2kYgU7iy84nQLYZwMeJXixvK++GoIuECjU4ECaUKNuflyRlJKyiRhN1MAHswvlvzuvkrjRWlK0Za6+kYQK7w=="
       },
+      "System.Net.Http.WinHttpHandler": {
+        "type": "Transitive",
+        "resolved": "10.0.6",
+        "contentHash": "h8X2efYuJ2QJmCQsRBVKMep62JxRT7sjWWkYIr2UbMJIg3r1YQPCYjGjtiyx34C6HGljj/6/RxGtVXHmDuG1yQ=="
+      },
       "System.Security.Cryptography.Pkcs": {
         "type": "Transitive",
         "resolved": "10.0.2",
@@ -443,6 +448,7 @@
           "PeNet": "[6.0.0, )",
           "Restall.Application": "[1.0.0, )",
           "Restall.Domain": "[1.0.0, )",
+          "System.Net.Http.WinHttpHandler": "[10.0.6, )",
           "craftersmine.SteamGridDB.Net": "[1.1.7, )"
         }
       }

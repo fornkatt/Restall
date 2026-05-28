@@ -1,4 +1,5 @@
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -65,7 +66,7 @@ internal sealed class EAScanner : IPlatformScannerService
                     Name = displayName,
                     InstallFolder = installDir,
                     PlatformName = Platform,
-                    PlatformId = $"origin:{subName}"
+                    PlatformId = subName
                 });
             }
 
