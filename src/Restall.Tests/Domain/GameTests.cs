@@ -4,6 +4,7 @@ namespace Restall.Tests.Domain;
 
 public sealed class GameTests
 {
+    // Verifies that a game without ReShade is reported as not having ReShade.
     [Fact]
     public void HasReShade_WhenReShadeIsNull_ReturnsFalse()
     {
@@ -12,6 +13,7 @@ public sealed class GameTests
         Assert.False(game.HasReShade);
     }
 
+    // Verifies that a game with a ReShade record is reported as having ReShade.
     [Fact]
     public void HasReShade_WhenReShadeIsSet_ReturnsTrue()
     {
@@ -20,6 +22,7 @@ public sealed class GameTests
         Assert.True(game.HasReShade);
     }
 
+    // Verifies that a game without RenoDX is reported as not having RenoDX.
     [Fact]
     public void HasRenoDX_WhenRenoDXIsNull_ReturnsFalse()
     {
@@ -28,6 +31,7 @@ public sealed class GameTests
         Assert.False(game.HasRenoDX);
     }
 
+    // Verifies that a game with a RenoDX record is reported as having RenoDX.
     [Fact]
     public void HasRenoDX_WhenRenoDXIsSet_ReturnsTrue()
     {

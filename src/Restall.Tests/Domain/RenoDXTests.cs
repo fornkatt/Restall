@@ -4,6 +4,7 @@ namespace Restall.Tests.Domain;
 
 public sealed class RenoDXTests
 {
+    // Verifies that Unity engine RenoDX addon names are treated as external-source mods.
     [Theory]
     [InlineData("renodx-unityengine.addon64")]
     [InlineData("ReNoDX-UnityEngine.addon32")]
@@ -14,6 +15,7 @@ public sealed class RenoDXTests
         Assert.True(renoDX.IsExternalSourceMod);
     }
 
+    // Verifies that non-Unity RenoDX addon names are not treated as external-source mods.
     [Theory]
     [InlineData("renodx-unrealengine.addon64")]
     [InlineData("renodx-game.addon64")]
@@ -25,6 +27,7 @@ public sealed class RenoDXTests
         Assert.False(renoDX.IsExternalSourceMod);
     }
 
+    // Verifies that missing RenoDX original names are not treated as external-source mods.
     [Fact]
     public void IsExternalSourceMod_WhenOriginalNameIsNull_ReturnsFalse()
     {

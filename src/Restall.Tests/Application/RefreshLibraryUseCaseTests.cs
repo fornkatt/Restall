@@ -8,6 +8,7 @@ namespace Restall.Tests.Application;
 
 public sealed class RefreshLibraryUseCaseTests
 {
+    // Verifies that a full rescan combines scanning, detection, compatibility matching, updates, and artwork enrichment.
     [Fact]
     public async Task ExecuteFullRescanAsync_BuildsSortedGameResultsWithDetectedModsCompatibilityAndUpdates()
     {
@@ -98,6 +99,33 @@ public sealed class RefreshLibraryUseCaseTests
         context.SteamGridDb.Verify(x => x.EnrichGameArtworkAsync(It.IsAny<Game>()), Times.Exactly(3));
     }
 
+    // Verifies that a full rescan with no games avoids per-game work while preserving scan status.
+    [Fact]
+    public async Task ExecuteFullRescanAsync_WhenNoGamesAreFound_ReturnsEmptyResultWithoutPerGameWork()
+    {
+        var context = CreateContext();
+
+        context.GameDetection
+            .Setup(x => x.FindGamesAsync(It.IsAny<IProgress<GameScanProgressReportDto>?>()))
+            .ReturnsAsync(new GameScanResultDto(Game.Platform.Unknown, Array.Empty<Game>(), false, "no games found"));
+
+        var result = await context.Sut.ExecuteFullRescanAsync();
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal("no games found", result.ErrorMessage);
+        Assert.Empty(result.Games);
+
+        context.GameDetection.Verify(x => x.FindGamesAsync(It.IsAny<IProgress<GameScanProgressReportDto>?>()), Times.Once);
+        context.VersionCatalog.Verify(x => x.FetchVersionsAsync(), Times.Once);
+        context.ModCatalog.Verify(x => x.FetchModsAsync(), Times.Once);
+        context.ModDetection.Verify(x => x.DetectInstalledReShadeAsync(It.IsAny<string>()), Times.Never);
+        context.ModDetection.Verify(x => x.DetectInstalledRenoDXAsync(It.IsAny<string>()), Times.Never);
+        context.ModCatalog.Verify(x => x.GetRenoDXWikiMods(), Times.Never);
+        context.ModCatalog.Verify(x => x.GetRenoDXGenericWikiMods(), Times.Never);
+        context.SteamGridDb.Verify(x => x.EnrichGameArtworkAsync(It.IsAny<Game>()), Times.Never);
+    }
+
+    // Verifies that a light rescan refreshes existing games without invoking platform scanning.
     [Fact]
     public async Task ExecuteLightRescanAsync_UsesExistingGamesWithoutGameDetectionAndReturnsSuccessfulResult()
     {
@@ -146,6 +174,28 @@ public sealed class RefreshLibraryUseCaseTests
         context.VersionCatalog.Verify(x => x.FetchVersionsAsync(), Times.Once);
         context.ModCatalog.Verify(x => x.FetchModsAsync(), Times.Once);
         context.SteamGridDb.Verify(x => x.EnrichGameArtworkAsync(It.IsAny<Game>()), Times.Exactly(2));
+    }
+
+    // Verifies that a light rescan with no existing games refreshes catalogs but skips per-game work.
+    [Fact]
+    public async Task ExecuteLightRescanAsync_WhenNoExistingGamesAreProvided_ReturnsEmptySuccessfulResult()
+    {
+        var context = CreateContext();
+
+        var result = await context.Sut.ExecuteLightRescanAsync(Array.Empty<Game>());
+
+        Assert.True(result.IsSuccess);
+        Assert.Null(result.ErrorMessage);
+        Assert.Empty(result.Games);
+
+        context.GameDetection.Verify(x => x.FindGamesAsync(It.IsAny<IProgress<GameScanProgressReportDto>?>()), Times.Never);
+        context.VersionCatalog.Verify(x => x.FetchVersionsAsync(), Times.Once);
+        context.ModCatalog.Verify(x => x.FetchModsAsync(), Times.Once);
+        context.ModDetection.Verify(x => x.DetectInstalledReShadeAsync(It.IsAny<string>()), Times.Never);
+        context.ModDetection.Verify(x => x.DetectInstalledRenoDXAsync(It.IsAny<string>()), Times.Never);
+        context.ModCatalog.Verify(x => x.GetRenoDXWikiMods(), Times.Never);
+        context.ModCatalog.Verify(x => x.GetRenoDXGenericWikiMods(), Times.Never);
+        context.SteamGridDb.Verify(x => x.EnrichGameArtworkAsync(It.IsAny<Game>()), Times.Never);
     }
 
     private static RefreshContext CreateContext()

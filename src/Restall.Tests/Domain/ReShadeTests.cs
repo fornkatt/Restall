@@ -4,6 +4,7 @@ namespace Restall.Tests.Domain;
 
 public sealed class ReShadeTests
 {
+    // Verifies that ReShade filename options combine with dll and asi extensions correctly.
     [Theory]
     [InlineData(ReShade.Filename.Dxgi, ReShade.FileExtension.Dll, "dxgi.dll")]
     [InlineData(ReShade.Filename.D3d12, ReShade.FileExtension.Dll, "d3d12.dll")]
@@ -19,6 +20,7 @@ public sealed class ReShadeTests
         Assert.Equal(expected, result);
     }
 
+    // Verifies that x64 ReShade installers expose the expected original DLL name.
     [Fact]
     public void OriginalFileName_WhenArchitectureIsX64_ReturnsReShade64Dll()
     {
@@ -27,6 +29,7 @@ public sealed class ReShadeTests
         Assert.Equal("ReShade64.dll", reShade.OriginalFileName);
     }
 
+    // Verifies that x32 ReShade installers expose the expected original DLL name.
     [Fact]
     public void OriginalFileName_WhenArchitectureIsX32_ReturnsReShade32Dll()
     {

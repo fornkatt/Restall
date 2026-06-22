@@ -11,6 +11,7 @@ namespace Restall.Tests.Application;
 
 public sealed class ModManagementFacadeTests
 {
+    // Verifies that ReShade installation stops before the use case when the game folder is missing.
     [Fact]
     public async Task InstallOrUpdateReShadeAsync_WhenGameFolderIsMissing_ReturnsErrorWithoutCallingUseCase()
     {
@@ -27,6 +28,7 @@ public sealed class ModManagementFacadeTests
             Times.Never);
     }
 
+    // Verifies that a stale ReShade record blocks installation and requests a deep scan.
     [Fact]
     public async Task InstallOrUpdateReShadeAsync_WhenRecordedFileIsMissing_ReturnsStaleRecordError()
     {
@@ -45,6 +47,7 @@ public sealed class ModManagementFacadeTests
             Times.Never);
     }
 
+    // Verifies that successful ReShade installation is enriched with update-check state.
     [Fact]
     public async Task InstallOrUpdateReShadeAsync_WhenInstallSucceeds_AddsUpdateCheckResult()
     {
@@ -70,6 +73,7 @@ public sealed class ModManagementFacadeTests
         context.UpdateCheck.Verify(x => x.CheckReShadeUpdate(installed), Times.Once);
     }
 
+    // Verifies that failed ReShade installation does not run update checking.
     [Fact]
     public async Task InstallOrUpdateReShadeAsync_WhenInstallFails_DoesNotRunUpdateCheck()
     {
@@ -90,6 +94,7 @@ public sealed class ModManagementFacadeTests
         context.UpdateCheck.Verify(x => x.CheckReShadeUpdate(It.IsAny<ReShade>()), Times.Never);
     }
 
+    // Verifies that ReShade uninstall stops before the use case when the game folder is missing.
     [Fact]
     public async Task UninstallReShadeAsync_WhenGameFolderIsMissing_ReturnsErrorWithoutCallingUseCase()
     {
@@ -105,6 +110,7 @@ public sealed class ModManagementFacadeTests
         context.UninstallReShade.Verify(x => x.ExecuteAsync(It.IsAny<Game>()), Times.Never);
     }
 
+    // Verifies that ReShade uninstall fails early when no ReShade record exists.
     [Fact]
     public async Task UninstallReShadeAsync_WhenNoReShadeIsRecorded_ReturnsErrorWithoutCallingUseCase()
     {
@@ -119,6 +125,7 @@ public sealed class ModManagementFacadeTests
         context.UninstallReShade.Verify(x => x.ExecuteAsync(It.IsAny<Game>()), Times.Never);
     }
 
+    // Verifies that ReShade uninstall delegates to the use case when a record exists.
     [Fact]
     public async Task UninstallReShadeAsync_WhenReShadeIsRecorded_CallsUseCase()
     {
@@ -136,6 +143,7 @@ public sealed class ModManagementFacadeTests
         context.UninstallReShade.Verify(x => x.ExecuteAsync(game), Times.Once);
     }
 
+    // Verifies that RenoDX installation stops before the use case when the game folder is missing.
     [Fact]
     public async Task InstallOrUpdateRenoDXAsync_WhenGameFolderIsMissing_ReturnsErrorWithoutCallingUseCase()
     {
@@ -152,6 +160,7 @@ public sealed class ModManagementFacadeTests
             Times.Never);
     }
 
+    // Verifies that a stale RenoDX record blocks installation and requests a deep scan.
     [Fact]
     public async Task InstallOrUpdateRenoDXAsync_WhenRecordedFileIsMissing_ReturnsStaleRecordError()
     {
@@ -170,6 +179,7 @@ public sealed class ModManagementFacadeTests
             Times.Never);
     }
 
+    // Verifies that successful RenoDX installation is enriched with update-check state.
     [Fact]
     public async Task InstallOrUpdateRenoDXAsync_WhenInstallSucceeds_AddsUpdateCheckResult()
     {
@@ -201,6 +211,7 @@ public sealed class ModManagementFacadeTests
         context.UpdateCheck.Verify(x => x.CheckRenoDXUpdate(installed), Times.Once);
     }
 
+    // Verifies that failed RenoDX installation does not run update checking.
     [Fact]
     public async Task InstallOrUpdateRenoDXAsync_WhenInstallFails_DoesNotRunUpdateCheck()
     {
@@ -221,6 +232,7 @@ public sealed class ModManagementFacadeTests
         context.UpdateCheck.Verify(x => x.CheckRenoDXUpdate(It.IsAny<RenoDX>()), Times.Never);
     }
 
+    // Verifies that RenoDX uninstall stops before the use case when the game folder is missing.
     [Fact]
     public async Task UninstallRenoDXAsync_WhenGameFolderIsMissing_ReturnsErrorWithoutCallingUseCase()
     {
@@ -236,6 +248,7 @@ public sealed class ModManagementFacadeTests
         context.UninstallRenoDX.Verify(x => x.ExecuteAsync(It.IsAny<Game>()), Times.Never);
     }
 
+    // Verifies that RenoDX uninstall fails early when no RenoDX record exists.
     [Fact]
     public async Task UninstallRenoDXAsync_WhenNoRenoDXIsRecorded_ReturnsErrorWithoutCallingUseCase()
     {
@@ -250,6 +263,7 @@ public sealed class ModManagementFacadeTests
         context.UninstallRenoDX.Verify(x => x.ExecuteAsync(It.IsAny<Game>()), Times.Never);
     }
 
+    // Verifies that RenoDX uninstall delegates to the use case when a record exists.
     [Fact]
     public async Task UninstallRenoDXAsync_WhenRenoDXIsRecorded_CallsUseCase()
     {

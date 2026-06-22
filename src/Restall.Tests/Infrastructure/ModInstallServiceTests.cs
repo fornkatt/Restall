@@ -6,6 +6,7 @@ namespace Restall.Tests.Infrastructure;
 
 public sealed class ModInstallServiceTests
 {
+    // Verifies that installing ReShade copies the source file and updates the game state.
     [Fact]
     public async Task InstallModAsync_WhenInstallingReShade_CopiesFileAndUpdatesGameState()
     {
@@ -28,6 +29,7 @@ public sealed class ModInstallServiceTests
         Assert.Equal("reshade-content", File.ReadAllText(Path.Combine(gameDir, "dxgi.dll")));
     }
 
+    // Verifies that replacing ReShade removes the old selected file and copies the new one.
     [Fact]
     public async Task InstallModAsync_WhenReplacingExistingReShade_RemovesOldFileAndCopiesNewFile()
     {
@@ -52,6 +54,7 @@ public sealed class ModInstallServiceTests
         Assert.Same(reShade, game.ReShade);
     }
 
+    // Verifies that a missing ReShade source file returns a failure without changing game state.
     [Fact]
     public async Task InstallModAsync_WhenReShadeSourceIsMissing_ReturnsFailure()
     {
@@ -69,6 +72,7 @@ public sealed class ModInstallServiceTests
         Assert.False(File.Exists(Path.Combine(gameDir, "dxgi.dll")));
     }
 
+    // Verifies that installing RenoDX copies the addon file and updates the game state.
     [Fact]
     public async Task InstallModAsync_WhenInstallingRenoDX_CopiesFileAndUpdatesGameState()
     {
@@ -92,6 +96,7 @@ public sealed class ModInstallServiceTests
         Assert.Equal("renodx-content", File.ReadAllText(Path.Combine(gameDir, "renodx-game.addon64")));
     }
 
+    // Verifies that RenoDX installs under the selected name when original and selected names differ.
     [Fact]
     public async Task InstallModAsync_WhenRenoDXOriginalNameDiffersFromSelectedName_CopiesSelectedFile()
     {
@@ -116,6 +121,7 @@ public sealed class ModInstallServiceTests
         Assert.Same(renoDX, game.RenoDX);
     }
 
+    // Verifies that a missing RenoDX source file returns a failure without changing game state.
     [Fact]
     public async Task InstallModAsync_WhenRenoDXSourceIsMissing_ReturnsFailure()
     {
@@ -137,6 +143,7 @@ public sealed class ModInstallServiceTests
         Assert.False(File.Exists(Path.Combine(gameDir, "renodx-game.addon64")));
     }
 
+    // Verifies that ReShade uninstall deletes the selected file and clears the game state.
     [Fact]
     public async Task UninstallReShadeAsync_WhenFileExists_RemovesFileAndClearsGameState()
     {
@@ -154,6 +161,7 @@ public sealed class ModInstallServiceTests
         Assert.Null(game.ReShade);
     }
 
+    // Verifies that missing ReShade uninstall targets return a deep-scan failure.
     [Fact]
     public async Task UninstallReShadeAsync_WhenFileIsMissing_ReturnsFailureAndPromptsForDeepScan()
     {
@@ -169,6 +177,7 @@ public sealed class ModInstallServiceTests
         Assert.Null(game.ReShade);
     }
 
+    // Verifies that missing RenoDX uninstall targets return a deep-scan failure.
     [Fact]
     public async Task UninstallRenoDXAsync_WhenFileIsMissing_ReturnsFailureAndPromptsForDeepScan()
     {
@@ -184,6 +193,7 @@ public sealed class ModInstallServiceTests
         Assert.Null(game.RenoDX);
     }
 
+    // Verifies that unverified RenoDX files are not deleted during uninstall.
     [Fact]
     public async Task UninstallRenoDXAsync_WhenFileIsNotVerifiedRenoDX_DoesNotDeleteFileButClearsGameState()
     {
@@ -202,6 +212,7 @@ public sealed class ModInstallServiceTests
         Assert.Null(game.RenoDX);
     }
 
+    // Verifies that removing all ReShade files in an empty folder still clears game state.
     [Fact]
     public async Task RemoveAllReShadeFiles_WhenDirectoryIsEmpty_ClearsGameState()
     {
@@ -216,6 +227,7 @@ public sealed class ModInstallServiceTests
         Assert.Null(game.ReShade);
     }
 
+    // Verifies that non-ReShade placeholder files are ignored during bulk ReShade removal.
     [Fact]
     public async Task RemoveAllReShadeFiles_WhenFilesAreNotVerifiedReShade_LeavesFilesAndClearsGameState()
     {
@@ -235,6 +247,7 @@ public sealed class ModInstallServiceTests
         Assert.Null(game.ReShade);
     }
 
+    // Verifies that removing all RenoDX files in an empty folder still clears game state.
     [Fact]
     public async Task RemoveAllRenoDXFiles_WhenDirectoryIsEmpty_ClearsGameState()
     {
@@ -249,6 +262,7 @@ public sealed class ModInstallServiceTests
         Assert.Null(game.RenoDX);
     }
 
+    // Verifies that non-RenoDX placeholder files are ignored during bulk RenoDX removal.
     [Fact]
     public async Task RemoveAllRenoDXFiles_WhenFilesAreNotVerifiedRenoDX_LeavesFilesAndClearsGameState()
     {

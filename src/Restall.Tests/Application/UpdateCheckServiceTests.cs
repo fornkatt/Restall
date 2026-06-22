@@ -8,6 +8,7 @@ namespace Restall.Tests.Application;
 
 public sealed class UpdateCheckServiceTests
 {
+    // Verifies that ReShade reports an update when the catalog version is newer.
     [Fact]
     public void CheckReShadeUpdate_WhenLatestVersionIsNewer_ReturnsUpdateAvailable()
     {
@@ -27,6 +28,7 @@ public sealed class UpdateCheckServiceTests
         Assert.Null(result.ErrorMessage);
     }
 
+    // Verifies that ReShade does not report an update for same or newer installed versions.
     [Theory]
     [InlineData("6.5.0", "6.5.0")]
     [InlineData("6.6.0", "6.5.0")]
@@ -50,6 +52,7 @@ public sealed class UpdateCheckServiceTests
         Assert.Null(result.ErrorMessage);
     }
 
+    // Verifies that unknown ReShade branch records fall back to the Stable catalog branch.
     [Fact]
     public void CheckReShadeUpdate_WhenBranchIsUnknown_UsesStableBranch()
     {
@@ -67,6 +70,7 @@ public sealed class UpdateCheckServiceTests
         catalog.Verify(c => c.GetLatestReShadeVersion(ReShade.Branch.Stable), Times.Once);
     }
 
+    // Verifies that missing ReShade version data returns a safe no-update result.
     [Theory]
     [InlineData(null, "6.5.0")]
     [InlineData("", "6.5.0")]
@@ -94,6 +98,7 @@ public sealed class UpdateCheckServiceTests
         Assert.Null(result.ErrorMessage);
     }
 
+    // Verifies that malformed ReShade versions return a parse error instead of an update.
     [Theory]
     [InlineData("not-a-version", "6.5.0")]
     [InlineData("6.4.0", "latest")]
@@ -117,6 +122,7 @@ public sealed class UpdateCheckServiceTests
         Assert.Contains("Could not get ReShade versions", result.ErrorMessage);
     }
 
+    // Verifies that RenoDX snapshot reports an update when the catalog date is newer.
     [Fact]
     public void CheckRenoDXUpdate_WhenLatestSnapshotIsNewer_ReturnsUpdateAvailable()
     {
@@ -136,6 +142,7 @@ public sealed class UpdateCheckServiceTests
         Assert.Equal("20240202", result.LatestVersion);
     }
 
+    // Verifies that RenoDX snapshot does not report an update when dates match.
     [Fact]
     public void CheckRenoDXUpdate_WhenLatestSnapshotIsSameDate_ReturnsNoUpdate()
     {
@@ -155,6 +162,7 @@ public sealed class UpdateCheckServiceTests
         Assert.Equal("20240101", result.LatestVersion);
     }
 
+    // Verifies that unknown RenoDX branch records fall back to Snapshot.
     [Fact]
     public void CheckRenoDXUpdate_WhenBranchIsUnknown_UsesSnapshotBranch()
     {
@@ -173,6 +181,7 @@ public sealed class UpdateCheckServiceTests
         catalog.Verify(c => c.GetLatestRenoDXVersionByTag(RenoDX.Branch.Snapshot), Times.Once);
     }
 
+    // Verifies that Wiki-sourced RenoDX records compare against Snapshot releases.
     [Fact]
     public void CheckRenoDXUpdate_WhenBranchIsWiki_UsesSnapshotBranch()
     {
@@ -192,6 +201,7 @@ public sealed class UpdateCheckServiceTests
         catalog.Verify(c => c.GetLatestRenoDXVersionByTag(RenoDX.Branch.Wiki), Times.Never);
     }
 
+    // Verifies that Nightly RenoDX records use the Nightly catalog branch.
     [Fact]
     public void CheckRenoDXUpdate_WhenBranchIsNightly_UsesNightlyBranch()
     {
@@ -210,6 +220,7 @@ public sealed class UpdateCheckServiceTests
         catalog.Verify(c => c.GetLatestRenoDXVersionByTag(RenoDX.Branch.Nightly), Times.Once);
     }
 
+    // Verifies that external Unity RenoDX mods skip automated update checks.
     [Fact]
     public void CheckRenoDXUpdate_WhenModIsExternalUnitySource_ReturnsNoUpdateWithoutCatalogLookup()
     {
@@ -229,6 +240,7 @@ public sealed class UpdateCheckServiceTests
         catalog.Verify(c => c.GetLatestRenoDXVersionByTag(It.IsAny<RenoDX.Branch>()), Times.Never);
     }
 
+    // Verifies that missing RenoDX installed versions return a safe no-update result.
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -250,6 +262,7 @@ public sealed class UpdateCheckServiceTests
         catalog.Verify(c => c.GetLatestRenoDXVersionByTag(It.IsAny<RenoDX.Branch>()), Times.Never);
     }
 
+    // Verifies that absent RenoDX catalog data returns no update instead of failing.
     [Fact]
     public void CheckRenoDXUpdate_WhenLatestTagIsMissing_ReturnsNoUpdate()
     {
@@ -268,6 +281,7 @@ public sealed class UpdateCheckServiceTests
         Assert.Null(result.LatestVersion);
     }
 
+    // Verifies that malformed RenoDX date versions return a parse error.
     [Fact]
     public void CheckRenoDXUpdate_WhenInstalledVersionCannotBeParsed_ReturnsErrorMessage()
     {
@@ -288,6 +302,7 @@ public sealed class UpdateCheckServiceTests
         Assert.Contains("Could not get date from installed RenoDX version", result.ErrorMessage);
     }
 
+    // Verifies that manual RenoDX source branches do not perform catalog lookups.
     [Theory]
     [InlineData(RenoDX.Branch.Discord)]
     [InlineData(RenoDX.Branch.Nexus)]
