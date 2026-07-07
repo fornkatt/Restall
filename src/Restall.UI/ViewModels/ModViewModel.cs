@@ -68,7 +68,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
-    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
+    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Wiki;
     
     public IReadOnlyList<RenoDX.Branch> AvailableRenoDXBranches { get; } =
         [RenoDX.Branch.Wiki, RenoDX.Branch.Snapshot, RenoDX.Branch.Nightly];

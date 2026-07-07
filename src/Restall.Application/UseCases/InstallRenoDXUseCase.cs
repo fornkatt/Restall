@@ -52,7 +52,9 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
             );
 
         var isUnityGeneric = request.GenericModInfo?.Engine == SupportedEngine.Unity ||
-                             (request.GenericModInfo is null && request.Game.EngineName == Game.Engine.Unity);
+                             (request.GenericModInfo is null &&
+                              request.ModInfo is not { HasWikiFilename: true } &&
+                              request.Game.EngineName == Game.Engine.Unity);
 
         var renoDX = new RenoDX
         {
