@@ -68,7 +68,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
-    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Wiki;
+    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
     
     public IReadOnlyList<RenoDX.Branch> AvailableRenoDXBranches { get; } =
         [RenoDX.Branch.Wiki, RenoDX.Branch.Snapshot, RenoDX.Branch.Nightly];
@@ -82,11 +82,31 @@ public sealed partial class ModViewModel : ViewModelBase
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
-        if (value?.EngineName == Game.Engine.Unity && value.CompatibleRenoDXMod is null)
-            SelectedRenoDXBranch = RenoDX.Branch.Snapshot;
+        SelectedRenoDXBranch = ResolveDefaultRenoDXBranch(value);
 
         NotifyAllCommandsChanged();
     }
+
+    private RenoDX.Branch ResolveDefaultRenoDXBranch(GameModViewModel? game)
+    {
+        if (game is null)
+            return RenoDX.Branch.Snapshot;
+        
+        var isUnityOrUnrealGeneric = game.EngineName is Game.Engine.Unity or Game.Engine.Unreal &&
+                                     game.CompatibleRenoDXMod is null;
+
+        var preferred = game.RenoDXBranchName is { } installed && IsSelectableBranch(installed)
+            ? installed
+            : RenoDX.Branch.Snapshot;
+        
+        if (isUnityOrUnrealGeneric && preferred is RenoDX.Branch.Wiki or RenoDX.Branch.Nightly)
+            return RenoDX.Branch.Snapshot;
+        
+        return preferred;
+    }
+    
+    private bool IsSelectableBranch(RenoDX.Branch branch) =>
+    branch is RenoDX.Branch.Wiki or RenoDX.Branch.Snapshot or RenoDX.Branch.Nightly;
 
     public void ApplyWikiRefresh() => NotifyAllCommandsChanged();
 
