@@ -92,14 +92,14 @@ public sealed partial class ModViewModel : ViewModelBase
         if (game is null)
             return RenoDX.Branch.Snapshot;
         
-        var isUnityOrUnrealGeneric = game.EngineName is Game.Engine.Unity or Game.Engine.Unreal &&
+        var isUnityGeneric = game.EngineName is Game.Engine.Unity &&
                                      game.CompatibleRenoDXMod is null;
 
         var preferred = game.RenoDXBranchName is { } installed && IsSelectableBranch(installed)
             ? installed
             : RenoDX.Branch.Snapshot;
         
-        if (isUnityOrUnrealGeneric && preferred is RenoDX.Branch.Wiki or RenoDX.Branch.Nightly)
+        if (isUnityGeneric && preferred is RenoDX.Branch.Wiki or RenoDX.Branch.Nightly)
             return RenoDX.Branch.Snapshot;
         
         return preferred;
