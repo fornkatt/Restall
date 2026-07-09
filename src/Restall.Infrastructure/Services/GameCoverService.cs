@@ -72,11 +72,9 @@ internal sealed class GameCoverService : IGameCoverService
 
             Game.Platform.GOG => await TryGetGogLocalCover(game)
                                  ?? await TryResolveGogApiCoverAsync(game)
-                                 ?? await TryResolveHeroicCoverAsync(game)
-                                 ?? await ResolvePcgwBySearchAsync(game.Name ?? string.Empty),
+                                 ?? await TryResolveHeroicCoverAsync(game),
 
-            Game.Platform.Epic => await TryResolveHeroicCoverAsync(game)
-                                  ?? await ResolvePcgwBySearchAsync(game.Name ?? string.Empty),
+            Game.Platform.Epic => await TryResolveHeroicCoverAsync(game),
 
             //Fallback for other platforms
             _ => await ResolvePcgwBySearchAsync(game.Name ?? string.Empty)

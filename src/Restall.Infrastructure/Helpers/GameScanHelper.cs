@@ -84,6 +84,7 @@ internal static class GameScanHelper
             "UbisoftConnectInstaller",
             "EpicOnlineServiceInstaller",
             "DirectXSetup",
+            "EOSBootstrapper",
             "DXSETUP",
             "vcredist",
             "UnityCrashHandler",
