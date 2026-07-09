@@ -67,8 +67,7 @@ internal sealed class GameCoverService : IGameCoverService
     private async Task<string?> ResolveCoverSourceAsync(Game game) =>
         game.PlatformName switch
         {
-            Game.Platform.Steam => await TryGetSteamLocalCover(game)
-                                   ?? await ResolvePcgwBySearchAsync(game.Name ?? string.Empty),
+            Game.Platform.Steam => await TryGetSteamLocalCover(game),
 
             Game.Platform.GOG => await TryGetGogLocalCover(game)
                                  ?? await TryResolveGogApiCoverAsync(game)
