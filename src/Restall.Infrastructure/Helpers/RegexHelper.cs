@@ -25,7 +25,7 @@ internal static partial class RegexHelper
     [GeneratedRegex(@"""path""\s+""([^""]+)""")]
     private static partial Regex SteamLibrary();
 
-    [GeneratedRegex(@"""appName""\s*:\s*""([^""]+)""")]
+    [GeneratedRegex(@"""app_name""\s*:\s*""([^""]+)""")]
     private static partial Regex HeroicAppName();
     
     [GeneratedRegex(@"\{[^{}]*""install_path""[^{}]*\}")]
