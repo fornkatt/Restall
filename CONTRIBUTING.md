@@ -20,7 +20,7 @@ Please read these instructions carefully before contributing.
 
 ## Issues
 
-- Search open or closed issues first before creating a new bug report or feature request.
+- Search open and closed issues first before creating a new bug report or feature request.
 - Please avoid duplicates if possible.
   We won't outright ban you for making a duplicate but consider commenting on an existing issue if it's related to your issue.
 - For bug reports, include as much information as possible. That can be general message outputs from the app, snippets from the log or the whole log file.
