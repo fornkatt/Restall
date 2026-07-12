@@ -1,7 +1,7 @@
 # Restall AI agent guidelines
 
 - We do not permit AI agent usage when contributing to Restall.
-- We DO permit AI chat usage.
+- We do permit AI chat usage.
 
 ## AI agent rules
 
