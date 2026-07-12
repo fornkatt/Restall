@@ -38,6 +38,7 @@ Please read these instructions carefully before contributing.
 - Do not make changes in code authored by someone else unless necessary to fix a bug listed in the issue tracker or required to implement a planned feature.
   Refactorings are allowed but should be discussed and drafted beforehand.
   If you made changes in code authored by someone else, add a comment with an explanation.
+- Ensure that your code follows current standards set by the codebase before contributing. This includes proper code quality and architecture.
 
 ## Licensing
 
