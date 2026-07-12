@@ -31,11 +31,12 @@ Please read these instructions carefully before contributing.
 
 - All pull requests should be made against the _beta_ branch.
 - While we do not explicitly prohibit the use of AI in development, we ask that you do _not_ use AI agents to generate large amount of code and files without oversight.
-  You need to fully understand and be able to act on the output of the AI.
+  You need to fully understand and be able to act on the output of the AI. Contributors should understand all their code and the codebase of the project.
 - We do not accept pull requests with AI generated descriptions. They will be closed without further discussion.
 - Please restrict pull requests to existing issues or planned features.
   If you wish to work on one, please open a draft first with your plans and document thoroughly throughout the development process.
 - Do not make changes in code authored by someone else unless necessary to fix a bug listed in the issue tracker or required to implement a planned feature.
+  Refactorings are allowed but should be discussed and drafted beforehand.
   If you made changes in code authored by someone else, add a comment with an explanation.
 
 ## Licensing
