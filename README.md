@@ -10,7 +10,6 @@
     * [Cloning the Repository](#cloning-the-repository)
 * [Notes](#notes)
 * [Upcoming Features](#upcoming-features)
-* [Contribution](#contribution)
 * [Technical Aspects](#technical-aspects)
 
 ---
@@ -102,14 +101,6 @@ It automates the detection of game installations across multiple launchers and s
 * Package Windows installer and Flatpak package for Linux.
 * Generate .desktop file for Linux users after building.
 * Faugus support.
-
----
-
-## Contribution
-
-#### We accept bug reports from everyone! 
-
-However, when it comes to further contribution such as new features through _Pull Requests_, we are carefully selecting people who wants to collaborate due to AI written PRs becoming more common. <br>If you want to collaborate, Feel free to contact us through _Issue tracker_.
 
 ---
 
