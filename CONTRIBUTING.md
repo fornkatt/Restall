@@ -3,7 +3,9 @@
 We accept contributions from everyone. 
 However, due to the recent influx of AI generated contributions and PRs, we have made the decision to invoke a subset of rules when working against this repository.
 
-These guidelines are first and foremost aimed at new contributions. Please read these instructions carefully before contributing.
+These guidelines are first and foremost aimed at new contributions.
+
+Please read these instructions carefully before contributing.
 
 ## Before you begin
 
