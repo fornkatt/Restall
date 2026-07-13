@@ -142,7 +142,7 @@ internal sealed class GOGScanner : IPlatformScannerService
 
                 if (string.IsNullOrEmpty(name)) continue;
 
-                var appName = RegexHelper.HeroicAppNameRegex.Match(blockValue)
+                var appName = RegexHelper.GOGHeroicAppNameRegex.Match(blockValue)
                     is { Success: true } am
                     ? am.Groups[1].Value
                     : null;

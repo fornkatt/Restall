@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 
+
 namespace Restall.Infrastructure.Helpers;
 
 internal static class GameScanHelper
@@ -143,7 +144,13 @@ internal static class GameScanHelper
         Path.Combine("bin", "x86"),
         Path.Combine("bin", "win64")
     ];
-
-
+    
+    internal static bool IsMassEffectLegendary(string? name)
+    => name is not null
+    && name.Contains("Mass Effect", StringComparison.OrdinalIgnoreCase)
+    && name.Contains("Legendary Edition", StringComparison.OrdinalIgnoreCase);
+    
+    
+    
 
 }
