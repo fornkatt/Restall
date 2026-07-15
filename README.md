@@ -92,7 +92,8 @@ It automates the detection of game installations across multiple launchers and s
 * Package Windows installer and Flatpak package for Linux.
 * Generate .desktop file for Linux users after building.
 * Faugus support.
-* Implement manifest. 
+* Implement manifest.
+* Add separation logic for game collections. 
 * ~Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH. The links on the main wiki's mods page).~
 
 ---
