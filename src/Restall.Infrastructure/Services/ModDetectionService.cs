@@ -67,26 +67,27 @@ internal sealed class ModDetectionService : IModDetectionService
 
         try
         {
-            await ScanFilesAsync(executablePath, ["*.addon64", "*.addon32"], long.MaxValue, async (file, versionInfo) =>
-            {
-                if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
-                    versionInfo.OriginalFilename.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) &&
-                    !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
+            await ScanFilesAsync(executablePath, ["*.addon64", "*.addon32"], long.MaxValue,
+                async (file, versionInfo) =>
                 {
-                    fileList.Add(new RenoDX
+                    if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
+                        versionInfo.OriginalFilename.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) &&
+                        !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
                     {
-                        SelectedName = Path.GetFileName(file),
-                        OriginalName = versionInfo.OriginalFilename,
-                        BranchName =
-                            RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
-                        Version = ParseRenoDXVersion(versionInfo.FileVersion),
-                        Arch = versionInfo.OriginalFilename.Contains("64")
-                            ? RenoDX.Architecture.x64
-                            : RenoDX.Architecture.x32
-                    });
-                    await _logService.LogInfoAsync($"Found RenoDX as: {file}");
-                }
-            });
+                        fileList.Add(new RenoDX
+                        {
+                            SelectedName = Path.GetFileName(file),
+                            OriginalName = versionInfo.OriginalFilename,
+                            BranchName =
+                                RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
+                            Version = ParseRenoDXVersion(versionInfo.FileVersion),
+                            Arch = versionInfo.OriginalFilename.Contains("64")
+                                ? RenoDX.Architecture.x64
+                                : RenoDX.Architecture.x32
+                        });
+                        await _logService.LogInfoAsync($"Found RenoDX as: {file}");
+                    }
+                });
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -109,10 +110,10 @@ internal sealed class ModDetectionService : IModDetectionService
     {
         var versionInfo = PeVersionHelper.GetVersionInfo(filePath);
 
-        if (versionInfo is { IsSuccess: false })
-            return Result<string?>.Error(versionInfo.ErrorMessage, versionInfo.ErrorType, versionInfo.Exception);
+        if (versionInfo is null)
+            return Result<string?>.Error($"Could not read file {filePath}", ErrorType.FileSystemError);
 
-        return Result<string?>.Success(ParseRenoDXVersion(versionInfo.Value?.FileVersion));
+        return Result<string?>.Success(ParseRenoDXVersion(versionInfo.FileVersion));
     }
 
     private async Task ScanFilesAsync(
@@ -127,16 +128,18 @@ internal sealed class ModDetectionService : IModDetectionService
 
         foreach (var file in files)
         {
-            var versionInfo = PeVersionHelper.GetVersionInfo(file, maxScanBytes);
-            switch (versionInfo)
+            try
             {
-                case { IsSuccess: false }:
-                    await _logService.LogErrorAsync(versionInfo.ErrorMessage ?? $"Failed to read {file}",
-                        versionInfo.Exception);
+                var versionInfo = PeVersionHelper.GetVersionInfo(file, maxScanBytes);
+
+                if (versionInfo is null)
                     continue;
-                case { IsSuccess: true, Value: not null }:
-                    await handler(file, versionInfo.Value);
-                    break;
+
+                await handler(file, versionInfo);
+            }
+            catch (Exception)
+            {
+                // Protect the scanner
             }
         }
     }

@@ -17,7 +17,7 @@ internal sealed class FileService : IFileService
         {
             if (verifyOriginalFilename is not null)
             {
-                var originalFilename = PeVersionHelper.GetVersionInfo(path).Value?.OriginalFilename;
+                var originalFilename = PeVersionHelper.GetVersionInfo(path)?.OriginalFilename;
 
                 if (originalFilename?.StartsWith(verifyOriginalFilename, StringComparison.OrdinalIgnoreCase) != true)
                 {

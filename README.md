@@ -8,7 +8,6 @@
 * [Building the Project](#building-the-project)
     * [Prerequisites](#prerequisites)
     * [Cloning the Repository](#cloning-the-repository)
-* [Notes](#notes)
 * [Upcoming Features](#upcoming-features)
 * [Technical Aspects](#technical-aspects)
 
@@ -70,13 +69,7 @@ It automates the detection of game installations across multiple launchers and s
 | • Download and install the latest version of Docker and run it | • Install the **docker package** for your distribution <br> &nbsp;&nbsp;&nbsp;&nbsp;• _Install the `docker-buildx` plugin if it is not included in your distribution package_ <br> • Open up the terminal and run ```systemctl start docker``` <br> • Run ```usermod -aG docker $USER``` to add your user to the docker group <br> • Run ```newgrp docker``` to apply changes or relog |
 | • Double-click ```build-windows_win.bat``` to build Windows binaries <br> • _Alternatively, use `build-linux_win.bat` for Linux binaries_ | • Navigate to the repo and run ```./build-linux_linux.sh``` to build Linux Binaries <br> • _Alternatively, run ```./build-windows_linux.sh``` to build Windows Binaries_  |
 | • The final build will be in `dist\windows` or `dist\linux`. | • The final build will be in `dist/linux` or `dist/windows`. | <br>
-| • The cache and logs will be in `%LOCALAPPDATA%\Restall ()`. | • The cache and logs will be in `~/.local/share/Restall`. |
-
----
-
-## Notes
-
-#### Currently the app fetches version and files from the Snapshot/Nightly tags on the RenoDX wiki. The plan is to expand this support to allow for fetching from the creator's own GitHub page.
+| • The cache and logs will be in `%LOCALAPPDATA%\Restall`. | • The cache and logs will be in `~/.local/share/Restall`. |
 
 ---
 
@@ -84,10 +77,8 @@ It automates the detection of game installations across multiple launchers and s
 
 > This section will be updated as new features are planned and confirmed.
 * Nightly (actions) branch support for ReShade.
-* RenoDX branch support for ReShade.
 * Vulkan ReShade support.
 * Ability to install basic HDR shaders.
-* Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH. The links on the main wiki's mods page).
 * [LUMA](https://github.com/Filoppi/Luma-Framework/wiki) mod support.
 * [ReLimiter](https://github.com/RankFTW/ReLimiter) support.
 * Remember choices in app like branch, overrides etc per game.
@@ -101,6 +92,9 @@ It automates the detection of game installations across multiple launchers and s
 * Package Windows installer and Flatpak package for Linux.
 * Generate .desktop file for Linux users after building.
 * Faugus support.
+* Implement manifest.
+* Add separation logic for game collections. 
+* ~Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH. The links on the main wiki's mods page).~
 
 ---
 
