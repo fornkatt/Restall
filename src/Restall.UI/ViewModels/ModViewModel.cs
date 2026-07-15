@@ -416,17 +416,21 @@ public sealed partial class ModViewModel : ViewModelBase
             return [RenoDX.Branch.Snapshot];
 
         var hasWikiDownloadLink = game.RenoDXWikiDownloadUrl64 is not null || game.RenoDXWikiDownloadUrl32 is not null;
+        var isUnreal = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unreal;
         var isUnity = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unity;
 
         var branches = new List<RenoDX.Branch>();
 
-        branches.Add(RenoDX.Branch.Snapshot);
-        branches.Add(RenoDX.Branch.Nightly);
+        if (hasWikiDownloadLink || isUnreal || game.HasNexusLink || game.HasDiscordLink)
+        {
+            branches.Add(RenoDX.Branch.Snapshot);
+            branches.Add(RenoDX.Branch.Nightly);
+        }
 
         if (hasWikiDownloadLink || isUnity)
             branches.Add(RenoDX.Branch.Wiki);
 
-        return branches.Count > 0 ? (IReadOnlyList<RenoDX.Branch>)branches : [RenoDX.Branch.Snapshot];
+        return branches.Count > 0 ? branches : [RenoDX.Branch.Snapshot];
     }
 
     private void RefreshAvailableRenoDXBranches(GameModViewModel? game)
