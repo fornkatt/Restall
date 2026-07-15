@@ -78,6 +78,7 @@ internal static class GameScanHelper
     }
     
     //TODO: CREATE MANIFEST FOR NONGAMEEXECUTABLE, NONGAME AND GETPREFERREDEXESUBFOLDERS
+    //TODO: MOVE 'DedicatedServer' TO NONGAMEEXECUTABLE AND ADD 'Lossless Scaling' TO NONGAME
     internal static bool NonGameExecutable(string exeNameWithoutExtension)
     {
         var keywords = new HashSet<string>()

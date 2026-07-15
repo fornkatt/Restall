@@ -58,9 +58,11 @@ internal sealed class GameDetectionService : IGameDetectionService
                       ));
                   
               }
-              
+
               var deduped = allGames
                   .GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
+                  .SelectMany(s => s
+                      .GroupBy(g => g.ExecutablePath, StringComparer.OrdinalIgnoreCase))
                   .Select(g => g.OrderByDescending(x => x.PlatformId != null).First())
                   .ToList<Game?>();
               
@@ -73,7 +75,11 @@ internal sealed class GameDetectionService : IGameDetectionService
                   {
                       if (game is null || string.IsNullOrWhiteSpace(game.InstallFolder)) return;
                       
-                      var normalized = GameScanHelper.NormalizePath(game.InstallFolder)!.ToLowerInvariant();
+                      var searchRoot = string.IsNullOrWhiteSpace(game.ExecutablePath)
+                          ? game.InstallFolder
+                          : game.ExecutablePath;
+                      
+                      var normalized = GameScanHelper.NormalizePath(searchRoot)!.ToLowerInvariant();
                       var rootKey = (normalized, game.PlatformName);
 
                       if (engineCache.TryGetValue(rootKey, out var cached))
@@ -85,7 +91,7 @@ internal sealed class GameDetectionService : IGameDetectionService
 
                       if (game.PlatformName == Game.Platform.Xbox)
                       {
-                          var (_, engine) = _engineDetectionService.DetectExecutablePathAndEngine(game.InstallFolder,
+                          var (_, engine) = _engineDetectionService.DetectExecutablePathAndEngine(searchRoot,
                               game.PlatformName);
                           game.EngineName = engine;
                           engineCache[rootKey] = (game.ExecutablePath, engine);
@@ -93,7 +99,7 @@ internal sealed class GameDetectionService : IGameDetectionService
                       }
                       
                       var (executablePath, detectedEngine) =
-                          _engineDetectionService.DetectExecutablePathAndEngine(game.InstallFolder, game.PlatformName);
+                          _engineDetectionService.DetectExecutablePathAndEngine(searchRoot, game.PlatformName);
                       
                       game.ExecutablePath  = executablePath;
                       game.EngineName = detectedEngine;
