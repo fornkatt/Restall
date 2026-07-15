@@ -249,18 +249,24 @@ public sealed partial class ModViewModel : ViewModelBase
     /* ---RENODX-------------------------------------------------------------------------------------------------------------- */
     private async Task InstallRenoDXAsync()
     {
-        string? targetVersion = null;
-
-        if (SelectedRenoDXBranch == RenoDX.Branch.Nightly)
+        string? targetVersion;
+        
+        switch (SelectedRenoDXBranch)
         {
-            var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
-            if (selectedTag is null) return;
+            case RenoDX.Branch.Nightly:
+            {
+                var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
+                if (selectedTag is null) return;
 
-            targetVersion = selectedTag.Version;
-        }
-        else if (SelectedRenoDXBranch == RenoDX.Branch.Snapshot)
-        {
-            targetVersion = RenoDXLatestVersionForBranch;
+                targetVersion = selectedTag.Version;
+                break;
+            }
+            case RenoDX.Branch.Snapshot:
+                targetVersion = RenoDXLatestVersionForBranch;
+                break;
+            default:
+                targetVersion = null;
+                break;
         }
 
         var request = new InstallRenoDXRequest(
