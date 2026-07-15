@@ -416,12 +416,13 @@ public sealed partial class ModViewModel : ViewModelBase
             return [RenoDX.Branch.Snapshot];
 
         var hasWikiDownloadLink = game.RenoDXWikiDownloadUrl64 is not null || game.RenoDXWikiDownloadUrl32 is not null;
+        var hasCompatibleMod = game.CompatibleRenoDXMod is not null;
         var isUnreal = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unreal;
         var isUnity = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unity;
 
         var branches = new List<RenoDX.Branch>();
 
-        if (hasWikiDownloadLink || isUnreal || game.HasNexusLink || game.HasDiscordLink)
+        if (hasCompatibleMod || isUnreal)
         {
             branches.Add(RenoDX.Branch.Snapshot);
             branches.Add(RenoDX.Branch.Nightly);
