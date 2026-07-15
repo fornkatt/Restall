@@ -60,7 +60,7 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
         {
             SelectedName = request.Game.RenoDX is not null ? request.Game.RenoDX.SelectedName : addonFilename,
             OriginalName = addonFilename,
-            BranchName = isUnityGeneric ? RenoDX.Branch.Snapshot : request.Branch,
+            BranchName = isUnityGeneric ? RenoDX.Branch.Wiki : request.Branch,
             Arch = request.Arch
         };
 

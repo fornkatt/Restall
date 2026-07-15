@@ -74,7 +74,7 @@ internal sealed class ModDownloadService : IModDownloadService
     public async Task<Result> DownloadUnityRenoDXAsync(string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
     {
         var downloadUrl = s_renoDXUnityDownloadBaseUrl + addonFileName;
-        var cacheDir = _pathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Snapshot);
+        var cacheDir = _pathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Wiki);
         return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
     }
 

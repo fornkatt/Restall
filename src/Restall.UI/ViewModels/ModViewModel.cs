@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Restall.Application.DTOs.Results;
@@ -50,7 +51,8 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RenoDXModStatus))]
     [NotifyPropertyChangedFor(nameof(RenoDXNotes))]
     [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
-    [NotifyPropertyChangedFor(nameof(IsNightlyBranchAvailable))]
+    [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
+    [NotifyPropertyChangedFor(nameof(AvailableRenoDXBranches))]
     private GameModViewModel? _selectedGame;
 
     [ObservableProperty]
@@ -63,52 +65,17 @@ public sealed partial class ModViewModel : ViewModelBase
     public string? ReShadeLatestVersionForBranch =>
         _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
-    [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
-    [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
-    [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
-    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
-    
-    public IReadOnlyList<RenoDX.Branch> AvailableRenoDXBranches { get; } =
-        [RenoDX.Branch.Wiki, RenoDX.Branch.Snapshot, RenoDX.Branch.Nightly];
-
-    public bool IsNightlyBranchAvailable =>
-        SelectedGame is not null &&
-        !(SelectedGame.EngineName == Game.Engine.Unity && SelectedGame.CompatibleRenoDXMod is null);
-
-    public string? RenoDXLatestVersionForBranch =>
-        _versionCatalog.GetLatestRenoDXVersionByTag(SelectedRenoDXBranch)?.Version;
-
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
-        SelectedRenoDXBranch = ResolveDefaultRenoDXBranch(value);
-
+        RefreshAvailableRenoDXBranches(value);
         NotifyAllCommandsChanged();
     }
 
-    private RenoDX.Branch ResolveDefaultRenoDXBranch(GameModViewModel? game)
+    public void ApplyWikiRefresh()
     {
-        if (game is null)
-            return RenoDX.Branch.Snapshot;
-        
-        var isUnityGeneric = game.EngineName is Game.Engine.Unity &&
-                                     game.CompatibleRenoDXMod is null;
-
-        var preferred = game.RenoDXBranchName is { } installed && IsSelectableBranch(installed)
-            ? installed
-            : RenoDX.Branch.Snapshot;
-        
-        if (isUnityGeneric && preferred is RenoDX.Branch.Wiki or RenoDX.Branch.Nightly)
-            return RenoDX.Branch.Snapshot;
-        
-        return preferred;
+        RefreshAvailableRenoDXBranches(SelectedGame);
+        NotifyAllCommandsChanged();
     }
-    
-    private bool IsSelectableBranch(RenoDX.Branch branch) =>
-    branch is RenoDX.Branch.Wiki or RenoDX.Branch.Snapshot or RenoDX.Branch.Nightly;
-
-    public void ApplyWikiRefresh() => NotifyAllCommandsChanged();
 
     public void ApplySelectedGame(GameModViewModel? value) => SelectedGame = value;
 
@@ -121,7 +88,6 @@ public sealed partial class ModViewModel : ViewModelBase
         UninstallRenoDXCommand.NotifyCanExecuteChanged();
         RenoDXInstallButtonClickCommand.NotifyCanExecuteChanged();
 
-        OnPropertyChanged(nameof(SelectedRenoDXBranch));
         OnPropertyChanged(nameof(CanShowReShadeUpdate));
         OnPropertyChanged(nameof(CanShowRenoDXUpdate));
         OnPropertyChanged(nameof(RenoDXVersionTextColor));
@@ -308,7 +274,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
         await ExecuteRenoDXActionAsync(p => _modManagementFacade.InstallOrUpdateRenoDXAsync(request, p));
     }
-    
+
     private async Task ExecuteRenoDXActionAsync(
         Func<Progress<DownloadProgressReportDto>, Task<ModOperationResultDto>> work,
         int delayMs = 5000)
@@ -393,20 +359,95 @@ public sealed partial class ModViewModel : ViewModelBase
                 modStatusText += $"""
 
 
-                         {maintainerText}
-                         """;
+                                  {maintainerText}
+                                  """;
 
             if (!string.IsNullOrWhiteSpace(extraNotes))
                 modStatusText += $"""
 
 
-                         Additional notes:
+                                  Additional notes:
 
-                         {extraNotes}
-                         """;
+                                  {extraNotes}
+                                  """;
 
             return string.IsNullOrWhiteSpace(modStatusText) ? null : modStatusText;
         }
+    }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
+    [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
+    [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
+    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
+
+    private RenoDX.Branch _preferredRenoDXBranch = RenoDX.Branch.Snapshot;
+    private bool _isAdjustingRenoDXBranchSelection;
+
+    partial void OnSelectedRenoDXBranchChanged(RenoDX.Branch value)
+    {
+        if (!_isAdjustingRenoDXBranchSelection)
+            _preferredRenoDXBranch = value;
+    }
+
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
+    private IReadOnlyList<RenoDX.Branch> _availableRenoDXBranches = [];
+
+    public string? RenoDXLatestVersionForBranch =>
+        _versionCatalog.GetLatestRenoDXVersionByTag(SelectedRenoDXBranch)?.Version;
+
+    public bool CanShowRenoDXBranchSelector => AvailableRenoDXBranches.Count > 1;
+
+    public string RenoDXBranchHelpText =>
+        """
+        Select the branch to use for RenoDX downloads.
+
+        Snapshot: Default. Prefer using this branch.
+
+        Nightly: Select this branch to rollback if latest Snapshot is causing issues.
+
+        Wiki: Select this branch if Snapshot or Nightly fails to download or if it's otherwise preferable.
+        """;
+
+    private static IReadOnlyList<RenoDX.Branch> GetAvailableRenoDXBranches(GameModViewModel? game)
+    {
+        if (game is null)
+            return [RenoDX.Branch.Snapshot];
+
+        var hasWikiDownloadLink = game.RenoDXWikiDownloadUrl64 is not null || game.RenoDXWikiDownloadUrl32 is not null;
+        var isUnreal = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unreal;
+        var isUnity = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unity;
+
+        var branches = new List<RenoDX.Branch>();
+
+        if (hasWikiDownloadLink || isUnreal)
+        {
+            branches.Add(RenoDX.Branch.Snapshot);
+            branches.Add(RenoDX.Branch.Nightly);
+        }
+
+        if (hasWikiDownloadLink || isUnity)
+            branches.Add(RenoDX.Branch.Wiki);
+
+        return branches.Count > 0 ? (IReadOnlyList<RenoDX.Branch>)branches : [RenoDX.Branch.Snapshot];
+    }
+
+    private void RefreshAvailableRenoDXBranches(GameModViewModel? game)
+    {
+        AvailableRenoDXBranches = GetAvailableRenoDXBranches(game);
+
+        var target = AvailableRenoDXBranches.Contains(_preferredRenoDXBranch)
+            ? _preferredRenoDXBranch
+            : AvailableRenoDXBranches[0];
+
+        if (target == SelectedRenoDXBranch)
+            return;
+
+        _isAdjustingRenoDXBranchSelection = true;
+        SelectedRenoDXBranch = target;
+        _isAdjustingRenoDXBranchSelection = false;
     }
 
     private string RenoDXModStatus =>
@@ -429,7 +470,7 @@ public sealed partial class ModViewModel : ViewModelBase
             if (SelectedGame?.HasRenoDX == true) return "Reinstall";
             if (CanOpenNexusLink) return "Get from Nexus";
             if (CanOpenDiscordLink) return "Get from Discord";
-            
+
             return "Install";
         }
     }
@@ -446,6 +487,7 @@ public sealed partial class ModViewModel : ViewModelBase
             OpenUrl(SelectedGame!.CompatibleRenoDXMod!.NexusUrl!);
             return;
         }
+
         if (CanOpenDiscordLink)
         {
             OpenUrl(SelectedGame!.CompatibleRenoDXMod!.DiscordUrl!);
@@ -454,8 +496,9 @@ public sealed partial class ModViewModel : ViewModelBase
 
         await InstallRenoDXAsync();
     }
-    
+
     private bool CanClickRenoDXInstallButton => CanInstallRenoDX || CanOpenNexusLink || CanOpenDiscordLink;
+
     private bool CanInstallRenoDX => SelectedGame is not null &&
                                      (SelectedGame.CompatibleRenoDXMod is not null ||
                                       SelectedGame.CompatibleRenoDXGenericMod is not null ||
@@ -463,10 +506,14 @@ public sealed partial class ModViewModel : ViewModelBase
                                       SelectedGame.EngineName == Game.Engine.Unreal ||
                                       SelectedGame.HasRenoDX) &&
                                      SelectedGame.HasReShade;
+
     private bool CanOpenNexusLink =>
-        SelectedGame is { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
+        SelectedGame is
+            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
+
     private bool CanOpenDiscordLink =>
-        SelectedGame is { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
+        SelectedGame is
+            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
 
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
     private async Task UpdateRenoDXAsync()

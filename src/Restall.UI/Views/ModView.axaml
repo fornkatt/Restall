@@ -282,14 +282,17 @@
                                   ColumnDefinitions="0.5*, 0.5*"
                                   Margin="5">
                                 <ComboBox Grid.Column="0"
-                                              IsVisible="{Binding IsNightlyBranchAvailable}"
+                                              IsVisible="{Binding CanShowRenoDXBranchSelector}"
                                               VerticalAlignment="Top"
                                               ItemsSource="{Binding AvailableRenoDXBranches}"
                                               SelectedItem="{Binding SelectedRenoDXBranch, Mode=TwoWay}"
                                               FontSize="12"
                                               FontWeight="SemiBold"
                                               Foreground="{DynamicResource GameCardText}"
-                                              Margin="5" />
+                                              Margin="0"
+                                              Padding="10, 5, 5, 5" 
+                                              CornerRadius="6" 
+                                              ToolTip.Tip="{Binding RenoDXBranchHelpText}" />
                                 <TextBlock Grid.Column="1"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
