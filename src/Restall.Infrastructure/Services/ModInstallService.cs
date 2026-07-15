@@ -93,13 +93,10 @@ internal sealed class ModInstallService : IModInstallService
         {
             var versionInfo = PeVersionHelper.GetVersionInfo(file);
     
-            if (!versionInfo.IsSuccess)
-            {
-                await _logService.LogErrorAsync(versionInfo.ErrorMessage ?? $"Failed to read {file}", versionInfo.Exception);
+            if (versionInfo is null)
                 continue;
-            }
             
-            if (versionInfo.Value?.ProductName?.Equals("ReShade", StringComparison.OrdinalIgnoreCase) == true)
+            if (versionInfo.ProductName?.Equals("ReShade", StringComparison.OrdinalIgnoreCase) == true)
             {
                 var deleted = _fileService.TryDeleteFile(file);
     
@@ -134,13 +131,10 @@ internal sealed class ModInstallService : IModInstallService
         {
             var versionInfo = PeVersionHelper.GetVersionInfo(file);
 
-            if (!versionInfo.IsSuccess)
-            {
-                await _logService.LogErrorAsync(versionInfo.ErrorMessage ?? $"Failed to read {file}", versionInfo.Exception);
+            if (versionInfo is null)
                 continue;
-            }
             
-            if (versionInfo.Value?.OriginalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
+            if (versionInfo.OriginalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
             {
                 var deleted = _fileService.TryDeleteFile(file);
     
