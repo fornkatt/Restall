@@ -8,7 +8,6 @@
 * [Building the Project](#building-the-project)
     * [Prerequisites](#prerequisites)
     * [Cloning the Repository](#cloning-the-repository)
-* [Notes](#notes)
 * [Upcoming Features](#upcoming-features)
 * [Technical Aspects](#technical-aspects)
 
@@ -74,20 +73,12 @@ It automates the detection of game installations across multiple launchers and s
 
 ---
 
-## Notes
-
-#### Currently the app fetches version and files from the Snapshot/Nightly tags on the RenoDX wiki. The plan is to expand this support to allow for fetching from the creator's own GitHub page.
-
----
-
 ## Upcoming Features
 
 > This section will be updated as new features are planned and confirmed.
 * Nightly (actions) branch support for ReShade.
-* RenoDX branch support for ReShade.
 * Vulkan ReShade support.
 * Ability to install basic HDR shaders.
-* Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH. The links on the main wiki's mods page).
 * [LUMA](https://github.com/Filoppi/Luma-Framework/wiki) mod support.
 * [ReLimiter](https://github.com/RankFTW/ReLimiter) support.
 * Remember choices in app like branch, overrides etc per game.
@@ -101,6 +92,7 @@ It automates the detection of game installations across multiple launchers and s
 * Package Windows installer and Flatpak package for Linux.
 * Generate .desktop file for Linux users after building.
 * Faugus support.
+* ~Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH. The links on the main wiki's mods page).~
 
 ---
 
