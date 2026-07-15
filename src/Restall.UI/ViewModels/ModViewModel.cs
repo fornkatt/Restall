@@ -391,8 +391,7 @@ public sealed partial class ModViewModel : ViewModelBase
             _preferredRenoDXBranch = value;
     }
 
-    [ObservableProperty] 
-    [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
     private IReadOnlyList<RenoDX.Branch> _availableRenoDXBranches = [];
 
     public string? RenoDXLatestVersionForBranch =>
@@ -417,16 +416,12 @@ public sealed partial class ModViewModel : ViewModelBase
             return [RenoDX.Branch.Snapshot];
 
         var hasWikiDownloadLink = game.RenoDXWikiDownloadUrl64 is not null || game.RenoDXWikiDownloadUrl32 is not null;
-        var isUnreal = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unreal;
         var isUnity = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unity;
 
         var branches = new List<RenoDX.Branch>();
 
-        if (hasWikiDownloadLink || isUnreal)
-        {
-            branches.Add(RenoDX.Branch.Snapshot);
-            branches.Add(RenoDX.Branch.Nightly);
-        }
+        branches.Add(RenoDX.Branch.Snapshot);
+        branches.Add(RenoDX.Branch.Nightly);
 
         if (hasWikiDownloadLink || isUnity)
             branches.Add(RenoDX.Branch.Wiki);
