@@ -52,13 +52,15 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
             );
 
         var isUnityGeneric = request.GenericModInfo?.Engine == SupportedEngine.Unity ||
-                             (request.GenericModInfo is null && request.Game.EngineName == Game.Engine.Unity);
+                             (request.GenericModInfo is null &&
+                              request.ModInfo is not { HasWikiFilename: true } &&
+                              request.Game.EngineName == Game.Engine.Unity);
 
         var renoDX = new RenoDX
         {
             SelectedName = request.Game.RenoDX is not null ? request.Game.RenoDX.SelectedName : addonFilename,
             OriginalName = addonFilename,
-            BranchName = isUnityGeneric ? RenoDX.Branch.Snapshot : request.Branch,
+            BranchName = isUnityGeneric ? RenoDX.Branch.Wiki : request.Branch,
             Arch = request.Arch
         };
 
