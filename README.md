@@ -69,7 +69,7 @@ It automates the detection of game installations across multiple launchers and s
 | • Download and install the latest version of Docker and run it | • Install the **docker package** for your distribution <br> &nbsp;&nbsp;&nbsp;&nbsp;• _Install the `docker-buildx` plugin if it is not included in your distribution package_ <br> • Open up the terminal and run ```systemctl start docker``` <br> • Run ```usermod -aG docker $USER``` to add your user to the docker group <br> • Run ```newgrp docker``` to apply changes or relog |
 | • Double-click ```build-windows_win.bat``` to build Windows binaries <br> • _Alternatively, use `build-linux_win.bat` for Linux binaries_ | • Navigate to the repo and run ```./build-linux_linux.sh``` to build Linux Binaries <br> • _Alternatively, run ```./build-windows_linux.sh``` to build Windows Binaries_  |
 | • The final build will be in `dist\windows` or `dist\linux`. | • The final build will be in `dist/linux` or `dist/windows`. | <br>
-| • The cache and logs will be in `%LOCALAPPDATA%\Restall ()`. | • The cache and logs will be in `~/.local/share/Restall`. |
+| • The cache and logs will be in `%LOCALAPPDATA%\Restall`. | • The cache and logs will be in `~/.local/share/Restall`. |
 
 ---
 
