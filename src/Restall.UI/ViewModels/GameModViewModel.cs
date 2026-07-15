@@ -103,8 +103,8 @@ public sealed partial class GameModViewModel : ObservableObject
     public bool RenoDXSupportsX32 => CompatibleRenoDXMod?.SupportsX32 ?? CompatibleRenoDXGenericMod?.SupportsX32 ?? false;
     public bool RenoDXIsDualArch => CompatibleRenoDXMod?.IsDualArch ?? false;
 
-    public string? RenoDXAddonFilenameX64 => CompatibleRenoDXMod?.AddonFilename64;
-    public string? RenoDXAddonFilenameX32 => CompatibleRenoDXMod?.AddonFilename32;
+    public string? RenoDXAddonFilename64 => CompatibleRenoDXMod?.AddonFilename64;
+    public string? RenoDXAddonFilename32 => CompatibleRenoDXMod?.AddonFilename32;
 
     public bool HasDiscordLink => CompatibleRenoDXMod?.DiscordUrl is not null;
     public bool HasNexusLink => CompatibleRenoDXMod?.NexusUrl is not null;
@@ -128,8 +128,9 @@ public sealed partial class GameModViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
     [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
-    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl))]
-    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename))]
+    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl64))]
+    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl32))]
+    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename64))]
     private RenoDX.Architecture? _archOverride;
 
     public RenoDX.Architecture SelectedRenoDXInstallArch =>
@@ -145,28 +146,21 @@ public sealed partial class GameModViewModel : ObservableObject
             ? ReShade.Architecture.x32
             : ReShade.Architecture.x64;
 
-    public string? RenoDXWikiDownloadUrl =>
-        SelectedRenoDXInstallArch == RenoDX.Architecture.x32
-            ? CompatibleRenoDXMod?.SnapshotUrl32 ?? CompatibleRenoDXMod?.SnapshotUrl64
-            : CompatibleRenoDXMod?.SnapshotUrl64 ?? CompatibleRenoDXMod?.SnapshotUrl32;
-
-    public string? RenoDXAddonFilename =>
-        SelectedRenoDXInstallArch == RenoDX.Architecture.x32
-            ? CompatibleRenoDXMod?.AddonFilename32 ?? CompatibleRenoDXMod?.AddonFilename64
-            : CompatibleRenoDXMod?.AddonFilename64 ?? CompatibleRenoDXMod?.AddonFilename32;
+    public string? RenoDXWikiDownloadUrl64 => CompatibleRenoDXMod?.SnapshotUrl64;
+    public string? RenoDXWikiDownloadUrl32 => CompatibleRenoDXMod?.SnapshotUrl32;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsRenoDXSupported))]
     [NotifyPropertyChangedFor(nameof(IsUsingGenericModWhenSpecificAvailable))]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
     [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
-    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl))]
-    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename))]
+    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl64))]
+    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl32))]
     [NotifyPropertyChangedFor(nameof(RenoDXSupportsX64))]
     [NotifyPropertyChangedFor(nameof(RenoDXSupportsX32))]
     [NotifyPropertyChangedFor(nameof(RenoDXIsDualArch))]
-    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilenameX64))]
-    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilenameX32))]
+    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename64))]
+    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename32))]
     private RenoDXModInfoDto? _compatibleRenoDXMod;
 
     partial void OnCompatibleRenoDXModChanged(RenoDXModInfoDto? value) => ArchOverride = null;
