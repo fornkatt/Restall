@@ -93,13 +93,6 @@ internal sealed class SteamScanner : IPlatformScannerService
                 if (!Directory.Exists(rootPath)) continue;
                 var appId = Path.GetFileNameWithoutExtension(acf).Replace("appmanifest_", "");
                 
-                // games.Add(new Game
-                // {
-                //     Name = name,
-                //     InstallFolder = rootPath,
-                //     PlatformName = Platform,
-                //     PlatformId = appId
-                // });
                 games.AddRange(GameExpander.ExpandCollection(new Game
                 {
                     Name = name,
