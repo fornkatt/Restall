@@ -1,4 +1,3 @@
-using Restall.Application.DTOs;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -94,13 +93,13 @@ internal sealed class SteamScanner : IPlatformScannerService
                 if (!Directory.Exists(rootPath)) continue;
                 var appId = Path.GetFileNameWithoutExtension(acf).Replace("appmanifest_", "");
                 
-                games.Add(new Game
+                games.AddRange(GameExpander.ExpandCollection(new Game
                 {
                     Name = name,
                     InstallFolder = rootPath,
                     PlatformName = Platform,
                     PlatformId = appId
-                });
+                }));
             }
             catch(Exception ex)
             {

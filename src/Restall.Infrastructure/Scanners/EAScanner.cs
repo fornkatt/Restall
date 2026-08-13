@@ -1,4 +1,3 @@
-using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -37,6 +36,7 @@ internal sealed class EAScanner : IPlatformScannerService
         
     }
 
+    //TODO: ADD PUBLISH KEYS HELPER/MANIFEST TO INCLUDE MANY DIFFERENT REGEDITS
     private (List<Game>games, string? error) ScanEALibrary()
     {
         var games = new List<Game>();

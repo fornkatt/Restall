@@ -108,7 +108,8 @@ internal sealed class EngineDetectionService : IEngineDetectionService
 
         return null;
     }
-
+    
+    //TODO: INCLUDE NONGAMEEXECUTABLE IN FINDSHALLOWEXEFOLDER
     private string? FindShallowExeFolder(string root)
     {
         var subFolders = GameScanHelper.GetPreferredExeSubFolders();
