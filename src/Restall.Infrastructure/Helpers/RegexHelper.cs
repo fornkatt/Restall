@@ -10,7 +10,8 @@ internal static partial class RegexHelper
     internal static Regex HeroicGameBlockRegex => HeroicGameBlock();
     internal static Regex HeroicInstallPathRegex => HeroicInstallPath();
     internal static Regex HeroicTitleRegex => HeroicTitle();
-    internal static Regex HeroicAppNameRegex => HeroicAppName();
+    internal static Regex GOGHeroicAppNameRegex => HeroicAppNameGOG();
+    internal static Regex EpicHeroicAppNameRegex => HeroicAppNameEpic();
     internal static Regex Match32BitRegex => Match32Bit();
 
     [GeneratedRegex(@"\b32[\s-]?bit\b", RegexOptions.IgnoreCase)]
@@ -26,7 +27,10 @@ internal static partial class RegexHelper
     private static partial Regex SteamLibrary();
 
     [GeneratedRegex(@"""appName""\s*:\s*""([^""]+)""")]
-    private static partial Regex HeroicAppName();
+    private static partial Regex HeroicAppNameGOG();
+    
+    [GeneratedRegex(@"""app_name""\s*:\s*""([^""]+)""")]
+    private static partial Regex HeroicAppNameEpic();
     
     [GeneratedRegex(@"\{[^{}]*""install_path""[^{}]*\}")]
     private static partial Regex HeroicGameBlock();

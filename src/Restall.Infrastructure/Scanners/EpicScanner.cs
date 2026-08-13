@@ -1,4 +1,3 @@
-using Restall.Application.DTOs;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -151,7 +150,7 @@ internal sealed class EpicScanner : IPlatformScannerService
 
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(installPath)) continue;
 
-                var appName = RegexHelper.HeroicAppNameRegex.Match(blockValue)
+                var appName = RegexHelper.EpicHeroicAppNameRegex.Match(blockValue)
                     is { Success: true } am
                     ? am.Groups[1].Value
                     : null;

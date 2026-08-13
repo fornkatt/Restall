@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 
+
 namespace Restall.Infrastructure.Helpers;
 
 internal static class GameScanHelper
@@ -77,6 +78,7 @@ internal static class GameScanHelper
     }
     
     //TODO: CREATE MANIFEST FOR NONGAMEEXECUTABLE, NONGAME AND GETPREFERREDEXESUBFOLDERS
+    //TODO: MOVE 'DedicatedServer' TO NONGAMEEXECUTABLE AND ADD 'Lossless Scaling' TO NONGAME
     internal static bool NonGameExecutable(string exeNameWithoutExtension)
     {
         var keywords = new HashSet<string>()
@@ -84,6 +86,7 @@ internal static class GameScanHelper
             "UbisoftConnectInstaller",
             "EpicOnlineServiceInstaller",
             "DirectXSetup",
+            "EOSBootstrapper",
             "DXSETUP",
             "vcredist",
             "UnityCrashHandler",
@@ -142,7 +145,13 @@ internal static class GameScanHelper
         Path.Combine("bin", "x86"),
         Path.Combine("bin", "win64")
     ];
-
-
+    
+    internal static bool IsMassEffectLegendary(string? name)
+    => name is not null
+    && name.Contains("Mass Effect", StringComparison.OrdinalIgnoreCase)
+    && name.Contains("Legendary Edition", StringComparison.OrdinalIgnoreCase);
+    
+    
+    
 
 }
