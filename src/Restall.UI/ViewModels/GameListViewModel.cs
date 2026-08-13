@@ -89,7 +89,8 @@ public sealed partial class GameListViewModel : ViewModelBase
         
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
     }
-
+    
+    //TODO: MOVE OVER TO MODVIEWMODEL WHEN LIGHT REFRESH IS CHANGED
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task LightRefreshLibraryAsync()
     {
