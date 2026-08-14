@@ -17,7 +17,6 @@
         <Setter Property="Background" Value="{DynamicResource GameListSelection}"/>
     </Style>
     
-    
     <!-- ModView Game Card buttons -->
     <Style Selector="Button.game-card-btn">
         <Setter Property="Cursor" Value="Hand"/>
@@ -33,6 +32,7 @@
     <Style Selector="Button.game-card-btn:disabled">
         <Setter Property="Opacity" Value="0.35"/>
     </Style>
+    
     
     <!-- ModView Mod buttons -->
     <Style Selector="Button.mod-card-btn">
