@@ -15,6 +15,12 @@ public interface IPathService
     string GetArtworkCacheDirectory();
     string GetGameArtworkCover(string slug);
     string GetGameArtThumbnailPath(string slug);
+
+    string GetEpicInstallPath();
+    string GetEpicHeroicPath();
+    string GetGOGHeroicPath();
     
     string GetDefaultLogPath();
+    
+    
 }

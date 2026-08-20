@@ -9,10 +9,13 @@ namespace Restall.Infrastructure.Scanners;
 internal sealed class EpicScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
+    private readonly IPathService _pathService;
 
-    public EpicScanner(ILogService logService)
+    public EpicScanner(ILogService logService, 
+        IPathService pathService)
     {
         _logService = logService;
+        _pathService = pathService;
     }
 
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEpic);
@@ -25,8 +28,8 @@ internal sealed class EpicScanner : IPlatformScannerService
 
         if (OperatingSystem.IsWindows())
         {
-            var ueInstallPath = GetInstallPath();
-            if (ueInstallPath is not null && Directory.Exists(ueInstallPath))
+            var ueInstallPath = _pathService.GetEpicInstallPath();
+            if (Directory.Exists(ueInstallPath))
             {
                 var (epicLibrary, error) = ScanEpicLibrary(ueInstallPath);
                 games.AddRange(epicLibrary);
@@ -34,9 +37,9 @@ internal sealed class EpicScanner : IPlatformScannerService
             }
         }
 
-        var epicHeroicPath = GetHeroicInstallPath();
+        var epicHeroicPath = _pathService.GetEpicHeroicPath();
 
-        if (epicHeroicPath is not null && Directory.Exists(epicHeroicPath))
+        if (Directory.Exists(epicHeroicPath))
         {
             var (epicHeroicLibrary, error) = ScanHeroicLibrary(epicHeroicPath);
             games.AddRange(epicHeroicLibrary);
@@ -50,12 +53,12 @@ internal sealed class EpicScanner : IPlatformScannerService
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 
-    private string? GetInstallPath()
-    {
-        return Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "Epic", "EpicGamesLauncher", "Data", "Manifests");
-    }
+    // private string? GetInstallPath()
+    // {
+    //     return Path.Combine(
+    //         Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+    //         "Epic", "EpicGamesLauncher", "Data", "Manifests");
+    // }
 
     private (List<Game> games, string? error) ScanEpicLibrary(string manifestDir)
     {
@@ -96,16 +99,16 @@ internal sealed class EpicScanner : IPlatformScannerService
         return (games, null);
     }
 
-    private string? GetHeroicInstallPath()
-    {
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-        var heroicPath = OperatingSystem.IsWindows()
-            ? Path.Combine(home, "AppData", "Roaming", "heroic", "legendaryConfig", "legendary")
-            : Path.Combine(home, ".config", "heroic", "legendaryConfig", "legendary");
-
-        return Directory.Exists(heroicPath) ? heroicPath : null;
-    }
+    // private string? GetHeroicInstallPath()
+    // {
+    //     var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    //
+    //     var heroicPath = OperatingSystem.IsWindows()
+    //         ? Path.Combine(home, "AppData", "Roaming", "heroic", "legendaryConfig", "legendary")
+    //         : Path.Combine(home, ".config", "heroic", "legendaryConfig", "legendary");
+    //
+    //     return Directory.Exists(heroicPath) ? heroicPath : null;
+    // }
 
     private (List<Game>games, string? error) ScanHeroicLibrary(string configDir)
     {

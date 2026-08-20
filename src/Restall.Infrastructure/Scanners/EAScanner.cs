@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -37,6 +38,7 @@ internal sealed class EAScanner : IPlatformScannerService
     }
 
     //TODO: ADD PUBLISH KEYS HELPER/MANIFEST TO INCLUDE MANY DIFFERENT REGEDITS
+    [SupportedOSPlatform("windows")]
     private (List<Game>games, string? error) ScanEALibrary()
     {
         var games = new List<Game>();
@@ -45,7 +47,7 @@ internal sealed class EAScanner : IPlatformScannerService
             using var key = GameScanHelper.GetOpenRegistryKey(@"\EA Games");
 
             if (key is null) return (games,null);
-#pragma warning disable CA1416 // Already checked before method is called
+
             foreach (var subName in key.GetSubKeyNames())
             {
                 using var gameKey = key.OpenSubKey(subName);

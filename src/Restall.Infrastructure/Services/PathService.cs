@@ -8,7 +8,9 @@ internal sealed class PathService : IPathService
     private const string s_appName = "Restall";
 
     private static readonly string s_baseDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), s_appName);
-
+    private static readonly string s_userProfileDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    private static readonly string s_commonAppDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+    
     private const string s_downloadCacheFolderName = "DownloadCache";
     private const string s_cacheFolderName = "Cache";
     private const string s_artworkFolderName = "Artwork";
@@ -26,7 +28,18 @@ internal sealed class PathService : IPathService
     public string GetArtworkCacheDirectory() => _artworkCacheBaseDir;
     public string GetGameArtworkCover(string slug) => Path.Combine(_artworkCacheBaseDir,slug,  s_gameCoverFileName);
     public string GetGameArtThumbnailPath(string slug) => Path.Combine(_artworkCacheBaseDir, slug, s_iconFileName);
+    public string GetEpicInstallPath() => Path.Combine(
+        s_commonAppDataDirectory, "Epic", "EpicGamesLauncher", "Data", "Manifests");
+
+    public string GetEpicHeroicPath() => OperatingSystem.IsWindows()
+        ? Path.Combine(s_userProfileDirectory, "AppData", "Roaming", "heroic", "legendaryConfig", "legendary")
+        : Path.Combine(s_userProfileDirectory, ".config", "heroic", "legendaryConfig", "legendary");
+
+    public string GetGOGHeroicPath() => OperatingSystem.IsWindows()
+        ? Path.Combine(s_userProfileDirectory, "AppData", "Roaming", "heroic", "gog_store")
+        : Path.Combine(s_userProfileDirectory, ".config", "heroic", "gog_store");
     
+
     public string GetReShadeCachePath(ReShade reShade) =>
         Path.Combine(_reShadeCacheBaseDir, reShade.BranchName.ToString(), reShade.Version!);
 

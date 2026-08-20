@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -37,7 +38,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
         
     }
-    
+    [SupportedOSPlatform("windows")]
     private (List<Game> games, string? error) ScanUbisoftLibrary()
     {
         var games = new List<Game>();
@@ -47,7 +48,7 @@ internal sealed class UbisoftScanner : IPlatformScannerService
             using var key = GameScanHelper.GetOpenRegistryKey(@"\Ubisoft\Launcher\Installs");
             if (key is null) return (games, null);
 
-#pragma warning disable CA1416 // Handled before method is called
+
             foreach (var subName in key.GetSubKeyNames())
             {
                 using var gameKey = key.OpenSubKey(subName);

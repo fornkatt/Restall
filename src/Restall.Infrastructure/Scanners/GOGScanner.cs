@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -9,10 +10,13 @@ namespace Restall.Infrastructure.Scanners;
 internal sealed class GOGScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
+    private readonly IPathService _pathService;
 
-    public GOGScanner(ILogService logService)
+    public GOGScanner(ILogService logService,
+        IPathService pathService)
     {
         _logService = logService;
+        _pathService = pathService;
     }
 
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanGOG);
@@ -29,8 +33,8 @@ internal sealed class GOGScanner : IPlatformScannerService
             if (error is not null) errors.Add(error);
         }
 
-        var gogHeroicPath = GetHeroicInstallPath();
-        if (gogHeroicPath is not null && Directory.Exists(gogHeroicPath))
+        var gogHeroicPath = _pathService.GetGOGHeroicPath();
+        if (Directory.Exists(gogHeroicPath))
         {
             var (heroicGames, error) = ScanHeroicLibrary(gogHeroicPath);
             games.AddRange(heroicGames);
@@ -43,7 +47,7 @@ internal sealed class GOGScanner : IPlatformScannerService
             IsSuccess: games.Count > 0,
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
-
+    [SupportedOSPlatform("windows")]
     private (List<Game> games, string? error) ScanGOGLibrary()
     {
         var games = new List<Game>();
@@ -53,15 +57,14 @@ internal sealed class GOGScanner : IPlatformScannerService
 
         if (key is null) return (games, null);
 
-#pragma warning disable CA1416 // Already checked before method is called
+
         foreach (var subName in key.GetSubKeyNames())
         {
             try
             {
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey is null) continue;
-
-                //Value patterns in registry
+                
                 var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName", "gameName");
                 var path = GameScanHelper.GetRegistryValue(gameKey, "PATH", "path");
 
@@ -86,16 +89,16 @@ internal sealed class GOGScanner : IPlatformScannerService
         return (games, null);
     }
 
-    private string? GetHeroicInstallPath()
-    {
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        
-        var heroicPath = OperatingSystem.IsWindows()
-            ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store")
-            : Path.Combine(home, ".config", "heroic", "gog_store");
-
-        return Directory.Exists(heroicPath) ? heroicPath : null;
-    }
+    // private string? GetHeroicInstallPath()
+    // {
+    //     var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    //     
+    //     var heroicPath = OperatingSystem.IsWindows()
+    //         ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store")
+    //         : Path.Combine(home, ".config", "heroic", "gog_store");
+    //
+    //     return Directory.Exists(heroicPath) ? heroicPath : null;
+    // }
 
     private (List<Game> games, string? error) ScanHeroicLibrary(string configDir)
     {
