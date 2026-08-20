@@ -11,6 +11,7 @@ internal sealed class GameCoverService : IGameCoverService
     private readonly ILogService _logService;
     private readonly HttpClient _httpClient;
     private readonly IImageResizeService _imageResizeService;
+    private readonly IPathService _pathService;
     
     private const string PcgwCargoByPageNameUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageName%3D%22{0}%22&format=json";
@@ -23,11 +24,13 @@ internal sealed class GameCoverService : IGameCoverService
 
     public GameCoverService(ILogService logService,
         HttpClient httpClient,
-        IImageResizeService imageResizeService)
+        IImageResizeService imageResizeService,
+        IPathService pathService)
     {
         _logService = logService;
         _httpClient = httpClient;
         _imageResizeService = imageResizeService;
+        _pathService = pathService;
     }
 
     public async Task DownloadCoverIfMissingAsync(Game game, string coverPath)
@@ -115,7 +118,7 @@ internal sealed class GameCoverService : IGameCoverService
         return null;
     }
 
-    private static string? FindSteamRoot()
+    private string? FindSteamRoot()
     {
         if (OperatingSystem.IsWindows())
         {
@@ -128,19 +131,8 @@ internal sealed class GameCoverService : IGameCoverService
             if (Directory.Exists(defaultPath)) return defaultPath;
         }
 
-        if (OperatingSystem.IsLinux())
-        {
-            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var linuxPaths = new[]
-            {
-                Path.Combine(home, ".steam", "steam"),
-                Path.Combine(home, ".local", "share", "Steam"),
-                Path.Combine(home, "snap", "steam", "common", ".local", "share", "Steam")
-            };
-            return linuxPaths.FirstOrDefault(Directory.Exists);
-        }
-
-        return null;
+        return OperatingSystem.IsLinux() ? 
+            _pathService.GetSteamLinuxPaths().FirstOrDefault(Directory.Exists) : null;
     }
     
     // GOG ---------------------------------------------------------------------------------

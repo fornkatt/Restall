@@ -11,6 +11,7 @@ internal sealed class PathService : IPathService
     private static readonly string s_userProfileDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     private static readonly string s_commonAppDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
     
+    
     private const string s_downloadCacheFolderName = "DownloadCache";
     private const string s_cacheFolderName = "Cache";
     private const string s_artworkFolderName = "Artwork";
@@ -28,6 +29,13 @@ internal sealed class PathService : IPathService
     public string GetArtworkCacheDirectory() => _artworkCacheBaseDir;
     public string GetGameArtworkCover(string slug) => Path.Combine(_artworkCacheBaseDir,slug,  s_gameCoverFileName);
     public string GetGameArtThumbnailPath(string slug) => Path.Combine(_artworkCacheBaseDir, slug, s_iconFileName);
+    public IReadOnlyList<string> GetSteamLinuxPaths() =>
+    [
+        Path.Combine(s_userProfileDirectory, ".steam", "steam"),
+        Path.Combine(s_userProfileDirectory, ".local", "share", "Steam"),
+        Path.Combine(s_userProfileDirectory, "snap",   "steam", "common", ".local", "share", "Steam")
+    ];
+
     public string GetEpicInstallPath() => Path.Combine(
         s_commonAppDataDirectory, "Epic", "EpicGamesLauncher", "Data", "Manifests");
 

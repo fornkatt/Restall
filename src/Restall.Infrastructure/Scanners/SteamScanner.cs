@@ -9,10 +9,14 @@ namespace Restall.Infrastructure.Scanners;
 internal sealed class SteamScanner : IPlatformScannerService
 {
     private readonly ILogService _logService;
+    private readonly IPathService _pathService;
     
-    public SteamScanner(ILogService logService)
+    public SteamScanner(ILogService logService,
+        IPathService pathService)
     {
         _logService = logService;
+        _pathService = pathService;
+        
     }
     
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanSteam);
@@ -51,21 +55,9 @@ internal sealed class SteamScanner : IPlatformScannerService
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 
-    private string? GetInstallPath()
-    {
-        if (OperatingSystem.IsWindows()) return GameScanHelper.ReadRegistry(@"Valve\Steam", "SteamPath");
-        
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        //TODO: DEFINE THESE IN PATHSERVICE TO HAVE A CENTRALIZED STATE SERVICE
-        var linuxPaths = new[]
-        {
-            Path.Combine(home, ".steam", "steam"),
-            Path.Combine(home, ".local", "share", "Steam"),
-            Path.Combine(home, "snap",   "steam", "common", ".local", "share", "Steam")
-        };
-        
-        return linuxPaths.FirstOrDefault(Directory.Exists);
-    }
+    private string? GetInstallPath() =>
+        OperatingSystem.IsWindows() ? GameScanHelper.ReadRegistry(@"Valve\Steam", "SteamPath") : 
+            _pathService.GetSteamLinuxPaths().FirstOrDefault(Directory.Exists);
 
     private (List<Game> games, string? error) ScanSteamLibrary(string library)
     {

@@ -16,6 +16,7 @@ public interface IPathService
     string GetGameArtworkCover(string slug);
     string GetGameArtThumbnailPath(string slug);
 
+    IReadOnlyList<string> GetSteamLinuxPaths();
     string GetEpicInstallPath();
     string GetEpicHeroicPath();
     string GetGOGHeroicPath();
