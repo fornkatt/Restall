@@ -1,8 +1,10 @@
-﻿using Restall.Application.Common;
+﻿using Microsoft.Extensions.Logging;
+using Restall.Application.Common;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
+using Restall.Application.Logging;
 using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 
@@ -10,28 +12,28 @@ namespace Restall.Application.UseCases;
 
 public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
 {
+    private readonly ILogger<InstallReShadeUseCase> _logger;
     private readonly IPathService _pathService;
     private readonly IModDownloadService _modDownloadService;
     private readonly IFileExtractionService _fileExtractionService;
     private readonly IModInstallService _modInstallService;
     private readonly IFileService _fileService;
-    private readonly ILogService _logService;
 
     public InstallReShadeUseCase(
+        ILogger<InstallReShadeUseCase> logger,
         IPathService pathService,
         IModDownloadService modDownloadService,
         IFileExtractionService fileExtractionService,
         IModInstallService modInstallService,
-        IFileService fileService,
-        ILogService logService
+        IFileService fileService
     )
     {
+        _logger = logger;
         _pathService = pathService;
         _modDownloadService = modDownloadService;
         _fileExtractionService = fileExtractionService;
         _modInstallService = modInstallService;
         _fileService = fileService;
-        _logService = logService;
     }
 
     public async Task<ModOperationResultDto> ExecuteAsync(InstallReShadeRequest request,
@@ -42,59 +44,65 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
             BranchName = request.Branch,
             Arch = request.Arch,
             Version = request.Version,
-            SelectedFilename = request.SelectedFilename,
+            SelectedFilename = request.SelectedFilename
         };
 
         var extractedFilePath = _pathService.GetReShadeExtractedFilePath(reShade);
 
         if (!File.Exists(extractedFilePath))
         {
-            var downloaded = await EnsureDownloadedAsync(reShade, progress);
+            var downloadResult = await EnsureDownloadedAsync(reShade, progress);
 
-            if (!downloaded.IsSuccess)
+            if (!downloadResult.IsSuccess)
             {
-                await _logService.LogErrorAsync(downloaded.ErrorMessage ?? "Failed to download ReShade installer.", downloaded.Exception);
-
-                var userMessage = downloaded.ErrorType switch
+                var userMessage = downloadResult.ErrorType switch
                 {
                     ErrorType.PermissionDenied => "Permission denied downloading the ReShade installer to cache. " +
-                                                    "Please ensure your have read/write access to the appropriate directories and try again.",
-                    ErrorType.FileSystemError => "Something went wrong writing cache directories or downloading files to cache. " +
-                                                   "Please ensure the destination is not in use and the disk is not full and try again.",
-                    ErrorType.DownloadFailed => "Could not download ReShade installer. The server may be unavailable or  the file may no longer exist.",
-                    ErrorType.NetworkTimeout => "Connection timed out while downloading ReShade installer. Please check your internet connection and try again.",
+                                                  "Please ensure your have read/write access to the appropriate directories and try again.",
+                    ErrorType.FileSystemError =>
+                        "Something went wrong writing cache directories or downloading files to cache. " +
+                        "Please ensure the destination is not in use and the disk is not full and try again.",
+                    ErrorType.DownloadFailed =>
+                        "Could not download ReShade installer. The server may be unavailable or  the file may no longer exist.",
+                    ErrorType.NetworkTimeout =>
+                        "Connection timed out while downloading ReShade installer. Please check your internet connection and try again.",
                     _ => "Failed to download ReShade installer. Check logs for details."
                 };
-                
+
+                _logger.ModDownloadFailure("ReShade", _pathService.GetReShadeDownloadCacheDirectory(reShade.BranchName),
+                    downloadResult.ErrorMessage, downloadResult.Exception);
+
                 return new ModOperationResultDto(false, request.Game, userMessage);
             }
 
             var installerPath = _pathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version);
             var extractedCacheDir = _pathService.GetReShadeCachePath(reShade);
 
-            var extractionResult =
-                _fileExtractionService.ExtractFiles(installerPath, [reShade.OriginalFileName], extractedCacheDir);
+            var extractionResult = _fileExtractionService.ExtractFiles(installerPath,
+                [reShade.OriginalFileName], extractedCacheDir);
 
             if (!extractionResult.IsSuccess)
             {
-                await _logService.LogErrorAsync(extractionResult.ErrorMessage ?? "Failed to extract files from installer", extractionResult.Exception);
-
                 var userMessage = extractionResult.ErrorType switch
                 {
-                    ErrorType.ToolNotFound => OperatingSystem.IsLinux() 
-                    ? "bsdtar not found. Please install libarchive-tools and try again."
-                    : "tar not found. Ensure it is available on your system.",
-                    ErrorType.PermissionDenied => "Permission denied extracting the ReShade installer files to cache. " +
-                                                    "Please ensure your have read/write access to the appropriate directories and try again.",
+                    ErrorType.ToolNotFound => OperatingSystem.IsLinux()
+                        ? "bsdtar not found. Please install libarchive-tools and try again."
+                        : "tar not found. Ensure it is available on your system.",
+                    ErrorType.PermissionDenied =>
+                        "Permission denied extracting the ReShade installer files to cache. " +
+                        "Please ensure your have read/write access to the appropriate directories and try again.",
                     ErrorType.FileSystemError => "Something went wrong writing cache directories or files to cache. " +
-                                                   "Please ensure the destination is not in use and the disk is not full and try again.",
+                                                 "Please ensure the destination is not in use and the disk is not full and try again.",
                     ErrorType.ProcessStartFailed => "Extraction process failed to start. " +
-                                                      "The binary may be corrupt or missing execute permissions. Check logs for more details.",
+                                                    "The binary may be corrupt or missing execute permissions. Check logs for more details.",
                     ErrorType.ExtractionFailed => "File extraction failed. " +
-                                                    "Please ensure the files are not in use and there's enough disk space available and try again.",
+                                                  "Please ensure the files are not in use and there's enough disk space available and try again.",
                     _ => "An unexpected error occured during file extraction. Check logs for more details."
                 };
-                
+
+                _logger.ModExtractionFailure("ReShade", extractedCacheDir, extractionResult.ErrorMessage,
+                    extractionResult.Exception);
+
                 return new ModOperationResultDto(false, request.Game, userMessage);
             }
         }
@@ -102,20 +110,28 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         if (request.Game.ReShade is { } existingReShade)
         {
             var deleteResult =
-                _fileService.TryDeleteFile(Path.Combine(request.Game.ExecutablePath!, existingReShade.SelectedFilename));
+                _fileService.TryDeleteFile(Path.Combine(request.Game.ExecutablePath!,
+                    existingReShade.SelectedFilename));
 
             if (!deleteResult.IsSuccess)
             {
-                await _logService.LogErrorAsync(deleteResult.ErrorMessage ?? "Failed to delete existing ReShade file.", deleteResult.Exception);
-
                 var userMessage = deleteResult.ErrorType switch
                 {
-                    ErrorType.PermissionDenied => "Permission denied deleting existing ReShade file. Please ensure you have write access to the game directory and try again.",
-                    ErrorType.FileSystemError => "Something went wrong uninstalling an existing ReShade file. Please ensure the file is not in use and the disk is not full and try again.",
-                    ErrorType.FileNotFound => "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
-                    _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details." 
+                    ErrorType.PermissionDenied =>
+                        "Permission denied deleting existing ReShade file. " +
+                        "Please ensure you have write access to the game directory and try again.",
+                    ErrorType.FileSystemError =>
+                        "Something went wrong uninstalling an existing ReShade file. " +
+                        "Please ensure the file is not in use and the disk is not full and try again.",
+                    ErrorType.FileNotFound =>
+                        "File not found at expected location. It might have been moved or deleted. " +
+                        "Please perform a full rescan.",
+                    _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details."
                 };
-                
+
+                _logger.ExistingModFileDeletionFailure("ReShade", request.Game.Name ?? "Unknown",
+                    deleteResult.ErrorMessage, deleteResult.Exception);
+
                 return new ModOperationResultDto(false, request.Game, userMessage);
             }
         }
@@ -124,21 +140,25 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
 
         if (!result.IsSuccess)
         {
-            await _logService.LogErrorAsync(result.ErrorMessage ?? "Failed to install ReShade.", result.Exception);
-
             var userMessage = result.ErrorType switch
             {
-                ErrorType.PermissionDenied => "Permission denied installing ReShade to the game directory. " +
-                                                "Please ensure your have read/write access to the appropriate directories and try again.",
-                ErrorType.FileSystemError => "Something went wrong writing ReShade files to the game folder. " +
-                                               "Please ensure the destination is not in use and the disk is not full and try again.",
+                ErrorType.PermissionDenied =>
+                    "Permission denied installing ReShade to the game directory. " +
+                    "Please ensure your have read/write access to the appropriate directories and try again.",
+                ErrorType.FileSystemError =>
+                    "Something went wrong writing ReShade files to the game folder. " +
+                    "Please ensure the destination is not in use and the disk is not full and try again.",
                 _ => "Failed to install ReShade. Check logs for details."
             };
             
+            _logger.ModInstallationFailure("ReShade", request.Game.Name ?? "Unknown", result.ErrorMessage,
+                result.Exception);
+
             return new ModOperationResultDto(false, request.Game, userMessage);
         }
 
-        return new ModOperationResultDto(true, result.Value!, $"Successfully installed ReShade as {reShade.SelectedFilename}!");
+        return new ModOperationResultDto(true, result.Value!,
+            $"Successfully installed ReShade as {reShade.SelectedFilename}!");
     }
 
     private async Task<Result> EnsureDownloadedAsync(ReShade reShade, IProgress<DownloadProgressReportDto>? progress)

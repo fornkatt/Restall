@@ -37,4 +37,10 @@
     <ItemGroup>
       <Folder Include="Assets\Fonts\" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="ViewModels\GameListViewModel.Logging.cs">
+        <DependentUpon>GameListViewModel.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

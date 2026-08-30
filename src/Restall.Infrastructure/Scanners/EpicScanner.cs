@@ -6,13 +6,14 @@ using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
 
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+
+// TODO(logging-refactor): just swap the logging implementations
 internal sealed class EpicScanner : IPlatformScannerService
 {
-    private readonly ILogService _logService;
-
-    public EpicScanner(ILogService logService)
+    public EpicScanner(
+    )
     {
-        _logService = logService;
     }
 
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEpic);
@@ -72,7 +73,7 @@ internal sealed class EpicScanner : IPlatformScannerService
 
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(rootPath))
                     continue;
-                
+
                 if (!Directory.Exists(rootPath))
                     continue;
 

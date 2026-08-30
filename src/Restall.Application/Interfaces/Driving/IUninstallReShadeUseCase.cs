@@ -5,5 +5,5 @@ namespace Restall.Application.Interfaces.Driving;
 
 public interface IUninstallReShadeUseCase
 {
-    Task<ModOperationResultDto> ExecuteAsync(Game game);
+    ModOperationResultDto Execute(Game game);
 }

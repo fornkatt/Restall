@@ -6,30 +6,35 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+
+// TODO(logging-refactor): just swap the logging implementations
 internal sealed class GameCoverService : IGameCoverService
 {
-    private readonly ILogService _logService;
     private readonly HttpClient _httpClient;
     private readonly IImageResizeService _imageResizeService;
-    
+
     private const string PcgwCargoByPageNameUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageName%3D%22{0}%22&format=json";
+
     private const string PcgwSearchUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=query&list=search&srsearch={0}&srnamespace=0&srlimit=3&format=json";
+
     private const string PcgwCargoByPageIdUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageID%3D{0}&format=json";
+
     private const string GogApiV2ProductUrl = "https://api.gog.com/v2/games/{0}";
 
 
-    public GameCoverService(ILogService logService,
+    public GameCoverService(
         HttpClient httpClient,
-        IImageResizeService imageResizeService)
+        IImageResizeService imageResizeService
+    )
     {
-        _logService = logService;
         _httpClient = httpClient;
         _imageResizeService = imageResizeService;
     }
-
+    
     public async Task DownloadCoverIfMissingAsync(Game game, string coverPath)
     {
         if (File.Exists(coverPath)) return;
@@ -77,7 +82,6 @@ internal sealed class GameCoverService : IGameCoverService
 
             //Fallback for other platforms
             _ => await ResolvePcgwBySearchAsync(game.Name ?? string.Empty)
-            
         };
 
     // Steam ---------------------------------------------------------------------------------
@@ -142,7 +146,7 @@ internal sealed class GameCoverService : IGameCoverService
 
         return null;
     }
-    
+
     // GOG ---------------------------------------------------------------------------------
     private async Task<string?> TryGetGogLocalCover(Game game)
     {
@@ -288,14 +292,14 @@ internal sealed class GameCoverService : IGameCoverService
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "heroic")
             : null;
     }
-    
+
     // PCGamingWiki (fallback) -------------------------------------------------------------
     private async Task<string?> ResolvePcgwBySearchAsync(string gameName)
     {
-        var exactUrl = 
+        var exactUrl =
             await TryPcgwCargoAsync(string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName)));
         if (exactUrl is not null) return exactUrl;
-        
+
         try
         {
             var searchApiUrl = string.Format(PcgwSearchUrl, Uri.EscapeDataString(gameName));
@@ -305,7 +309,7 @@ internal sealed class GameCoverService : IGameCoverService
             var json = await response.Content.ReadAsStringAsync();
             var pageId = ParseTopSearchPageId(json);
             if (pageId is null) return null;
-            
+
             return await TryPcgwCargoAsync(string.Format(PcgwCargoByPageIdUrl, pageId));
         }
         catch (Exception ex)
@@ -322,7 +326,8 @@ internal sealed class GameCoverService : IGameCoverService
             .GetProperty("query")
             .GetProperty("search");
 
-        return searchResults.GetArrayLength() == 0 ? null 
+        return searchResults.GetArrayLength() == 0
+            ? null
             : searchResults[0].GetProperty("pageid").GetInt32().ToString();
     }
 
@@ -356,7 +361,7 @@ internal sealed class GameCoverService : IGameCoverService
         var coverUrl = coverUrlProp.GetString();
         return string.IsNullOrWhiteSpace(coverUrl) ? null : coverUrl;
     }
-    
+
     private async Task TryDownloadCoverAsync(string? gameName, string coverPath, string url)
     {
         try
@@ -387,7 +392,6 @@ internal sealed class GameCoverService : IGameCoverService
 
             await File.WriteAllBytesAsync(coverPath, bytes);
             await _logService.LogInfoAsync($"Downloaded cover for [{gameName}]");
-
         }
         catch (HttpRequestException) when (!OperatingSystem.IsWindows())
         {
@@ -400,7 +404,6 @@ internal sealed class GameCoverService : IGameCoverService
 
             await File.WriteAllBytesAsync(coverPath, bytes);
             await _logService.LogInfoAsync($"Downloaded cover for [{gameName}]");
-
         }
         catch (HttpRequestException ex) when ((int?)ex.StatusCode == 404)
         {
@@ -411,17 +414,14 @@ internal sealed class GameCoverService : IGameCoverService
         {
             await _logService.LogWarningAsync
                 ($"403 Forbidden [{gameName}] — [{url}]");
-            
         }
         catch (Exception ex)
         {
             await _logService.LogErrorAsync
                 ($"Failed to download cover for [{gameName}]", ex);
-            
         }
-        
     }
-    
+
     // Curl Download -------------------------------------------------------------------------------
     private async Task<byte[]> DownloadViaCurlAsync(string url)
     {

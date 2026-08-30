@@ -1,18 +1,24 @@
+using Microsoft.Extensions.Logging;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
-internal sealed class GameIconService : IGameIconService
-{
-    private readonly ILogService _logService;
-    private readonly IIconConverterService _iconConverterService;
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 
-    public GameIconService(ILogService logService,
-        IIconConverterService iconConverterService)
+// TODO(logging-refactor): just swap the logging implementations
+internal sealed partial class GameIconService : IGameIconService
+{
+    private readonly IIconConverterService _iconConverterService;
+    private readonly ILogger<GameIconService> _logger;
+
+    public GameIconService(
+        ILogger<GameIconService> logger,
+        IIconConverterService iconConverterService
+    )
     {
-        _logService = logService;
+        _logger = logger;
         _iconConverterService = iconConverterService;
     }
 
@@ -27,16 +33,16 @@ internal sealed class GameIconService : IGameIconService
         {
             var iconBytes = await Task.Run(() => PeIconHelper.ExtractLargestIconAsPng(exePath));
             if (iconBytes is null) return;
-            
-            if(!PeIconHelper.IsPng(iconBytes)) 
-                iconBytes = _iconConverterService.IcoToPng(iconBytes,256);
+
+            if (!PeIconHelper.IsPng(iconBytes))
+                iconBytes = _iconConverterService.IcoToPng(iconBytes, 256);
 
             await File.WriteAllBytesAsync(iconPath, iconBytes);
-            await _logService.LogInfoAsync($"Extracted icon for [{gameName}] to [{iconPath}]");
+            IconExtractionSuccess(gameName ?? "Unknown", iconPath);
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"Failed to extract icon for [{gameName}]", ex);
+            IconExtractionFailure(gameName ?? "Unknown", ex);
         }
     }
 

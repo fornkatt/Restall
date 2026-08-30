@@ -5,39 +5,40 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Scanners;
 
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+
+// TODO(logging-refactor): just swap the logging implementations
 internal sealed class UbisoftScanner : IPlatformScannerService
 {
-    private readonly ILogService _logService;
-    
-    public UbisoftScanner(ILogService logService)
+    public UbisoftScanner(
+    )
     {
-        _logService = logService;
     }
-    
-    
+
+
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanUbisoft);
     public Game.Platform Platform => Game.Platform.Ubisoft;
-    
+
     private GameScanResultDto ScanUbisoft()
     {
         var games = new List<Game>();
         var errors = new List<string>();
-        
+
         if (OperatingSystem.IsWindows())
         {
             var (library, error) = ScanUbisoftLibrary();
-            
+
             games.AddRange(library);
-            if(error is not null) errors.Add(error);
+            if (error is not null) errors.Add(error);
         }
+
         return new GameScanResultDto(
-            Platform:     Game.Platform.Ubisoft,
-            Games:        games,
-            IsSuccess:      games.Count > 0,
+            Platform: Game.Platform.Ubisoft,
+            Games: games,
+            IsSuccess: games.Count > 0,
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
-        
     }
-    
+
     private (List<Game> games, string? error) ScanUbisoftLibrary()
     {
         var games = new List<Game>();
@@ -58,9 +59,10 @@ internal sealed class UbisoftScanner : IPlatformScannerService
                 if (string.IsNullOrEmpty(installDir)) continue;
                 if (!Directory.Exists(installDir)) continue;
 
-                var name = GameScanHelper.GetRegistryValue(gameKey, "Name", "DisplayName") ?? Path.GetFileName(installDir);
+                var name = GameScanHelper.GetRegistryValue(gameKey, "Name", "DisplayName") ??
+                           Path.GetFileName(installDir);
                 if (string.IsNullOrEmpty(name)) continue;
-                
+
                 games.Add(new Game
                 {
                     Name = name,
@@ -69,16 +71,13 @@ internal sealed class UbisoftScanner : IPlatformScannerService
                     PlatformId = subName
                 });
             }
-
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logService.LogError("Failed to process Ubisoft library", ex);
             return (games, $"Failed to process Ubisoft library.");
         }
-        
-        return (games, null);
 
+        return (games, null);
     }
-    
 }

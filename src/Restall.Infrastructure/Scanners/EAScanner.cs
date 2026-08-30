@@ -5,15 +5,16 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Scanners;
 
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+
+// TODO(logging-refactor): just swap the logging implementations
 internal sealed class EAScanner : IPlatformScannerService
 {
-    private readonly ILogService _logService;
-    
-    public EAScanner(ILogService logService)
+    public EAScanner(
+    )
     {
-        _logService = logService;
     }
-    
+
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEA);
     public Game.Platform Platform => Game.Platform.EA;
 
@@ -23,17 +24,16 @@ internal sealed class EAScanner : IPlatformScannerService
         var errors = new List<string>();
         if (OperatingSystem.IsWindows())
         {
-            var (library, error) = ScanEALibrary();   
+            var (library, error) = ScanEALibrary();
             games.AddRange(library);
-            if(error is not null)  errors.Add(error);
+            if (error is not null) errors.Add(error);
         }
-        
+
         return new GameScanResultDto(
-            Platform:     Game.Platform.EA,
-            Games:        games,
-            IsSuccess:      games.Count > 0,
+            Platform: Game.Platform.EA,
+            Games: games,
+            IsSuccess: games.Count > 0,
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
-        
     }
 
     //TODO: ADD PUBLISH KEYS HELPER/MANIFEST TO INCLUDE MANY DIFFERENT REGEDITS
@@ -44,7 +44,7 @@ internal sealed class EAScanner : IPlatformScannerService
         {
             using var key = GameScanHelper.GetOpenRegistryKey(@"\EA Games");
 
-            if (key is null) return (games,null);
+            if (key is null) return (games, null);
 #pragma warning disable CA1416 // Already checked before method is called
             foreach (var subName in key.GetSubKeyNames())
             {
@@ -53,14 +53,14 @@ internal sealed class EAScanner : IPlatformScannerService
 
                 var installDir = GameScanHelper.NormalizePath(
                     GameScanHelper.GetRegistryValue(gameKey, "Install Dir", "InstallLocation", "InstallDir"));
-                
+
                 if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir)) continue;
 
-                var displayName = GameScanHelper.GetRegistryValue(gameKey, "DisplayName") 
+                var displayName = GameScanHelper.GetRegistryValue(gameKey, "DisplayName")
                                   ?? subName;
 
                 if (string.IsNullOrEmpty(displayName)) continue;
-                
+
                 games.Add(new Game
                 {
                     Name = displayName,
@@ -69,7 +69,6 @@ internal sealed class EAScanner : IPlatformScannerService
                     PlatformId = subName
                 });
             }
-
         }
         catch (Exception ex)
         {
@@ -79,5 +78,4 @@ internal sealed class EAScanner : IPlatformScannerService
 
         return (games, null);
     }
-
 }

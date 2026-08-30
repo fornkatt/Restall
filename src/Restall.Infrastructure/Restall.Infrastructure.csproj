@@ -15,9 +15,31 @@
         <PackageReference Include="HtmlAgilityPack" Version="1.12.4"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
         <PackageReference Include="PeNet" Version="6.0.0"/>
         <PackageReference Include="craftersmine.SteamGridDB.Net" Version="1.1.7"/>
+        <PackageReference Include="Serilog" Version="4.4.0" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
         <PackageReference Include="System.Net.Http.WinHttpHandler" Version="10.0.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Services\GameIconService.Logging.cs">
+        <DependentUpon>GameIconService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\Log.GameIconService.cs">
+        <DependentUpon>GameIconService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\ModDetectionService.Logging.cs">
+        <DependentUpon>ModDetectionService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\ParseService.Logging.cs">
+        <DependentUpon>ParseService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\ModDownloadService.Logging.cs">
+        <DependentUpon>ModDownloadService.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

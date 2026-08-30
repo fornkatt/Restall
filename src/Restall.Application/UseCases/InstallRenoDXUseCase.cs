@@ -1,37 +1,40 @@
-﻿using Restall.Application.Common;
+﻿using Microsoft.Extensions.Logging;
+using Restall.Application.Common;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
+using Restall.Application.Logging;
 using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
-public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
+// TODO: might be able to lean more into Result overall in this file
+public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
 {
+    private readonly ILogger<InstallRenoDXUseCase> _logger;
     private readonly IModDownloadService _modDownloadService;
     private readonly IModInstallService _modInstallService;
     private readonly IModDetectionService _modDetectionService;
     private readonly IFileService _fileService;
     private readonly IPathService _pathService;
-    private readonly ILogService _logService;
 
     public InstallRenoDXUseCase(
+        ILogger<InstallRenoDXUseCase> logger,
         IModDownloadService modDownloadService,
         IModInstallService modInstallService,
         IModDetectionService modDetectionService,
         IFileService fileService,
-        IPathService pathService,
-        ILogService logService
+        IPathService pathService
     )
     {
+        _logger = logger;
         _modDownloadService = modDownloadService;
         _modInstallService = modInstallService;
         _modDetectionService = modDetectionService;
         _fileService = fileService;
         _pathService = pathService;
-        _logService = logService;
     }
 
     public async Task<ModOperationResultDto> ExecuteAsync(InstallRenoDXRequest request,
@@ -40,6 +43,10 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
         var addonFilename = ResolveAddonFilename(request);
 
         if (addonFilename is null)
+        {
+            LogRenoDXAddonFilenameResolutionFailure(request.Game.Name ?? "Unknown", request.Game.EngineName.ToString(),
+                request.Arch.ToString());
+
             return new ModOperationResultDto(
                 false,
                 request.Game,
@@ -50,6 +57,7 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 This game has no wiki entry or is Discord/Nexus only and no existing RenoDX installation was detected.
                 """
             );
+        }
 
         var isUnityGeneric = request.GenericModInfo?.Engine == SupportedEngine.Unity ||
                              (request.GenericModInfo is null &&
@@ -70,9 +78,6 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         if (!downloadResult.IsSuccess)
         {
-            await _logService.LogErrorAsync(
-                downloadResult.ErrorMessage ?? $"Failed to download RenoDX: {addonFilename}", downloadResult.Exception);
-
             var userMessage = downloadResult.ErrorType switch
             {
                 ErrorType.PermissionDenied =>
@@ -86,6 +91,9 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 _ => $"Failed to download {addonFilename}. Check log for details."
             };
 
+            _logger.ModDownloadFailure("RenoDX", _pathService.GetRenoDXDownloadCacheDirectory(renoDX.BranchName),
+                downloadResult.ErrorMessage, downloadResult.Exception);
+
             return new ModOperationResultDto(false, request.Game, userMessage);
         }
 
@@ -94,40 +102,42 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
         var renoDxVersion = _modDetectionService.GetRenoDXFileVersion(filePath);
 
         if (!renoDxVersion.IsSuccess)
-            await _logService.LogErrorAsync(
-                renoDxVersion.ErrorMessage ?? $"Could not read version from {addonFilename}", renoDxVersion.Exception);
+            LogRenoDXVersionReadFailure(addonFilename, request.Game.Name ?? "Unknown", renoDxVersion.ErrorMessage,
+                renoDxVersion.Exception);
 
         renoDX.Version = renoDxVersion.Value;
 
         if (request.Game.RenoDX is { } existingRenoDX)
         {
             var deleteResult =
-                _fileService.TryDeleteFile(Path.Combine(request.Game.ExecutablePath!, existingRenoDX.SelectedName ?? addonFilename));
+                _fileService.TryDeleteFile(Path.Combine(request.Game.ExecutablePath!,
+                    existingRenoDX.SelectedName ?? addonFilename));
 
             if (!deleteResult.IsSuccess)
             {
-                await _logService.LogErrorAsync(deleteResult.ErrorMessage ?? "Failed to delete existing RenoDX file.", deleteResult.Exception);
-                
                 var userMessage = deleteResult.ErrorType switch
                 {
-                    ErrorType.PermissionDenied => "Permission denied deleting existing RenoDX file. Please ensure you have write access to the game directory and try again.",
-                    ErrorType.FileSystemError => "Something went wrong uninstalling an existing RenoDX file. Please ensure the file is not in use and the disk is not full and try again.",
-                    ErrorType.FileNotFound => "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
-                    _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details." 
+                    ErrorType.PermissionDenied =>
+                        "Permission denied deleting existing RenoDX file. Please ensure you have write access to the game directory and try again.",
+                    ErrorType.FileSystemError =>
+                        "Something went wrong uninstalling an existing RenoDX file. Please ensure the file is not in use and the disk is not full and try again.",
+                    ErrorType.FileNotFound =>
+                        "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
+                    _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details."
                 };
-                
+
+                _logger.ExistingModFileDeletionFailure("RenoDX", request.Game.Name ?? "Unknown",
+                    deleteResult.ErrorMessage, deleteResult.Exception);
+
                 return new ModOperationResultDto(false, request.Game, userMessage);
             }
         }
 
-        var result = await _modInstallService.InstallModAsync(request.Game, renoDX, filePath);
+        var installResult = await _modInstallService.InstallModAsync(request.Game, renoDX, filePath);
 
-        if (!result.IsSuccess)
+        if (!installResult.IsSuccess)
         {
-            await _logService.LogErrorAsync(result.ErrorMessage ?? $"Failed to install {addonFilename}",
-                result.Exception);
-
-            var userMessage = result.ErrorType switch
+            var userMessage = installResult.ErrorType switch
             {
                 ErrorType.PermissionDenied =>
                     $"Permission denied writing {addonFilename} to the game folder. Check your app permissions and try again.",
@@ -135,6 +145,9 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
                     $"Failed to write {addonFilename} to disk. The disk may be full or the file may be locked.",
                 _ => $"Failed to install {addonFilename}. Check log for details."
             };
+
+            _logger.ModInstallationFailure("RenoDX", request.Game.Name ?? "Unknown", installResult.ErrorMessage,
+                installResult.Exception);
 
             return new ModOperationResultDto(false, request.Game, userMessage);
         }
@@ -165,9 +178,9 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         var deleted = _fileService.TryDeleteFile(cachedFilePath);
 
+        // TODO: develop proper failure path? A stale file might give the user a version different from what was requested
         if (!deleted.IsSuccess)
-            await _logService.LogErrorAsync(deleted.ErrorMessage ?? $"Failed to delete file {cachedFilePath}",
-                deleted.Exception);
+            LogRenoDXStaleCacheDeletionFailure(cachedFilePath, deleted.ErrorMessage, deleted.Exception);
     }
 
     private static bool IsCacheOutdated(string? cachedVersion, string? targetVersion)

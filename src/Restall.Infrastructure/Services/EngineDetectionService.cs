@@ -4,16 +4,18 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+
+// TODO(logging-refactor): just swap the logging implementations
 internal sealed class EngineDetectionService : IEngineDetectionService
 {
-    private readonly ILogService _logService;
-
-    public EngineDetectionService(ILogService logService)
+    public EngineDetectionService(
+    )
     {
-        _logService = logService;
     }
-
-    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath, Game.Platform platform)
+    
+    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath,
+        Game.Platform platform)
     {
         var uePath = FindUEBinariesFolder(rootPath);
         var unityPlayer = FindFileShallow(rootPath, "UnityPlayer.dll", maxDepth: 2);
@@ -22,13 +24,13 @@ internal sealed class EngineDetectionService : IEngineDetectionService
             uePath != null ? Game.Engine.Unreal :
             unityPlayer != null ? Game.Engine.Unity :
             Game.Engine.Unknown;
-        
-        if(platform == Game.Platform.Xbox)
+
+        if (platform == Game.Platform.Xbox)
             return (rootPath, engine);
 
         if (uePath != null) return (uePath, Game.Engine.Unreal);
         if (unityPlayer != null) return (Path.GetDirectoryName(unityPlayer), Game.Engine.Unity);
-        
+
         return (FindShallowExeFolder(rootPath), Game.Engine.Unknown);
     }
 
@@ -108,7 +110,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
 
         return null;
     }
-    
+
     //TODO: INCLUDE NONGAMEEXECUTABLE IN FINDSHALLOWEXEFOLDER
     private string? FindShallowExeFolder(string root)
     {
