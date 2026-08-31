@@ -99,6 +99,7 @@ internal static class GameScanHelper
             "install",
             "unins",
             "redist",
+            "DedicatedServer"
 
         };
 
@@ -117,7 +118,8 @@ internal static class GameScanHelper
             "DotNET",
             "__Installer",
             "_CommonRedist",
-            "UE_"
+            "UE_",
+            "Lossless Scaling"
             
         };
         if (nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase)))
