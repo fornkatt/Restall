@@ -73,9 +73,9 @@ public static partial class GameNameHelper
         if (collection is null)
             return name;
 
-        foreach (var part in collection.PartSuffixes)
+        foreach (var part in collection.Parts)
         {
-            var pattern = $@"\s*[-–]\s*{Regex.Escape(part)}$";
+            var pattern = $@"\s*[-–]\s*{Regex.Escape(part.DisplaySuffix)}$";
 
             if (Regex.IsMatch(name, pattern, RegexOptions.IgnoreCase))
                 return Regex.Replace(name, pattern, string.Empty, RegexOptions.IgnoreCase).TrimEnd();

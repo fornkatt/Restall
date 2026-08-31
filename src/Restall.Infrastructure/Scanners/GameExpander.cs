@@ -12,9 +12,9 @@ internal static class GameExpander
         if (collection is null)
             return [game];
 
-        return collection.PartSuffixes.Select(part => new Game
+        return collection.Parts.Select(part => new Game
         {
-            Name = $"{game.Name} - {part}",
+            Name = $"{game.Name} - {part.DisplaySuffix}",
             InstallFolder = game.InstallFolder,
             ExecutablePath = collection.BuildExecutablePath(game, part),
             ThumbnailPathString = game.ThumbnailPathString,
