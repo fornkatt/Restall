@@ -105,14 +105,14 @@ public static partial class GameNameHelper
         var shared = aWords.Count(bSet.Contains);
         var maxWords = Math.Max(aWords.Length, bWords.Length);
 
-        if (maxWords > 0 && (double)shared / maxWords >= 0.5)
+        if (maxWords > 0 && (double)shared / maxWords > 0.5)
             return true;
 
         var (shorterDistinct, longerSet) = aWords.Length <= bWords.Length
             ? (aWords.Distinct().ToArray(), new HashSet<string>(bWords))
             : (bWords.Distinct().ToArray(), new HashSet<string>(aWords));
 
-        return shorterDistinct.Length >= 2 && shorterDistinct.All(w => longerSet.Contains(w));
+        return shorterDistinct.Length > 2 && shorterDistinct.All(w => longerSet.Contains(w));
     }
 
     public static bool IsLikelySameGame(string? a, string? b)
