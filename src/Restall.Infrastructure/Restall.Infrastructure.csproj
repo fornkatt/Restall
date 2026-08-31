@@ -40,6 +40,9 @@
       <Compile Update="Services\ModDownloadService.Logging.cs">
         <DependentUpon>ModDownloadService.cs</DependentUpon>
       </Compile>
+      <Compile Update="Services\GameCoverService.Logging.cs">
+        <DependentUpon>GameCoverService.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

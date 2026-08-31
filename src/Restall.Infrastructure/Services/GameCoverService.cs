@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -9,10 +10,11 @@ namespace Restall.Infrastructure.Services;
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 
 // TODO(logging-refactor): just swap the logging implementations
-internal sealed class GameCoverService : IGameCoverService
+internal sealed partial class GameCoverService : IGameCoverService
 {
     private readonly HttpClient _httpClient;
     private readonly IImageResizeService _imageResizeService;
+    private readonly ILogger<GameCoverService> _logger;
 
     private const string PcgwCargoByPageNameUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageName%3D%22{0}%22&format=json";
@@ -28,11 +30,13 @@ internal sealed class GameCoverService : IGameCoverService
 
     public GameCoverService(
         HttpClient httpClient,
-        IImageResizeService imageResizeService
+        IImageResizeService imageResizeService,
+        ILogger<GameCoverService> logger
     )
     {
         _httpClient = httpClient;
         _imageResizeService = imageResizeService;
+        _logger = logger;
     }
     
     public async Task DownloadCoverIfMissingAsync(Game game, string coverPath)
@@ -44,7 +48,7 @@ internal sealed class GameCoverService : IGameCoverService
             await CopyCoverAsync(game.Name, coverPath, source);
 
         if (!File.Exists(coverPath))
-            await _logService.LogWarningAsync($"Couldn't find cover for [{game.Name}]");
+            LogGameCoverRetrievalMissing(game.Name ?? string.Empty, coverPath);
     }
 
     private async Task CopyCoverAsync(string? gameName, string coverPath, string source)
@@ -53,18 +57,18 @@ internal sealed class GameCoverService : IGameCoverService
         {
             if (source.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
-                await _logService.LogInfoAsync($"Cover [{gameName}] → downloading from [{source}]");
                 await TryDownloadCoverAsync(gameName, coverPath, source);
+                LogGameCoverDownload(gameName ?? "Unknown", source);
             }
             else if (File.Exists(source))
             {
-                await _logService.LogInfoAsync($"Cover [{gameName}] → copying from local [{source}]");
                 File.Copy(source, coverPath, overwrite: true);
+                LogGameCoverCopy(gameName ?? "Unknown", source);
             }
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"Failed to copy cover for [{gameName}]", ex);
+            LogGameCoverCopyFailed(gameName ?? "Unknown", ex);
         }
     }
 
@@ -91,13 +95,13 @@ internal sealed class GameCoverService : IGameCoverService
 
         var appId = game.PlatformId;
         var steamRoot = FindSteamRoot();
+        
         if (steamRoot is null)
         {
-            await _logService.LogWarningAsync(
-                $"Couldn't find steam root for [{game.Name}] Redirecting to PC Gaming Wiki");
+            LogSteamCoverCopyFailed(game.Name ?? "Unknown Game");
             return null;
         }
-
+        
         var libCacheDir = Path.Combine(steamRoot, "appcache", "librarycache");
         var directPath = Path.Combine(libCacheDir, appId, "library_600x900.jpg");
         if (File.Exists(directPath)) return directPath;
@@ -178,12 +182,12 @@ internal sealed class GameCoverService : IGameCoverService
                 //Getting the middle one as it represent the cover instead of the icon or banner
                 var found = files[files.Length / 2];
 
-                await _logService.LogInfoAsync($"Found {game.Name} in guid: {guidDir} Product ID: {productId}");
+                LogLocalGOGGameFound(game.Name ?? "Unknown Game", guidDir, productId);
                 return found;
             }
             catch (Exception ex)
             {
-                await _logService.LogErrorAsync($"Failed to get cover for [{game.Name}]", ex);
+                LogLocalGameGameCoverScanFailed(game.Name ?? "Unknown Game", guidDir, productId, ex);
             }
         }
 
@@ -213,9 +217,10 @@ internal sealed class GameCoverService : IGameCoverService
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"GOG API cover lookup failed [{game.Name}]", ex);
-            return null;
+            LogGOGApiCoverLookupFailed(game.Name ?? "Unknown", ex);
         }
+        
+        return null;
     }
 
     // Heroic (GOG + Epic) -----------------------------------------------------------------
@@ -228,7 +233,11 @@ internal sealed class GameCoverService : IGameCoverService
         var cacheFile = Path.Combine(heroicPath, "store_cache",
             isGog ? "gog_library.json" : "legendary_library.json");
 
-        if (!File.Exists(cacheFile)) return null;
+        if (!File.Exists(cacheFile))
+        {
+            LogHeroicCacheFileNotFound(game.Name ?? "Unknown Game", cacheFile);
+            return null;
+        }
 
         var gameId = game.PlatformId ?? string.Empty;
         var normalizedName = GameNameHelper.NormalizeName(game.Name ?? string.Empty);
@@ -265,7 +274,11 @@ internal sealed class GameCoverService : IGameCoverService
                 }
             }
 
-            if (bestMatch is null) return null;
+            if (bestMatch is null)
+            {
+                LogHeroicGameNotFound(game.Name ?? "Unknown Game", gameId, cacheFile);
+                return null;
+            }
 
             if (bestMatch.Value.TryGetProperty("art_square", out var artSquare) &&
                 !string.IsNullOrWhiteSpace(artSquare.GetString()))
@@ -277,7 +290,7 @@ internal sealed class GameCoverService : IGameCoverService
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"Heroic cover lookup failed [{game.Name}]", ex);
+            LogHeroicCacheFileLookupFailed(game.Name ?? "Unknown Game", cacheFile, ex);
         }
 
         return null;
@@ -298,7 +311,11 @@ internal sealed class GameCoverService : IGameCoverService
     {
         var exactUrl =
             await TryPcgwCargoAsync(string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName)));
-        if (exactUrl is not null) return exactUrl;
+        if (exactUrl is  null)
+        {
+            LogPcGamingWikiExactUrlLookupFailed(gameName, exactUrl ?? "Unknown");
+            return exactUrl;
+        }
 
         try
         {
@@ -308,15 +325,19 @@ internal sealed class GameCoverService : IGameCoverService
 
             var json = await response.Content.ReadAsStringAsync();
             var pageId = ParseTopSearchPageId(json);
-            if (pageId is null) return null;
+            if (pageId is null)
+            {
+                return null;
+            }
 
             return await TryPcgwCargoAsync(string.Format(PcgwCargoByPageIdUrl, pageId));
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"PCGamingWiki search failed [{gameName}]", ex);
-            return null;
+            LogPCGamingWikiSearchFailed(gameName, ex);
         }
+        
+        return null;
     }
 
     private static string? ParseTopSearchPageId(string json)
@@ -343,9 +364,10 @@ internal sealed class GameCoverService : IGameCoverService
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"PCGamingWiki Cargo API failed [{apiUrl}]", ex);
-            return null;
+            LogPCGamingWikiCargoApiFailed(apiUrl, ex);
         }
+        
+        return null;
     }
 
     private static string? ParseCargoCoverUrl(string json)
@@ -377,8 +399,7 @@ internal sealed class GameCoverService : IGameCoverService
                      ((int)response.StatusCode == 403 ||
                       (int)response.StatusCode == 503))
             {
-                await _logService.LogInfoAsync
-                    ($"HttpClient blocked by Cloudflare for [{gameName}] — retrying via curl");
+                LogHttpClientBlockedByCloudflare(gameName ?? "Unknown Game");
                 bytes = await DownloadViaCurlAsync(url);
             }
             else
@@ -391,19 +412,19 @@ internal sealed class GameCoverService : IGameCoverService
             bytes = await _imageResizeService.ReSizeImageToWidthAsync(bytes, 600);
 
             await File.WriteAllBytesAsync(coverPath, bytes);
-            await _logService.LogInfoAsync($"Downloaded cover for [{gameName}]");
+            //Own dedicated Log?
+            LogGameCoverDownload(gameName ?? "Unknown", url);
         }
         catch (HttpRequestException) when (!OperatingSystem.IsWindows())
         {
-            await _logService.LogInfoAsync
-                ($"HttpClient failed for [{gameName}] — retrying via curl");
+            LogHttpClientFailed(gameName ?? "Unknown Game");
             var bytes = await DownloadViaCurlAsync(url);
             if (bytes.Length == 0) return;
 
             bytes = await _imageResizeService.ReSizeImageToWidthAsync(bytes, 600);
 
             await File.WriteAllBytesAsync(coverPath, bytes);
-            await _logService.LogInfoAsync($"Downloaded cover for [{gameName}]");
+            LogGameCoverDownload(gameName ?? "Unknown", url);
         }
         catch (HttpRequestException ex) when ((int?)ex.StatusCode == 404)
         {
