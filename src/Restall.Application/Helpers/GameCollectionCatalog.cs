@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using Restall.Domain.Entities;
 
 namespace Restall.Application.Helpers;
 
@@ -17,8 +16,8 @@ public sealed record GameCollectionDefinition(
         !string.IsNullOrWhiteSpace(name) &&
         NameKeywords.All(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
 
-    public string BuildExecutablePath(Game game, GameCollectionPart part) =>
-        Path.Combine(game.InstallFolder!, ExecutablePathTemplate
+    public string BuildExecutablePath(string installFolder, GameCollectionPart part) =>
+        Path.Combine(installFolder, ExecutablePathTemplate
             .Replace("{part}", part.FolderSegment, StringComparison.Ordinal)
             .Replace('/', Path.DirectorySeparatorChar));
 }

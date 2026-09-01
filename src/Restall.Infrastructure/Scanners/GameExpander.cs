@@ -16,7 +16,7 @@ internal static class GameExpander
         {
             Name = $"{game.Name} - {part.DisplaySuffix}",
             InstallFolder = game.InstallFolder,
-            ExecutablePath = collection.BuildExecutablePath(game, part),
+            ExecutablePath = collection.BuildExecutablePath(game.InstallFolder!, part),
             ThumbnailPathString = game.ThumbnailPathString,
             PlatformName = game.PlatformName,
             PlatformId = game.PlatformId,
