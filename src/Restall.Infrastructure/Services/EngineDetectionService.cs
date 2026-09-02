@@ -133,7 +133,11 @@ internal sealed class EngineDetectionService : IEngineDetectionService
             if (depth > 4) continue;
             try
             {
-                if (Directory.GetFiles(dir, "*.exe").Length > 0) return dir;
+                if (Directory.GetFiles(dir, "*.exe")
+                    .Any(f => 
+                        !GameScanHelper.NonGameExecutable(Path.GetFileNameWithoutExtension(f))))
+                    return dir;
+                
                 foreach (var sub in Directory.GetDirectories(dir))
                 {
                     var folderName = Path.GetFileName(sub);

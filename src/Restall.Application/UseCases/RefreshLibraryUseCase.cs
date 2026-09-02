@@ -69,6 +69,9 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
 
         foreach (var game in sortedGames)
         {
+            if (string.IsNullOrWhiteSpace(game.Name))
+                continue;
+            
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
             var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
 
@@ -84,9 +87,11 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
                 ? _updateCheckService.CheckRenoDXUpdate(game.RenoDX)
                 : null;
 
-            var compatibleMod = FindCompatibleMod(game.Name, _modCatalog.GetRenoDXWikiMods());
+            var compatibleMod = FindCompatibleMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
+                _modCatalog.GetRenoDXWikiMods());
             var compatibleGenericMod = compatibleMod is null
-                ? FindGenericMod(game.Name, _modCatalog.GetRenoDXGenericWikiMods())
+                ? FindGenericMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
+                    _modCatalog.GetRenoDXGenericWikiMods())
                 : null;
 
             var gameName = game.Name ?? "Unknown";
@@ -116,26 +121,36 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
 
     private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, ImmutableArray<RenoDXModInfoDto> mods)
     {
-        if (string.IsNullOrWhiteSpace(gameName)) return null;
+        if (string.IsNullOrWhiteSpace(gameName))
+            return null;
 
-        var key = GameNameHelper.NormalizeName(gameName);
+        var candidates = mods.Where(m =>
+            GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
 
-        // TODO: remove deprecated 💀 comparison. Now has a "Deprecated" table on the wiki
-        return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
-               ?? mods.FirstOrDefault(m =>
-                   m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+
+        var normalizedGameName = GameNameHelper.NormalizeName(gameName);
+
+        return candidates.FirstOrDefault(m =>
+                   GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
+               candidates.FirstOrDefault();
+
     }
 
     private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName,
         ImmutableArray<RenoDXGenericModInfoDto> mods)
     {
-        if (string.IsNullOrWhiteSpace(gameName)) return null;
+        if (string.IsNullOrWhiteSpace(gameName))
+            return null;
 
-        var key = GameNameHelper.NormalizeName(gameName);
+        var candidates = mods.Where(m =>
+            GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
 
-        // TODO: remove deprecated 💀 comparison. Now has a "Deprecated" table on the wiki
-        return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
-               ?? mods.FirstOrDefault(m =>
-                   m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+
+        var normalizedGameName = GameNameHelper.NormalizeName(gameName);
+
+        return candidates.FirstOrDefault(m =>
+                   GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
+               candidates.FirstOrDefault();
+
     }
 }
