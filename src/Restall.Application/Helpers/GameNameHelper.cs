@@ -25,9 +25,6 @@ public static partial class GameNameHelper
     [GeneratedRegex(@"^.*[-–]\s+(?<subtitle>\S.+)$")]
     private static partial Regex SubtitleSeparatorRegex();
 
-    [GeneratedRegex(@"[\u2018\u2019\u02BC\u0060\u00B4]")]
-    private static partial Regex ApostropheVariantRegex();
-
     [GeneratedRegex(
         @"^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$",
         RegexOptions.IgnoreCase)]
@@ -36,15 +33,14 @@ public static partial class GameNameHelper
     [GeneratedRegex(@"\s*\(.*?\)\s*")]
     private static partial Regex ParentheticalRegex();
 
-    [GeneratedRegex(@"'s\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"[\u2018\u2019\u02BC\u0060\u00B4']s\b", RegexOptions.IgnoreCase)]
     private static partial Regex PossessiveRegex();
 
     public static string NormalizeName(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return string.Empty;
 
-        var canonicalized = ApostropheVariantRegex().Replace(name, "'");
-        var withoutEdition = StripEditionSuffix(canonicalized);
+        var withoutEdition = StripEditionSuffix(name);
         var withoutParentheticals = ParentheticalRegex().Replace(withoutEdition, " ").Trim();
         var withoutPossessiveness = PossessiveRegex().Replace(withoutParentheticals, string.Empty)
             .Trim();
@@ -142,14 +138,14 @@ public static partial class GameNameHelper
 
     private static string? ExtractDistinctEdition(string name) =>
         DistinctEditionSuffixRegex()
-                .Match(StripEditionSuffix(ApostropheVariantRegex().Replace(name, "'")))
+                .Match(StripEditionSuffix(name))
             is { Success: true } m
             ? m.Groups[2].Value.ToLowerInvariant()
             : null;
 
     private static bool HasUnrelatedTrailingSubtitle(string raw, string otherNormalized)
     {
-        var stripped = StripEditionSuffix(ApostropheVariantRegex().Replace(raw, "'"));
+        var stripped = StripEditionSuffix(raw);
 
         if (SubtitleSeparatorRegex().Match(stripped) is not { Success: true } match)
             return false;
