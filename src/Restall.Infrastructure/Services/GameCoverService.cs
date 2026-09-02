@@ -254,9 +254,7 @@ internal sealed class GameCoverService : IGameCoverService
                     var titleProp = entry.TryGetProperty("title", out var title) ? title.GetString() :
                         entry.TryGetProperty("app_title", out var appTitle) ? appTitle.GetString() : null;
 
-                    if (!string.IsNullOrWhiteSpace(titleProp) &&
-                        GameNameHelper.FuzzyNameMatch(normalizedName,
-                            GameNameHelper.NormalizeName(titleProp)))
+                    if (!string.IsNullOrWhiteSpace(titleProp) && GameNameHelper.IsLikelySameGame(game.Name, titleProp))
                         bestMatch = entry;
                 }
             }

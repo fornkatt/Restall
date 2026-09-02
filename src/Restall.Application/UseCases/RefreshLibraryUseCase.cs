@@ -37,7 +37,8 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
         _modCatalog = modCatalog;
     }
 
-    public async Task<RefreshLibraryResultDto> ExecuteFullRescanAsync(IProgress<GameScanProgressReportDto>? progress = null)
+    public async Task<RefreshLibraryResultDto> ExecuteFullRescanAsync(
+        IProgress<GameScanProgressReportDto>? progress = null)
     {
         var gameTask = _gameDetectionService.FindGamesAsync(progress);
         var versionTask = _versionCatalog.FetchVersionsAsync();
@@ -51,20 +52,25 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
         return await BuildResultAsync(games, gameScanResults.IsSuccess, gameScanResults.Message);
     }
 
-    public async Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames, IProgress<GameScanProgressReportDto>? progress = null)
+    public async Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames,
+        IProgress<GameScanProgressReportDto>? progress = null)
     {
         await Task.WhenAll(_versionCatalog.FetchVersionsAsync(), _modCatalog.FetchModsAsync());
 
         return await BuildResultAsync(existingGames.OrderBy(g => g.Name), true, null);
     }
 
-    private async Task<RefreshLibraryResultDto> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success, string? errorMessage)
+    private async Task<RefreshLibraryResultDto> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success,
+        string? errorMessage)
     {
         HashSet<Task> artworkTasks = [];
         List<GameInitResultDto> results = [];
 
         foreach (var game in sortedGames)
         {
+            if (string.IsNullOrWhiteSpace(game.Name))
+                continue;
+            
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
             var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
 
@@ -79,9 +85,11 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
                 ? _updateCheckService.CheckRenoDXUpdate(game.RenoDX)
                 : null;
 
-            var compatibleMod = FindCompatibleMod(game.Name, _modCatalog.GetRenoDXWikiMods());
+            var compatibleMod = FindCompatibleMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
+                _modCatalog.GetRenoDXWikiMods());
             var compatibleGenericMod = compatibleMod is null
-                ? FindGenericMod(game.Name, _modCatalog.GetRenoDXGenericWikiMods())
+                ? FindGenericMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
+                    _modCatalog.GetRenoDXGenericWikiMods())
                 : null;
 
             artworkTasks.Add(_gameArtworkService.EnrichGameArtworkAsync(game));
@@ -102,24 +110,32 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
 
     private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, ImmutableArray<RenoDXModInfoDto> mods)
     {
-        if (string.IsNullOrWhiteSpace(gameName)) return null;
+        if (string.IsNullOrWhiteSpace(gameName))
+            return null;
 
-        var key = GameNameHelper.NormalizeName(gameName);
+        var candidates = mods.Where(m =>
+            GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
 
-        return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
-               ?? mods.FirstOrDefault(m =>
-                   m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+        var normalizedGameName = GameNameHelper.NormalizeName(gameName);
+
+        return candidates.FirstOrDefault(m =>
+                   GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
+               candidates.FirstOrDefault();
     }
 
     private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName,
         ImmutableArray<RenoDXGenericModInfoDto> mods)
     {
-        if (string.IsNullOrWhiteSpace(gameName)) return null;
+        if (string.IsNullOrWhiteSpace(gameName))
+            return null;
 
-        var key = GameNameHelper.NormalizeName(gameName);
+        var candidates = mods.Where(m =>
+            GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
 
-        return mods.FirstOrDefault(m => m.Status != "💀" && GameNameHelper.NormalizeName(m.Name) == key)
-               ?? mods.FirstOrDefault(m =>
-                   m.Status != "💀" && GameNameHelper.FuzzyNameMatch(key, GameNameHelper.NormalizeName(m.Name)));
+        var normalizedGameName = GameNameHelper.NormalizeName(gameName);
+
+        return candidates.FirstOrDefault(m =>
+                   GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
+               candidates.FirstOrDefault();
     }
 }
