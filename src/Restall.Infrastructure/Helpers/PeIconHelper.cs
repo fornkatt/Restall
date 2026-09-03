@@ -3,6 +3,7 @@ using PeNet;
 
 namespace Restall.Infrastructure.Helpers;
 
+//TODO: LOOK UP HOW I CAN BYPASS ICONHELPER WITH TRY/CATCH DUE TO PENET STANDARD
 internal static class PeIconHelper
 {
     private const int RtIcon = 3;

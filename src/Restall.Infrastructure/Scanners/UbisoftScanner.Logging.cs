@@ -7,7 +7,7 @@ namespace Restall.Infrastructure.Scanners;
 internal sealed partial class UbisoftScanner
 {
     [LoggerMessage(EventId = 1800, Level = LogLevel.Error,
-        Message = "Failed to scan Ubisoft Library [{SubKey}]")]
+        Message = "Failed to scan the Ubisoft Library: [{SubKey}]")]
     private partial void LogFailedToScanUbisoft(string subKey, Exception ex);
     
     [LoggerMessage(EventId = 1801, Level = LogLevel.Debug,
@@ -15,8 +15,9 @@ internal sealed partial class UbisoftScanner
     private partial void LogUbisoftRootNotFound(string subKey);
     
     [LoggerMessage(EventId=1802, Level = LogLevel.Debug,
-        Message = "Can not find the directory for Ubisoft game [{DisplayName}] [{SubKey}]")]
+        Message = "Can not find the directory for Ubisoft game from Ubisoft Connect: [{DisplayName}] in [{SubKey}]")]
     private partial void LogUbisoftInstallDirectoryNotFound(string displayName, string subKey);
+    
     [LoggerMessage(EventId=1803, Level = LogLevel.Debug,
         Message = "Display name for [{SubName}] in Ubisoft Scanner is empty ")]
     private partial void LogUbisoftGameDisplayNameEmpty(string subName);

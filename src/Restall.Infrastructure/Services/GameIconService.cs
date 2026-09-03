@@ -43,11 +43,11 @@ internal sealed partial class GameIconService : IGameIconService
                 iconBytes = _iconConverterService.IcoToPng(iconBytes, 256);
 
             await File.WriteAllBytesAsync(iconPath, iconBytes);
-            IconExtractionSuccess(gameName ?? "Unknown", iconPath);
+            LogIconExtractionSuccess(gameName ?? "Unknown", iconPath);
         }
         catch (Exception ex)
         {
-            IconExtractionFailure(gameName ?? "Unknown", ex);
+            LogIconExtractionFailure(gameName ?? "Unknown", ex);
         }
     }
 

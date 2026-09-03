@@ -10,6 +10,6 @@ public static partial class Log
     public static partial void PeFileReadFailure(this ILogger logger, string filename, Exception ex);
     
     [LoggerMessage(EventId = 51, Level = LogLevel.Debug,
-        Message= "Failed to  get scan the Icon file from [{ExePath}]")]
+        Message= "Failed to scan the Icon file from [{ExePath}]")]
     public static partial void PeFileIconScanFailure(this ILogger logger, string exePath);
 }

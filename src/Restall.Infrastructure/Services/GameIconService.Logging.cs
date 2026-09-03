@@ -6,10 +6,10 @@ namespace Restall.Infrastructure.Services;
 internal sealed partial class GameIconService
 {
     [LoggerMessage(EventId = 1000, Level = LogLevel.Information,
-        Message = "Extracted icon for [{GameName}] to [{IconPath}]")]
-    private partial void IconExtractionSuccess(string gameName, string iconPath);
+        Message = "Extracted icon for the game [{GameName}] to [{IconPath}]")]
+    private partial void LogIconExtractionSuccess(string gameName, string iconPath);
 
     [LoggerMessage(EventId = 1001, Level = LogLevel.Error,
-        Message = "Failed to extract icon for [{GameName}]")]
-    private partial void IconExtractionFailure(string gameName, Exception ex);
+        Message = "Failed to extract icon for the game: [{GameName}]")]
+    private partial void LogIconExtractionFailure(string gameName, Exception ex);
 }

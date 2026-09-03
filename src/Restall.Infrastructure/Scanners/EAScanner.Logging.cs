@@ -7,11 +7,11 @@ namespace Restall.Infrastructure.Scanners;
 internal sealed partial class EAScanner
 {
     [LoggerMessage(EventId = 1600, Level = LogLevel.Error,
-    Message = "Failed to scan EA library [{SubKey}]")]
+    Message = "Failed to scan the EA library: [{SubKey}]")]
     private partial void LogFailedToScanEA(string subKey, Exception ex);
     
     [LoggerMessage(EventId=1601, Level = LogLevel.Debug,
-        Message = "Can not find the directory for EA game [{DisplayName}] in [{SubKey}]")]
+        Message = "Can not find the directory for the game from EA App: [{DisplayName}] in [{SubKey}]")]
     private partial void LogEAInstallDirectoryNotFound(string displayName, string subKey);
     
     [LoggerMessage(EventId=1602, Level = LogLevel.Debug,

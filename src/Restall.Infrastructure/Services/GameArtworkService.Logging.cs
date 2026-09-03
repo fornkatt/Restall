@@ -6,6 +6,6 @@ namespace Restall.Infrastructure.Services;
 internal sealed partial class GameArtworkService
 {
     [LoggerMessage(EventId = 1500, Level = LogLevel.Error,
-        Message = "Failed to enrich game artwork for [{GameName}]")]
+        Message = "Failed to enrich the game artwork for [{GameName}]")]
     private partial void LogFailedToEnrichGameArtwork(string gameName, Exception ex);
 }
