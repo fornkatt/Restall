@@ -127,13 +127,11 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
         var candidates = mods.Where(m =>
             GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
 
-
         var normalizedGameName = GameNameHelper.NormalizeName(gameName);
 
         return candidates.FirstOrDefault(m =>
                    GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
                candidates.FirstOrDefault();
-
     }
 
     private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName,
@@ -145,12 +143,10 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
         var candidates = mods.Where(m =>
             GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
 
-
         var normalizedGameName = GameNameHelper.NormalizeName(gameName);
 
         return candidates.FirstOrDefault(m =>
                    GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
                candidates.FirstOrDefault();
-
     }
 }
