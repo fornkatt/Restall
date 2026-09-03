@@ -2,6 +2,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
@@ -9,12 +10,15 @@ namespace Restall.Infrastructure.Scanners;
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 
 // TODO(logging-refactor): just swap the logging implementations
-internal sealed class GOGScanner : IPlatformScannerService
+internal sealed partial class GOGScanner : IPlatformScannerService
 {
+    private readonly ILogger<GOGScanner> _logger;
 
     public GOGScanner(
-        )
+        ILogger<GOGScanner> logger
+    )
     {
+        _logger = logger;
     }
 
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanGOG);
@@ -32,7 +36,7 @@ internal sealed class GOGScanner : IPlatformScannerService
         }
 
         var gogHeroicPath = GetHeroicInstallPath();
-        if (gogHeroicPath is not null && Directory.Exists(gogHeroicPath))
+        if (Directory.Exists(gogHeroicPath))
         {
             var (heroicGames, error) = ScanHeroicLibrary(gogHeroicPath);
             games.AddRange(heroicGames);
@@ -50,10 +54,10 @@ internal sealed class GOGScanner : IPlatformScannerService
     {
         var games = new List<Game>();
 
-        //Local Machine
-        using var key = GameScanHelper.GetOpenRegistryKey(@"GOG.com\Games");
 
-        if (key is null) return (games, null);
+        using var key = GameScanHelper.GetOpenRegistryKey(@"GOG.com\Games");
+        if (key is null)  return (games, null);
+
 
 #pragma warning disable CA1416 // Already checked before method is called
         foreach (var subName in key.GetSubKeyNames())
@@ -62,13 +66,23 @@ internal sealed class GOGScanner : IPlatformScannerService
             {
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey is null) continue;
+                
 
                 //Value patterns in registry
                 var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName", "gameName");
                 var path = GameScanHelper.GetRegistryValue(gameKey, "PATH", "path");
 
-                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(path)) continue;
-                if (!Directory.Exists(path)) continue;
+                if (string.IsNullOrEmpty(name))
+                {
+                    LogGOGGameDisplayNameEmpty(subName);
+                    continue;
+                }
+
+                if (!Directory.Exists(path))
+                {
+                    LogGOGInstallPathNotFound(name, subName);
+                    continue;
+                }
 
                 games.Add(new Game
                 {
@@ -81,7 +95,7 @@ internal sealed class GOGScanner : IPlatformScannerService
 
             catch (Exception ex)
             {
-                _logService.LogError("Failed to process GOG games", ex);
+                LogFailedToScanGOGLibrary(subName, ex);
             }
         }
 
@@ -91,7 +105,7 @@ internal sealed class GOGScanner : IPlatformScannerService
     private string? GetHeroicInstallPath()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        
+
         var heroicPath = OperatingSystem.IsWindows()
             ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store")
             : Path.Combine(home, ".config", "heroic", "gog_store");
@@ -104,7 +118,10 @@ internal sealed class GOGScanner : IPlatformScannerService
         var games = new List<Game>();
         var installedJsonPath = Path.Combine(configDir, "installed.json");
 
-        if (!File.Exists(installedJsonPath)) return (games, null);
+        if (!File.Exists(installedJsonPath))
+        {
+            return (games, null);
+        }
 
         string json;
 
@@ -114,7 +131,7 @@ internal sealed class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to read installed.json file in GOG Heroic library", ex);
+            LogGOGHeroicFailedToReadJsonFile(installedJsonPath, ex);
             return (games, $"Failed to read installed.json file in GOG Heroic library.");
         }
 
@@ -125,13 +142,24 @@ internal sealed class GOGScanner : IPlatformScannerService
             {
                 var blockValue = match.Value;
 
+                var appName = RegexHelper.GOGHeroicAppNameRegex.Match(blockValue)
+                    is { Success: true } am
+                    ? am.Groups[1].Value
+                    : null;
+
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
                     is { Success: true } pm
                     ? pm.Groups[1].Value.Replace("\\\\", "\\")
                     : null;
 
                 installPath = GameScanHelper.NormalizePath(installPath);
-                if (string.IsNullOrEmpty(installPath) || !Directory.Exists(installPath)) continue;
+
+                //TODO: INCLUDE THE BLOCKVALUE?
+                if (string.IsNullOrEmpty(installPath))
+                {
+                    LogGOGHeroicFailedToFindInstallPath(appName);
+                    continue;
+                }
 
                 var title = RegexHelper.HeroicTitleRegex.Match(blockValue)
                     is { Success: true } tm
@@ -142,12 +170,11 @@ internal sealed class GOGScanner : IPlatformScannerService
                     ? title
                     : Path.GetFileName(installPath);
 
-                if (string.IsNullOrEmpty(name)) continue;
-
-                var appName = RegexHelper.GOGHeroicAppNameRegex.Match(blockValue)
-                    is { Success: true } am
-                    ? am.Groups[1].Value
-                    : null;
+                if (string.IsNullOrEmpty(name))
+                {
+                    LogGOGHeroicFailedToFindName(appName, installPath);
+                    continue;
+                }
 
                 games.Add(new Game
                 {
@@ -159,7 +186,7 @@ internal sealed class GOGScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                _logService.LogError($"Failed to scan the json block in GOG Heroic library", ex);
+                LogGOGHeroicFailedToScanJsonBlock(match.Value, ex);
             }
         }
 

@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -8,11 +9,15 @@ namespace Restall.Infrastructure.Scanners;
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 
 // TODO(logging-refactor): just swap the logging implementations
-internal sealed class XboxScanner : IPlatformScannerService
+internal sealed partial class XboxScanner : IPlatformScannerService
 {
+    private readonly ILogger<XboxScanner> _logger;
+    
     public XboxScanner(
+        ILogger<XboxScanner> logger
     )
     {
+        _logger = logger;
     }
 
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanXbox);
@@ -43,22 +48,38 @@ internal sealed class XboxScanner : IPlatformScannerService
 
         foreach (var gameDir in Directory.EnumerateDirectories(installPath))
         {
+            var subDir = Path.GetFileName(gameDir);
+            
             try
             {
                 var contentDir = Path.Combine(gameDir, "Content");
-                if (!Directory.Exists(contentDir)) continue;
-
+                
+                if (!Directory.Exists(contentDir))
+                {
+                    
+                    LogContentDirNotFound(subDir, gameDir);
+                    continue;
+                }
+                
                 var configPath = Path.Combine(gameDir, "Content", "MicrosoftGame.config");
-                if (!File.Exists(configPath)) continue;
-
+                
+                if (!File.Exists(configPath))
+                {
+                    LogMicrosoftGameConfigNotFound(subDir, configPath);
+                    continue;
+                }
+                
                 var (name, storeId, iconFile) = ParseMicrosoftGameConfig(configPath);
-
                 var resolvedName = name ?? Path.GetFileName(gameDir);
-
+                
+                if (string.IsNullOrWhiteSpace(resolvedName))
+                {
+                    LogGameNameNotFound(gameDir);
+                    continue;
+                }
+                
                 var iconPath = iconFile is not null ? Path.Combine(gameDir, "Content", iconFile) : null;
-
-                if (string.IsNullOrWhiteSpace(resolvedName)) continue;
-
+                
                 games.Add(new Game
                 {
                     Name = resolvedName,
@@ -71,8 +92,8 @@ internal sealed class XboxScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                _logService.LogError("Failed to scan Xbox Game Library", ex);
-                return (games, "Failed to scan Xbox Game Library");
+                LogFailedToScanXbox(gameDir, ex);
+                
             }
         }
 

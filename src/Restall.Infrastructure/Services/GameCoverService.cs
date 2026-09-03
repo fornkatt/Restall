@@ -386,97 +386,26 @@ internal sealed partial class GameCoverService : IGameCoverService
     {
         try
         {
-            byte[] bytes;
+            byte[] bytes = [];
             var response = await _httpClient.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {
                 bytes = await response.Content.ReadAsByteArrayAsync();
             }
-            else if (!OperatingSystem.IsWindows() &&
-                     ((int)response.StatusCode == 403 ||
-                      (int)response.StatusCode == 503))
-            {
-                LogHttpClientBlockedByCloudflare(gameName ?? "Unknown Game");
-                bytes = await DownloadViaCurlAsync(url);
-            }
-            else
-            {
-                return;
-            }
-
-            if (bytes.Length == 0) return;
+            
+            if (bytes is { Length: 0 }) return;
 
             bytes = await _imageResizeService.ReSizeImageToWidthAsync(bytes, 600);
 
             await File.WriteAllBytesAsync(coverPath, bytes);
-            //Own dedicated Log?
-            LogGameCoverDownload(gameName ?? "Unknown", url);
-        }
-        catch (HttpRequestException) when (!OperatingSystem.IsWindows())
-        {
-            LogHttpClientFailed(gameName ?? "Unknown Game");
-            var bytes = await DownloadViaCurlAsync(url);
-            if (bytes.Length == 0) return;
-
-            bytes = await _imageResizeService.ReSizeImageToWidthAsync(bytes, 600);
-
-            await File.WriteAllBytesAsync(coverPath, bytes);
-            LogGameCoverDownload(gameName ?? "Unknown", url);
-        }
-        catch (HttpRequestException ex) when ((int?)ex.StatusCode == 404)
-        {
-            await _logService.LogWarningAsync
-                ("Using a silent call in Status Code 404");
-        }
-        catch (HttpRequestException ex) when ((int?)ex.StatusCode == 403)
-        {
-            await _logService.LogWarningAsync
-                ($"403 Forbidden [{gameName}] — [{url}]");
+            
+            LogDownloadCoverSuccessful(gameName ?? "Unknown Game", coverPath, url);
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync
-                ($"Failed to download cover for [{gameName}]", ex);
+            LogDownLoadCoverFailed(gameName ?? "Unknown Game", coverPath, url, ex);
         }
     }
 
-    // Curl Download -------------------------------------------------------------------------------
-    private async Task<byte[]> DownloadViaCurlAsync(string url)
-    {
-        var tempFile = Path.GetTempFileName();
-
-        try
-        {
-            var psi = new System.Diagnostics.ProcessStartInfo("curl")
-            {
-                Arguments =
-                    $"--silent --fail --location --output \"{tempFile}\" --write-out \"%{{http_code}}\" \"{url}\"",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false
-            };
-
-            using var proc = System.Diagnostics.Process.Start(psi)
-                             ?? throw new InvalidOperationException(
-                                 "curl is not available on this system. Install curl to enable cover downloads on Linux.");
-
-            var statusCode = (await proc.StandardOutput.ReadToEndAsync()).Trim();
-            await proc.WaitForExitAsync();
-
-            if (proc.ExitCode is not 0)
-            {
-                var httpStatus = int.TryParse(statusCode, out var code) ? code : 0;
-                throw new HttpRequestException($"curl exited with code {proc.ExitCode}",
-                    null,
-                    httpStatus > 0 ? (System.Net.HttpStatusCode?)httpStatus : null);
-            }
-
-            return await File.ReadAllBytesAsync(tempFile);
-        }
-        finally
-        {
-            if (File.Exists(tempFile)) File.Delete(tempFile);
-        }
-    }
 }

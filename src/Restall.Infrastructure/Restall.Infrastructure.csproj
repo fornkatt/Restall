@@ -43,6 +43,33 @@
       <Compile Update="Services\GameCoverService.Logging.cs">
         <DependentUpon>GameCoverService.cs</DependentUpon>
       </Compile>
+      <Compile Update="Services\EngineDetectionService.Logging.cs">
+        <DependentUpon>EngineDetectionService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\GameArtworkService.Logging.cs">
+        <DependentUpon>GameArtworkService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\GameDetectionService.Logging.cs">
+        <DependentUpon>GameDetectionService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\EAScanner.Logging.cs">
+        <DependentUpon>EAScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\EpicScanner.Logging.cs">
+        <DependentUpon>EpicScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\GOGScanner.Logging.cs">
+        <DependentUpon>GOGScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\SteamScanner.Logging.cs">
+        <DependentUpon>SteamScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\UbisoftScanner.Logging.cs">
+        <DependentUpon>UbisoftScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\XboxScanner.Logging.cs">
+        <DependentUpon>XboxScanner.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

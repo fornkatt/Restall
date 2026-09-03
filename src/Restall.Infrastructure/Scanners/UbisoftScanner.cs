@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -8,11 +9,15 @@ namespace Restall.Infrastructure.Scanners;
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 
 // TODO(logging-refactor): just swap the logging implementations
-internal sealed class UbisoftScanner : IPlatformScannerService
+internal sealed partial class UbisoftScanner : IPlatformScannerService
 {
+    private readonly ILogger<UbisoftScanner> _logger;
+
     public UbisoftScanner(
+        ILogger<UbisoftScanner> logger
     )
     {
+        _logger = logger;
     }
 
 
@@ -43,25 +48,34 @@ internal sealed class UbisoftScanner : IPlatformScannerService
     {
         var games = new List<Game>();
 
-        try
-        {
-            using var key = GameScanHelper.GetOpenRegistryKey(@"\Ubisoft\Launcher\Installs");
-            if (key is null) return (games, null);
+        using var key = GameScanHelper.GetOpenRegistryKey(@"\Ubisoft\Launcher\Installs");
+        if (key is null) return (games, null);
 
 #pragma warning disable CA1416 // Handled before method is called
-            foreach (var subName in key.GetSubKeyNames())
+        foreach (var subName in key.GetSubKeyNames())
+        {
+            try
             {
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey is null) continue;
+                
 
                 var installDir = GameScanHelper.NormalizePath(
                     GameScanHelper.GetRegistryValue(gameKey, "InstallDir", "Install Dir"));
-                if (string.IsNullOrEmpty(installDir)) continue;
-                if (!Directory.Exists(installDir)) continue;
-
                 var name = GameScanHelper.GetRegistryValue(gameKey, "Name", "DisplayName") ??
-                           Path.GetFileName(installDir);
-                if (string.IsNullOrEmpty(name)) continue;
+                    Path.GetFileName(installDir);
+                
+                if (string.IsNullOrEmpty(installDir))
+                {
+                    LogUbisoftInstallDirectoryNotFound(name ?? "Unknown Game", subName);
+                    continue;
+                }
+                
+                if (string.IsNullOrEmpty(name))
+                {
+                    LogUbisoftGameDisplayNameEmpty(subName);
+                    continue;
+                }
 
                 games.Add(new Game
                 {
@@ -71,13 +85,13 @@ internal sealed class UbisoftScanner : IPlatformScannerService
                     PlatformId = subName
                 });
             }
+            catch (Exception ex)
+            {
+                LogFailedToScanUbisoft(subName, ex);
+                
+            }
         }
-        catch (Exception ex)
-        {
-            _logService.LogError("Failed to process Ubisoft library", ex);
-            return (games, $"Failed to process Ubisoft library.");
-        }
-
+        
         return (games, null);
     }
 }

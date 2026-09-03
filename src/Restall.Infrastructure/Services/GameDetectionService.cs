@@ -3,17 +3,19 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Services;
 
+// TODO: Look for more options to refactor this. 
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
-
 // TODO(logging-refactor): just swap the logging implementations
-internal sealed class GameDetectionService : IGameDetectionService
+internal sealed partial class GameDetectionService : IGameDetectionService
 {
     private readonly IEnumerable<IPlatformScannerService> _platformScannerService;
     private readonly IEngineDetectionService _engineDetectionService;
+    private readonly ILogger<GameDetectionService> _logger;
 
     private static readonly ParallelOptions s_engineParallelOptions = new()
     {
@@ -22,11 +24,13 @@ internal sealed class GameDetectionService : IGameDetectionService
 
     public GameDetectionService(
         IEnumerable<IPlatformScannerService> platformScannerService,
-        IEngineDetectionService engineDetectionService
+        IEngineDetectionService engineDetectionService,
+        ILogger<GameDetectionService> logger
     )
     {
         _engineDetectionService = engineDetectionService;
         _platformScannerService = platformScannerService;
+        _logger = logger;
     }
     
     public async Task<GameScanResultDto> FindGamesAsync(IProgress<GameScanProgressReportDto>? progress = null)
@@ -47,7 +51,9 @@ internal sealed class GameDetectionService : IGameDetectionService
 
                 if (result.Message is not null)
                     allErrors.Add(result.Message);
-
+                
+                LogScannerFinished(result.Platform.ToString(), result.Games.Count);
+                
                 progress?.Report(new GameScanProgressReportDto(
                     CompletedPlatform: result.Platform.ToString(),
                     ScannersCompleted: completed,
@@ -58,12 +64,12 @@ internal sealed class GameDetectionService : IGameDetectionService
             }
 
             var deduped = allGames
-                .GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
-                .SelectMany(s => s
-                    .GroupBy(g => g.ExecutablePath, StringComparer.OrdinalIgnoreCase))
-                .Select(g => g.OrderByDescending(x => x.PlatformId != null).First())
-                .ToList<Game?>();
+                 .GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
+                 .SelectMany(s => s.GroupBy(g => g.ExecutablePath, StringComparer.OrdinalIgnoreCase))
+                 .Select(g => g.OrderByDescending(x => x.PlatformId != null).First())
+                 .ToList<Game?>();
 
+            
             var engineCache = new ConcurrentDictionary<(string root, Game.Platform platform),
                 (string? path, Game.Engine engine)>();
 
@@ -72,36 +78,45 @@ internal sealed class GameDetectionService : IGameDetectionService
                 Parallel.ForEach(deduped, s_engineParallelOptions, game =>
                 {
                     if (game is null || string.IsNullOrWhiteSpace(game.InstallFolder)) return;
-
-                    var searchRoot = string.IsNullOrWhiteSpace(game.ExecutablePath)
-                        ? game.InstallFolder
-                        : game.ExecutablePath;
-
-                    var normalized = GameScanHelper.NormalizePath(searchRoot)!.ToLowerInvariant();
-                    var rootKey = (normalized, game.PlatformName);
-
-                    if (engineCache.TryGetValue(rootKey, out var cached))
+                    try
                     {
-                        game.ExecutablePath = cached.path;
-                        game.EngineName = cached.engine;
-                        return;
-                    }
+                        var searchRoot = string.IsNullOrWhiteSpace(game.ExecutablePath)
+                            ? game.InstallFolder
+                            : game.ExecutablePath;
+                        var normalized = GameScanHelper.NormalizePath(searchRoot);
+                        if (string.IsNullOrEmpty(normalized)) return;
+                        var rootKey = (normalized.ToLowerInvariant(), game.PlatformName);
 
-                    if (game.PlatformName == Game.Platform.Xbox)
+                        if (engineCache.TryGetValue(rootKey, out var cached))
+                        {
+                            game.ExecutablePath = cached.path;
+                            game.EngineName = cached.engine;
+                            return;
+                        }
+
+                        if (game.PlatformName == Game.Platform.Xbox)
+                        {
+                            var (_, engine) = _engineDetectionService.DetectExecutablePathAndEngine(searchRoot,
+                                game.PlatformName);
+                            game.EngineName = engine;
+                            engineCache[rootKey] = (game.ExecutablePath, engine);
+                            return;
+                        }
+
+                        var (executablePath, detectedEngine) =
+                            _engineDetectionService.DetectExecutablePathAndEngine(searchRoot, game.PlatformName);
+
+                        game.ExecutablePath = executablePath;
+                        game.EngineName = detectedEngine;
+                        engineCache[rootKey] = (executablePath, detectedEngine);
+
+                    }
+                    catch(Exception ex)
                     {
-                        var (_, engine) = _engineDetectionService.DetectExecutablePathAndEngine(searchRoot,
-                            game.PlatformName);
-                        game.EngineName = engine;
-                        engineCache[rootKey] = (game.ExecutablePath, engine);
-                        return;
+                        LogFailedToDetectExecutablePathAndEngine(game.Name ?? "Unknown", game.InstallFolder, ex);
                     }
-
-                    var (executablePath, detectedEngine) =
-                        _engineDetectionService.DetectExecutablePathAndEngine(searchRoot, game.PlatformName);
-
-                    game.ExecutablePath = executablePath;
-                    game.EngineName = detectedEngine;
-                    engineCache[rootKey] = (executablePath, detectedEngine);
+                    
+                    
                 });
             });
 
@@ -118,7 +133,8 @@ internal sealed class GameDetectionService : IGameDetectionService
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"Failed to scan libraries", ex);
+            
+            LogFailedToScanLibraries(ex);
             return new GameScanResultDto(
                 Platform: Game.Platform.Unknown,
                 Games: [],

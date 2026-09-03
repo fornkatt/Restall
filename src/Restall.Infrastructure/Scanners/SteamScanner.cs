@@ -2,6 +2,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
@@ -9,11 +10,15 @@ namespace Restall.Infrastructure.Scanners;
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 
 // TODO(logging-refactor): just swap the logging implementations
-internal sealed class SteamScanner : IPlatformScannerService
+internal sealed partial class SteamScanner : IPlatformScannerService
 {
+    private readonly ILogger<SteamScanner> _logger;
+
     public SteamScanner(
+        ILogger<SteamScanner> logger
     )
     {
+        _logger = logger;
     }
 
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanSteam);
@@ -72,27 +77,47 @@ internal sealed class SteamScanner : IPlatformScannerService
     {
         var games = new List<Game>();
         var steamapps = Path.Combine(library, "steamapps");
-        if (!Directory.Exists(steamapps)) return (games, null);
+
+        if (!Directory.Exists(steamapps))
+        {
+            LogSteamAppsNotFoundInLibraryFolder(steamapps);
+            return (games, null);
+        }
 
 
         foreach (var acf in Directory.GetFiles(steamapps, "appmanifest_*.acf"))
         {
+            var appId = Path.GetFileNameWithoutExtension(acf).Replace("appmanifest_", "");
+            
             try
             {
                 var content = File.ReadAllText(acf);
                 var name = GameScanHelper.ExtractVdfValue(content, "name");
                 var installDir = GameScanHelper.ExtractVdfValue(content, "installdir");
 
-                if (name == null || installDir == null) continue;
+                if (name is null)
+                {
+                    LogSteamGameNameNotFound(appId,acf);
+                    continue;
+                }
+
+                if (installDir is null)
+                {
+                    LogSteamInstallDirectoryNotFound(name,appId);
+                    continue;
+                }
 
                 if (GameScanHelper.NonGame(name)) continue;
-
                 if (GameScanHelper.NonGame(installDir)) continue;
-
-
+                
                 var rootPath = Path.Combine(steamapps, "common", installDir);
-                if (!Directory.Exists(rootPath)) continue;
-                var appId = Path.GetFileNameWithoutExtension(acf).Replace("appmanifest_", "");
+
+                if (!Directory.Exists(rootPath))
+                {
+                    LogSteamRootPathNotFound(rootPath,name,appId);
+                    continue;
+                }
+
 
                 games.AddRange(GameExpander.ExpandCollection(new Game
                 {
@@ -104,7 +129,7 @@ internal sealed class SteamScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                _logService.LogError($"Failed to parse acf files...{acf}", ex);
+                LogSteamFailedToParseAcfFiles(acf, ex);
             }
         }
 
@@ -125,7 +150,8 @@ internal sealed class SteamScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            _logService.LogError("Failed to read Steam's libraryfolders.vdf", ex);
+            //Unsure about this
+            LogSteamFailedToReadLibraryFoldersVdfLibrary(vdfPath, ex);
             return (libraries, "Failed to read Steam's libraryfolders.vdf");
         }
 

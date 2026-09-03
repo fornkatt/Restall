@@ -6,6 +6,7 @@ public sealed class Game
     public enum Engine { Unknown, Unreal, Unity }
 
     // TODO: null Name, ExecutablePath and InstallFolder are malformed, consider skipping them and making non-nullable
+    // TODO: INCLUDE APPID
     public string? Name { get; init; }
     public Platform PlatformName { get; set; } = Platform.Unknown;
     public Engine EngineName { get; set; } = Engine.Unknown;

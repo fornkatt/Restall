@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Logging;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
+using Restall.Application.Logging;
 using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
-
+// TODO: INCLUDE LOCAL ICONS AND USE PEICONHELPER AS FALLBACK
 // TODO(logging-refactor): just swap the logging implementations
 internal sealed partial class GameIconService : IGameIconService
 {
@@ -32,7 +33,11 @@ internal sealed partial class GameIconService : IGameIconService
         try
         {
             var iconBytes = await Task.Run(() => PeIconHelper.ExtractLargestIconAsPng(exePath));
-            if (iconBytes is null) return;
+            if (iconBytes is null)
+            {
+                _logger.PeFileIconScanFailure(exePath);
+                return;
+            }
 
             if (!PeIconHelper.IsPng(iconBytes))
                 iconBytes = _iconConverterService.IcoToPng(iconBytes, 256);

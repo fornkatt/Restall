@@ -50,7 +50,7 @@ internal sealed partial class GameCoverService
     private partial void LogHeroicCacheFileLookupFailed(string gameName, string cacheFile, Exception ex);
 
     [LoggerMessage(EventId = 1411, Level = LogLevel.Debug,
-        Message = "Failed to do exact look up for [{GameName}] with URL: [{ExactUrl}], Proceeding to API Cargo" )]
+        Message = "Failed to do exact look up for [{GameName}] with URL: [{ExactUrl}]. Proceeding to API Cargo" )]
     private partial void LogPcGamingWikiExactUrlLookupFailed(string gameName, string exactUrl);
     [LoggerMessage(EventId=1412, Level = LogLevel.Error,
         Message="Failed to search for [{GameName}]'s cover at PC Gaming Wiki")]
@@ -61,11 +61,16 @@ internal sealed partial class GameCoverService
     private partial void LogPCGamingWikiCargoApiFailed(string apiUrl, Exception ex);
     
     [LoggerMessage(EventId=1414, Level = LogLevel.Debug,
-        Message="HttpClient blocked by Cloudflare for [{gameName}] — retrying via curl")]
-    private partial void LogHttpClientBlockedByCloudflare(string gameName);
+        Message="Failed to retreive the [{GameName}]'s Page Id: [{PageId}]. Proceeding to TopSearchPageId. ")]
+    private partial void LogPCGamingWikiPageNotFound(string gameName, string pageId);
     
-    [LoggerMessage(EventId=1415, Level = LogLevel.Debug,
-        Message="HttpClient failed for [{GameName}], retrying through curl download")]
-    private partial void LogHttpClientFailed(string gameName);
-    
+    [LoggerMessage(EventId = 1415, Level = LogLevel.Debug,
+        Message= "Download cover for [{GameName}] successful from PC Gaming Wiki. Cover path: [{CoverPath}] | CoverUrl: [{CoverUrl}]")]
+    private partial void LogDownloadCoverSuccessful(string gameName, string coverPath, string coverUrl);
+
+    [LoggerMessage(EventId = 1416, Level = LogLevel.Error,
+        Message =
+            "Failed to download the cover for [{GameName}] from PC Gaming Wiki. Cover path: [{CoverPath}] | CoverUrl: [{CoverUrl}]")]
+    private partial void LogDownLoadCoverFailed(string gameName, string coverPath, string coverUrl, Exception ex);
+
 }

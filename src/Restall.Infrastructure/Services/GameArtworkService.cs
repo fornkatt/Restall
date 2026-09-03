@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -8,25 +9,24 @@ namespace Restall.Infrastructure.Services;
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 
 // TODO(logging-refactor): just swap the logging implementations
-internal sealed class GameArtworkService : IGameArtworkService
+internal sealed partial class GameArtworkService : IGameArtworkService
 {
     private readonly IPathService _pathService;
     private readonly IGameCoverService _gameCoverService;
     private readonly IGameIconService _gameIconService;
-    private readonly IImageResizeService _imageResizeService;
+    private readonly ILogger<GameArtworkService> _logger;
 
     public GameArtworkService(
         IPathService pathService,
         IGameCoverService gameCoverService,
         IGameIconService gameIconService,
-        IImageResizeService imageResizeService
-    )
+        ILogger<GameArtworkService> logger)
     {
         _pathService = pathService;
         _gameCoverService = gameCoverService;
         _gameIconService = gameIconService;
-        _imageResizeService = imageResizeService;
-
+        _logger = logger;
+        
         Directory.CreateDirectory(pathService.GetArtworkCacheDirectory());
     }
     
@@ -56,7 +56,7 @@ internal sealed class GameArtworkService : IGameArtworkService
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"Failed to enrich game artwork for [{game.Name}]", ex);
+            LogFailedToEnrichGameArtwork(game.Name ?? "Unknown", ex);
         }
     }
 }
