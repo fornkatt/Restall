@@ -8,7 +8,7 @@ internal sealed partial class GOGScanner
 {
     [LoggerMessage(EventId = 1700, Level = LogLevel.Error,
         Message = "Failed to scan the GOG Galaxy library [{Error}]")]
-    private partial void LogFailedToScanGOGLibrary(string error, Exception ex);
+    private partial void LogGOGLibraryScanFailed(string error, Exception ex);
     
     [LoggerMessage(EventId = 1701, Level = LogLevel.Debug,
         Message = "Can not find the directory for GOG game [{Name}] in [{SubKey}]")]
@@ -28,10 +28,10 @@ internal sealed partial class GOGScanner
     
     [LoggerMessage(EventId=1705, Level = LogLevel.Debug,
         Message="Failed to find the install path for GOG Heroic game with AppName: [{appName}] ")]
-    private partial void LogGOGHeroicFailedToFindInstallPath(string? appName);
+    private partial void LogGOGHeroicInstallPathNotFound(string? appName);
     
     [LoggerMessage(EventId=1706, Level = LogLevel.Debug,
         Message = "Failed to find the name for GOG Heroic Game with [{AppName}] and install path: [{InstallPath}]")]
-    private partial void LogGOGHeroicFailedToFindName(string? appName, string installPath);
+    private partial void LogGOGHeroicGameNameNotFound(string? appName, string installPath);
 
 }

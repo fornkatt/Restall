@@ -8,7 +8,7 @@ internal sealed partial class UbisoftScanner
 {
     [LoggerMessage(EventId = 1800, Level = LogLevel.Error,
         Message = "Failed to scan the Ubisoft Library: [{SubKey}]")]
-    private partial void LogFailedToScanUbisoft(string subKey, Exception ex);
+    private partial void LogUbisoftScannerFailed(string subKey, Exception ex);
     
     [LoggerMessage(EventId = 1801, Level = LogLevel.Debug,
         Message = "Can not find registry root in Ubisoft Scanner, [{SubKey}]")]

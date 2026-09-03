@@ -95,7 +95,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
             catch (Exception ex)
             {
-                LogFailedToScanGOGLibrary(subName, ex);
+                LogGOGLibraryScanFailed(subName, ex);
             }
         }
 
@@ -157,7 +157,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                 //TODO: INCLUDE THE BLOCKVALUE?
                 if (string.IsNullOrEmpty(installPath))
                 {
-                    LogGOGHeroicFailedToFindInstallPath(appName);
+                    LogGOGHeroicInstallPathNotFound(appName);
                     continue;
                 }
 
@@ -172,7 +172,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
                 if (string.IsNullOrEmpty(name))
                 {
-                    LogGOGHeroicFailedToFindName(appName, installPath);
+                    LogGOGHeroicGameNameNotFound(appName, installPath);
                     continue;
                 }
 

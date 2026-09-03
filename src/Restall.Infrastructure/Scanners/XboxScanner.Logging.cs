@@ -7,7 +7,7 @@ internal sealed partial class XboxScanner
 {
     [LoggerMessage(EventId = 1850, Level = LogLevel.Error,
         Message = "Failed to scan the Xbox Library [{GameDir}]")]
-    private partial void LogFailedToScanXbox(string gameDir, Exception ex);
+    private partial void LogXboxScannerFailed(string gameDir, Exception ex);
     
     [LoggerMessage(EventId=1851, Level = LogLevel.Debug,
         Message = "Can not find the Game name in [{GameDir}]")]

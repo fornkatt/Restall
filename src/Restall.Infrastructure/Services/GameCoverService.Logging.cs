@@ -31,7 +31,7 @@ internal sealed partial class GameCoverService
     
     [LoggerMessage(EventId=1406, Level = LogLevel.Error,
         Message="Failed to scan local GOG Game cover for [{GameName}] in guid: [{GuidDir}], Product ID: [{ProductId}]")]
-    private partial void LogLocalGameGameCoverScanFailed(string gameName, string guidDir, string productId, Exception ex);
+    private partial void LogLocalGOGGameCoverScanFailed(string gameName, string guidDir, string productId, Exception ex);
     
     [LoggerMessage(EventId=1407, Level = LogLevel.Error,
         Message="GOG API Game cover lookup failed [{GameName}]")]

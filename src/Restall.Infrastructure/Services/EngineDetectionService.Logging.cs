@@ -22,7 +22,7 @@ internal sealed partial class EngineDetectionService
     
     [LoggerMessage(EventId = 1454, Level = LogLevel.Debug,
         Message = "No Executable folder was found under [{Root}]")]
-    private partial void LogNoExecutableFolderFound(string root);
+    private partial void LogExecutableFolderNotFound(string root);
     
     [LoggerMessage(EventId = 1455, Level = LogLevel.Debug,
     Message = "Found Executable via BFS at depth: [{Depth}] in [{Dir}]")]

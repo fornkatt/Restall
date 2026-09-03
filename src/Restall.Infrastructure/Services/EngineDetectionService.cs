@@ -143,7 +143,7 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
             var (dir, depth) = queue.Dequeue();
             if (depth > 4)
             {
-                LogNoExecutableFolderFound(root);
+                LogExecutableFolderNotFound(root);
                 continue;
             }
             try

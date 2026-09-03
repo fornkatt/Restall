@@ -87,7 +87,7 @@ internal sealed partial class UbisoftScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogFailedToScanUbisoft(subName, ex);
+                LogUbisoftScannerFailed(subName, ex);
                 
             }
         }

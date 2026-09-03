@@ -8,7 +8,7 @@ internal sealed partial class EAScanner
 {
     [LoggerMessage(EventId = 1600, Level = LogLevel.Error,
     Message = "Failed to scan the EA library: [{SubKey}]")]
-    private partial void LogFailedToScanEA(string subKey, Exception ex);
+    private partial void LogEAScannerFailed(string subKey, Exception ex);
     
     [LoggerMessage(EventId=1601, Level = LogLevel.Debug,
         Message = "Can not find the directory for the game from EA App: [{DisplayName}] in [{SubKey}]")]

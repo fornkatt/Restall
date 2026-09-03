@@ -100,7 +100,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogFailedToScanManifest(file, ex);
+                LogFailedToScanEpicManifest(file, ex);
             }
         }
 
@@ -159,7 +159,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
                 if (string.IsNullOrEmpty(installPath))
                 {
-                    LogEpicHeroicFailedToFindInstallPath(appName);
+                    LogEpicHeroicInstallPathNotFound(appName);
                     continue;
                 }
 
@@ -174,7 +174,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
                 if (string.IsNullOrEmpty(name))
                 {
-                    LogEpicHeroicFailedToFindName(appName, installPath);
+                    LogEpicHeroicGameNameNotFound(appName, installPath);
                     continue;
                 }
 

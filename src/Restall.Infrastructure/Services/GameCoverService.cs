@@ -187,7 +187,7 @@ internal sealed partial class GameCoverService : IGameCoverService
             }
             catch (Exception ex)
             {
-                LogLocalGameGameCoverScanFailed(game.Name ?? "Unknown Game", guidDir, productId, ex);
+                LogLocalGOGGameCoverScanFailed(game.Name ?? "Unknown Game", guidDir, productId, ex);
             }
         }
 
