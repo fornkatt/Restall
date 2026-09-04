@@ -52,7 +52,7 @@ internal sealed partial class ParseService
 
     [LoggerMessage(EventId = 1109, Level = LogLevel.Information,
         Message = "Fetching latest RenoDX nightly versions from {RenoDXTagsUrl}")]
-    private partial void LogFetchingRenoDXNightlyVersions(string renoDXTagsUrl);
+    private partial void LogRenoDXNightlyVersionsFetchStart(string renoDXTagsUrl);
 
     [LoggerMessage(EventId = 1110, Level = LogLevel.Warning,
         Message = "No RenoDX nightly versions found. Nightly versions will be unavailable.")]
@@ -64,15 +64,17 @@ internal sealed partial class ParseService
 
     [LoggerMessage(EventId = 1112, Level = LogLevel.Information,
         Message = "Fetching available RenoDX mods from main wiki page: {Url}")]
-    private partial void LogFetchingRenoDXModsFromWiki(string url);
+    private partial void LogRenoDXWikiModsFetchStart(string url);
 
     [LoggerMessage(EventId = 1113, Level = LogLevel.Warning,
         Message = "Skipping malformed RenoDX wiki mod row. " +
-                  "Expected cell count: {ExpectedCount} || Was: {ActualCount}\n{Line}")]
+                  "Expected cell count: {ExpectedCount} || Was: {ActualCount}\n" +
+                  "Raw line: {Line}")]
     private partial void LogRenoDXSkipMalformedWikiModRow(string expectedCount, int actualCount, string line);
 
     [LoggerMessage(EventId = 1114, Level = LogLevel.Warning,
-        Message = "Skipping malformed RenoDX row. No mod name available.\n{Line}")]
+        Message = "Skipping malformed RenoDX row. No mod name available.\n" +
+                  "Raw line: {Line}")]
     private partial void LogRenoDXModNameUnavailable(string line);
 
     [LoggerMessage(EventId = 1115, Level = LogLevel.Information,

@@ -8,11 +8,11 @@ public sealed partial class GameListViewModel
 {
     [LoggerMessage(EventId = 1200, Level = LogLevel.Information,
         Message = "Full library refresh started")]
-    private partial void LogFullLibraryRefreshStarted();
+    private partial void LogFullLibraryRefreshStart();
 
     [LoggerMessage(EventId = 1201, Level = LogLevel.Error,
         Message = "Library refresh failed with message: {ErrorMessage}")]
-    private partial void LogLibraryRefreshFailed(string errorMessage);
+    private partial void LogLibraryRefreshFailure(string errorMessage);
 
     [LoggerMessage(EventId = 1202, Level = LogLevel.Information,
         Message = "Full library refresh completed")]
@@ -20,11 +20,11 @@ public sealed partial class GameListViewModel
 
     [LoggerMessage(EventId = 1203, Level = LogLevel.Information,
         Message = "Light game refresh started")]
-    private partial void LogLightGameRefreshStarted();
+    private partial void LogLightGameRefreshStart();
 
     [LoggerMessage(EventId = 1204, Level = LogLevel.Information,
         Message = "Light game refresh completed")]
-    private partial void LogLightGameRefreshCompleted();
+    private partial void LogLightGameRefreshComplete();
 
     [LoggerMessage(EventId = 1205, Level = LogLevel.Information,
         Message = "Refresh cancelled by user")]

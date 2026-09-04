@@ -68,7 +68,7 @@ public sealed partial class GameListViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task FullRefreshLibraryAsync()
     {
-        LogFullLibraryRefreshStarted();
+        LogFullLibraryRefreshStart();
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
@@ -78,7 +78,7 @@ public sealed partial class GameListViewModel : ViewModelBase
             // TODO: this doesn't actually produce warnings, it stops the whole process. Redo and yield return messages?
             if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
             {
-                LogLibraryRefreshFailed(result.ErrorMessage);
+                LogLibraryRefreshFailure(result.ErrorMessage);
                 ScanMessage = $"{result.ErrorMessage}";
                 return true;
             }
@@ -97,7 +97,7 @@ public sealed partial class GameListViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task LightRefreshLibraryAsync()
     {
-        LogLightGameRefreshStarted();
+        LogLightGameRefreshStart();
 
         var existingGames = Games.Select(g => g.GetGame()).ToList();
 
@@ -109,7 +109,7 @@ public sealed partial class GameListViewModel : ViewModelBase
             return false;
         });
 
-        LogLightGameRefreshCompleted();
+        LogLightGameRefreshComplete();
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
     }

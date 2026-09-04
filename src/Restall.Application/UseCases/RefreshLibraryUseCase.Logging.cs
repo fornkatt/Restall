@@ -6,11 +6,11 @@ namespace Restall.Application.UseCases;
 public sealed partial class RefreshLibraryUseCase
 {
     [LoggerMessage(EventId = 1250, Level = LogLevel.Debug,
-        Message = "Found compatible RenoDX mod for {GameName} — Mod name {ModName}")]
+        Message = "Found compatible RenoDX mod for {GameName} — Mod name: {ModName}")]
     private partial void LogRenoDXCompatibleGameFound(string gameName, string modName);
 
     [LoggerMessage(EventId = 1251, Level = LogLevel.Debug,
-        Message = "Found compatible generic RenoDX mod for {GameName} — Mod name {ModName}")]
+        Message = "Found compatible generic RenoDX mod for {GameName} — Mod name: {ModName}")]
     private partial void LogRenoDXCompatibleGenericGameFound(string gameName,
         string modName);
 

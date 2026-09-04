@@ -132,7 +132,7 @@ internal sealed partial class ParseService : IParseService
     // TODO: surface Result<T>
     public async Task<ImmutableArray<RenoDXTagInfoDto>> FetchRenoDXNightlyTagsAsync()
     {
-        LogFetchingRenoDXNightlyVersions(s_renoDXTagsUrl);
+        LogRenoDXNightlyVersionsFetchStart(s_renoDXTagsUrl);
 
         var nightlyTags = await FetchRenoDXNightlyTagNamesAsync();
 
@@ -153,7 +153,7 @@ internal sealed partial class ParseService : IParseService
     // TODO: surface Result<T>
     public async Task<RenoDXWikiParseResultDto> FetchRenoDXWikiModsAsync()
     {
-        LogFetchingRenoDXModsFromWiki(s_renoDxUrl);
+        LogRenoDXWikiModsFetchStart(s_renoDxUrl);
 
         var skippedCount = 0;
 
