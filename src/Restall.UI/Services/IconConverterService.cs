@@ -4,6 +4,7 @@ using Restall.Application.Interfaces.Driven;
 
 namespace Restall.UI.Services;
 
+//TODO: REMOVE THIS AND FOCUS ON IMAGERESIZESERVICE FOR REFACTOR, THEY SERVE SAME PURPOSE AND HAVE TWO SCRIPTS ARE UNNECESSARY
 internal sealed class IconConverterService : IIconConverterService
 {
     public byte[] IcoToPng(byte[] icoBytes, int width)
