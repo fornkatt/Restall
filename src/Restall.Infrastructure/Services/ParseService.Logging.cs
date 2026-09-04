@@ -69,7 +69,7 @@ internal sealed partial class ParseService
     [LoggerMessage(EventId = 1113, Level = LogLevel.Warning,
         Message = "Skipping malformed RenoDX wiki mod row. " +
                   "Expected cell count: {ExpectedCount} || Was: {ActualCount}\n{Line}")]
-    private partial void LogRenoDXSkipMalformedWikiModRow(int expectedCount, int actualCount, string line);
+    private partial void LogRenoDXSkipMalformedWikiModRow(string expectedCount, int actualCount, string line);
 
     [LoggerMessage(EventId = 1114, Level = LogLevel.Warning,
         Message = "Skipping malformed RenoDX row. No mod name available.\n{Line}")]

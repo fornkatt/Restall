@@ -86,6 +86,8 @@ public static class InfrastructureServiceCollectionExtensions
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.ControlledBy(logLevelSwitch)
+            .MinimumLevel.Override("Microsoft.Extensions.Http", LogEventLevel.Warning)
+            .MinimumLevel.Override("System.Net.Http", LogEventLevel.Information)
             .WriteTo.File(
                 Path.Combine(pathService.GetDefaultLogPath(), "restall-.log"),
                 rollingInterval: RollingInterval.Day,

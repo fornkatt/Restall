@@ -211,15 +211,15 @@ internal sealed partial class ParseService : IParseService
                     continue;
                 }
 
-                var cells = line.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                var cells = line.Trim('|').Split('|');
 
                 if (currentEngine is not null)
                 {
                     var architecture = Architecture.x64;
 
-                    if (cells.Length < 3)
+                    if (cells.Length < 2)
                     {
-                        LogRenoDXSkipMalformedWikiModRow(3, cells.Length, line);
+                        LogRenoDXSkipMalformedWikiModRow("at least 2", cells.Length, line);
                         skippedCount++;
                         continue;
                     }
@@ -243,16 +243,16 @@ internal sealed partial class ParseService : IParseService
                     genericWikiMods.Add(new RenoDXGenericModInfoDto(
                         name,
                         status,
-                        Notes: notes,
-                        Architecture: architecture,
-                        Engine: currentEngine.Value
+                        currentEngine.Value,
+                        architecture,
+                        notes
                     ));
                 }
                 else
                 {
-                    if (cells.Length < 4)
+                    if (cells.Length < 3)
                     {
-                        LogRenoDXSkipMalformedWikiModRow(4, cells.Length, line);
+                        LogRenoDXSkipMalformedWikiModRow("at least 3", cells.Length, line);
                         skippedCount++;
                         continue;
                     }
