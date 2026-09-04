@@ -1,16 +1,15 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Infrastructure.Extensions;
 using Restall.UI.Extensions;
 using Restall.UI.ViewModels;
 using Restall.UI.Views;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Restall.UI;
 
@@ -23,18 +22,13 @@ public partial class App : Avalonia.Application
     
     public override void OnFrameworkInitializationCompleted()
     {
-        var crashLogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Restall", "Logs", $"{DateTime.Now:yyyy-MM-dd}_crash.log");
-
-        // Fall back logging if crash occurs as a last resort during initialization or if LogService cannot be reached.
+        // Fall back logging if crash occurs as a last resort during initialization
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
         {
-            var ex = e.ExceptionObject as Exception;
-
-            if (ex is TaskCanceledException or OperationCanceledException)
+            if (e.ExceptionObject is TaskCanceledException or OperationCanceledException)
                 return;
-            
-            Directory.CreateDirectory(Path.GetDirectoryName(crashLogPath)!);
-            File.AppendAllText(crashLogPath, $"{DateTime.Now}: {ex}{Environment.NewLine}");
+
+            Log.Fatal(e.ExceptionObject as Exception, "Unhandled exception");
         };
 
         TaskScheduler.UnobservedTaskException += (_, e) =>
@@ -44,16 +38,13 @@ public partial class App : Avalonia.Application
                 e.SetObserved();
                 return;
             }
-            
-            Directory.CreateDirectory(Path.GetDirectoryName(crashLogPath)!);
-            File.AppendAllText(crashLogPath, $"{DateTime.Now:HH:mm:ss} {e.Exception}{Environment.NewLine}");
-        };
 
+            Log.Fatal(e.Exception, "Unobserved task exception");
+        };
         
         var services = new ServiceCollection();
         ConfigureServices(services);
         var serviceProvider = services.BuildServiceProvider();
-
         
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

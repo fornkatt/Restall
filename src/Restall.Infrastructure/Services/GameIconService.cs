@@ -1,18 +1,25 @@
+using Microsoft.Extensions.Logging;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
+using Restall.Application.Logging;
 using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
-internal sealed class GameIconService : IGameIconService
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+// TODO: INCLUDE LOCAL ICONS AND USE PEICONHELPER AS FALLBACK
+// TODO(logging-refactor): just swap the logging implementations
+internal sealed partial class GameIconService : IGameIconService
 {
-    private readonly ILogService _logService;
     private readonly IIconConverterService _iconConverterService;
+    private readonly ILogger<GameIconService> _logger;
 
-    public GameIconService(ILogService logService,
-        IIconConverterService iconConverterService)
+    public GameIconService(
+        ILogger<GameIconService> logger,
+        IIconConverterService iconConverterService
+    )
     {
-        _logService = logService;
+        _logger = logger;
         _iconConverterService = iconConverterService;
     }
 
@@ -26,17 +33,21 @@ internal sealed class GameIconService : IGameIconService
         try
         {
             var iconBytes = await Task.Run(() => PeIconHelper.ExtractLargestIconAsPng(exePath));
-            if (iconBytes is null) return;
-            
-            if(!PeIconHelper.IsPng(iconBytes)) 
-                iconBytes = _iconConverterService.IcoToPng(iconBytes,256);
+            if (iconBytes is null)
+            {
+                _logger.PeFileIconScanFailure(exePath);
+                return;
+            }
+
+            if (!PeIconHelper.IsPng(iconBytes))
+                iconBytes = _iconConverterService.IcoToPng(iconBytes, 256);
 
             await File.WriteAllBytesAsync(iconPath, iconBytes);
-            await _logService.LogInfoAsync($"Extracted icon for [{gameName}] to [{iconPath}]");
+            LogIconExtractionSuccess(gameName ?? "Unknown", iconPath);
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync($"Failed to extract icon for [{gameName}]", ex);
+            LogIconExtractionFailure(gameName ?? "Unknown", ex);
         }
     }
 

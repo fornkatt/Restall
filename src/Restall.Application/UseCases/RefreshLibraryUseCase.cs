@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
@@ -8,9 +9,9 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
-public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefreshLibraryUseCase
+public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefreshLibraryUseCase
 {
-    private readonly ILogService _logService;
+    private readonly ILogger<RefreshLibraryUseCase> _logger;
     private readonly IGameDetectionService _gameDetectionService;
     private readonly IGameArtworkService _gameArtworkService;
     private readonly IModDetectionService _modDetectionService;
@@ -19,7 +20,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
     private readonly IModCatalog _modCatalog;
 
     public RefreshLibraryUseCase(
-        ILogService logService,
+        ILogger<RefreshLibraryUseCase> logger,
         IGameDetectionService gameDetectionService,
         IGameArtworkService gameArtworkService,
         IModDetectionService modDetectionService,
@@ -28,7 +29,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
         IModCatalog modCatalog
     )
     {
-        _logService = logService;
+        _logger = logger;
         _gameDetectionService = gameDetectionService;
         _gameArtworkService = gameArtworkService;
         _modDetectionService = modDetectionService;
@@ -74,6 +75,7 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
             var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
 
+            // TODO(): handle multiple mods found with user choice
             game.ReShade = reShade.Value?.FirstOrDefault();
             game.RenoDX = renoDx.Value?.FirstOrDefault();
 
@@ -91,6 +93,15 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
                 ? FindGenericMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
                     _modCatalog.GetRenoDXGenericWikiMods())
                 : null;
+
+            var gameName = game.Name ?? "Unknown";
+            
+            if (compatibleMod is not null)
+                LogRenoDXCompatibleGameFound(gameName, compatibleMod.Name);
+            else if (compatibleGenericMod is not null)
+                LogRenoDXCompatibleGenericGameFound(gameName, compatibleGenericMod.Name);
+            else
+                LogRenoDXCompatibleGameNotFound(gameName);
 
             artworkTasks.Add(_gameArtworkService.EnrichGameArtworkAsync(game));
 

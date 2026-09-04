@@ -2,17 +2,22 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
 
-internal sealed class EpicScanner : IPlatformScannerService
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+// TODO(logging-refactor): just swap the logging implementations
+internal sealed partial class EpicScanner : IPlatformScannerService
 {
-    private readonly ILogService _logService;
+    private readonly ILogger<EpicScanner> _logger;
 
-    public EpicScanner(ILogService logService)
+    public EpicScanner(
+        ILogger<EpicScanner> logger
+    )
     {
-        _logService = logService;
+        _logger = logger;
     }
 
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEpic);
@@ -26,7 +31,7 @@ internal sealed class EpicScanner : IPlatformScannerService
         if (OperatingSystem.IsWindows())
         {
             var ueInstallPath = GetInstallPath();
-            if (ueInstallPath is not null && Directory.Exists(ueInstallPath))
+            if (Directory.Exists(ueInstallPath))
             {
                 var (epicLibrary, error) = ScanEpicLibrary(ueInstallPath);
                 games.AddRange(epicLibrary);
@@ -36,7 +41,7 @@ internal sealed class EpicScanner : IPlatformScannerService
 
         var epicHeroicPath = GetHeroicInstallPath();
 
-        if (epicHeroicPath is not null && Directory.Exists(epicHeroicPath))
+        if (Directory.Exists(epicHeroicPath))
         {
             var (epicHeroicLibrary, error) = ScanHeroicLibrary(epicHeroicPath);
             games.AddRange(epicHeroicLibrary);
@@ -63,6 +68,7 @@ internal sealed class EpicScanner : IPlatformScannerService
 
         foreach (var file in Directory.GetFiles(manifestDir, "*.item"))
         {
+            var item = Path.GetFileNameWithoutExtension(file);
             try
             {
                 var json = File.ReadAllText(file);
@@ -70,14 +76,19 @@ internal sealed class EpicScanner : IPlatformScannerService
                 var rootPath = GameScanHelper.ExtractJsonString(json, "InstallLocation");
                 var catalogItemId = GameScanHelper.ExtractJsonString(json, "CatalogItemId");
 
-                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(rootPath))
+                if (string.IsNullOrEmpty(name))
+                {
+                    LogEpicGameNameNotFound(file, item);
                     continue;
-                
-                if (!Directory.Exists(rootPath))
-                    continue;
+                }
 
-                if (GameScanHelper.NonGame(rootPath))
+                if (!Directory.Exists(rootPath))
+                {
+                    LogEpicGameRootPathNotFound(name, item);
                     continue;
+                }
+
+                if (GameScanHelper.NonGame(rootPath)) continue;
 
                 games.Add(new Game
                 {
@@ -89,7 +100,7 @@ internal sealed class EpicScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                _logService.LogError($"Failed to scan Epic Manifest", ex);
+                LogFailedToScanEpicManifest(file, ex);
             }
         }
 
@@ -112,8 +123,10 @@ internal sealed class EpicScanner : IPlatformScannerService
         var games = new List<Game>();
         var installedJsonPath = Path.Combine(configDir, "installed.json");
 
-
-        if (!File.Exists(installedJsonPath)) return (games, null);
+        if (!File.Exists(installedJsonPath))
+        {
+            return (games, null);
+        }
 
         string json;
 
@@ -123,7 +136,7 @@ internal sealed class EpicScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            _logService.LogError($"Failed to read installed.json file in Epic Heroic library", ex);
+            LogEpicHeroicFailedToReadJsonFile(installedJsonPath, ex);
             return (games, $"Failed to read installed.json file in Epic Heroic library.");
         }
 
@@ -132,12 +145,23 @@ internal sealed class EpicScanner : IPlatformScannerService
             try
             {
                 var blockValue = match.Value;
+
+                var appName = RegexHelper.EpicHeroicAppNameRegex.Match(blockValue)
+                    is { Success: true } am
+                    ? am.Groups[1].Value
+                    : null;
+
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
                     is { Success: true } pm
                     ? pm.Groups[1].Value.Replace("\\\\", "\\")
                     : null;
                 installPath = GameScanHelper.NormalizePath(installPath);
-                if (string.IsNullOrEmpty(installPath)) continue;
+
+                if (string.IsNullOrEmpty(installPath))
+                {
+                    LogEpicHeroicInstallPathNotFound(appName);
+                    continue;
+                }
 
                 var title = RegexHelper.HeroicTitleRegex.Match(blockValue)
                     is { Success: true } tm
@@ -148,12 +172,12 @@ internal sealed class EpicScanner : IPlatformScannerService
                     ? title
                     : Path.GetFileName(installPath);
 
-                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(installPath)) continue;
+                if (string.IsNullOrEmpty(name))
+                {
+                    LogEpicHeroicGameNameNotFound(appName, installPath);
+                    continue;
+                }
 
-                var appName = RegexHelper.EpicHeroicAppNameRegex.Match(blockValue)
-                    is { Success: true } am
-                    ? am.Groups[1].Value
-                    : null;
 
                 games.Add(new Game
                 {
@@ -165,7 +189,7 @@ internal sealed class EpicScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                _logService.LogError($"Failed to scan the json block in Epic Heroic library", ex);
+                LogEpicHeroicFailedToScanJsonBlock(match.Value, ex);
             }
         }
 

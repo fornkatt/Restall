@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -5,15 +6,20 @@ using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Scanners;
 
-internal sealed class EAScanner : IPlatformScannerService
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+
+// TODO(logging-refactor): just swap the logging implementations
+internal sealed partial class EAScanner : IPlatformScannerService
 {
-    private readonly ILogService _logService;
-    
-    public EAScanner(ILogService logService)
+    private readonly ILogger<EAScanner> _logger;
+
+    public EAScanner(
+        ILogger<EAScanner> logger
+    )
     {
-        _logService = logService;
+        _logger = logger;
     }
-    
+
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanEA);
     public Game.Platform Platform => Game.Platform.EA;
 
@@ -23,43 +29,52 @@ internal sealed class EAScanner : IPlatformScannerService
         var errors = new List<string>();
         if (OperatingSystem.IsWindows())
         {
-            var (library, error) = ScanEALibrary();   
+            var (library, error) = ScanEALibrary();
             games.AddRange(library);
-            if(error is not null)  errors.Add(error);
+            if (error is not null) errors.Add(error);
         }
-        
+
         return new GameScanResultDto(
-            Platform:     Game.Platform.EA,
-            Games:        games,
-            IsSuccess:      games.Count > 0,
+            Platform: Game.Platform.EA,
+            Games: games,
+            IsSuccess: games.Count > 0,
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
-        
     }
 
-    //TODO: ADD PUBLISH KEYS HELPER/MANIFEST TO INCLUDE MANY DIFFERENT REGEDITS
+    //TODO: SEPARATE SCANLIBRARY FOR EA, GOG AND UBISOFT. ALSO INCLUDE MANY REGISTRY KEYS THROUGH MANIFEST
     private (List<Game>games, string? error) ScanEALibrary()
     {
         var games = new List<Game>();
-        try
-        {
-            using var key = GameScanHelper.GetOpenRegistryKey(@"\EA Games");
-
-            if (key is null) return (games,null);
+        
+        
+        using var key = GameScanHelper.GetOpenRegistryKey(@"\EA Games");
+        //TODO: DO LOGGING FOR EASY DETECTION TO IMPLEMENT REGISTRY KEYS THROUGH MANIFEST
+        if (key is null) return (games, null);
 #pragma warning disable CA1416 // Already checked before method is called
-            foreach (var subName in key.GetSubKeyNames())
+        foreach (var subName in key.GetSubKeyNames())
+        {
+            try
             {
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey is null) continue;
-
-                var installDir = GameScanHelper.NormalizePath(
-                    GameScanHelper.GetRegistryValue(gameKey, "Install Dir", "InstallLocation", "InstallDir"));
                 
-                if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir)) continue;
-
-                var displayName = GameScanHelper.GetRegistryValue(gameKey, "DisplayName") 
+                var displayName = GameScanHelper.GetRegistryValue(gameKey, "DisplayName")
                                   ?? subName;
 
-                if (string.IsNullOrEmpty(displayName)) continue;
+                if (string.IsNullOrEmpty(displayName))
+                {
+                    LogEAGameDisplayNameEmpty(subName);
+                    continue;
+                }
+                
+                var installDir = GameScanHelper.NormalizePath(
+                    GameScanHelper.GetRegistryValue(gameKey, "Install Dir", "InstallLocation", "InstallDir"));
+
+                if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir))
+                {
+                    LogEAInstallDirectoryNotFound(displayName, subName);
+                    continue;
+                }
                 
                 games.Add(new Game
                 {
@@ -69,15 +84,12 @@ internal sealed class EAScanner : IPlatformScannerService
                     PlatformId = subName
                 });
             }
-
+            catch (Exception ex)
+            {
+                LogEAScannerFailed(subName, ex);
+            }
         }
-        catch (Exception ex)
-        {
-            _logService.LogError("Failed to process EA library", ex);
-            return (games, $"Failed to process EA library.");
-        }
-
+        
         return (games, null);
     }
-
 }

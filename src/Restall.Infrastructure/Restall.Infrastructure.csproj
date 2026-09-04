@@ -2,8 +2,6 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-        <RestoreLockedMode>true</RestoreLockedMode>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -17,8 +15,60 @@
         <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.11" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
         <PackageReference Include="PeNet" Version="6.1.2" />
+        <PackageReference Include="Serilog" Version="4.4.0" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
         <PackageReference Include="System.Net.Http.WinHttpHandler" Version="10.0.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Services\GameIconService.Logging.cs">
+        <DependentUpon>GameIconService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\Log.GameIconService.cs">
+        <DependentUpon>GameIconService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\ModDetectionService.Logging.cs">
+        <DependentUpon>ModDetectionService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\ParseService.Logging.cs">
+        <DependentUpon>ParseService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\ModDownloadService.Logging.cs">
+        <DependentUpon>ModDownloadService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\GameCoverService.Logging.cs">
+        <DependentUpon>GameCoverService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\EngineDetectionService.Logging.cs">
+        <DependentUpon>EngineDetectionService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\GameArtworkService.Logging.cs">
+        <DependentUpon>GameArtworkService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\GameDetectionService.Logging.cs">
+        <DependentUpon>GameDetectionService.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\EAScanner.Logging.cs">
+        <DependentUpon>EAScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\EpicScanner.Logging.cs">
+        <DependentUpon>EpicScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\GOGScanner.Logging.cs">
+        <DependentUpon>GOGScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\SteamScanner.Logging.cs">
+        <DependentUpon>SteamScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\UbisoftScanner.Logging.cs">
+        <DependentUpon>UbisoftScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Scanners\XboxScanner.Logging.cs">
+        <DependentUpon>XboxScanner.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
