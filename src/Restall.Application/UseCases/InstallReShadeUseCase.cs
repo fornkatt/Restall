@@ -39,6 +39,9 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
     public async Task<ModOperationResultDto> ExecuteAsync(InstallReShadeRequest request,
         IProgress<DownloadProgressReportDto>? progress = null)
     {
+        _logger.ModInstallationStart("ReShade", request.SelectedFilename, request.Arch.ToString(),
+            request.Game.Name ?? "Unknown", request.Game.ExecutablePath ?? "Unknown");
+
         var reShade = new ReShade
         {
             BranchName = request.Branch,
@@ -150,12 +153,15 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                     "Please ensure the destination is not in use and the disk is not full and try again.",
                 _ => "Failed to install ReShade. Check logs for details."
             };
-            
+
             _logger.ModInstallationFailure("ReShade", request.Game.Name ?? "Unknown", result.ErrorMessage,
                 result.Exception);
 
             return new ModOperationResultDto(false, request.Game, userMessage);
         }
+
+        _logger.ModInstallationComplete("ReShade", reShade.SelectedFilename, reShade.Arch.ToString(),
+            request.Game.Name ?? "Unknown");
 
         return new ModOperationResultDto(true, result.Value!,
             $"Successfully installed ReShade as {reShade.SelectedFilename}!");

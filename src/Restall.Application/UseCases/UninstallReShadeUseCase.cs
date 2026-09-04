@@ -24,6 +24,8 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 
     public ModOperationResultDto Execute(Game game)
     {
+        _logger.ModUninstallationStart("ReShade", game.Name ?? "Unknown", game.ExecutablePath ?? "Unknown");
+        
         var result = _modInstallService.UninstallReShade(game);
 
         if (!result.IsSuccess)
@@ -48,6 +50,8 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 
             return new ModOperationResultDto(false, game, userMessage);
         }
+        
+        _logger.ModUninstallationComplete("ReShade", game.Name ?? "Unknown");
 
         return new ModOperationResultDto(true, result.Value!, "Successfully uninstalled ReShade!");
     }

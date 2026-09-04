@@ -9,7 +9,8 @@ public static partial class Log
         Message = "Failed to scan file {Filename}")]
     public static partial void PeFileReadFailure(this ILogger logger, string filename, Exception ex);
     
-    [LoggerMessage(EventId = 51, Level = LogLevel.Debug,
-        Message= "Failed to scan the Icon file from [{ExePath}]")]
+    // TODO: once Result type is available to this method, write out a reason or failure message
+    [LoggerMessage(EventId = 51, Level = LogLevel.Warning,
+        Message= "Failed to get icon from executable file from [{ExePath}]")]
     public static partial void PeFileIconScanFailure(this ILogger logger, string exePath);
 }

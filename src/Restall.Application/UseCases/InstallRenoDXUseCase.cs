@@ -42,7 +42,10 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
     {
         var addonFilename = ResolveAddonFilename(request);
 
-        if (addonFilename is null)
+        if (addonFilename is not null)
+            _logger.ModInstallationStart("RenoDX", addonFilename, request.Arch.ToString(),
+                request.Game.Name ?? "Unknown", request.Game.ExecutablePath ?? "Unknown");
+        else
         {
             LogRenoDXAddonFilenameResolutionFailure(request.Game.Name ?? "Unknown", request.Game.EngineName.ToString(),
                 request.Arch.ToString());
@@ -154,8 +157,12 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         var versionNote = renoDX.Version is not null
             ? ""
-            : $"\n\nVersion could not be read from {addonFilename}.It may not appear in the UI.\n" +
+            : $"\n\nVersion could not be read from {addonFilename}. It may not appear in the UI.\n" +
               $"Check the logs for information on why this might have happened.";
+        
+        _logger.ModInstallationComplete("RenoDX", addonFilename, renoDX.Arch.ToString(),
+            request.Game.Name ?? "Unknown");
+        
         return new ModOperationResultDto(true, request.Game, $"Successfully installed {addonFilename}!{versionNote}");
     }
 

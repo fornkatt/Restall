@@ -24,6 +24,8 @@ public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
 
     public ModOperationResultDto Execute(Game game)
     {
+        _logger.ModUninstallationStart("RenoDX", game.Name ?? "Unknown", game.ExecutablePath ?? "Unknown");
+        
         var result = _modInstallService.UninstallRenoDX(game);
 
         if (!result.IsSuccess)
@@ -45,6 +47,8 @@ public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
 
             return new ModOperationResultDto(false, game, userMessage);
         }
+        
+        _logger.ModUninstallationComplete("RenoDX", game.Name ?? "Unknown");
 
         return new ModOperationResultDto(true, result.Value!, "Successfully uninstalled RenoDX!");
     }

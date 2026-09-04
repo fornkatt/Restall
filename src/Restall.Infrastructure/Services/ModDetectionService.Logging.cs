@@ -5,11 +5,11 @@ namespace Restall.Infrastructure.Services;
 // Mod Detection Logging — EventId range: 1050 - 1099
 internal sealed partial class ModDetectionService
 {
-    [LoggerMessage(EventId = 1050, Level = LogLevel.Information,
+    [LoggerMessage(EventId = 1050, Level = LogLevel.Debug,
         Message = "Starting {ModType} detection in {Directory}")]
     private partial void LogModDetectionStart(string modType, string directory);
 
-    [LoggerMessage(EventId = 1051, Level = LogLevel.Information,
+    [LoggerMessage(EventId = 1051, Level = LogLevel.Debug,
         Message = "Finished detection of {ModType} in {Directory}. Found {Count} instances.")]
     private partial void LogModDetectionFinished(string modType, string directory, int count);
 
