@@ -7,7 +7,7 @@
 		Width="340"
 		SizeToContent="Height"
 		WindowStartupLocation="CenterOwner"
-		SystemDecorations="None"
+		WindowDecorations="None"
 		CanResize="False"
 		Background="Transparent"
 		TransparencyLevelHint="Transparent">

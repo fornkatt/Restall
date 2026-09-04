@@ -11,7 +11,7 @@ internal sealed class IconConverterService : IIconConverterService
         using var icoStream = new MemoryStream(icoBytes);
         using var bitmap = Bitmap.DecodeToWidth(icoStream,width);
         using var pngStream = new MemoryStream();
-        bitmap.Save(pngStream);
+        bitmap.Save(pngStream, PngBitmapEncoderOptions.Default);
         return pngStream.ToArray();
     }
 }
