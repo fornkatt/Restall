@@ -182,12 +182,12 @@ internal sealed partial class GameCoverService : IGameCoverService
                 //Getting the middle one as it represent the cover instead of the icon or banner
                 var found = files[files.Length / 2];
 
-                LogLocalGOGGameFound(game.Name ?? "Unknown Game", guidDir, productId);
+                LogGOGLocalGameFound(game.Name ?? "Unknown Game", guidDir, productId);
                 return found;
             }
             catch (Exception ex)
             {
-                LogLocalGOGGameCoverScanFailed(game.Name ?? "Unknown Game", guidDir, productId, ex);
+                LogGOGLocalGameCoverScanFailed(game.Name ?? "Unknown Game", guidDir, productId, ex);
             }
         }
 
@@ -311,7 +311,7 @@ internal sealed partial class GameCoverService : IGameCoverService
             await TryPcgwCargoAsync(string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName)));
         if (exactUrl is  null)
         {
-            LogPcGamingWikiExactUrlLookupFailed(gameName, exactUrl ?? "Unknown");
+            LogPCGamingWikiExactUrlLookupFailed(gameName, exactUrl ?? "Unknown");
             return exactUrl;
         }
 
@@ -404,7 +404,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         }
         catch (Exception ex)
         {
-            LogDownLoadCoverFailed(gameName ?? "Unknown Game", coverPath, url, ex);
+            LogDownloadCoverFailed(gameName ?? "Unknown Game", coverPath, url, ex);
         }
     }
 

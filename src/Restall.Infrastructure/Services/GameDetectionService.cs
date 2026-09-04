@@ -113,7 +113,7 @@ internal sealed partial class GameDetectionService : IGameDetectionService
                     }
                     catch(Exception ex)
                     {
-                        LogFailedToDetectExecutablePathAndEngine(game.Name ?? "Unknown", game.InstallFolder, ex);
+                        LogExecutablePathDetectionFailure(game.Name ?? "Unknown", game.InstallFolder, ex);
                     }
                     
                     
@@ -134,7 +134,7 @@ internal sealed partial class GameDetectionService : IGameDetectionService
         catch (Exception ex)
         {
             
-            LogFailedToScanLibraries(ex);
+            LogLibrariesScanFailure(ex);
             return new GameScanResultDto(
                 Platform: Game.Platform.Unknown,
                 Games: [],

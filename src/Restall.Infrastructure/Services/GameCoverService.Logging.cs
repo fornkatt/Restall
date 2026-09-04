@@ -27,11 +27,11 @@ internal sealed partial class GameCoverService
     
     [LoggerMessage(EventId=1405, Level = LogLevel.Debug,
         Message="Found [{GameName}] in guid: [{GuidDir}], Product ID: [{ProductId}]")]
-    private partial void LogLocalGOGGameFound(string gameName, string guidDir, string productId);
+    private partial void LogGOGLocalGameFound(string gameName, string guidDir, string productId);
     
     [LoggerMessage(EventId=1406, Level = LogLevel.Error,
         Message="Failed to scan local GOG Game cover for [{GameName}] in guid: [{GuidDir}], Product ID: [{ProductId}]")]
-    private partial void LogLocalGOGGameCoverScanFailed(string gameName, string guidDir, string productId, Exception ex);
+    private partial void LogGOGLocalGameCoverScanFailed(string gameName, string guidDir, string productId, Exception ex);
     
     [LoggerMessage(EventId=1407, Level = LogLevel.Error,
         Message="GOG API Game cover lookup failed [{GameName}]")]
@@ -51,7 +51,7 @@ internal sealed partial class GameCoverService
 
     [LoggerMessage(EventId = 1411, Level = LogLevel.Debug,
         Message = "Failed to do 'exact' look up for [{GameName}] with URL: [{ExactUrl}]. Proceeding to API Cargo" )]
-    private partial void LogPcGamingWikiExactUrlLookupFailed(string gameName, string exactUrl);
+    private partial void LogPCGamingWikiExactUrlLookupFailed(string gameName, string exactUrl);
     [LoggerMessage(EventId=1412, Level = LogLevel.Error,
         Message="Failed to search for [{GameName}]'s cover at PC Gaming Wiki")]
     private partial void LogPCGamingWikiSearchFailed(string gameName, Exception ex);
@@ -71,6 +71,6 @@ internal sealed partial class GameCoverService
     [LoggerMessage(EventId = 1416, Level = LogLevel.Error,
         Message =
             "Failed to download the cover for [{GameName}] from PC Gaming Wiki. Cover path: [{CoverPath}] | CoverUrl: [{CoverUrl}]")]
-    private partial void LogDownLoadCoverFailed(string gameName, string coverPath, string coverUrl, Exception ex);
+    private partial void LogDownloadCoverFailed(string gameName, string coverPath, string coverUrl, Exception ex);
 
 }
