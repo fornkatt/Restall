@@ -8,7 +8,6 @@
         <Nullable>enable</Nullable>
         <ApplicationManifest Condition="$(RuntimeIdentifier.StartsWith('win'))">app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <UserSecretsId>restall-steamgriddb</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
