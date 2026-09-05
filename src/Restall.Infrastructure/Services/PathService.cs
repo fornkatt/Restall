@@ -11,42 +11,36 @@ internal sealed class PathService : IPathService
     private static readonly string s_userProfileDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     private static readonly string s_commonAppDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
     
-    
     private const string s_downloadCacheFolderName = "DownloadCache";
     private const string s_cacheFolderName = "Cache";
     private const string s_artworkFolderName = "Artwork";
-    
+
     private const string s_iconFileName = "icon.png";
     private const string s_gameCoverFileName = "cover.png";
-    
+
     private readonly string _defaultLogPath = Path.Combine(s_baseDirectory, "Logs");
     private readonly string _reShadeCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, "ReShade");
     private readonly string _reShadeDownloadCacheBaseDir = Path.Combine(s_baseDirectory, s_downloadCacheFolderName, "ReShade");
     private readonly string _renoDXDownloadCacheBaseDir = Path.Combine(s_baseDirectory, s_downloadCacheFolderName, "RenoDX");
     private readonly string _artworkCacheBaseDir = Path.Combine(s_baseDirectory, s_cacheFolderName, s_artworkFolderName);
     
-    
     public string GetArtworkCacheDirectory() => _artworkCacheBaseDir;
-    public string GetGameArtworkCover(string slug) => Path.Combine(_artworkCacheBaseDir,slug,  s_gameCoverFileName);
+    public string GetGameArtworkCover(string slug) => Path.Combine(_artworkCacheBaseDir, slug, s_gameCoverFileName);
     public string GetGameArtThumbnailPath(string slug) => Path.Combine(_artworkCacheBaseDir, slug, s_iconFileName);
+
     public IReadOnlyList<string> GetSteamLinuxPaths() =>
     [
         Path.Combine(s_userProfileDirectory, ".steam", "steam"),
         Path.Combine(s_userProfileDirectory, ".local", "share", "Steam"),
-        Path.Combine(s_userProfileDirectory, "snap",   "steam", "common", ".local", "share", "Steam")
+        Path.Combine(s_userProfileDirectory, "snap", "steam", "common", ".local", "share", "Steam")
     ];
 
-    public string GetEpicInstallPath() => Path.Combine(
-        s_commonAppDataDirectory, "Epic", "EpicGamesLauncher", "Data", "Manifests");
+    public string GetEpicInstallPath() => 
+        Path.Combine(s_commonAppDataDirectory, "Epic", "EpicGamesLauncher", "Data", "Manifests");
 
-    public string GetEpicHeroicPath() => OperatingSystem.IsWindows()
-        ? Path.Combine(s_userProfileDirectory, "AppData", "Roaming", "heroic", "legendaryConfig", "legendary")
-        : Path.Combine(s_userProfileDirectory, ".config", "heroic", "legendaryConfig", "legendary");
-
-    public string GetGOGHeroicPath() => OperatingSystem.IsWindows()
-        ? Path.Combine(s_userProfileDirectory, "AppData", "Roaming", "heroic", "gog_store")
-        : Path.Combine(s_userProfileDirectory, ".config", "heroic", "gog_store");
-    
+    public string GetHeroicPath() => OperatingSystem.IsWindows()
+        ? Path.Combine(s_userProfileDirectory, "AppData", "Roaming", "heroic")
+        : Path.Combine(s_userProfileDirectory, ".config", "heroic");
 
     public string GetReShadeCachePath(ReShade reShade) =>
         Path.Combine(_reShadeCacheBaseDir, reShade.BranchName.ToString(), reShade.Version!);

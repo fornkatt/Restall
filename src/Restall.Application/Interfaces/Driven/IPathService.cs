@@ -18,9 +18,7 @@ public interface IPathService
 
     IReadOnlyList<string> GetSteamLinuxPaths();
     string GetEpicInstallPath();
-    string GetEpicHeroicPath();
-    string GetGOGHeroicPath();
-    
+    string GetHeroicPath();
     string GetDefaultLogPath();
     
     
