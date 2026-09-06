@@ -11,6 +11,7 @@ internal sealed class GameCoverService : IGameCoverService
     private readonly ILogService _logService;
     private readonly HttpClient _httpClient;
     private readonly IImageResizeService _imageResizeService;
+    private readonly IPathService _pathService;
     
     private const string PcgwCargoByPageNameUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageName%3D%22{0}%22&format=json";
@@ -23,11 +24,13 @@ internal sealed class GameCoverService : IGameCoverService
 
     public GameCoverService(ILogService logService,
         HttpClient httpClient,
-        IImageResizeService imageResizeService)
+        IImageResizeService imageResizeService,
+        IPathService pathService)
     {
         _logService = logService;
         _httpClient = httpClient;
         _imageResizeService = imageResizeService;
+        _pathService = pathService;
     }
 
     public async Task DownloadCoverIfMissingAsync(Game game, string coverPath)
@@ -115,7 +118,7 @@ internal sealed class GameCoverService : IGameCoverService
         return null;
     }
 
-    private static string? FindSteamRoot()
+    private string? FindSteamRoot()
     {
         if (OperatingSystem.IsWindows())
         {
@@ -128,19 +131,8 @@ internal sealed class GameCoverService : IGameCoverService
             if (Directory.Exists(defaultPath)) return defaultPath;
         }
 
-        if (OperatingSystem.IsLinux())
-        {
-            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var linuxPaths = new[]
-            {
-                Path.Combine(home, ".steam", "steam"),
-                Path.Combine(home, ".local", "share", "Steam"),
-                Path.Combine(home, "snap", "steam", "common", ".local", "share", "Steam")
-            };
-            return linuxPaths.FirstOrDefault(Directory.Exists);
-        }
-
-        return null;
+        return OperatingSystem.IsLinux() ? 
+            _pathService.GetSteamLinuxPaths().FirstOrDefault(Directory.Exists) : null;
     }
     
     // GOG ---------------------------------------------------------------------------------
@@ -217,18 +209,12 @@ internal sealed class GameCoverService : IGameCoverService
     // Heroic (GOG + Epic) -----------------------------------------------------------------
     private async Task<string?> TryResolveHeroicCoverAsync(Game game)
     {
-        var heroicPath = GetHeroicConfigPath();
-        if (heroicPath is null) return null;
-
+        
         var isGog = game.PlatformName == Game.Platform.GOG;
-        var cacheFile = Path.Combine(heroicPath, "store_cache",
-            isGog ? "gog_library.json" : "legendary_library.json");
-
+        var cacheFile = _pathService.GetHeroicStoreCache(game.PlatformName, isGog ? "gog_library.json" : "legendary_library.json");
+            
         if (!File.Exists(cacheFile)) return null;
-
-        var gameId = game.PlatformId ?? string.Empty;
-        var normalizedName = GameNameHelper.NormalizeName(game.Name ?? string.Empty);
-
+        
         try
         {
             var json = await File.ReadAllTextAsync(cacheFile);
@@ -242,12 +228,6 @@ internal sealed class GameCoverService : IGameCoverService
 
             foreach (var entry in library.EnumerateArray())
             {
-                if (entry.TryGetProperty("app_name", out var appName)
-                    && string.Equals(appName.GetString(), gameId, StringComparison.OrdinalIgnoreCase))
-                {
-                    bestMatch = entry;
-                    break;
-                }
 
                 if (bestMatch is null)
                 {
@@ -275,16 +255,6 @@ internal sealed class GameCoverService : IGameCoverService
         }
 
         return null;
-    }
-
-    private static string? GetHeroicConfigPath()
-    {
-        if (OperatingSystem.IsWindows())
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "heroic");
-
-        return OperatingSystem.IsLinux()
-            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "heroic")
-            : null;
     }
     
     // PCGamingWiki (fallback) -------------------------------------------------------------
