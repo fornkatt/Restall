@@ -14,32 +14,30 @@ public sealed partial class GameModViewModel : ObservableObject
 {
     private readonly Game _game;
 
-    
+
     private const int s_coverTargetWidth = 600;
     private const int s_thumbnailTargetWidth = 32;
 
-    
+
     private Lazy<Bitmap?> _coverBitMap;
     private Lazy<Bitmap?> _thumbnailBitmap;
 
     public GameModViewModel(Game game)
     {
         _game = game;
-        
+
         _coverPathString = game.GameCoverPathString;
         _thumbnailPathString = game.ThumbnailPathString;
         NormalizedName = GameNameHelper.NormalizeName(game.Name!);
-        
+
         _coverBitMap = CreateLazyBitmap(_coverPathString, s_coverTargetWidth);
         _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, s_thumbnailTargetWidth);
     }
-    
-    [ObservableProperty]
-    private UpdateCheckResultDto? _reShadeUpdateCheck;
-    
-    [ObservableProperty]
-    private UpdateCheckResultDto? _renoDXUpdateCheck;
-    
+
+    [ObservableProperty] private UpdateCheckResultDto? _reShadeUpdateCheck;
+
+    [ObservableProperty] private UpdateCheckResultDto? _renoDXUpdateCheck;
+
     public string NormalizedName { get; }
     public string? Name => _game.Name;
     public Game.Platform PlatformName => _game.PlatformName;
@@ -49,32 +47,37 @@ public sealed partial class GameModViewModel : ObservableObject
     public string? ExecutablePathDisplay => OperatingSystem.IsWindows()
         ? ExecutablePath?.Replace(@"\", "\\\u200B")
         : ExecutablePath?.Replace("/", "/\u200B");
+
     public string? InstallFolder => _game.InstallFolder;
+
     public string? InstallFolderDisplay => OperatingSystem.IsWindows()
         ? InstallFolder?.Replace(@"\", "\\\u200B")
         : InstallFolder?.Replace("/", "/\u200B");
+
     public bool HasRenoDX => _game.HasRenoDX;
     public bool HasReShade => _game.HasReShade;
+
     public bool IsRenoDXSupported =>
-        (CompatibleRenoDXMod is not null            ||
-         CompatibleRenoDXGenericMod is not null)    ||
-        (EngineName == Game.Engine.Unity            ||
-         EngineName == Game.Engine.Unreal)          ||
-         HasRenoDX;
+        (CompatibleRenoDXMod is not null ||
+         CompatibleRenoDXGenericMod is not null) ||
+        RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(EngineName) is not null ||
+        HasRenoDX;
+
     public string? ReShadeVersion => _game.ReShade?.Version;
     public string? ReShadeBranch => _game.ReShade?.BranchName.ToString();
     public ReShade.Branch? ReShadeBranchName => _game.ReShade?.BranchName;
     public string? ReShadeArch => _game.ReShade?.Arch.ToString();
     public string? ReShadeFilename => _game.ReShade?.SelectedFilename;
+
     public bool IsUsingGenericModWhenSpecificAvailable =>
-        HasRenoDX                                               &&
-        CompatibleRenoDXMod is { HasWikiFilename: true } mod    &&
-        _game.RenoDX?.OriginalName is { } installedName         &&
-        installedName != mod.AddonFilename64                    &&
+        HasRenoDX &&
+        CompatibleRenoDXMod is { HasWikiFilename: true } mod &&
+        _game.RenoDX?.OriginalName is { } installedName &&
+        installedName != mod.AddonFilename64 &&
         installedName != mod.AddonFilename32;
-    
+
     internal Game GetGame() => _game;
-    
+
     internal void NotifyGameStateChanged()
     {
         OnPropertyChanged(nameof(RenoDXBranchName));
@@ -99,8 +102,12 @@ public sealed partial class GameModViewModel : ObservableObject
     public RenoDX.Branch? RenoDXBranchName => _game.RenoDX?.BranchName;
     public string? RenoDXArch => _game.RenoDX?.Arch.ToString();
 
-    public bool RenoDXSupportsX64 => CompatibleRenoDXMod?.SupportsX64 ?? CompatibleRenoDXGenericMod?.SupportsX64 ?? false;
-    public bool RenoDXSupportsX32 => CompatibleRenoDXMod?.SupportsX32 ?? CompatibleRenoDXGenericMod?.SupportsX32 ?? false;
+    public bool RenoDXSupportsX64 =>
+        CompatibleRenoDXMod?.SupportsX64 ?? CompatibleRenoDXGenericMod?.SupportsX64 ?? false;
+
+    public bool RenoDXSupportsX32 =>
+        CompatibleRenoDXMod?.SupportsX32 ?? CompatibleRenoDXGenericMod?.SupportsX32 ?? false;
+
     public bool RenoDXIsDualArch => CompatibleRenoDXMod?.IsDualArch ?? false;
 
     public string? RenoDXAddonFilename64 => CompatibleRenoDXMod?.AddonFilename64;
@@ -109,22 +116,18 @@ public sealed partial class GameModViewModel : ObservableObject
     public bool HasDiscordLink => CompatibleRenoDXMod?.DiscordUrl is not null;
     public bool HasNexusLink => CompatibleRenoDXMod?.NexusUrl is not null;
 
-    [ObservableProperty]
-    private string? _reShadeModActionStatus;
-    
-    [ObservableProperty]
-    private bool _isShowingReShadeActionMessage;
-    
+    [ObservableProperty] private string? _reShadeModActionStatus;
+
+    [ObservableProperty] private bool _isShowingReShadeActionMessage;
+
     internal CancellationTokenSource? _reShadeMessageCts;
-    
-    [ObservableProperty]
-    private string? _renoDXModActionStatus;
-    
-    [ObservableProperty]
-    private bool _isShowingRenoDXActionMessage;
+
+    [ObservableProperty] private string? _renoDXModActionStatus;
+
+    [ObservableProperty] private bool _isShowingRenoDXActionMessage;
 
     internal CancellationTokenSource? _renoDXMessageCts;
-    
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
     [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
@@ -138,8 +141,8 @@ public sealed partial class GameModViewModel : ObservableObject
             (CompatibleRenoDXMod is not null
                 ? CompatibleRenoDXMod.SupportsX32 && !CompatibleRenoDXMod.SupportsX64
                 : CompatibleRenoDXGenericMod?.SupportsX32 == true)
-            ? RenoDX.Architecture.x32
-            : RenoDX.Architecture.x64);
+                ? RenoDX.Architecture.x32
+                : RenoDX.Architecture.x64);
 
     public ReShade.Architecture SelectedReShadeInstallArch =>
         SelectedRenoDXInstallArch == RenoDX.Architecture.x32
@@ -175,20 +178,19 @@ public sealed partial class GameModViewModel : ObservableObject
     private RenoDXGenericModInfoDto? _compatibleRenoDXGenericMod;
 
     // Bitmaps -------------------------------------------------------------------------------
-    
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CoverBitmap))]
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CoverBitmap))]
     private string? _coverPathString;
+
     partial void OnCoverPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _coverBitMap,value, s_coverTargetWidth);
-    
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
+        ResetLazyBitmap(ref _coverBitMap, value, s_coverTargetWidth);
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
     private string? _thumbnailPathString;
 
     partial void OnThumbnailPathStringChanged(string? value) =>
         ResetLazyBitmap(ref _thumbnailBitmap, value, s_thumbnailTargetWidth);
-    
+
     public Bitmap? CoverBitmap => _coverBitMap.Value;
     public Bitmap? ThumbnailBitmap => _thumbnailBitmap.Value;
 
@@ -212,5 +214,4 @@ public sealed partial class GameModViewModel : ObservableObject
 
         lazy = CreateLazyBitmap(newPath, targetWidth);
     }
-    
 }

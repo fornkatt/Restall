@@ -12,5 +12,7 @@ public sealed class RenoDX
     public string? Version { get; set; }
 
     public bool IsUpdateCheckSupported =>
-        OriginalName is null || !OriginalName.StartsWith("renodx-unityengine", StringComparison.OrdinalIgnoreCase);
+        OriginalName is null ||
+        (!OriginalName.StartsWith("renodx-unityengine", StringComparison.OrdinalIgnoreCase) &&
+         !OriginalName.StartsWith("renodx-ue-extended", StringComparison.OrdinalIgnoreCase));
 }
