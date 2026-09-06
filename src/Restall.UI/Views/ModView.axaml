@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Restall.UI.ViewModels"
+             xmlns:dto="clr-namespace:Restall.Application.DTOs;assembly=Restall.Application"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Restall.UI.Views.ModView"
              x:DataType="vm:ModViewModel">
@@ -327,13 +328,37 @@
                                            HorizontalAlignment="Left"
                                            Foreground="{DynamicResource GameCardText}"
                                            Text="{Binding RenoDXNotes}" />
-                                <SelectableTextBlock Grid.Row="1" TextWrapping="Wrap"
-                                           FontSize="12"
-                                           Margin="10"
-                                           HorizontalAlignment="Left"
-                                           Foreground="{DynamicResource GameCardText}"
-                                           Text="{Binding ModTypeSectionNotes}"
-                                           IsVisible="{Binding HasModTypeSectionNotes}" />
+                                <ItemsControl Grid.Row="1"
+                                              Margin="10, 0, 10, 10"
+                                              ItemsSource="{Binding ModTypeSectionSegments}"
+                                              IsVisible="{Binding HasModTypeSectionNotes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="dto:NotesSegmentDto">
+                                            <Grid RowDefinitions="Auto, Auto">
+                                                <SelectableTextBlock
+                                                    Grid.Row="0"
+                                                    TextWrapping="Wrap"
+                                                    FontSize="12"
+                                                    Margin="0, 2"
+                                                    Foreground="{DynamicResource GameCardText}"
+                                                    Text="{Binding Text}"
+                                                    IsVisible="{Binding IsPlainText}" />
+                                                <Border Grid.Row="1"
+                                                        Background="{DynamicResource AppBackground}"
+                                                        CornerRadius="4"
+                                                        Padding="6"
+                                                        Margin="0, 4"
+                                                        IsVisible="{Binding IsCode}">
+                                                    <SelectableTextBlock Text="{Binding Text}"
+                                                                         FontFamily="Cascadia Code,Consolas,monospace"
+                                                                         FontSize="11"
+                                                                         TextWrapping="Wrap"
+                                                                         Foreground="{DynamicResource GameCardText}" />
+                                                </Border>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                                 <HyperlinkButton Grid.Row="2"
                                                  IsVisible="{Binding SelectedGame.HasNexusLink}"
                                                  NavigateUri="{Binding SelectedGame.CompatibleRenoDXMod.NexusUrl}"

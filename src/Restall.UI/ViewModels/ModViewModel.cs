@@ -8,6 +8,7 @@ using Restall.Domain.Entities;
 using Restall.UI.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -56,6 +57,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RenoDXNotes))]
     [NotifyPropertyChangedFor(nameof(ModTypeSectionNotes))]
     [NotifyPropertyChangedFor(nameof(HasModTypeSectionNotes))]
+    [NotifyPropertyChangedFor(nameof(ModTypeSectionSegments))]
     [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
     [NotifyPropertyChangedFor(nameof(AvailableRenoDXBranches))]
@@ -348,6 +350,9 @@ public sealed partial class ModViewModel : ViewModelBase
         EffectiveModType is { } modType ? _modCatalog.GetModTypeNotes(modType) : null;
 
     public bool HasModTypeSectionNotes => !string.IsNullOrWhiteSpace(ModTypeSectionNotes);
+
+    public ImmutableArray<NotesSegmentDto> ModTypeSectionSegments =>
+        NotesFormattingHelper.Segment(ModTypeSectionNotes);
 
     private ModType? EffectiveModType =>
         SelectedGame is null ? null :

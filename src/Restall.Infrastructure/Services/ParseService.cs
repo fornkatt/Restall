@@ -169,6 +169,7 @@ internal sealed partial class ParseService : IParseService
             ModType? capturingNotesFor = null;
             var inTable = false;
             var headerSkipped = false;
+            var inCodeFence = false;
 
             foreach (var rawLine in lines)
             {
@@ -182,6 +183,7 @@ internal sealed partial class ParseService : IParseService
                     capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
+                    inCodeFence = false;
                     continue;
                 }
 
@@ -191,6 +193,7 @@ internal sealed partial class ParseService : IParseService
                     capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
+                    inCodeFence = false;
                     continue;
                 }
 
@@ -200,6 +203,7 @@ internal sealed partial class ParseService : IParseService
                     capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
+                    inCodeFence = false;
                     continue;
                 }
 
@@ -209,21 +213,29 @@ internal sealed partial class ParseService : IParseService
                     capturingNotesFor = null;
                     inTable = false;
                     headerSkipped = false;
+                    inCodeFence = false;
                     continue;
                 }
 
                 if (capturingNotesFor is not null && !inTable && !line.StartsWith('|'))
                 {
+                    if (line.StartsWith("```"))
+                    {
+                        AddNoteLine(engineNotes, capturingNotesFor.Value, line);
+                        inCodeFence = !inCodeFence;
+                        continue;
+                    }
+
+                    if (inCodeFence)
+                    {
+                        AddNoteLine(engineNotes, capturingNotesFor.Value, rawLine.TrimEnd('\r'));
+                        continue;
+                    }
+
                     if (BadgeLinkRegex().IsMatch(line))
                         continue;
 
-                    if (!engineNotes.TryGetValue(capturingNotesFor.Value, out var noteLines))
-                    {
-                        noteLines = [];
-                        engineNotes[capturingNotesFor.Value] = noteLines;
-                    }
-
-                    noteLines.Add(CleanNotesLine(line));
+                    AddNoteLine(engineNotes, capturingNotesFor.Value, CleanNotesLine(line));
                     continue;
                 }
 
@@ -572,8 +584,20 @@ internal sealed partial class ParseService : IParseService
         var withoutImages = MarkdownImageRegex().Replace(text, string.Empty);
         var withoutLinks = MarkdownLinkRegex().Replace(withoutImages, "$1");
         var withoutEmphasis = StripMarkdownEmphasis(withoutLinks);
+        var withEmoji = EmojiShortcodeHelper.Convert(withoutEmphasis);
 
-        return ExtraWhitespaceRegex().Replace(withoutEmphasis, " ");
+        return ExtraWhitespaceRegex().Replace(withEmoji, " ");
+    }
+
+    private static void AddNoteLine(Dictionary<ModType, List<string>> engineNotes, ModType modType, string line)
+    {
+        if (!engineNotes.TryGetValue(modType, out var noteLines))
+        {
+            noteLines = [];
+            engineNotes[modType] = noteLines;
+        }
+
+        noteLines.Add(line);
     }
 
     private static string StripMarkdownEmphasis(string text) => BoldRegex().Replace(text, "$1");
