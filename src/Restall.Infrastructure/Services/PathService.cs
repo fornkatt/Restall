@@ -42,6 +42,26 @@ internal sealed class PathService : IPathService
         ? Path.Combine(s_userProfileDirectory, "AppData", "Roaming", "heroic")
         : Path.Combine(s_userProfileDirectory, ".config", "heroic");
 
+    public string GetHeroicInstalledPath(Game.Platform platform) =>
+        (GetHeroicPath() is {} root ? platform switch
+        {
+            Game.Platform.Epic => Path.Combine(root, "legendaryConfig", "legendary", "installed.json"),
+            Game.Platform.GOG => Path.Combine(root, "gog_store", "installed.json"),
+            _ => null
+
+        } : null) ?? "Unknown";
+    
+    public string GetHeroicStoreCache(Game.Platform platform, string destination) =>
+        (GetHeroicPath() is {} root ? platform switch
+        {
+            
+            Game.Platform.Epic => Path.Combine(root, "store_cache", destination),
+            Game.Platform.GOG => Path.Combine(root, "store_cache", destination),
+            _ => null
+
+        } : null) ?? "Unknown";
+    
+
     public string GetReShadeCachePath(ReShade reShade) =>
         Path.Combine(_reShadeCacheBaseDir, reShade.BranchName.ToString(), reShade.Version!);
 

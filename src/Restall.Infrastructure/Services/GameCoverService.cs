@@ -209,18 +209,12 @@ internal sealed class GameCoverService : IGameCoverService
     // Heroic (GOG + Epic) -----------------------------------------------------------------
     private async Task<string?> TryResolveHeroicCoverAsync(Game game)
     {
-        var heroicPath = GetHeroicConfigPath();
-        if (heroicPath is null) return null;
-
+        
         var isGog = game.PlatformName == Game.Platform.GOG;
-        var cacheFile = Path.Combine(heroicPath, "store_cache",
-            isGog ? "gog_library.json" : "legendary_library.json");
-
+        var cacheFile = _pathService.GetHeroicStoreCache(game.PlatformName, isGog ? "gog_library.json" : "legendary_library.json");
+            
         if (!File.Exists(cacheFile)) return null;
-
-        var gameId = game.PlatformId ?? string.Empty;
-        var normalizedName = GameNameHelper.NormalizeName(game.Name ?? string.Empty);
-
+        
         try
         {
             var json = await File.ReadAllTextAsync(cacheFile);
@@ -234,12 +228,6 @@ internal sealed class GameCoverService : IGameCoverService
 
             foreach (var entry in library.EnumerateArray())
             {
-                if (entry.TryGetProperty("app_name", out var appName)
-                    && string.Equals(appName.GetString(), gameId, StringComparison.OrdinalIgnoreCase))
-                {
-                    bestMatch = entry;
-                    break;
-                }
 
                 if (bestMatch is null)
                 {
@@ -267,16 +255,6 @@ internal sealed class GameCoverService : IGameCoverService
         }
 
         return null;
-    }
-
-    private static string? GetHeroicConfigPath()
-    {
-        if (OperatingSystem.IsWindows())
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "heroic");
-
-        return OperatingSystem.IsLinux()
-            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", "heroic")
-            : null;
     }
     
     // PCGamingWiki (fallback) -------------------------------------------------------------

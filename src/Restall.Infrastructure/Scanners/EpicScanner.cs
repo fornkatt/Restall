@@ -42,7 +42,7 @@ internal sealed class EpicScanner : IPlatformScannerService
 
         if (Directory.Exists(epicHeroicPath))
         {
-            var (epicHeroicLibrary, error) = ScanHeroicLibrary(epicHeroicPath);
+            var (epicHeroicLibrary, error) = ScanHeroicLibrary();
             games.AddRange(epicHeroicLibrary);
             if (error is not null) errors.Add(error);
         }
@@ -94,12 +94,12 @@ internal sealed class EpicScanner : IPlatformScannerService
     }
 
 
-    private (List<Game>games, string? error) ScanHeroicLibrary(string configDir)
+    private (List<Game>games, string? error) ScanHeroicLibrary()
     {
         var games = new List<Game>();
-        var installedJsonPath = Path.Combine(configDir, "legendaryConfig", "legendary", "installed.json");
-        var installedInstallInfoPath = Path.Combine(configDir, "store_cache", "legendary_install_info.json");
-        
+        var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
+        var installedInstallInfoPath = _pathService.GetHeroicStoreCache(Platform, "legendary_install_info.json");
+
         if (!File.Exists(installedJsonPath) || !File.Exists(installedInstallInfoPath)) return (games, null);
 
         var installInfoGames = new Dictionary<string, string>();

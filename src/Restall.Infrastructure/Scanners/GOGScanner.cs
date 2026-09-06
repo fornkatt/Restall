@@ -38,7 +38,7 @@ internal sealed class GOGScanner : IPlatformScannerService
         
         if (Directory.Exists(gogHeroicPath))
         {
-            var (heroicGames, error) = ScanHeroicLibrary(gogHeroicPath);
+            var (heroicGames, error) = ScanHeroicLibrary();
             games.AddRange(heroicGames);
             if (error is not null) errors.Add(error);
         }
@@ -93,11 +93,11 @@ internal sealed class GOGScanner : IPlatformScannerService
     }
 
 
-    private (List<Game> games, string? error) ScanHeroicLibrary(string configDir)
+    private (List<Game> games, string? error) ScanHeroicLibrary()
     {
         var games = new List<Game>();
-        var installedJsonPath = Path.Combine(configDir, "gog_store", "installed.json");
-        var installedInstallInfoPath = Path.Combine(configDir, "store_cache", "gog_install_info.json");
+        var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
+        var installedInstallInfoPath = _pathService.GetHeroicStoreCache(Platform, "gog_install_info.json");
 
         if (!File.Exists(installedJsonPath) || !File.Exists(installedInstallInfoPath)) return (games, null);
         
