@@ -301,9 +301,6 @@ internal sealed partial class ParseService : IParseService
                         continue;
                     }
                     
-                    if (string.IsNullOrWhiteSpace(name))
-                        continue;
-                    
                     var (status, statusNote) = ParseStatusCell(cells[1]);
                     var columnNotes = cells.Length >= 3 ? cells[2].Trim() : null;
                     if (string.IsNullOrWhiteSpace(columnNotes))
@@ -324,9 +321,9 @@ internal sealed partial class ParseService : IParseService
                 }
                 else
                 {
-                    if (cells.Length < 3)
+                    if (cells.Length < 4)
                     {
-                        LogRenoDXSkipMalformedWikiModRow("at least 3", cells.Length, line);
+                        LogRenoDXSkipMalformedWikiModRow("at least 4", cells.Length, line);
                         skippedCount++;
                         continue;
                     }
