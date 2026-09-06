@@ -158,15 +158,15 @@ internal sealed partial class ParseService : IParseService
     {
         var wikiMods = new List<RenoDXModInfoDto>();
         var genericWikiMods = new List<RenoDXGenericModInfoDto>();
-        var engineNotes = new Dictionary<ModType, List<string>>();
+        var engineNotes = new Dictionary<RenoDXWikiModType, List<string>>();
 
         try
         {
             var markdown = await HttpClient.GetStringAsync(s_renoDxUrl);
             var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-            ModType? currentEngine = null;
-            ModType? capturingNotesFor = null;
+            RenoDXWikiModType? currentEngine = null;
+            RenoDXWikiModType? capturingNotesFor = null;
             var inTable = false;
             var headerSkipped = false;
             var inCodeFence = false;
@@ -179,7 +179,7 @@ internal sealed partial class ParseService : IParseService
 
                 if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase))
                 {
-                    currentEngine = ModType.Unreal;
+                    currentEngine = RenoDXWikiModType.Unreal;
                     capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
@@ -189,7 +189,7 @@ internal sealed partial class ParseService : IParseService
 
                 if (line.StartsWith("### UE Extended"))
                 {
-                    currentEngine = ModType.UnrealExtended;
+                    currentEngine = RenoDXWikiModType.UnrealExtended;
                     capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
@@ -199,7 +199,7 @@ internal sealed partial class ParseService : IParseService
 
                 if (line.StartsWith("### Unity Engine", StringComparison.OrdinalIgnoreCase))
                 {
-                    currentEngine = ModType.Unity;
+                    currentEngine = RenoDXWikiModType.Unity;
                     capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
@@ -275,7 +275,7 @@ internal sealed partial class ParseService : IParseService
                         Status: status,
                         Notes: notes,
                         Architecture: architecture,
-                        ModType: currentEngine.Value
+                        RenoDxWikiModType: currentEngine.Value
                     ));
                 }
                 else
@@ -525,14 +525,14 @@ internal sealed partial class ParseService : IParseService
     private static List<RenoDXGenericModInfoDto> DedupedUnrealMods(List<RenoDXGenericModInfoDto> mods)
     {
         var unrealVariants = mods.Where(m =>
-            m.ModType is ModType.Unreal or ModType.UnrealExtended);
+            m.RenoDxWikiModType is RenoDXWikiModType.Unreal or RenoDXWikiModType.UnrealExtended);
         var others = mods.Where(m =>
-            m.ModType is not ModType.Unreal and not ModType.UnrealExtended);
+            m.RenoDxWikiModType is not RenoDXWikiModType.Unreal and not RenoDXWikiModType.UnrealExtended);
 
         var dedupedUnreal = unrealVariants
             .GroupBy(m => GameNameHelper.NormalizeName(m.Name))
             .Select(g => g.FirstOrDefault(m =>
-                m.ModType == ModType.UnrealExtended) ?? g.First());
+                m.RenoDxWikiModType == RenoDXWikiModType.UnrealExtended) ?? g.First());
 
         return [.. dedupedUnreal, .. others];
     }
@@ -589,12 +589,12 @@ internal sealed partial class ParseService : IParseService
         return ExtraWhitespaceRegex().Replace(withEmoji, " ");
     }
 
-    private static void AddNoteLine(Dictionary<ModType, List<string>> engineNotes, ModType modType, string line)
+    private static void AddNoteLine(Dictionary<RenoDXWikiModType, List<string>> engineNotes, RenoDXWikiModType renoDxWikiModType, string line)
     {
-        if (!engineNotes.TryGetValue(modType, out var noteLines))
+        if (!engineNotes.TryGetValue(renoDxWikiModType, out var noteLines))
         {
             noteLines = [];
-            engineNotes[modType] = noteLines;
+            engineNotes[renoDxWikiModType] = noteLines;
         }
 
         noteLines.Add(line);

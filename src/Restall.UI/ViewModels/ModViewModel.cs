@@ -55,9 +55,9 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
     [NotifyPropertyChangedFor(nameof(RenoDXModStatus))]
     [NotifyPropertyChangedFor(nameof(RenoDXNotes))]
-    [NotifyPropertyChangedFor(nameof(ModTypeSectionNotes))]
-    [NotifyPropertyChangedFor(nameof(HasModTypeSectionNotes))]
-    [NotifyPropertyChangedFor(nameof(ModTypeSectionSegments))]
+    [NotifyPropertyChangedFor(nameof(RenoDXWikiModTypeSectionNotes))]
+    [NotifyPropertyChangedFor(nameof(HasRenoDXWikiModTypeSectionNotes))]
+    [NotifyPropertyChangedFor(nameof(RenoDXWikiModTypeSectionSegments))]
     [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
     [NotifyPropertyChangedFor(nameof(AvailableRenoDXBranches))]
@@ -346,19 +346,21 @@ public sealed partial class ModViewModel : ViewModelBase
               """
             : string.Empty;
 
-    public string? ModTypeSectionNotes =>
-        EffectiveModType is { } modType ? _modCatalog.GetModTypeNotes(modType) : null;
+    public string? RenoDXWikiModTypeSectionNotes =>
+        EffectiveRenoDXWikiModType is { } renoDxWikiModType 
+            ? _modCatalog.GetRenoDXWikiModTypeNotes(renoDxWikiModType) 
+            : null;
 
-    public bool HasModTypeSectionNotes => !string.IsNullOrWhiteSpace(ModTypeSectionNotes);
+    public bool HasRenoDXWikiModTypeSectionNotes => !string.IsNullOrWhiteSpace(RenoDXWikiModTypeSectionNotes);
 
-    public ImmutableArray<NotesSegmentDto> ModTypeSectionSegments =>
-        NotesFormattingHelper.Segment(ModTypeSectionNotes);
+    public ImmutableArray<NotesSegmentDto> RenoDXWikiModTypeSectionSegments =>
+        NotesFormattingHelper.Segment(RenoDXWikiModTypeSectionNotes);
 
-    private ModType? EffectiveModType =>
+    private RenoDXWikiModType? EffectiveRenoDXWikiModType =>
         SelectedGame is null ? null :
         SelectedGame.CompatibleRenoDXMod is not null ? null :
-        SelectedGame.CompatibleRenoDXGenericMod?.ModType ??
-        EngineModTypeHelper.GetFallbackModType(SelectedGame.EngineName);
+        SelectedGame.CompatibleRenoDXGenericMod?.RenoDxWikiModType ??
+        RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(SelectedGame.EngineName);
 
     public string? RenoDXNotes
     {
@@ -369,7 +371,7 @@ public sealed partial class ModViewModel : ViewModelBase
             var mod = SelectedGame.CompatibleRenoDXMod;
             var genericMod = SelectedGame.CompatibleRenoDXGenericMod;
 
-            if (mod is null && genericMod is null && EffectiveModType is not null)
+            if (mod is null && genericMod is null && EffectiveRenoDXWikiModType is not null)
             {
                 return """
                        ❗ This game does not appear on the RenoDX wiki but downloads are allowed through the generic Unreal or Unity mods.
@@ -444,15 +446,16 @@ public sealed partial class ModViewModel : ViewModelBase
 
         var hasCompatibleMod = game.CompatibleRenoDXMod is not null;
 
-        var effectiveModType = hasCompatibleMod
+        var effectiveRenoDXWikiModType = hasCompatibleMod
             ? null
-            : game.CompatibleRenoDXGenericMod?.ModType ?? EngineModTypeHelper.GetFallbackModType(game.EngineName);
+            : game.CompatibleRenoDXGenericMod?.RenoDxWikiModType
+              ?? RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(game.EngineName);
 
-        if (effectiveModType?.IsExternallyHosted() == true)
+        if (effectiveRenoDXWikiModType?.IsExternallyHosted() == true)
             return [RenoDX.Branch.Wiki];
 
         var hasWikiDownloadLink = game.RenoDXWikiDownloadUrl64 is not null || game.RenoDXWikiDownloadUrl32 is not null;
-        var isMainRepoUnrealGeneric = !hasWikiDownloadLink && effectiveModType == ModType.Unreal;
+        var isMainRepoUnrealGeneric = !hasWikiDownloadLink && effectiveRenoDXWikiModType == RenoDXWikiModType.Unreal;
 
         var branches = new List<RenoDX.Branch>();
 
@@ -536,7 +539,7 @@ public sealed partial class ModViewModel : ViewModelBase
     private bool CanInstallRenoDX => SelectedGame is not null &&
                                      (SelectedGame.CompatibleRenoDXMod is not null ||
                                       SelectedGame.CompatibleRenoDXGenericMod is not null ||
-                                      EffectiveModType is not null ||
+                                      EffectiveRenoDXWikiModType is not null ||
                                       SelectedGame.HasRenoDX) &&
                                      SelectedGame.HasReShade;
 

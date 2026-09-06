@@ -15,10 +15,10 @@ internal sealed class ModDownloadService : IModDownloadService
     private const string s_renoDXUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
     private const string s_renoDXUEExtendedDownloadBaseUrl = "https://marat569.github.io/renodx/";
 
-    private static readonly Dictionary<ModType, string> s_externalHostBaseUrls = new()
+    private static readonly Dictionary<RenoDXWikiModType, string> s_externalHostBaseUrls = new()
     {
-        [ModType.Unity] = s_renoDXUnityDownloadBaseUrl,
-        [ModType.UnrealExtended] = s_renoDXUEExtendedDownloadBaseUrl
+        [RenoDXWikiModType.Unity] = s_renoDXUnityDownloadBaseUrl,
+        [RenoDXWikiModType.UnrealExtended] = s_renoDXUEExtendedDownloadBaseUrl
     };
 
     private readonly HttpClient _httpClient;
@@ -78,10 +78,10 @@ internal sealed class ModDownloadService : IModDownloadService
         return await DownloadFileAsync(downloadUrl, cacheDir, fileName, progress);
     }
 
-    public async Task<Result> DownloadExternalRenoDXAsync(ModType modType, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
+    public async Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
     {
-        if (!s_externalHostBaseUrls.TryGetValue(modType, out var baseUrl))
-            return Result.Error($"{modType} does not have and externally hosted RenoDX download configured.");
+        if (!s_externalHostBaseUrls.TryGetValue(renoDxWikiModType, out var baseUrl))
+            return Result.Error($"{renoDxWikiModType} does not have and externally hosted RenoDX download configured.");
         
         var downloadUrl = baseUrl + addonFileName;
         var cacheDir = _pathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Wiki);

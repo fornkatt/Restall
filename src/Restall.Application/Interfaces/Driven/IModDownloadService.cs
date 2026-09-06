@@ -57,5 +57,5 @@ public interface IModDownloadService
     /// <see cref="ErrorType.DownloadFailed"/>
     /// </para>
     /// </summary>
-    Task<Result> DownloadExternalRenoDXAsync(ModType modType, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null);
+    Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null);
 }

@@ -53,7 +53,7 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
             );
 
         var fallbackModType = request.GenericModInfo is null
-            ? EngineModTypeHelper.GetFallbackModType(request.Game.EngineName)
+            ? RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(request.Game.EngineName)
             : null;
 
         var isExternallyHostedGeneric = request.GenericModInfo?.IsExternallyHosted == true ||
@@ -206,7 +206,7 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         var bit = request.Arch == RenoDX.Architecture.x64 ? "64" : "32";
 
-        var fallbackModType = EngineModTypeHelper.GetFallbackModType(request.Game.EngineName);
+        var fallbackModType = RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(request.Game.EngineName);
 
         return fallbackModType is not null
             ? RenoDXGenericModInfoDto.GetAddonFilename(fallbackModType.Value, bit)
@@ -218,9 +218,9 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
     {
         if (isExternallyHostedGeneric)
         {
-            var modType = request.GenericModInfo?.ModType ??
-                          EngineModTypeHelper.GetFallbackModType(request.Game.EngineName) ??
-                          ModType.Unity;
+            var modType = request.GenericModInfo?.RenoDxWikiModType ??
+                          RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(request.Game.EngineName) ??
+                          RenoDXWikiModType.Unity;
 
             return _modDownloadService.DownloadExternalRenoDXAsync(modType, addonFilename, progress);
         }

@@ -60,7 +60,7 @@ public sealed partial class GameModViewModel : ObservableObject
     public bool IsRenoDXSupported =>
         (CompatibleRenoDXMod is not null ||
          CompatibleRenoDXGenericMod is not null) ||
-        EngineModTypeHelper.GetFallbackModType(EngineName) is not null ||
+        RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(EngineName) is not null ||
         HasRenoDX;
 
     public string? ReShadeVersion => _game.ReShade?.Version;

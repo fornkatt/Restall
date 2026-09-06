@@ -5,4 +5,4 @@ namespace Restall.Application.DTOs.Results;
 public record RenoDXWikiParseResultDto(
     ImmutableArray<RenoDXModInfoDto> WikiMods,
     ImmutableArray<RenoDXGenericModInfoDto> GenericWikiMods,
-    ImmutableDictionary<ModType, string> EngineNotes);
+    ImmutableDictionary<RenoDXWikiModType, string> EngineNotes);

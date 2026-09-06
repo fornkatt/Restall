@@ -330,8 +330,8 @@
                                            Text="{Binding RenoDXNotes}" />
                                 <ItemsControl Grid.Row="1"
                                               Margin="10, 0, 10, 10"
-                                              ItemsSource="{Binding ModTypeSectionSegments}"
-                                              IsVisible="{Binding HasModTypeSectionNotes}">
+                                              ItemsSource="{Binding RenoDXWikiModTypeSectionSegments}"
+                                              IsVisible="{Binding HasRenoDXWikiModTypeSectionNotes}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="dto:NotesSegmentDto">
                                             <Grid RowDefinitions="Auto, Auto">
