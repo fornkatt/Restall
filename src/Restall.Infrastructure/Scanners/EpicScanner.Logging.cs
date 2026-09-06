@@ -10,8 +10,8 @@ internal sealed partial class EpicScanner
   private partial void LogFailedToScanEpicManifest(string File, Exception ex);
   
   [LoggerMessage(EventId=1651, Level = LogLevel.Error,
-    Message="Failed to read installed.json file [{installedJsonPath}] in Epic Heroic library")]
-  private partial void LogEpicHeroicFailedToReadJsonFile(string installedJsonPath, Exception ex);
+    Message="Failed to read legendary_install_info.json file [{InstallInfoJson}] in Epic Heroic library")]
+  private partial void LogEpicHeroicFailedToReadJsonFile(string installInfoJson, Exception ex);
   
   [LoggerMessage(EventId=1652, Level = LogLevel.Error,
     Message="Failed to scan the json block [{json}] in Epic Heroic library")]
@@ -33,5 +33,8 @@ internal sealed partial class EpicScanner
     Message = "Can not find root path for the Epic Game [{Name}] with Item: [{Item}]")]
   private partial void LogEpicGameRootPathNotFound(string name, string item);
   
-
+  [LoggerMessage(EventId=1657, Level = LogLevel.Debug,
+    Message = "Failed to find the app_name in [{BlockValue}]")]
+  private partial void LogEpicHeroicAppNameNotFound(string blockValue);
+  
 }

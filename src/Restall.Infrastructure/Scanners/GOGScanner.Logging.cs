@@ -33,5 +33,10 @@ internal sealed partial class GOGScanner
     [LoggerMessage(EventId=1706, Level = LogLevel.Debug,
         Message = "Failed to find the name for GOG Heroic Game with [{AppName}] and install path: [{InstallPath}]")]
     private partial void LogGOGHeroicGameNameNotFound(string? appName, string installPath);
+    
+    [LoggerMessage(EventId=1707, Level = LogLevel.Debug,
+        Message = "Failed to find the app_name in [{BlockValue}]")]
+    private partial void LogGOGHeroicAppNameNotFound(string blockValue);
+    
 
 }
