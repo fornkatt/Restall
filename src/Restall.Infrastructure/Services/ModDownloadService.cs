@@ -117,7 +117,7 @@ internal sealed partial class ModDownloadService : IModDownloadService
         {
             if (File.Exists(destinationPath))
             {
-                LogFileAlreadyExists(filename);
+                LogFileAlreadyExists(filename, destinationDirectory);
                 progress?.Report(new DownloadProgressReportDto(filename, 100));
                 return Result.Success();
             }

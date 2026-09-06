@@ -6,8 +6,8 @@ namespace Restall.Infrastructure.Services;
 internal sealed partial class ModDownloadService
 {
     [LoggerMessage(EventId = 1150, Level = LogLevel.Information,
-        Message = "{Filename} already exists at destination. Skipping.")]
-    private partial void LogFileAlreadyExists(string filename);
+        Message = "{Filename} already exists in cache {DestinationDirectory}. Skipping download.")]
+    private partial void LogFileAlreadyExists(string filename, string destinationDirectory);
 
     [LoggerMessage(EventId = 1151, Level = LogLevel.Information,
         Message = "Beginning download of {Filename} to {DestinationDirectory} from {Url}")]

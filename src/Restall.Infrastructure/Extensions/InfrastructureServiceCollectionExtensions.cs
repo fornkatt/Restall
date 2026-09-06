@@ -11,6 +11,7 @@ using Restall.Infrastructure.Stores;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Formatting.Json;
 
 
 namespace Restall.Infrastructure.Extensions;
@@ -88,10 +89,11 @@ public static class InfrastructureServiceCollectionExtensions
             .MinimumLevel.ControlledBy(logLevelSwitch)
             .MinimumLevel.Override("Microsoft.Extensions.Http", LogEventLevel.Warning)
             .MinimumLevel.Override("System.Net.Http", LogEventLevel.Information)
-            .WriteTo.File(
+            .WriteTo.Async(a => a.File(
                 Path.Combine(pathService.GetDefaultLogPath(), "restall-.log"),
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff}] [{Level:u3}] {Message:lj}{NewLine}{Exception}",
                 rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 10)
+                retainedFileCountLimit: 10))
             .CreateLogger();
             
         
