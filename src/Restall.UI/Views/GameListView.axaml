@@ -54,6 +54,7 @@
         <ListBox Grid.Row="1" ItemsSource="{Binding Games}"
                  x:Name="GameList"
                  Classes="game-list"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  SelectedItem="{Binding SelectedGame}"
                  CornerRadius="6"
                  Margin="8,6"
@@ -85,6 +86,8 @@
                                        Stretch="UniformToFill" />
                             </Border>
                             <TextBlock Text="{Binding Name}"
+                                       TextTrimming="CharacterEllipsis"
+                                       Width="200"
                                        FontSize="12"
                                        Foreground="{DynamicResource GameCardText}"
                                        VerticalAlignment="Center" />
