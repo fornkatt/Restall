@@ -33,22 +33,29 @@
                       VerticalAlignment="Top">
                     
                     <!--TODO: ADD ANIMATION FOR RELAYCOMMAND -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6"
+                    <Grid Grid.Column="0" ColumnDefinitions="*, Auto"
                                 VerticalAlignment="Center">
-                        <TextBlock Text="{Binding SelectedGame.Name}"
-                                   FontSize="20"
-                                   FontWeight="Bold" Padding="6,0,0,0"
-                                   Foreground="{DynamicResource GameCardText}" TextWrapping="Wrap"
-                                   VerticalAlignment="Center" />
-                        <Button Classes="game-card-btn"
-                                CornerRadius="6"
-                                Margin="8,2,0,0"
-                                VerticalAlignment="Center">
-                            <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
-                                       FontSize="16"
-                                       Text="&#xE094;" />
-                        </Button>
-                    </StackPanel>
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                        
+                            <TextBlock Grid.Column="0" 
+                                       Text="{Binding SelectedGame.Name}"
+                                       FontSize="20"
+                                       FontWeight="Bold" Padding="6,0,0,0"
+                                       Foreground="{DynamicResource GameCardText}" 
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center" />
+                            <Button Grid.Column="0" 
+                                    Classes="game-card-btn"
+                                    CornerRadius="6"
+                                    Margin="6,0">
+                                <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
+                                           FontSize="16"
+                                           Text="&#xE094;" />
+                            </Button>   
+                        </StackPanel>
+                        
+                    </Grid>
                     
                     
                     <TextBlock Grid.Row="1" Text="{Binding SelectedGame.PlatformName}"

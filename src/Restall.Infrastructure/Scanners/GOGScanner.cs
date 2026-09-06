@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -7,20 +8,22 @@ using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Scanners;
 
-// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 
-// TODO(logging-refactor): just swap the logging implementations
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 internal sealed partial class GOGScanner : IPlatformScannerService
 {
     private readonly ILogger<GOGScanner> _logger;
-
+    private readonly IPathService _pathService;
+    
     public GOGScanner(
-        ILogger<GOGScanner> logger
-    )
+        ILogger<GOGScanner> logger,
+        IPathService pathService
+        )
     {
         _logger = logger;
+        _pathService = pathService;
     }
-
+    
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanGOG);
     public Game.Platform Platform => Game.Platform.GOG;
 
@@ -34,11 +37,12 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             games.AddRange(gogGames);
             if (error is not null) errors.Add(error);
         }
-
-        var gogHeroicPath = GetHeroicInstallPath();
+        
+        var gogHeroicPath = _pathService.GetHeroicPath();
+        
         if (Directory.Exists(gogHeroicPath))
         {
-            var (heroicGames, error) = ScanHeroicLibrary(gogHeroicPath);
+            var (heroicGames, error) = ScanHeroicLibrary();
             games.AddRange(heroicGames);
             if (error is not null) errors.Add(error);
         }
@@ -50,6 +54,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 
+    [SupportedOSPlatform("windows")]
     private (List<Game> games, string? error) ScanGOGLibrary()
     {
         var games = new List<Game>();
@@ -57,9 +62,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
         using var key = GameScanHelper.GetOpenRegistryKey(@"GOG.com\Games");
         if (key is null)  return (games, null);
-
-
-#pragma warning disable CA1416 // Already checked before method is called
+        
         foreach (var subName in key.GetSubKeyNames())
         {
             try
@@ -68,7 +71,6 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                 if (gameKey is null) continue;
                 
 
-                //Value patterns in registry
                 var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName", "gameName");
                 var path = GameScanHelper.GetRegistryValue(gameKey, "PATH", "path");
 
@@ -101,41 +103,41 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
         return (games, null);
     }
-
-    private string? GetHeroicInstallPath()
-    {
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-        var heroicPath = OperatingSystem.IsWindows()
-            ? Path.Combine(home, "AppData", "Roaming", "heroic", "gog_store")
-            : Path.Combine(home, ".config", "heroic", "gog_store");
-
-        return Directory.Exists(heroicPath) ? heroicPath : null;
-    }
-
-    private (List<Game> games, string? error) ScanHeroicLibrary(string configDir)
+    
+    private (List<Game> games, string? error) ScanHeroicLibrary()
     {
         var games = new List<Game>();
-        var installedJsonPath = Path.Combine(configDir, "installed.json");
-
-        if (!File.Exists(installedJsonPath))
+        
+        var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
+        var installedInstallInfoPath = _pathService.GetHeroicStoreCache(Platform, "gog_install_info.json");
+        
+        if (!File.Exists(installedJsonPath) || !File.Exists(installedInstallInfoPath))
         {
+            //ADD LOGGING
             return (games, null);
         }
-
-        string json;
-
+        
+        var installInfoGames = new Dictionary<string, string>();
+        
+        //TODO: Consider Regex vs JSON in both Epic and GOG Scanners
         try
         {
-            json = File.ReadAllText(installedJsonPath);
+            var infoJson = File.ReadAllText(installedInstallInfoPath);
+
+            foreach (Match match in RegexHelper.InstallInfoAppNameAndTitleRegex.Matches(infoJson))
+            {
+                var appName = match.Groups[1].Value;
+                var title = match.Groups[2].Value;
+
+                installInfoGames[appName] = title;
+            }
         }
         catch (Exception ex)
         {
-            LogGOGHeroicFailedToReadJsonFile(installedJsonPath, ex);
-            return (games, $"Failed to read installed.json file in GOG Heroic library.");
+            //ADD LOGGING
         }
 
-
+        string json = File.ReadAllText(installedJsonPath);
         foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
         {
             try
@@ -146,50 +148,50 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                     is { Success: true } am
                     ? am.Groups[1].Value
                     : null;
-
+                
+                if (string.IsNullOrEmpty(appName))
+                {
+                    LogGOGHeroicAppNameNotFound(blockValue);
+                    continue;
+                }
+                
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
                     is { Success: true } pm
                     ? pm.Groups[1].Value.Replace("\\\\", "\\")
                     : null;
-
+                
                 installPath = GameScanHelper.NormalizePath(installPath);
-
+                
                 //TODO: INCLUDE THE BLOCKVALUE?
                 if (string.IsNullOrEmpty(installPath))
                 {
                     LogGOGHeroicInstallPathNotFound(appName);
                     continue;
                 }
+                
+                if (!installInfoGames.TryGetValue(appName, out var title)) continue;
 
-                var title = RegexHelper.HeroicTitleRegex.Match(blockValue)
-                    is { Success: true } tm
-                    ? tm.Groups[1].Value
-                    : null;
-
-                var name = !string.IsNullOrWhiteSpace(title)
-                    ? title
-                    : Path.GetFileName(installPath);
-
-                if (string.IsNullOrEmpty(name))
+                if(string.IsNullOrEmpty(title))
                 {
                     LogGOGHeroicGameNameNotFound(appName, installPath);
                     continue;
                 }
-
+                
                 games.Add(new Game
                 {
-                    Name = name,
+                    Name = title,
                     InstallFolder = installPath,
-                    PlatformName = Game.Platform.GOG,
+                    PlatformName = Platform,
                     PlatformId = appName
                 });
             }
             catch (Exception ex)
             {
+
                 LogGOGHeroicFailedToScanJsonBlock(match.Value, ex);
+
             }
         }
-
 
         return (games, null);
     }

@@ -8,17 +8,18 @@ using Restall.Application.DTOs.Results;
 namespace Restall.Infrastructure.Scanners;
 
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
-
-// TODO(logging-refactor): just swap the logging implementations
 internal sealed partial class SteamScanner : IPlatformScannerService
 {
     private readonly ILogger<SteamScanner> _logger;
+    private readonly IPathService _pathService;
 
     public SteamScanner(
-        ILogger<SteamScanner> logger
+        ILogger<SteamScanner> logger,
+        IPathService pathService
     )
     {
         _logger = logger;
+        _pathService = pathService;
     }
 
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanSteam);
@@ -57,21 +58,11 @@ internal sealed partial class SteamScanner : IPlatformScannerService
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 
-    private string? GetInstallPath()
-    {
-        if (OperatingSystem.IsWindows()) return GameScanHelper.ReadRegistry(@"Valve\Steam", "SteamPath");
+    private string? GetInstallPath() =>
+        OperatingSystem.IsWindows()
+            ? GameScanHelper.ReadRegistry(@"Valve\Steam", "SteamPath")
+            : _pathService.GetSteamLinuxPaths().FirstOrDefault(Directory.Exists);
 
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        //TODO: DEFINE THESE IN PATHSERVICE TO HAVE A CENTRALIZED STATE SERVICE
-        var linuxPaths = new[]
-        {
-            Path.Combine(home, ".steam", "steam"),
-            Path.Combine(home, ".local", "share", "Steam"),
-            Path.Combine(home, "snap", "steam", "common", ".local", "share", "Steam")
-        };
-
-        return linuxPaths.FirstOrDefault(Directory.Exists);
-    }
 
     private (List<Game> games, string? error) ScanSteamLibrary(string library)
     {
@@ -88,7 +79,7 @@ internal sealed partial class SteamScanner : IPlatformScannerService
         foreach (var acf in Directory.GetFiles(steamapps, "appmanifest_*.acf"))
         {
             var appId = Path.GetFileNameWithoutExtension(acf).Replace("appmanifest_", "");
-            
+
             try
             {
                 var content = File.ReadAllText(acf);
@@ -97,24 +88,24 @@ internal sealed partial class SteamScanner : IPlatformScannerService
 
                 if (name is null)
                 {
-                    LogSteamGameNameNotFound(appId,acf);
+                    LogSteamGameNameNotFound(appId, acf);
                     continue;
                 }
 
                 if (installDir is null)
                 {
-                    LogSteamInstallDirectoryNotFound(name,appId);
+                    LogSteamInstallDirectoryNotFound(name, appId);
                     continue;
                 }
 
                 if (GameScanHelper.NonGame(name)) continue;
                 if (GameScanHelper.NonGame(installDir)) continue;
-                
+
                 var rootPath = Path.Combine(steamapps, "common", installDir);
 
                 if (!Directory.Exists(rootPath))
                 {
-                    LogSteamRootPathNotFound(rootPath,name,appId);
+                    LogSteamRootPathNotFound(rootPath, name, appId);
                     continue;
                 }
 

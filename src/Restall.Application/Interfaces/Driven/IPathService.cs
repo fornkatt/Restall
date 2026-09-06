@@ -15,6 +15,13 @@ public interface IPathService
     string GetArtworkCacheDirectory();
     string GetGameArtworkCover(string slug);
     string GetGameArtThumbnailPath(string slug);
-    
+
+    IReadOnlyList<string> GetSteamLinuxPaths();
+    string GetEpicInstallPath();
+    string GetHeroicPath();
+    string GetHeroicInstalledPath(Game.Platform platform);
+    string GetHeroicStoreCache(Game.Platform platform, string destination);
     string GetDefaultLogPath();
+    
+    
 }

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using System.Runtime.Versioning;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -41,23 +42,25 @@ internal sealed partial class EAScanner : IPlatformScannerService
             Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 
+
     //TODO: SEPARATE SCANLIBRARY FOR EA, GOG AND UBISOFT. ALSO INCLUDE MANY REGISTRY KEYS THROUGH MANIFEST
+    //TODO: ADD PUBLISH KEYS HELPER/MANIFEST TO INCLUDE MANY DIFFERENT REGEDITS
+    [SupportedOSPlatform("windows")]
     private (List<Game>games, string? error) ScanEALibrary()
     {
         var games = new List<Game>();
-        
-        
+
         using var key = GameScanHelper.GetOpenRegistryKey(@"\EA Games");
-        //TODO: DO LOGGING FOR EASY DETECTION TO IMPLEMENT REGISTRY KEYS THROUGH MANIFEST
+
         if (key is null) return (games, null);
-#pragma warning disable CA1416 // Already checked before method is called
+
         foreach (var subName in key.GetSubKeyNames())
         {
             try
             {
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey is null) continue;
-                
+
                 var displayName = GameScanHelper.GetRegistryValue(gameKey, "DisplayName")
                                   ?? subName;
 
@@ -66,7 +69,7 @@ internal sealed partial class EAScanner : IPlatformScannerService
                     LogEAGameDisplayNameEmpty(subName);
                     continue;
                 }
-                
+
                 var installDir = GameScanHelper.NormalizePath(
                     GameScanHelper.GetRegistryValue(gameKey, "Install Dir", "InstallLocation", "InstallDir"));
 
@@ -75,7 +78,7 @@ internal sealed partial class EAScanner : IPlatformScannerService
                     LogEAInstallDirectoryNotFound(displayName, subName);
                     continue;
                 }
-                
+
                 games.Add(new Game
                 {
                     Name = displayName,
@@ -89,7 +92,7 @@ internal sealed partial class EAScanner : IPlatformScannerService
                 LogEAScannerFailed(subName, ex);
             }
         }
-        
+
         return (games, null);
     }
 }
