@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Restall.Application.DTOs.Results;
+using Restall.Application.Helpers;
 
 namespace Restall.UI.ViewModels;
 
@@ -22,6 +23,7 @@ public sealed partial class ModViewModel : ViewModelBase
     private readonly IModManagementFacade _modManagementFacade;
     private readonly IModSelectionDialogService _modSelectionDialogService;
     private readonly IVersionCatalog _versionCatalog;
+    private readonly IModCatalog _modCatalog;
 
     private const string s_upToDateTextColor = "#eb5a2f";
     private const string s_updateAvailableTextColor = "#1ab652";
@@ -29,12 +31,14 @@ public sealed partial class ModViewModel : ViewModelBase
     public ModViewModel(
         IModManagementFacade modManagementFacade,
         IModSelectionDialogService modSelectionDialogService,
-        IVersionCatalog versionCatalog
+        IVersionCatalog versionCatalog,
+        IModCatalog modCatalog
     )
     {
         _modManagementFacade = modManagementFacade;
         _modSelectionDialogService = modSelectionDialogService;
         _versionCatalog = versionCatalog;
+        _modCatalog = modCatalog;
     }
 
     [ObservableProperty]
@@ -50,6 +54,8 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
     [NotifyPropertyChangedFor(nameof(RenoDXModStatus))]
     [NotifyPropertyChangedFor(nameof(RenoDXNotes))]
+    [NotifyPropertyChangedFor(nameof(ModTypeSectionNotes))]
+    [NotifyPropertyChangedFor(nameof(HasModTypeSectionNotes))]
     [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
     [NotifyPropertyChangedFor(nameof(AvailableRenoDXBranches))]
@@ -250,7 +256,7 @@ public sealed partial class ModViewModel : ViewModelBase
     private async Task InstallRenoDXAsync()
     {
         string? targetVersion;
-        
+
         switch (SelectedRenoDXBranch)
         {
             case RenoDX.Branch.Nightly:
@@ -278,7 +284,8 @@ public sealed partial class ModViewModel : ViewModelBase
             TargetVersion: targetVersion
         );
 
-        await ExecuteRenoDXActionAsync(p => _modManagementFacade.InstallOrUpdateRenoDXAsync(request, p));
+        await ExecuteRenoDXActionAsync(p =>
+            _modManagementFacade.InstallOrUpdateRenoDXAsync(request, p));
     }
 
     private async Task ExecuteRenoDXActionAsync(
@@ -337,6 +344,17 @@ public sealed partial class ModViewModel : ViewModelBase
               """
             : string.Empty;
 
+    public string? ModTypeSectionNotes =>
+        EffectiveModType is { } modType ? _modCatalog.GetModTypeNotes(modType) : null;
+
+    public bool HasModTypeSectionNotes => !string.IsNullOrWhiteSpace(ModTypeSectionNotes);
+
+    private ModType? EffectiveModType =>
+        SelectedGame is null ? null :
+        SelectedGame.CompatibleRenoDXMod is not null ? null :
+        SelectedGame.CompatibleRenoDXGenericMod?.ModType ??
+        EngineModTypeHelper.GetFallbackModType(SelectedGame.EngineName);
+
     public string? RenoDXNotes
     {
         get
@@ -345,10 +363,8 @@ public sealed partial class ModViewModel : ViewModelBase
 
             var mod = SelectedGame.CompatibleRenoDXMod;
             var genericMod = SelectedGame.CompatibleRenoDXGenericMod;
-            var engine = SelectedGame.EngineName;
 
-            if (mod is null && genericMod is null &&
-                engine is Game.Engine.Unreal or Game.Engine.Unity)
+            if (mod is null && genericMod is null && EffectiveModType is not null)
             {
                 return """
                        ❗ This game does not appear on the RenoDX wiki but downloads are allowed through the generic Unreal or Unity mods.
@@ -359,7 +375,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
             var modStatusText = RenoDXModStatus;
             var maintainerText = mod?.Maintainer is not null ? $"Maintainer: {mod.Maintainer}" : string.Empty;
-            var extraNotes = genericMod?.Notes;
+            var extraNotes = genericMod?.Notes ?? mod?.Notes;
 
             if (!string.IsNullOrWhiteSpace(mod?.Maintainer))
                 modStatusText += $"""
@@ -421,20 +437,27 @@ public sealed partial class ModViewModel : ViewModelBase
         if (game is null)
             return [RenoDX.Branch.Snapshot];
 
-        var hasWikiDownloadLink = game.RenoDXWikiDownloadUrl64 is not null || game.RenoDXWikiDownloadUrl32 is not null;
         var hasCompatibleMod = game.CompatibleRenoDXMod is not null;
-        var isUnreal = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unreal;
-        var isUnity = !hasWikiDownloadLink && game.EngineName == Game.Engine.Unity;
+
+        var effectiveModType = hasCompatibleMod
+            ? null
+            : game.CompatibleRenoDXGenericMod?.ModType ?? EngineModTypeHelper.GetFallbackModType(game.EngineName);
+
+        if (effectiveModType?.IsExternallyHosted() == true)
+            return [RenoDX.Branch.Wiki];
+
+        var hasWikiDownloadLink = game.RenoDXWikiDownloadUrl64 is not null || game.RenoDXWikiDownloadUrl32 is not null;
+        var isMainRepoUnrealGeneric = !hasWikiDownloadLink && effectiveModType == ModType.Unreal;
 
         var branches = new List<RenoDX.Branch>();
 
-        if (hasCompatibleMod || isUnreal)
+        if (hasCompatibleMod || isMainRepoUnrealGeneric)
         {
             branches.Add(RenoDX.Branch.Snapshot);
             branches.Add(RenoDX.Branch.Nightly);
         }
 
-        if (hasWikiDownloadLink || isUnity)
+        if (hasWikiDownloadLink)
             branches.Add(RenoDX.Branch.Wiki);
 
         return branches.Count > 0 ? branches : [RenoDX.Branch.Snapshot];
@@ -508,8 +531,7 @@ public sealed partial class ModViewModel : ViewModelBase
     private bool CanInstallRenoDX => SelectedGame is not null &&
                                      (SelectedGame.CompatibleRenoDXMod is not null ||
                                       SelectedGame.CompatibleRenoDXGenericMod is not null ||
-                                      SelectedGame.EngineName == Game.Engine.Unity ||
-                                      SelectedGame.EngineName == Game.Engine.Unreal ||
+                                      EffectiveModType is not null ||
                                       SelectedGame.HasRenoDX) &&
                                      SelectedGame.HasReShade;
 

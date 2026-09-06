@@ -282,17 +282,17 @@
                                   ColumnDefinitions="0.5*, 0.5*"
                                   Margin="5">
                                 <ComboBox Grid.Column="0"
-                                              IsVisible="{Binding CanShowRenoDXBranchSelector}"
-                                              VerticalAlignment="Top"
-                                              ItemsSource="{Binding AvailableRenoDXBranches}"
-                                              SelectedItem="{Binding SelectedRenoDXBranch, Mode=TwoWay}"
-                                              FontSize="12"
-                                              FontWeight="SemiBold"
-                                              Foreground="{DynamicResource GameCardText}"
-                                              Margin="0"
-                                              Padding="10, 5, 5, 5" 
-                                              CornerRadius="6" 
-                                              ToolTip.Tip="{Binding RenoDXBranchHelpText}" />
+                                          IsVisible="{Binding CanShowRenoDXBranchSelector}"
+                                          VerticalAlignment="Top"
+                                          ItemsSource="{Binding AvailableRenoDXBranches}"
+                                          SelectedItem="{Binding SelectedRenoDXBranch, Mode=TwoWay}"
+                                          FontSize="12"
+                                          FontWeight="SemiBold"
+                                          Foreground="{DynamicResource GameCardText}"
+                                          Margin="0"
+                                          Padding="10, 5, 5, 5"
+                                          CornerRadius="6"
+                                          ToolTip.Tip="{Binding RenoDXBranchHelpText}" />
                                 <TextBlock Grid.Column="1"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
@@ -320,14 +320,21 @@
                         <ScrollViewer HorizontalAlignment="Stretch"
                                       VerticalAlignment="Top"
                                       IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
-                            <Grid RowDefinitions="Auto, Auto">
+                            <Grid RowDefinitions="Auto, Auto, Auto">
                                 <TextBlock Grid.Row="0" TextWrapping="Wrap"
                                            FontSize="12"
                                            Margin="10"
                                            HorizontalAlignment="Left"
                                            Foreground="{DynamicResource GameCardText}"
                                            Text="{Binding RenoDXNotes}" />
-                                <HyperlinkButton Grid.Row="1"
+                                <SelectableTextBlock Grid.Row="1" TextWrapping="Wrap"
+                                           FontSize="12"
+                                           Margin="10"
+                                           HorizontalAlignment="Left"
+                                           Foreground="{DynamicResource GameCardText}"
+                                           Text="{Binding ModTypeSectionNotes}"
+                                           IsVisible="{Binding HasModTypeSectionNotes}" />
+                                <HyperlinkButton Grid.Row="2"
                                                  IsVisible="{Binding SelectedGame.HasNexusLink}"
                                                  NavigateUri="{Binding SelectedGame.CompatibleRenoDXMod.NexusUrl}"
                                                  FontSize="12"

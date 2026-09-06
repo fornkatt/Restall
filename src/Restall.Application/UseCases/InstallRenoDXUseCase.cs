@@ -1,6 +1,7 @@
 ﻿using Restall.Application.Common;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
+using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.UseCases.Requests;
@@ -51,22 +52,25 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 """
             );
 
-        var isUnityGeneric = request.GenericModInfo?.Engine == SupportedEngine.Unity ||
-                             (request.GenericModInfo is null &&
-                              request.ModInfo is not { HasWikiFilename: true } &&
-                              request.Game.EngineName == Game.Engine.Unity);
+        var fallbackModType = request.GenericModInfo is null
+            ? EngineModTypeHelper.GetFallbackModType(request.Game.EngineName)
+            : null;
+
+        var isExternallyHostedGeneric = request.GenericModInfo?.IsExternallyHosted == true ||
+                                        (fallbackModType?.IsExternallyHosted() == true &&
+                                         request.ModInfo is not { HasWikiFilename: true });
 
         var renoDX = new RenoDX
         {
             SelectedName = request.Game.RenoDX is not null ? request.Game.RenoDX.SelectedName : addonFilename,
             OriginalName = addonFilename,
-            BranchName = isUnityGeneric ? RenoDX.Branch.Wiki : request.Branch,
+            BranchName = isExternallyHostedGeneric ? RenoDX.Branch.Wiki : request.Branch,
             Arch = request.Arch
         };
 
-        await InvalidateCacheIfOutdatedAsync(renoDX, request.TargetVersion, isUnityGeneric);
+        await InvalidateCacheIfOutdatedAsync(renoDX, request.TargetVersion, isExternallyHostedGeneric);
 
-        var downloadResult = await DownloadAsync(isUnityGeneric, request, addonFilename, progress);
+        var downloadResult = await DownloadAsync(isExternallyHostedGeneric, request, addonFilename, progress);
 
         if (!downloadResult.IsSuccess)
         {
@@ -102,20 +106,25 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
         if (request.Game.RenoDX is { } existingRenoDX)
         {
             var deleteResult =
-                _fileService.TryDeleteFile(Path.Combine(request.Game.ExecutablePath!, existingRenoDX.SelectedName ?? addonFilename));
+                _fileService.TryDeleteFile(Path.Combine(request.Game.ExecutablePath!,
+                    existingRenoDX.SelectedName ?? addonFilename));
 
             if (!deleteResult.IsSuccess)
             {
-                await _logService.LogErrorAsync(deleteResult.ErrorMessage ?? "Failed to delete existing RenoDX file.", deleteResult.Exception);
-                
+                await _logService.LogErrorAsync(deleteResult.ErrorMessage ?? "Failed to delete existing RenoDX file.",
+                    deleteResult.Exception);
+
                 var userMessage = deleteResult.ErrorType switch
                 {
-                    ErrorType.PermissionDenied => "Permission denied deleting existing RenoDX file. Please ensure you have write access to the game directory and try again.",
-                    ErrorType.FileSystemError => "Something went wrong uninstalling an existing RenoDX file. Please ensure the file is not in use and the disk is not full and try again.",
-                    ErrorType.FileNotFound => "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
-                    _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details." 
+                    ErrorType.PermissionDenied =>
+                        "Permission denied deleting existing RenoDX file. Please ensure you have write access to the game directory and try again.",
+                    ErrorType.FileSystemError =>
+                        "Something went wrong uninstalling an existing RenoDX file. Please ensure the file is not in use and the disk is not full and try again.",
+                    ErrorType.FileNotFound =>
+                        "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
+                    _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details."
                 };
-                
+
                 return new ModOperationResultDto(false, request.Game, userMessage);
             }
         }
@@ -182,7 +191,7 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
                target != cached;
     }
 
-    private string? ResolveAddonFilename(InstallRenoDXRequest request)
+    private static string? ResolveAddonFilename(InstallRenoDXRequest request)
     {
         if (request.Game.RenoDX?.OriginalName is { } originalName)
             return originalName;
@@ -197,31 +206,33 @@ public sealed class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         var bit = request.Arch == RenoDX.Architecture.x64 ? "64" : "32";
 
-        var engineBased = request.Game.EngineName switch
-        {
-            Game.Engine.Unity => $"renodx-unityengine.addon{bit}",
-            Game.Engine.Unreal => $"renodx-unrealengine.addon{bit}",
-            _ => null
-        };
-        if (engineBased is not null)
-            return engineBased;
+        var fallbackModType = EngineModTypeHelper.GetFallbackModType(request.Game.EngineName);
 
-        return null;
+        return fallbackModType is not null
+            ? RenoDXGenericModInfoDto.GetAddonFilename(fallbackModType.Value, bit)
+            : null;
     }
 
-    private Task<Result> DownloadAsync(bool isUnityEngine, InstallRenoDXRequest request, string addonFilename,
-        IProgress<DownloadProgressReportDto>? progress = null)
+    private Task<Result> DownloadAsync(bool isExternallyHostedGeneric, InstallRenoDXRequest request,
+        string addonFilename, IProgress<DownloadProgressReportDto>? progress = null)
     {
-        return isUnityEngine
-            ? _modDownloadService.DownloadUnityRenoDXAsync(addonFilename, progress)
-            : _modDownloadService.DownloadRenoDXAsync(
-                request.Branch,
-                addonFilename,
-                version: request.TargetVersion,
-                wikiSnapshotUrl: request.Arch == RenoDX.Architecture.x64
-                    ? request.ModInfo?.SnapshotUrl64
-                    : request.ModInfo?.SnapshotUrl32,
-                progress: progress
-            );
+        if (isExternallyHostedGeneric)
+        {
+            var modType = request.GenericModInfo?.ModType ??
+                          EngineModTypeHelper.GetFallbackModType(request.Game.EngineName) ??
+                          ModType.Unity;
+
+            return _modDownloadService.DownloadExternalRenoDXAsync(modType, addonFilename, progress);
+        }
+
+        return _modDownloadService.DownloadRenoDXAsync(
+            request.Branch,
+            addonFilename,
+            request.TargetVersion,
+            request.Arch == RenoDX.Architecture.x32
+                ? request.ModInfo?.SnapshotUrl32
+                : request.ModInfo?.SnapshotUrl64,
+            progress
+        );
     }
 }

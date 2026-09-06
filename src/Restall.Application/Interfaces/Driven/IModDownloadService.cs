@@ -42,7 +42,8 @@ public interface IModDownloadService
         string? wikiSnapshotUrl = null, IProgress<DownloadProgressReportDto>? progress = null);
     
     /// <summary>
-    /// Downloads the Unity generic RenoDX mod. There's no branch selection available.
+    /// Downloads a RenoDX mod variant hosted on a separate GitHub from the main RenoDX repo.
+    /// Does not support branch selection.
     /// <br/>
     /// <para>
     /// Possible ResultErrors:
@@ -56,5 +57,5 @@ public interface IModDownloadService
     /// <see cref="ErrorType.DownloadFailed"/>
     /// </para>
     /// </summary>
-    Task<Result> DownloadUnityRenoDXAsync(string addonFileName, IProgress<DownloadProgressReportDto>? progress = null);
+    Task<Result> DownloadExternalRenoDXAsync(ModType modType, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null);
 }

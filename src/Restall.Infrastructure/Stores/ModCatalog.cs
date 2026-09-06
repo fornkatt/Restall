@@ -10,10 +10,11 @@ internal sealed class ModCatalog : IModCatalog
 
     private ImmutableArray<RenoDXModInfoDto> _renoDXWikiMods = [];
     private ImmutableArray<RenoDXGenericModInfoDto> _renoDXGenericWikiMods = [];
+    private ImmutableDictionary<ModType, string> _engineNotes = [];
 
     public ModCatalog(
         IParseService parseService
-        )
+    )
     {
         _parseService = parseService;
     }
@@ -24,9 +25,12 @@ internal sealed class ModCatalog : IModCatalog
 
         _renoDXWikiMods = result.WikiMods;
         _renoDXGenericWikiMods = result.GenericWikiMods;
+        _engineNotes = result.EngineNotes;
     }
 
     public ImmutableArray<RenoDXModInfoDto> GetRenoDXWikiMods() => _renoDXWikiMods;
 
     public ImmutableArray<RenoDXGenericModInfoDto> GetRenoDXGenericWikiMods() => _renoDXGenericWikiMods;
+
+    public string? GetModTypeNotes(ModType engine) => _engineNotes.GetValueOrDefault(engine);
 }

@@ -3,13 +3,14 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
+using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
-internal sealed class ParseService : IParseService
+internal sealed partial class ParseService : IParseService
 {
     private readonly ILogService _logService;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -24,6 +25,27 @@ internal sealed class ParseService : IParseService
     private const string
         s_renoDxReleasesTagUrl =
             "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
+
+    [GeneratedRegex("""^\[(?<icon>:[\w_]+:)\]\(#\s*"(?<title>[^"]*)"\)$""")]
+    private static partial Regex StatusHoverRegex();
+
+    [GeneratedRegex(@"^>\s*\[!(?<kind>NOTE|WARNING|IMPORTANT|TIP|CAUTION)\]\s*$")]
+    private static partial Regex GitHubAlertRegex();
+
+    [GeneratedRegex(@"\*\*(.*?)\*\*")]
+    private static partial Regex BoldRegex();
+
+    [GeneratedRegex(@"\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)")]
+    private static partial Regex BadgeLinkRegex();
+
+    [GeneratedRegex(@"!\[[^\]]*\]\([^)]*\)")]
+    private static partial Regex MarkdownImageRegex();
+
+    [GeneratedRegex(@"\[([^\]]*)\]\([^)]*\)")]
+    private static partial Regex MarkdownLinkRegex();
+
+    [GeneratedRegex(@"\s{2,}")]
+    private static partial Regex ExtraWhitespaceRegex();
 
     public ParseService(
         ILogService logService,
@@ -47,7 +69,7 @@ internal sealed class ParseService : IParseService
 
         await _logService.LogInfoAsync(
             $"Fetched {versions.Count} stable ReShade versions. Latest: {versions.FirstOrDefault()}");
-        return [..versions];
+        return [.. versions];
     }
 
     public async Task<RenoDXTagInfoDto?> FetchRenoDXSnapshotAsync()
@@ -136,25 +158,37 @@ internal sealed class ParseService : IParseService
     {
         var wikiMods = new List<RenoDXModInfoDto>();
         var genericWikiMods = new List<RenoDXGenericModInfoDto>();
+        var engineNotes = new Dictionary<ModType, List<string>>();
 
         try
         {
             var markdown = await HttpClient.GetStringAsync(s_renoDxUrl);
             var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-            SupportedEngine? currentEngine = null;
+            ModType? currentEngine = null;
+            ModType? capturingNotesFor = null;
             var inTable = false;
             var headerSkipped = false;
 
             foreach (var rawLine in lines)
             {
                 var line = rawLine.Trim();
-                
+
                 if (line.StartsWith("# Deprecated mods")) break;
 
                 if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase))
                 {
-                    currentEngine = SupportedEngine.Unreal;
+                    currentEngine = ModType.Unreal;
+                    capturingNotesFor = currentEngine;
+                    inTable = false;
+                    headerSkipped = false;
+                    continue;
+                }
+
+                if (line.StartsWith("### UE Extended"))
+                {
+                    currentEngine = ModType.UnrealExtended;
+                    capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
                     continue;
@@ -162,7 +196,8 @@ internal sealed class ParseService : IParseService
 
                 if (line.StartsWith("### Unity Engine", StringComparison.OrdinalIgnoreCase))
                 {
-                    currentEngine = SupportedEngine.Unity;
+                    currentEngine = ModType.Unity;
+                    capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
                     continue;
@@ -171,8 +206,24 @@ internal sealed class ParseService : IParseService
                 if (line.StartsWith('#'))
                 {
                     currentEngine = null;
+                    capturingNotesFor = null;
                     inTable = false;
                     headerSkipped = false;
+                    continue;
+                }
+
+                if (capturingNotesFor is not null && !inTable && !line.StartsWith('|'))
+                {
+                    if (BadgeLinkRegex().IsMatch(line))
+                        continue;
+
+                    if (!engineNotes.TryGetValue(capturingNotesFor.Value, out var noteLines))
+                    {
+                        noteLines = [];
+                        engineNotes[capturingNotesFor.Value] = noteLines;
+                    }
+
+                    noteLines.Add(CleanNotesLine(line));
                     continue;
                 }
 
@@ -193,14 +244,16 @@ internal sealed class ParseService : IParseService
                 if (currentEngine is not null)
                 {
                     var architecture = Architecture.x64;
-                    
+
                     if (cells.Length < 2) continue;
                     var name = ExtractMarkdownLinkText(HtmlEntity.DeEntitize(cells[0].Trim()));
                     if (string.IsNullOrWhiteSpace(name)) continue;
-                    var status = cells[1].Trim();
-                    var notes = cells.Length >= 3 ? cells[2].Trim() : null;
-                    if (string.IsNullOrWhiteSpace(notes))
-                        notes = null;
+                    var (status, statusNote) = ParseStatusCell(cells[1]);
+                    var columnNotes = cells.Length >= 3 ? cells[2].Trim() : null;
+                    if (string.IsNullOrWhiteSpace(columnNotes))
+                        columnNotes = null;
+
+                    var notes = CombineNotes(statusNote, columnNotes);
 
                     if (notes is not null && RegexHelper.Match32BitRegex.IsMatch(notes))
                         architecture = Architecture.x32;
@@ -210,7 +263,7 @@ internal sealed class ParseService : IParseService
                         Status: status,
                         Notes: notes,
                         Architecture: architecture,
-                        Engine: currentEngine.Value
+                        ModType: currentEngine.Value
                     ));
                 }
                 else
@@ -222,7 +275,7 @@ internal sealed class ParseService : IParseService
                     if (string.IsNullOrWhiteSpace(maintainer))
                         maintainer = "Unknown";
                     var linksCell = cells[2].Trim();
-                    var status = cells[3].Trim();
+                    var (status, statusNote) = ParseStatusCell(cells[3]);
 
                     wikiMods.Add(new RenoDXModInfoDto(
                         Name: name,
@@ -231,7 +284,7 @@ internal sealed class ParseService : IParseService
                         SnapshotUrl32: ExtractMarkdownUrl(linksCell, ".addon32"),
                         NexusUrl: ExtractMarkdownUrl(linksCell, "nexusmods.com"),
                         Maintainer: maintainer,
-                        Notes: null,
+                        Notes: statusNote,
                         Status: status
                     ));
                 }
@@ -246,7 +299,14 @@ internal sealed class ParseService : IParseService
             await _logService.LogErrorAsync("Request for RenoDX wiki page timed out.", ex);
         }
 
-        return new RenoDXWikiParseResultDto([..wikiMods], [..genericWikiMods]);
+        var dedupedUnrealGenericMods = DedupedUnrealMods(genericWikiMods);
+
+        var engineNotesResult = engineNotes.ToImmutableDictionary(
+            kv => kv.Key,
+            kv => string.Join("\n", kv.Value).Trim());
+
+        return new RenoDXWikiParseResultDto([.. wikiMods], [.. dedupedUnrealGenericMods],
+            engineNotesResult);
     }
 
     private static string ExtractMarkdownLinkText(string text)
@@ -268,15 +328,15 @@ internal sealed class ParseService : IParseService
         {
             var urlEnd = markdown.IndexOf(')', start);
             if (urlEnd < 0) return null;
-            
+
             var urlStart = markdown.LastIndexOf('(', urlEnd);
             if (urlStart < 0) return null;
-            
+
             var url = markdown[(urlStart + 1)..urlEnd];
-            
+
             if (url.Contains(urlContains, StringComparison.OrdinalIgnoreCase))
                 return url;
-            
+
             start = urlEnd + 1;
         }
     }
@@ -378,15 +438,15 @@ internal sealed class ParseService : IParseService
         catch (HttpRequestException ex)
         {
             await _logService.LogErrorAsync($"GitHub tags page for RenoDX is unreachable. ({(int?)ex.StatusCode})", ex);
-            return [..tags];
+            return [.. tags];
         }
         catch (TaskCanceledException ex)
         {
             await _logService.LogErrorAsync("GitHub tags page for RenoDX timed out.", ex);
-            return [..tags];
+            return [.. tags];
         }
 
-        return [..tags];
+        return [.. tags];
     }
 
     private async Task<RenoDXTagInfoDto?> FetchRenoDXNighlyReleaseInfoAsync(string nightlyTag)
@@ -449,4 +509,72 @@ internal sealed class ParseService : IParseService
         document.Load(stream);
         return document;
     }
+
+    private static List<RenoDXGenericModInfoDto> DedupedUnrealMods(List<RenoDXGenericModInfoDto> mods)
+    {
+        var unrealVariants = mods.Where(m =>
+            m.ModType is ModType.Unreal or ModType.UnrealExtended);
+        var others = mods.Where(m =>
+            m.ModType is not ModType.Unreal and not ModType.UnrealExtended);
+
+        var dedupedUnreal = unrealVariants
+            .GroupBy(m => GameNameHelper.NormalizeName(m.Name))
+            .Select(g => g.FirstOrDefault(m =>
+                m.ModType == ModType.UnrealExtended) ?? g.First());
+
+        return [.. dedupedUnreal, .. others];
+    }
+
+    private static string CleanNotesLine(string line)
+    {
+        var match = GitHubAlertRegex().Match(line);
+
+        if (match.Success)
+            return $"{Capitalize(match.Groups["kind"].Value)}:";
+
+        var withoutQuote = line.TrimStart('>').Trim();
+
+        return StripMarkdownDecoration(withoutQuote);
+
+        static string Capitalize(string s) => s.Length == 0
+            ? s
+            : char.ToUpperInvariant(s[0]) + s[1..].ToLowerInvariant();
+    }
+
+    private static (string Status, string? Notes) ParseStatusCell(string rawStatus)
+    {
+        var trimmed = rawStatus.Trim();
+        var match = StatusHoverRegex().Match(trimmed);
+
+        if (!match.Success)
+            return (trimmed, null);
+
+        var title = StripMarkdownDecoration(HtmlEntity.DeEntitize(match.Groups["title"].Value.Trim()));
+
+        return (match.Groups["icon"].Value, string.IsNullOrWhiteSpace(title) ? null : title);
+    }
+
+    private static string? CombineNotes(string? statusNote, string? columnNotes)
+    {
+        var cleanedColumNotes = columnNotes is null ? null : StripMarkdownDecoration(columnNotes);
+
+        return (statusNote, cleanedColumNotes) switch
+        {
+            (null, null) => null,
+            (var s, null) => s,
+            (null, var c) => c,
+            (var s, var c) => $"{s}\n\n{c}",
+        };
+    }
+
+    private static string StripMarkdownDecoration(string text)
+    {
+        var withoutImages = MarkdownImageRegex().Replace(text, string.Empty);
+        var withoutLinks = MarkdownLinkRegex().Replace(withoutImages, "$1");
+        var withoutEmphasis = StripMarkdownEmphasis(withoutLinks);
+
+        return ExtraWhitespaceRegex().Replace(withoutEmphasis, " ");
+    }
+
+    private static string StripMarkdownEmphasis(string text) => BoldRegex().Replace(text, "$1");
 }
