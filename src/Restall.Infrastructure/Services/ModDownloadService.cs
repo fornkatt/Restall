@@ -17,6 +17,13 @@ internal sealed partial class ModDownloadService : IModDownloadService
 
     private const string s_renoDXNightlyDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/";
     private const string s_renoDXUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
+    private const string s_renoDXUEExtendedDownloadBaseUrl = "https://marat569.github.io/renodx/";
+
+    private static readonly Dictionary<RenoDXWikiModType, string> s_externalHostBaseUrls = new()
+    {
+        [RenoDXWikiModType.Unity] = s_renoDXUnityDownloadBaseUrl,
+        [RenoDXWikiModType.UnrealExtended] = s_renoDXUEExtendedDownloadBaseUrl
+    };
 
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> s_downloadLocks = new();
     private readonly HttpClient _httpClient;
@@ -73,11 +80,13 @@ internal sealed partial class ModDownloadService : IModDownloadService
         return await DownloadFileAsync(downloadUrl, cacheDir, fileName, progress);
     }
 
-    public async Task<Result> DownloadUnityRenoDXAsync(string addonFileName,
-        IProgress<DownloadProgressReportDto>? progress = null)
+    public async Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
     {
-        var downloadUrl = s_renoDXUnityDownloadBaseUrl + addonFileName;
-        var cacheDir = _pathService.GetRenoDXDownloadCacheDirectory(RenoDX.Branch.Wiki);
+        if (!s_externalHostBaseUrls.TryGetValue(renoDxWikiModType, out var baseUrl))
+            return Result.Error($"{renoDxWikiModType} does not have and externally hosted RenoDX download configured.");
+        
+        var downloadUrl = baseUrl + addonFileName;
+        var cacheDir = _pathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Wiki);
         return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
     }
 

@@ -4,6 +4,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
+using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -24,6 +25,27 @@ internal sealed partial class ParseService : IParseService
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<ParseService> _logger;
+
+    [GeneratedRegex("""^\[(?<icon>:[\w_]+:)\]\(#\s*"(?<title>[^"]*)"\)$""")]
+    private static partial Regex StatusHoverRegex();
+
+    [GeneratedRegex(@"^>\s*\[!(?<kind>NOTE|WARNING|IMPORTANT|TIP|CAUTION)\]\s*$")]
+    private static partial Regex GitHubAlertRegex();
+
+    [GeneratedRegex(@"\*\*(.*?)\*\*")]
+    private static partial Regex BoldRegex();
+
+    [GeneratedRegex(@"\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)")]
+    private static partial Regex BadgeLinkRegex();
+
+    [GeneratedRegex(@"!\[[^\]]*\]\([^)]*\)")]
+    private static partial Regex MarkdownImageRegex();
+
+    [GeneratedRegex(@"\[([^\]]*)\]\([^)]*\)")]
+    private static partial Regex MarkdownLinkRegex();
+
+    [GeneratedRegex(@"\s{2,}")]
+    private static partial Regex ExtraWhitespaceRegex();
 
     public ParseService(
         ILogger<ParseService> logger,
@@ -159,43 +181,89 @@ internal sealed partial class ParseService : IParseService
 
         var wikiMods = new List<RenoDXModInfoDto>();
         var genericWikiMods = new List<RenoDXGenericModInfoDto>();
+        var engineNotes = new Dictionary<RenoDXWikiModType, List<string>>();
 
         try
         {
             var markdown = await HttpClient.GetStringAsync(s_renoDxUrl);
             var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-            SupportedEngine? currentEngine = null;
+            RenoDXWikiModType? currentEngine = null;
+            RenoDXWikiModType? capturingNotesFor = null;
             var inTable = false;
             var headerSkipped = false;
+            var inCodeFence = false;
 
             foreach (var rawLine in lines)
             {
                 var line = rawLine.Trim();
 
+                if (inCodeFence)
+                {
+                    if (capturingNotesFor is not null)
+                        AddNoteLine(engineNotes, capturingNotesFor.Value, line.StartsWith("```")
+                            ? line
+                            : rawLine.TrimEnd('\r'));
+                    if (line.StartsWith("```"))
+                        inCodeFence = false;
+                    continue;
+                }
+
                 if (line.StartsWith("# Deprecated mods")) break;
 
                 if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase))
                 {
-                    currentEngine = SupportedEngine.Unreal;
+                    currentEngine = RenoDXWikiModType.Unreal;
+                    capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
+                    inCodeFence = false;
+                    continue;
+                }
+
+                if (line.StartsWith("### UE Extended", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentEngine = RenoDXWikiModType.UnrealExtended;
+                    capturingNotesFor = currentEngine;
+                    inTable = false;
+                    headerSkipped = false;
+                    inCodeFence = false;
                     continue;
                 }
 
                 if (line.StartsWith("### Unity Engine", StringComparison.OrdinalIgnoreCase))
                 {
-                    currentEngine = SupportedEngine.Unity;
+                    currentEngine = RenoDXWikiModType.Unity;
+                    capturingNotesFor = currentEngine;
                     inTable = false;
                     headerSkipped = false;
+                    inCodeFence = false;
                     continue;
                 }
 
                 if (line.StartsWith('#'))
                 {
                     currentEngine = null;
+                    capturingNotesFor = null;
                     inTable = false;
                     headerSkipped = false;
+                    inCodeFence = false;
+                    continue;
+                }
+
+                if (capturingNotesFor is not null && !inTable && !line.StartsWith('|'))
+                {
+                    if (line.StartsWith("```"))
+                    {
+                        AddNoteLine(engineNotes, capturingNotesFor.Value, line);
+                        inCodeFence = true;
+                        continue;
+                    }
+
+                    if (BadgeLinkRegex().IsMatch(line))
+                        continue;
+
+                    AddNoteLine(engineNotes, capturingNotesFor.Value, CleanNotesLine(line));
                     continue;
                 }
 
@@ -231,21 +299,26 @@ internal sealed partial class ParseService : IParseService
                         skippedCount++;
                         continue;
                     }
+                    
+                    if (string.IsNullOrWhiteSpace(name))
+                        continue;
+                    
+                    var (status, statusNote) = ParseStatusCell(cells[1]);
+                    var columnNotes = cells.Length >= 3 ? cells[2].Trim() : null;
+                    if (string.IsNullOrWhiteSpace(columnNotes))
+                        columnNotes = null;
 
-                    var status = cells[1].Trim();
-                    var notes = cells.Length >= 3 ? cells[2].Trim() : null;
-                    if (string.IsNullOrWhiteSpace(notes))
-                        notes = null;
+                    var notes = CombineNotes(statusNote, columnNotes);
 
                     if (notes is not null && RegexHelper.Match32BitRegex.IsMatch(notes))
                         architecture = Architecture.x32;
 
                     genericWikiMods.Add(new RenoDXGenericModInfoDto(
-                        name,
-                        status,
-                        currentEngine.Value,
-                        architecture,
-                        notes
+                        Name: name,
+                        Status: status,
+                        Notes: notes,
+                        Architecture: architecture,
+                        RenoDxWikiModType: currentEngine.Value
                     ));
                 }
                 else
@@ -269,7 +342,7 @@ internal sealed partial class ParseService : IParseService
                     if (string.IsNullOrWhiteSpace(maintainer))
                         maintainer = "Unknown";
                     var linksCell = cells[2].Trim();
-                    var status = cells[3].Trim();
+                    var (status, statusNote) = ParseStatusCell(cells[3]);
 
                     wikiMods.Add(new RenoDXModInfoDto(
                         name,
@@ -278,7 +351,7 @@ internal sealed partial class ParseService : IParseService
                         ExtractMarkdownUrl(linksCell, ".addon32"),
                         ExtractMarkdownUrl(linksCell, "nexusmods.com"),
                         maintainer,
-                        null,
+                        statusNote,
                         status
                     ));
                 }
@@ -293,9 +366,16 @@ internal sealed partial class ParseService : IParseService
             LogSiteTimeout(s_renoDxUrl, ex);
         }
 
+        var dedupedUnrealGenericMods = DedupedUnrealMods(genericWikiMods);
+
+        var engineNotesResult = engineNotes.ToImmutableDictionary(
+            kv => kv.Key,
+            kv => string.Join("\n", kv.Value).Trim());
+        
         LogRenoDXModsFetchFinished(wikiMods.Count, genericWikiMods.Count, skippedCount);
 
-        return new RenoDXWikiParseResultDto([.. wikiMods], [.. genericWikiMods]);
+        return new RenoDXWikiParseResultDto([.. wikiMods], [.. dedupedUnrealGenericMods],
+            engineNotesResult);
     }
 
     private static string ExtractMarkdownLinkText(string text)
@@ -498,4 +578,85 @@ internal sealed partial class ParseService : IParseService
         document.Load(stream);
         return document;
     }
+
+    private static List<RenoDXGenericModInfoDto> DedupedUnrealMods(List<RenoDXGenericModInfoDto> mods)
+    {
+        var unrealVariants = mods.Where(m =>
+            m.RenoDxWikiModType is RenoDXWikiModType.Unreal or RenoDXWikiModType.UnrealExtended);
+        var others = mods.Where(m =>
+            m.RenoDxWikiModType is not RenoDXWikiModType.Unreal and not RenoDXWikiModType.UnrealExtended);
+
+        var dedupedUnreal = unrealVariants
+            .GroupBy(m => GameNameHelper.NormalizeName(m.Name))
+            .Select(g => g.FirstOrDefault(m =>
+                m.RenoDxWikiModType == RenoDXWikiModType.UnrealExtended) ?? g.First());
+
+        return [.. dedupedUnreal, .. others];
+    }
+
+    private static string CleanNotesLine(string line)
+    {
+        var match = GitHubAlertRegex().Match(line);
+
+        if (match.Success)
+            return $"{Capitalize(match.Groups["kind"].Value)}:";
+
+        var withoutQuote = line.TrimStart('>').Trim();
+
+        return StripMarkdownDecoration(withoutQuote);
+
+        static string Capitalize(string s) => s.Length == 0
+            ? s
+            : char.ToUpperInvariant(s[0]) + s[1..].ToLowerInvariant();
+    }
+
+    private static (string Status, string? Notes) ParseStatusCell(string rawStatus)
+    {
+        var trimmed = rawStatus.Trim();
+        var match = StatusHoverRegex().Match(trimmed);
+
+        if (!match.Success)
+            return (trimmed, null);
+
+        var title = StripMarkdownDecoration(HtmlEntity.DeEntitize(match.Groups["title"].Value.Trim()));
+
+        return (match.Groups["icon"].Value, string.IsNullOrWhiteSpace(title) ? null : title);
+    }
+
+    private static string? CombineNotes(string? statusNote, string? columnNotes)
+    {
+        var cleanedColumNotes = columnNotes is null ? null : StripMarkdownDecoration(columnNotes);
+
+        return (statusNote, cleanedColumNotes) switch
+        {
+            (null, null) => null,
+            (var s, null) => s,
+            (null, var c) => c,
+            (var s, var c) => $"{s}\n\n{c}",
+        };
+    }
+
+    private static string StripMarkdownDecoration(string text)
+    {
+        var withoutImages = MarkdownImageRegex().Replace(text, string.Empty);
+        var withoutLinks = MarkdownLinkRegex().Replace(withoutImages, "$1");
+        var withoutEmphasis = StripMarkdownEmphasis(withoutLinks);
+        var withEmoji = EmojiShortcodeHelper.Convert(withoutEmphasis);
+
+        return ExtraWhitespaceRegex().Replace(withEmoji, " ");
+    }
+
+    private static void AddNoteLine(Dictionary<RenoDXWikiModType, List<string>> engineNotes,
+        RenoDXWikiModType renoDxWikiModType, string line)
+    {
+        if (!engineNotes.TryGetValue(renoDxWikiModType, out var noteLines))
+        {
+            noteLines = [];
+            engineNotes[renoDxWikiModType] = noteLines;
+        }
+
+        noteLines.Add(line);
+    }
+
+    private static string StripMarkdownEmphasis(string text) => BoldRegex().Replace(text, "$1");
 }
