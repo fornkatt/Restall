@@ -9,4 +9,5 @@ public interface IModCatalog
 
     ImmutableArray<RenoDXModInfoDto> GetRenoDXWikiMods();
     ImmutableArray<RenoDXGenericModInfoDto> GetRenoDXGenericWikiMods();
+    string? GetRenoDXWikiModTypeNotes(RenoDXWikiModType engine);
 }
