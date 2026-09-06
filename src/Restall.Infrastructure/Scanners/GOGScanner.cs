@@ -17,8 +17,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
     
     public GOGScanner(
         ILogger<GOGScanner> logger,
-        IPathService pathService
-        )
+        IPathService pathService)
     {
         _logger = logger;
         _pathService = pathService;
@@ -112,10 +111,8 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         var installedInstallInfoPath = _pathService.GetHeroicStoreCache(Platform, "gog_install_info.json");
         
         if (!File.Exists(installedJsonPath) || !File.Exists(installedInstallInfoPath))
-        {
-            //ADD LOGGING
             return (games, null);
-        }
+        
         
         var installInfoGames = new Dictionary<string, string>();
         
@@ -134,11 +131,23 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            //ADD LOGGING
+            //Warning?
+            LogGOGHeroicFailedToReadInstallInfoFile(installedInstallInfoPath, ex);
         }
 
-        string json = File.ReadAllText(installedJsonPath);
-        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
+        string installedJson;
+
+        try
+        {
+            installedJson = File.ReadAllText(installedJsonPath);
+        }
+        catch (Exception ex)
+        {
+            LogGOGHeroicFailedToReadJsonFile(installedJsonPath, ex);
+            return (games, installedJsonPath);
+        }
+        
+        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(installedJson))
         {
             try
             {
@@ -187,9 +196,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-
                 LogGOGHeroicFailedToScanJsonBlock(match.Value, ex);
-
             }
         }
 

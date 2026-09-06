@@ -16,8 +16,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
     public EpicScanner(
         ILogger<EpicScanner> logger,
-        IPathService pathService
-    )
+        IPathService pathService)
     {
         _logger = logger;
         _pathService = pathService;
@@ -34,7 +33,6 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
         if (OperatingSystem.IsWindows())
         {
-
             var ueInstallPath = _pathService.GetEpicInstallPath();
 
             if (Directory.Exists(ueInstallPath))
@@ -106,22 +104,21 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
         return (games, null);
     }
-
-
+    
     private (List<Game>games, string? error) ScanHeroicLibrary()
     {
         var games = new List<Game>();
         var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
-        var installedInstallInfoPath = _pathService.GetHeroicStoreCache(Platform, "legendary_install_info.json");
-
-
-        if (!File.Exists(installedJsonPath) || !File.Exists(installedInstallInfoPath)) return (games, null);
+        var installInfoPath = _pathService.GetHeroicStoreCache(Platform, "legendary_install_info.json");
+        
+        if (!File.Exists(installedJsonPath) || !File.Exists(installInfoPath)) 
+            return (games, null);
 
         var installInfoGames = new Dictionary<string, string>();
 
         try
         {
-            var infoJson = File.ReadAllText(installedInstallInfoPath);
+            var infoJson = File.ReadAllText(installInfoPath);
 
             foreach (Match match in RegexHelper.InstallInfoAppNameAndTitleRegex.Matches(infoJson))
             {
@@ -133,11 +130,23 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            LogEpicHeroicFailedToReadJsonFile(installedInstallInfoPath, ex);
+            LogEpicHeroicFailedToReadInstallInfoFile(installInfoPath, ex);
+        }
+
+        string installedJson;
+        
+        try
+        {
+                installedJson = File.ReadAllText(installedJsonPath);
+        }
+        catch (Exception ex)
+        {
+            
+            LogEpicHeroicFailedToReadInstalledJsonFile(installedJsonPath, ex);
+            return (games, installedJsonPath);
         }
         
-        var json = File.ReadAllText(installedJsonPath);
-        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
+        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(installedJson))
         {
             try
             {

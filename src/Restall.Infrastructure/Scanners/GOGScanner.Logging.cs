@@ -38,5 +38,9 @@ internal sealed partial class GOGScanner
         Message = "Failed to find the app_name in [{BlockValue}]")]
     private partial void LogGOGHeroicAppNameNotFound(string blockValue);
     
+    [LoggerMessage(EventId=1708, Level = LogLevel.Error,
+        Message="Failed to read gog_install_info.json file [{InstallInfoJson}] in GOG Heroic library")]
+    private partial void LogGOGHeroicFailedToReadInstallInfoFile(string installInfoJson, Exception ex);
+    
 
 }

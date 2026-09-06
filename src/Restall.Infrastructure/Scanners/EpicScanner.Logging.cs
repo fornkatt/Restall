@@ -11,7 +11,7 @@ internal sealed partial class EpicScanner
   
   [LoggerMessage(EventId=1651, Level = LogLevel.Error,
     Message="Failed to read legendary_install_info.json file [{InstallInfoJson}] in Epic Heroic library")]
-  private partial void LogEpicHeroicFailedToReadJsonFile(string installInfoJson, Exception ex);
+  private partial void LogEpicHeroicFailedToReadInstallInfoFile(string installInfoJson, Exception ex);
   
   [LoggerMessage(EventId=1652, Level = LogLevel.Error,
     Message="Failed to scan the json block [{json}] in Epic Heroic library")]
@@ -36,5 +36,9 @@ internal sealed partial class EpicScanner
   [LoggerMessage(EventId=1657, Level = LogLevel.Debug,
     Message = "Failed to find the app_name in [{BlockValue}]")]
   private partial void LogEpicHeroicAppNameNotFound(string blockValue);
+  
+  [LoggerMessage(EventId=1658, Level = LogLevel.Error,
+    Message = "Failed to read installed.json file in [{InstalledJsonPath}] in Epic Heroic library")]
+  private partial void LogEpicHeroicFailedToReadInstalledJsonFile(string installedJsonPath, Exception ex);
   
 }
