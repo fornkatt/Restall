@@ -1,5 +1,4 @@
 using System.Runtime.Versioning;
-using System.Text.Json;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -103,7 +102,8 @@ internal sealed class GOGScanner : IPlatformScannerService
         
         var installInfoGames = new Dictionary<string, string>();
         string json;
-
+        
+        //TODO: Consider Regex vs JSON in both Epic and GOG Scanners
         try
         {
             var infoJson = File.ReadAllText(installedInstallInfoPath);
