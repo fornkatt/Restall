@@ -102,7 +102,6 @@ internal static class GameScanHelper
             "redist",
             "DedicatedServer"
 
-
         };
 
         return keywords.Any(k => exeNameWithoutExtension.Contains(k, StringComparison.OrdinalIgnoreCase));

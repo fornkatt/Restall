@@ -12,7 +12,7 @@ internal sealed class ImageResizeService : IImageResizeService
         using var inputStream = new MemoryStream(imageBytes);
         using var bitmap = Bitmap.DecodeToWidth(inputStream, width);
         using var outputStream = new MemoryStream();
-        bitmap.Save(outputStream);
+        bitmap.Save(outputStream, PngBitmapEncoderOptions.Default);
         return Task.FromResult(outputStream.ToArray());
         
     }
