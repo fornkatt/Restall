@@ -107,6 +107,9 @@ public sealed partial class ModViewModel : ViewModelBase
         OnPropertyChanged(nameof(UninstallRenoDXButtonText));
         OnPropertyChanged(nameof(UpdateRenoDXButtonText));
         OnPropertyChanged(nameof(RenoDXNotes));
+        OnPropertyChanged(nameof(RenoDXWikiModTypeSectionNotes));
+        OnPropertyChanged(nameof(HasRenoDXWikiModTypeSectionNotes));
+        OnPropertyChanged(nameof(RenoDXWikiModTypeSectionSegments));
         OnPropertyChanged(nameof(SpecificRenoDXModAvailableWarning));
     }
 

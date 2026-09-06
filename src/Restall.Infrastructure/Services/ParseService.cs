@@ -175,6 +175,17 @@ internal sealed partial class ParseService : IParseService
             {
                 var line = rawLine.Trim();
 
+                if (inCodeFence)
+                {
+                    if (capturingNotesFor is not null)
+                        AddNoteLine(engineNotes, capturingNotesFor.Value, line.StartsWith("```")
+                            ? line
+                            : rawLine.TrimEnd('\r'));
+                    if (line.StartsWith("```"))
+                        inCodeFence = false;
+                    continue;
+                }
+
                 if (line.StartsWith("# Deprecated mods")) break;
 
                 if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase))
@@ -187,7 +198,7 @@ internal sealed partial class ParseService : IParseService
                     continue;
                 }
 
-                if (line.StartsWith("### UE Extended"))
+                if (line.StartsWith("### UE Extended", StringComparison.OrdinalIgnoreCase))
                 {
                     currentEngine = RenoDXWikiModType.UnrealExtended;
                     capturingNotesFor = currentEngine;
@@ -222,13 +233,7 @@ internal sealed partial class ParseService : IParseService
                     if (line.StartsWith("```"))
                     {
                         AddNoteLine(engineNotes, capturingNotesFor.Value, line);
-                        inCodeFence = !inCodeFence;
-                        continue;
-                    }
-
-                    if (inCodeFence)
-                    {
-                        AddNoteLine(engineNotes, capturingNotesFor.Value, rawLine.TrimEnd('\r'));
+                        inCodeFence = true;
                         continue;
                     }
 
@@ -589,7 +594,8 @@ internal sealed partial class ParseService : IParseService
         return ExtraWhitespaceRegex().Replace(withEmoji, " ");
     }
 
-    private static void AddNoteLine(Dictionary<RenoDXWikiModType, List<string>> engineNotes, RenoDXWikiModType renoDxWikiModType, string line)
+    private static void AddNoteLine(Dictionary<RenoDXWikiModType, List<string>> engineNotes,
+        RenoDXWikiModType renoDxWikiModType, string line)
     {
         if (!engineNotes.TryGetValue(renoDxWikiModType, out var noteLines))
         {
