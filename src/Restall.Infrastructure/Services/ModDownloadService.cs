@@ -86,7 +86,7 @@ internal sealed partial class ModDownloadService : IModDownloadService
             return Result.Error($"{renoDxWikiModType} does not have and externally hosted RenoDX download configured.");
         
         var downloadUrl = baseUrl + addonFileName;
-        var cacheDir = _pathService.GetRenoDXDownloadCachePath(RenoDX.Branch.Wiki);
+        var cacheDir = _pathService.GetRenoDXDownloadCacheDirectory(RenoDX.Branch.Wiki);
         return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
     }
 
