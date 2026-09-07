@@ -47,7 +47,7 @@ internal sealed partial class GameIconService : IGameIconService
         }
         catch (Exception ex)
         {
-            LogIconExtractionFailure(gameName ?? "Unknown", ex);
+            LogIconExtractionFailure(gameName ?? "Unknown", exePath, ex);
         }
     }
 

@@ -52,7 +52,7 @@ internal sealed partial class GameDetectionService : IGameDetectionService
                 if (result.Message is not null)
                     allErrors.Add(result.Message);
                 
-                LogScannerFinished(result.Platform.ToString(), result.Games.Count);
+                LogScannerComplete(result.Platform.ToString(), result.Games.Count);
                 
                 progress?.Report(new GameScanProgressReportDto(
                     CompletedPlatform: result.Platform.ToString(),

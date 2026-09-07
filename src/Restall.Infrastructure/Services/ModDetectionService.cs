@@ -52,7 +52,7 @@ internal sealed partial class ModDetectionService : IModDetectionService
                 });
 
             // TODO: multiple of the same mod is usually an anomaly. Redo later when handling for this lands
-            LogModDetectionFinished("ReShade", executableDirectory, fileList.Count);
+            LogModDetectionComplete("ReShade", executableDirectory, fileList.Count);
 
             return Result<HashSet<ReShade>>.Success(fileList);
         }
@@ -104,7 +104,7 @@ internal sealed partial class ModDetectionService : IModDetectionService
                 });
 
             // TODO: multiple of the same mod is usually an anomaly. Redo later when handling for this lands
-            LogModDetectionFinished("RenoDX", executableDirectory, fileList.Count);
+            LogModDetectionComplete("RenoDX", executableDirectory, fileList.Count);
 
             return Result<HashSet<RenoDX>>.Success(fileList);
         }

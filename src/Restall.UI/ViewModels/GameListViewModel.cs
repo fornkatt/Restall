@@ -88,7 +88,7 @@ public sealed partial class GameListViewModel : ViewModelBase
             return false;
         });
 
-        LogFullLibraryRefreshCompleted();
+        LogFullLibraryRefreshComplete();
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
     }

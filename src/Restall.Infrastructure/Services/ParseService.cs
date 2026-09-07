@@ -74,7 +74,7 @@ internal sealed partial class ParseService : IParseService
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
-            LogReShadeVersionFetchFinished(versions.Count, versions.FirstOrDefault());
+            LogReShadeVersionFetchComplete(versions.Count, versions.FirstOrDefault());
 
         return [.. versions];
     }
@@ -136,7 +136,7 @@ internal sealed partial class ParseService : IParseService
             LogRenoDXSnapshotFetchSuccess(date.Value);
 
             if (_logger.IsEnabled(LogLevel.Debug))
-                LogRenoDXSnapshotFetchCommitNotes(string.Join(Environment.NewLine, commitNotes));
+                LogRenoDXSnapshotCommitNotesFetchComplete(string.Join(Environment.NewLine, commitNotes));
 
             return new RenoDXTagInfoDto(date.Value, RenoDX.Branch.Snapshot, commitNotes);
         }
@@ -168,7 +168,7 @@ internal sealed partial class ParseService : IParseService
         var tagInfoResults = await Task.WhenAll(nightlyTags.Select(FetchRenoDXNightlyReleaseInfoAsync));
         var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToImmutableArray();
 
-        LogRenoDXNightlyVersionsFetched(tagInfos.Length, tagInfos.FirstOrDefault()?.Version);
+        LogRenoDXNightlyVersionsFetchComplete(tagInfos.Length, tagInfos.FirstOrDefault()?.Version);
 
         return tagInfos;
     }
@@ -288,7 +288,7 @@ internal sealed partial class ParseService : IParseService
 
                     if (cells.Length < 2)
                     {
-                        LogRenoDXSkipMalformedWikiModRow("at least 2", cells.Length, line);
+                        LogRenoDXMalformedWikiModRowSkipped("at least 2", cells.Length, line);
                         skippedCount++;
                         continue;
                     }
@@ -323,7 +323,7 @@ internal sealed partial class ParseService : IParseService
                 {
                     if (cells.Length < 4)
                     {
-                        LogRenoDXSkipMalformedWikiModRow("at least 4", cells.Length, line);
+                        LogRenoDXMalformedWikiModRowSkipped("at least 4", cells.Length, line);
                         skippedCount++;
                         continue;
                     }
@@ -370,7 +370,7 @@ internal sealed partial class ParseService : IParseService
             kv => kv.Key,
             kv => string.Join("\n", kv.Value).Trim());
         
-        LogRenoDXModsFetchFinished(wikiMods.Count, genericWikiMods.Count, skippedCount);
+        LogRenoDXModsFetchComplete(wikiMods.Count, genericWikiMods.Count, skippedCount);
 
         return new RenoDXWikiParseResultDto([.. wikiMods], [.. dedupedUnrealGenericMods],
             engineNotesResult);
@@ -553,7 +553,7 @@ internal sealed partial class ParseService : IParseService
             }
 
             if (_logger.IsEnabled(LogLevel.Debug))
-                LogRenoDXNightlyTagParsed(nightlyTag, string.Join(Environment.NewLine, commitNotes));
+                LogRenoDXNightlyTagParseComplete(nightlyTag, string.Join(Environment.NewLine, commitNotes));
 
             return new RenoDXTagInfoDto(date, RenoDX.Branch.Nightly, commitNotes);
         }
