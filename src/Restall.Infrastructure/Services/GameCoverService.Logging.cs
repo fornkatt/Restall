@@ -7,23 +7,23 @@ internal sealed partial class GameCoverService
 {
     [LoggerMessage(EventId = 1400, Level = LogLevel.Debug,
         Message = "Could not find game cover art for \"{GameName}\" from \"{CoverPath}\"")]
-    private partial void LogGameCoverRetrievalMissing(string gameName, string coverPath);
+    private partial void LogGameCoverNotFound(string gameName, string coverPath);
 
     [LoggerMessage(EventId = 1401, Level = LogLevel.Debug,
         Message = "Downloading game cover art for \"{GameName}\" from \"{Source}\"")]
-    private partial void LogGameCoverDownload(string gameName, string source);
+    private partial void LogGameCoverDownloadStart(string gameName, string source);
 
     [LoggerMessage(EventId = 1402, Level = LogLevel.Debug,
         Message = "Copying game cover art for \"{GameName}\" from \"{Source}\"")]
-    private partial void LogGameCoverCopy(string gameName, string source);
+    private partial void LogGameCoverCopyStart(string gameName, string source);
 
     [LoggerMessage(EventId = 1403, Level = LogLevel.Error,
         Message = "Failed to copy game cover art for \"{GameName}\"")]
-    private partial void LogGameCoverCopyFailed(string gameName, Exception ex);
+    private partial void LogGameCoverCopyFailure(string gameName, Exception ex);
 
     [LoggerMessage(EventId = 1404, Level = LogLevel.Debug,
         Message = "Could not the find Steam root for \"{GameName}\"")]
-    private partial void LogSteamCoverCopyFailed(string gameName);
+    private partial void LogSteamCoverCopyFailure(string gameName);
 
     [LoggerMessage(EventId = 1405, Level = LogLevel.Debug,
         Message = "Found \"{GameName}\" in guid: \"{GuidDir}\", Product ID: \"{ProductId}\"")]
@@ -33,11 +33,11 @@ internal sealed partial class GameCoverService
         Message =
             "Failed to scan local GOG Game cover for \"{GameName}\" in guid: \"{GuidDir}\", Product ID: \"{ProductId}\"")]
     private partial void
-        LogGOGLocalGameCoverScanFailed(string gameName, string guidDir, string productId, Exception ex);
+        LogGOGLocalGameCoverScanFailure(string gameName, string guidDir, string productId, Exception ex);
 
     [LoggerMessage(EventId = 1407, Level = LogLevel.Error,
         Message = "GOG API Game cover lookup failed \"{GameName}\"")]
-    private partial void LogGOGApiCoverLookupFailed(string gameName, Exception ex);
+    private partial void LogGOGCoverApiLookupFailure(string gameName, Exception ex);
 
     [LoggerMessage(EventId = 1408, Level = LogLevel.Debug,
         Message = "Heroic Cache file was not found at \"{GameName}\" at the cached file: \"{CacheFile}\"")]
@@ -50,31 +50,31 @@ internal sealed partial class GameCoverService
 
     [LoggerMessage(EventId = 1410, Level = LogLevel.Error,
         Message = "Failed to look up the Heroic game entry for \"{GameName}\" in the cached file: \"{CacheFile}\"")]
-    private partial void LogHeroicCacheFileLookupFailed(string gameName, string cacheFile, Exception ex);
+    private partial void LogHeroicCacheFileLookupFailure(string gameName, string cacheFile, Exception ex);
 
     [LoggerMessage(EventId = 1411, Level = LogLevel.Debug,
-        Message = "Failed to do 'exact' look up for \"{GameName}\" with URL: \"{ExactUrl}\". Proceeding to API Cargo")]
-    private partial void LogPCGamingWikiExactUrlLookupFailed(string gameName, string exactUrl);
+        Message = "Could not execute 'exact' look up for \"{GameName}\" with URL: \"{ExactUrl}\". Proceeding to API Cargo")]
+    private partial void LogPCGamingWikiExactUrlLookupFailure(string gameName, string exactUrl);
 
     [LoggerMessage(EventId = 1412, Level = LogLevel.Error,
         Message = "Failed to search for \"{GameName}\"'s cover at PC Gaming Wiki")]
-    private partial void LogPCGamingWikiSearchFailed(string gameName, Exception ex);
+    private partial void LogPCGamingWikiSearchFailure(string gameName, Exception ex);
 
     [LoggerMessage(EventId = 1413, Level = LogLevel.Error,
         Message = "Failed to retrieve the API Cargo from the URL at PC Gaming Wiki: \"{ApiUrl}\"")]
-    private partial void LogPCGamingWikiCargoApiFailed(string apiUrl, Exception ex);
+    private partial void LogPCGamingWikiCargoApiFailure(string apiUrl, Exception ex);
 
     [LoggerMessage(EventId = 1414, Level = LogLevel.Debug,
-        Message = "Failed to retrieve the \"{GameName}\"'s Page Id: \"{PageId}\". Proceeding to TopSearchPageId")]
+        Message = "Could not retrieve the \"{GameName}\"'s Page Id: \"{PageId}\". Proceeding to TopSearchPageId")]
     private partial void LogPCGamingWikiPageNotFound(string gameName, string pageId);
 
     [LoggerMessage(EventId = 1415, Level = LogLevel.Debug,
         Message =
             "The download cover for \"{GameName}\" was successful from PC Gaming Wiki. Cover path: \"{CoverPath}\" | CoverUrl: \"{CoverUrl}\"")]
-    private partial void LogDownloadCoverSuccessful(string gameName, string coverPath, string coverUrl);
+    private partial void LogDownloadCoverComplete(string gameName, string coverPath, string coverUrl);
 
     [LoggerMessage(EventId = 1416, Level = LogLevel.Error,
         Message =
             "Failed to download the cover for \"{GameName}\" from PC Gaming Wiki. Cover path: \"{CoverPath}\" | CoverUrl: \"{CoverUrl}\"")]
-    private partial void LogDownloadCoverFailed(string gameName, string coverPath, string coverUrl, Exception ex);
+    private partial void LogDownloadCoverFailure(string gameName, string coverPath, string coverUrl, Exception ex);
 }

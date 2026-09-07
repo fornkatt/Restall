@@ -69,7 +69,7 @@ internal sealed partial class UbisoftScanner : IPlatformScannerService
 
                 if (string.IsNullOrEmpty(installDir))
                 {
-                    LogUbisoftInstallDirectoryNotFound(name ?? "Unknown Game", subName);
+                    LogUbisoftInstallDirectoryNotFound(name ?? "Unknown", subName);
                     continue;
                 }
 
@@ -89,7 +89,7 @@ internal sealed partial class UbisoftScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogUbisoftScannerFailed(subName, ex);
+                LogUbisoftScanFailure(subName, ex);
             }
         }
 

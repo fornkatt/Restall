@@ -56,7 +56,7 @@ internal sealed partial class GameArtworkService : IGameArtworkService
         }
         catch (Exception ex)
         {
-            LogFailedToEnrichGameArtwork(game.Name ?? "Unknown", ex);
+            LogGameArtworkEnrichmentFailure(game.Name ?? "Unknown", ex);
         }
     }
 }

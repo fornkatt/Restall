@@ -71,7 +71,7 @@ internal sealed partial class SteamScanner : IPlatformScannerService
 
         if (!Directory.Exists(steamapps))
         {
-            LogSteamAppsNotFoundInLibraryFolder(steamapps);
+            LogSteamAppsFolderNotFound(steamapps);
             return (games, null);
         }
 
@@ -120,7 +120,7 @@ internal sealed partial class SteamScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogSteamFailedToParseAcfFiles(acf, ex);
+                LogSteamAcfFilesParseFailure(acf, ex);
             }
         }
 
@@ -142,7 +142,7 @@ internal sealed partial class SteamScanner : IPlatformScannerService
         catch (Exception ex)
         {
             //Unsure about this
-            LogSteamFailedToReadLibraryFoldersVdfLibrary(vdfPath, ex);
+            LogSteamLibraryFolderVdfReadFailure(vdfPath, ex);
             return (libraries, "Failed to read Steam's libraryfolders.vdf");
         }
 

@@ -27,7 +27,7 @@ internal sealed partial class ParseService
 
     [LoggerMessage(EventId = 1104, Level = LogLevel.Warning,
         Message =
-            "Failed to parse snapshot release date. Snapshot will be unavailable. Value from site: \"{OriginalValue}\"")]
+            "Could not parse snapshot release date. Snapshot will be unavailable. Value from site: \"{OriginalValue}\"")]
     private partial void LogRenoDXSnapshotReleaseDateParseFailure(string originalValue);
 
     [LoggerMessage(EventId = 1105, Level = LogLevel.Information,

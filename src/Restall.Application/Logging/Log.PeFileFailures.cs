@@ -11,6 +11,6 @@ public static partial class Log
     
     // TODO: once Result type is available to this method, write out a reason or failure message
     [LoggerMessage(EventId = 51, Level = LogLevel.Warning,
-        Message= "Failed to get icon from executable file from \"{ExePath}\"")]
+        Message= "Could not get icon from executable file from \"{ExePath}\"")]
     public static partial void PeFileIconScanFailure(this ILogger logger, string exePath);
 }

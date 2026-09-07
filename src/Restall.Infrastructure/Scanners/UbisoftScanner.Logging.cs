@@ -7,16 +7,16 @@ namespace Restall.Infrastructure.Scanners;
 internal sealed partial class UbisoftScanner
 {
     [LoggerMessage(EventId = 1800, Level = LogLevel.Error,
-        Message = "Failed to scan the Ubisoft Library: \"{SubKey}\"")]
-    private partial void LogUbisoftScannerFailed(string subKey, Exception ex);
+        Message = "Failed to scan Ubisoft library: \"{SubKey}\"")]
+    private partial void LogUbisoftScanFailure(string subKey, Exception ex);
 
     [LoggerMessage(EventId = 1801, Level = LogLevel.Debug,
-        Message = "Can not find registry root in Ubisoft Scanner, \"{SubKey}\"")]
+        Message = "Could not find registry root in Ubisoft Scanner, \"{SubKey}\"")]
     private partial void LogUbisoftRootNotFound(string subKey);
 
     [LoggerMessage(EventId = 1802, Level = LogLevel.Debug,
         Message =
-            "Can not find the directory for Ubisoft game from Ubisoft Connect: \"{DisplayName}\" in \"{SubKey}\"")]
+            "Could not find the directory for Ubisoft game with name \"{DisplayName}\" in subkey \"{SubKey}\"")]
     private partial void LogUbisoftInstallDirectoryNotFound(string displayName, string subKey);
 
     [LoggerMessage(EventId = 1803, Level = LogLevel.Debug,

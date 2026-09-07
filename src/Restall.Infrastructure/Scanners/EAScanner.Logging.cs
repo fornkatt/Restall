@@ -11,7 +11,7 @@ internal sealed partial class EAScanner
     private partial void LogEAScannerFailed(string subKey, Exception ex);
 
     [LoggerMessage(EventId = 1601, Level = LogLevel.Debug,
-        Message = "Can not find the directory for the game from EA App: \"{DisplayName}\" in \"{SubKey}\"")]
+        Message = "Could not find the directory for the game from EA App: \"{DisplayName}\" in \"{SubKey}\"")]
     private partial void LogEAInstallDirectoryNotFound(string displayName, string subKey);
 
     [LoggerMessage(EventId = 1602, Level = LogLevel.Debug,

@@ -96,7 +96,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
             catch (Exception ex)
             {
-                LogGOGLibraryScanFailed(subName, ex);
+                LogGOGLibraryScanFailure(subName, ex);
             }
         }
 
@@ -132,7 +132,13 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         catch (Exception ex)
         {
             //Warning?
-            LogGOGHeroicFailedToReadInstallInfoFile(installedInstallInfoPath, ex);
+            LogGOGHeroicInstallInfoReadFailure(installedInstallInfoPath, ex);
+        }
+        
+        if (installInfoGames.Count == 0)
+        {
+            LogGOGHeroicInstallInfoEmpty(installedInstallInfoPath);
+            return (games, null);
         }
 
         string installedJson;
@@ -143,7 +149,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            LogGOGHeroicFailedToReadJsonFile(installedJsonPath, ex);
+            LogGOGHeroicJsonFileReadFailure(installedJsonPath, ex);
             return (games, installedJsonPath);
         }
         
@@ -158,18 +164,17 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                     ? am.Groups[1].Value
                     : null;
                 
-                if (string.IsNullOrEmpty(appName))
-                {
-                    LogGOGHeroicAppNameNotFound(blockValue);
-                    continue;
-                }
-                
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
                     is { Success: true } pm
                     ? pm.Groups[1].Value.Replace("\\\\", "\\")
                     : null;
-                
                 installPath = GameScanHelper.NormalizePath(installPath);
+                
+                if (string.IsNullOrEmpty(appName))
+                {
+                    LogGOGHeroicAppNameNotFound(installPath);
+                    continue;
+                }
                 
                 //TODO: INCLUDE THE BLOCKVALUE?
                 if (string.IsNullOrEmpty(installPath))
@@ -178,7 +183,11 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                     continue;
                 }
                 
-                if (!installInfoGames.TryGetValue(appName, out var title)) continue;
+                if (!installInfoGames.TryGetValue(appName, out var title))
+                {
+                    LogGOGHeroicInstallInfoEntryNotFound(appName, installedInstallInfoPath);
+                    continue;
+                }
 
                 if(string.IsNullOrEmpty(title))
                 {
@@ -196,7 +205,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogGOGHeroicFailedToScanJsonBlock(match.Value, ex);
+                LogGOGHeroicJsonBlockScanFailure(match.Value, ex);
             }
         }
 

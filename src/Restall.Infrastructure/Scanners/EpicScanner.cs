@@ -98,7 +98,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogFailedToScanEpicManifest(file, ex);
+                LogEpicManifestScanFailure(file, ex);
             }
         }
 
@@ -130,7 +130,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            LogEpicHeroicFailedToReadInstallInfoFile(installInfoPath, ex);
+            LogEpicHeroicInstallInfoReadFailure(installInfoPath, ex);
         }
 
         string installedJson;
@@ -142,7 +142,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         catch (Exception ex)
         {
             
-            LogEpicHeroicFailedToReadInstalledJsonFile(installedJsonPath, ex);
+            LogEpicHeroicInstalledJsonReadFailure(installedJsonPath, ex);
             return (games, installedJsonPath);
         }
         
@@ -199,7 +199,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogEpicHeroicFailedToScanJsonBlock(match.Value, ex);
+                LogEpicHeroicJsonBlockScanFailure(match.Value, ex);
             }
         }
 

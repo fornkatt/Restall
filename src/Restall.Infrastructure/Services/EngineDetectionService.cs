@@ -58,7 +58,7 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
     {
         if (depth > 5 || string.IsNullOrEmpty(dir))
         {
-            LogUEBinariesScanHitMaxDepth(dir);
+            LogUEBinariesScanMaxDepthHit(dir);
             return;
         }
         
@@ -91,7 +91,7 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
         //TODO: RETURNS THE RESULTS IN THE FUTURE AND CATCH GENERAL EXCEPTIONS IN FACADES AND USECASES
         catch (Exception ex)
         {
-            LogFailedToCollectUEBinaries(dir, ex);
+            LogUEBinariesCollectionFailure(dir, ex);
         }
     }
 
@@ -115,7 +115,7 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
         }
         catch (Exception ex)
         {
-            LogFailedToFindShallowFiles(folder, ex);
+            LogShallowFilesNotFound(folder, ex);
         }
 
         return null;
@@ -152,7 +152,7 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
                     .Any(f => !GameScanHelper.NonGameExecutable(Path.GetFileNameWithoutExtension(f))))
                 {
                     if(depth > 0) 
-                        LogFoundExecutableViaBFS(depth, dir);
+                        LogExecutableViaBFSFound(depth, dir);
                     return dir;
                 }
                 
@@ -165,7 +165,7 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
             }
             catch (Exception ex)
             {
-                LogFailedToFindShallowExeFolder(root, ex);
+                LogShallowExeFolderNotFound(root, ex);
             }
         }
         return null;

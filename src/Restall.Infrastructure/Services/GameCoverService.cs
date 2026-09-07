@@ -48,7 +48,7 @@ internal sealed partial class GameCoverService : IGameCoverService
             await CopyCoverAsync(game.Name, coverPath, source);
 
         if (!File.Exists(coverPath))
-            LogGameCoverRetrievalMissing(game.Name ?? string.Empty, coverPath);
+            LogGameCoverNotFound(game.Name ?? string.Empty, coverPath);
     }
 
     private async Task CopyCoverAsync(string? gameName, string coverPath, string source)
@@ -58,17 +58,17 @@ internal sealed partial class GameCoverService : IGameCoverService
             if (source.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
                 await TryDownloadCoverAsync(gameName, coverPath, source);
-                LogGameCoverDownload(gameName ?? "Unknown", source);
+                LogGameCoverDownloadStart(gameName ?? "Unknown", source);
             }
             else if (File.Exists(source))
             {
                 File.Copy(source, coverPath, overwrite: true);
-                LogGameCoverCopy(gameName ?? "Unknown", source);
+                LogGameCoverCopyStart(gameName ?? "Unknown", source);
             }
         }
         catch (Exception ex)
         {
-            LogGameCoverCopyFailed(gameName ?? "Unknown", ex);
+            LogGameCoverCopyFailure(gameName ?? "Unknown", ex);
         }
     }
 
@@ -98,7 +98,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         
         if (steamRoot is null)
         {
-            LogSteamCoverCopyFailed(game.Name ?? "Unknown Game");
+            LogSteamCoverCopyFailure(game.Name ?? "Unknown Game");
             return null;
         }
         
@@ -176,7 +176,7 @@ internal sealed partial class GameCoverService : IGameCoverService
             }
             catch (Exception ex)
             {
-                LogGOGLocalGameCoverScanFailed(game.Name ?? "Unknown Game", guidDir, productId, ex);
+                LogGOGLocalGameCoverScanFailure(game.Name ?? "Unknown Game", guidDir, productId, ex);
             }
         }
 
@@ -206,7 +206,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         }
         catch (Exception ex)
         {
-            LogGOGApiCoverLookupFailed(game.Name ?? "Unknown", ex);
+            LogGOGCoverApiLookupFailure(game.Name ?? "Unknown", ex);
         }
         
         return null;
@@ -264,7 +264,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         }
         catch (Exception ex)
         {
-            LogHeroicCacheFileLookupFailed(game.Name ?? "Unknown Game", cacheFile, ex);
+            LogHeroicCacheFileLookupFailure(game.Name ?? "Unknown Game", cacheFile, ex);
         }
 
         return null;
@@ -277,7 +277,7 @@ internal sealed partial class GameCoverService : IGameCoverService
             await TryPcgwCargoAsync(string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName)));
         if (exactUrl is  null)
         {
-            LogPCGamingWikiExactUrlLookupFailed(gameName, exactUrl ?? "Unknown");
+            LogPCGamingWikiExactUrlLookupFailure(gameName, exactUrl ?? "Unknown");
             return exactUrl;
         }
 
@@ -298,7 +298,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         }
         catch (Exception ex)
         {
-            LogPCGamingWikiSearchFailed(gameName, ex);
+            LogPCGamingWikiSearchFailure(gameName, ex);
         }
         
         return null;
@@ -328,7 +328,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         }
         catch (Exception ex)
         {
-            LogPCGamingWikiCargoApiFailed(apiUrl, ex);
+            LogPCGamingWikiCargoApiFailure(apiUrl, ex);
         }
         
         return null;
@@ -366,11 +366,11 @@ internal sealed partial class GameCoverService : IGameCoverService
 
             await File.WriteAllBytesAsync(coverPath, bytes);
             
-            LogDownloadCoverSuccessful(gameName ?? "Unknown Game", coverPath, url);
+            LogDownloadCoverComplete(gameName ?? "Unknown Game", coverPath, url);
         }
         catch (Exception ex)
         {
-            LogDownloadCoverFailed(gameName ?? "Unknown Game", coverPath, url, ex);
+            LogDownloadCoverFailure(gameName ?? "Unknown Game", coverPath, url, ex);
         }
     }
 

@@ -92,7 +92,7 @@ internal sealed partial class XboxScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogXboxScannerFailed(gameDir, ex);
+                LogXboxScannerFailure(gameDir, ex);
                 
             }
         }
