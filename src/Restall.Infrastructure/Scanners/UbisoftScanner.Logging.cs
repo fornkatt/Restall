@@ -14,12 +14,12 @@ internal sealed partial class UbisoftScanner
         Message = "Could not find registry root in Ubisoft Scanner, \"{SubKey}\"")]
     private partial void LogUbisoftRootNotFound(string subKey);
 
-    [LoggerMessage(EventId = 1802, Level = LogLevel.Debug,
+    [LoggerMessage(EventId = 1802, Level = LogLevel.Warning,
         Message =
             "Could not find the directory for Ubisoft game with name \"{DisplayName}\" in subkey \"{SubKey}\"")]
     private partial void LogUbisoftInstallDirectoryNotFound(string displayName, string subKey);
 
-    [LoggerMessage(EventId = 1803, Level = LogLevel.Debug,
+    [LoggerMessage(EventId = 1803, Level = LogLevel.Warning,
         Message = "Display name for \"{SubName}\" in Ubisoft Scanner is empty")]
     private partial void LogUbisoftGameDisplayNameEmpty(string subName);
 }

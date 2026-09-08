@@ -5,7 +5,7 @@ namespace Restall.Application.UseCases;
 // RenoDX Install Logging — EventId range: 1300 - 1349
 public sealed partial class InstallRenoDXUseCase
 {
-    [LoggerMessage(EventId = 1300, Level = LogLevel.Warning,
+    [LoggerMessage(EventId = 1300, Level = LogLevel.Error,
         Message =
             "Could not resolve RenoDX addon filename for \"{GameName}\" (Engine: \"{Engine}\", Arch: \"{Arch}\")")]
     private partial void LogRenoDXAddonFilenameResolutionFailure(string gameName, string engine, string arch);

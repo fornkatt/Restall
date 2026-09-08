@@ -5,6 +5,7 @@ using Restall.Infrastructure.Helpers;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
+using Restall.Application.Logging;
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -131,13 +132,12 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            //Warning?
-            LogGOGHeroicInstallInfoReadFailure(installedInstallInfoPath, ex);
+            _logger.HeroicInstallInfoReadFailure(Platform, installedInstallInfoPath, ex);
         }
         
         if (installInfoGames.Count == 0)
         {
-            LogGOGHeroicInstallInfoEmpty(installedInstallInfoPath);
+            _logger.HeroicInstallInfoEmpty(Platform, installedInstallInfoPath);
             return (games, null);
         }
 
@@ -149,7 +149,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            LogGOGHeroicJsonFileReadFailure(installedJsonPath, ex);
+            _logger.HeroicInstalledJsonReadFailure(Platform, installedJsonPath, ex);
             return (games, installedJsonPath);
         }
         
@@ -172,26 +172,26 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                 
                 if (string.IsNullOrEmpty(appName))
                 {
-                    LogGOGHeroicAppNameNotFound(installPath);
+                    _logger.HeroicAppNameNotFound(Platform, installPath);
                     continue;
                 }
                 
                 //TODO: INCLUDE THE BLOCKVALUE?
                 if (string.IsNullOrEmpty(installPath))
                 {
-                    LogGOGHeroicInstallPathNotFound(appName);
+                    _logger.HeroicInstallPathNotFound(Platform, appName);
                     continue;
                 }
                 
                 if (!installInfoGames.TryGetValue(appName, out var title))
                 {
-                    LogGOGHeroicInstallInfoEntryNotFound(appName, installedInstallInfoPath);
+                    _logger.HeroicInstallInfoEntryNotFound(Platform, appName, installedInstallInfoPath);
                     continue;
                 }
 
                 if(string.IsNullOrEmpty(title))
                 {
-                    LogGOGHeroicGameNameNotFound(appName, installPath);
+                    _logger.HeroicGameNameNotFound(Platform, appName, installPath);
                     continue;
                 }
                 
@@ -205,7 +205,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogGOGHeroicJsonBlockScanFailure(match.Value, ex);
+                _logger.HeroicJsonBlockScanFailure(Platform, match.Value, ex);
             }
         }
 

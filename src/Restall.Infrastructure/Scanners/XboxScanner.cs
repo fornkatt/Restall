@@ -57,7 +57,7 @@ internal sealed partial class XboxScanner : IPlatformScannerService
                 if (!Directory.Exists(contentDir))
                 {
                     
-                    LogContentDirNotFound(subDir, gameDir);
+                    LogXboxContentDirNotFound(subDir, gameDir);
                     continue;
                 }
                 
@@ -65,7 +65,7 @@ internal sealed partial class XboxScanner : IPlatformScannerService
                 
                 if (!File.Exists(configPath))
                 {
-                    LogMicrosoftGameConfigNotFound(subDir, configPath);
+                    LogXboxGameConfigNotFound(subDir, configPath);
                     continue;
                 }
                 
@@ -74,7 +74,7 @@ internal sealed partial class XboxScanner : IPlatformScannerService
                 
                 if (string.IsNullOrWhiteSpace(resolvedName))
                 {
-                    LogGameNameNotFound(gameDir);
+                    LogXboxGameNameNotFound(gameDir);
                     continue;
                 }
                 

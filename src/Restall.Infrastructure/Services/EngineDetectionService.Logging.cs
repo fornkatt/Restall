@@ -6,16 +6,16 @@ namespace Restall.Infrastructure.Services;
 internal sealed partial class EngineDetectionService
 {
     [LoggerMessage(EventId = 1450, Level = LogLevel.Error,
-        Message = "Could not collect the UE binaries from \"{Dir}\" folder")]
+        Message = "Failed to collect the UE binaries from \"{Dir}\" folder")]
     private partial void LogUEBinariesCollectionFailure(string dir, Exception ex);
 
     [LoggerMessage(EventId = 1451, Level = LogLevel.Error,
         Message = "Failed to find shallow files in folder \"{Folder}\"")]
-    private partial void LogShallowFilesNotFound(string folder, Exception ex);
+    private partial void LogShallowFileScanFailure(string folder, Exception ex);
 
     [LoggerMessage(EventId = 1452, Level = LogLevel.Error,
         Message = "Failed to find shallow exe folder in \"{Root}\"")]
-    private partial void LogShallowExeFolderNotFound(string root, Exception ex);
+    private partial void LogShallowExeFolderScanFailure(string root, Exception ex);
 
     [LoggerMessage(EventId = 1453, Level = LogLevel.Debug,
         Message = "UE Binaries scan hit max depth, (5), at \"{Dir}\"")]

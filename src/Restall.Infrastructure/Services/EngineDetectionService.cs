@@ -115,7 +115,7 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
         }
         catch (Exception ex)
         {
-            LogShallowFilesNotFound(folder, ex);
+            LogShallowFileScanFailure(folder, ex);
         }
 
         return null;
@@ -165,7 +165,7 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
             }
             catch (Exception ex)
             {
-                LogShallowExeFolderNotFound(root, ex);
+                LogShallowExeFolderScanFailure(root, ex);
             }
         }
         return null;
