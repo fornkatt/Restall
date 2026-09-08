@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Restall.Infrastructure.Services;
 
-// Engine Detection Logging - EventId range: 1450-1499
+// Engine Detection Logging — EventId range: 1450 - 1499
 internal sealed partial class EngineDetectionService
 {
     [LoggerMessage(EventId = 1450, Level = LogLevel.Error,

@@ -70,7 +70,7 @@ internal sealed partial class GameCoverService
 
     [LoggerMessage(EventId = 1415, Level = LogLevel.Debug,
         Message =
-            "The download cover for \"{GameName}\" was successful from 'PC Gaming Wiki'. Cover path: \"{CoverPath}\" | CoverUrl: \"{CoverUrl}\"")]
+            "The cover download for \"{GameName}\" was successful from 'PC Gaming Wiki'. Cover path: \"{CoverPath}\" | CoverUrl: \"{CoverUrl}\"")]
     private partial void LogDownloadCoverComplete(string gameName, string coverPath, string coverUrl);
 
     [LoggerMessage(EventId = 1416, Level = LogLevel.Error,

@@ -89,7 +89,7 @@ internal sealed partial class EAScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                LogEAScannerFailure(subName, ex);
+                LogEAScanFailure(subName, ex);
             }
         }
 

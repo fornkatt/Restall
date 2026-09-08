@@ -3,11 +3,11 @@ using Microsoft.Win32;
 
 namespace Restall.Infrastructure.Scanners;
 
-// GOG Scanner Logging - EventId range: 1700 - 1749
+// GOG Scanner Logging — EventId range: 1700 - 1749
 internal sealed partial class GOGScanner
 {
     [LoggerMessage(EventId = 1700, Level = LogLevel.Error,
-        Message = "Failed to scan the GOG Galaxy library \"{SubKey}\"")]
+        Message = "Failed to scan GOG Galaxy library \"{SubKey}\"")]
     private partial void LogGOGLibraryScanFailure(string subKey, Exception ex);
 
     [LoggerMessage(EventId = 1701, Level = LogLevel.Warning,

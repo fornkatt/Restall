@@ -3,7 +3,7 @@ using Microsoft.Win32;
 
 namespace Restall.Infrastructure.Scanners;
 
-// Ubisoft Scanner Logging - EventId range: 1800 - 1849
+// Ubisoft Scanner Logging — EventId range: 1800 - 1849
 internal sealed partial class UbisoftScanner
 {
     [LoggerMessage(EventId = 1800, Level = LogLevel.Error,

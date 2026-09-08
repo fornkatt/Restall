@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Restall.Infrastructure.Services;
 
-// Game Artwork Service Logging - EventId range: 1500 - 1549
+// Game Artwork Service Logging — EventId range: 1500 - 1549
 internal sealed partial class GameArtworkService
 {
     [LoggerMessage(EventId = 1500, Level = LogLevel.Error,

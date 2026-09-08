@@ -2,11 +2,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Restall.Infrastructure.Scanners;
 
-// Steam Scanner Logging - EventId range: 1750 - 1799
+// Steam Scanner Logging — EventId range: 1750 - 1799
 internal sealed partial class SteamScanner
 {
     [LoggerMessage(EventId = 1750, Level = LogLevel.Error,
-        Message = "Failed to parse the acf files \"{Acf}\" in the Steam library")]
+        Message = "Failed to parse acf files \"{Acf}\" in the Steam library")]
     private partial void LogSteamAcfFilesParseFailure(string acf, Exception ex);
 
     [LoggerMessage(EventId = 1751, Level = LogLevel.Error,
@@ -18,7 +18,7 @@ internal sealed partial class SteamScanner
     private partial void LogSteamAppsFolderNotFound(string libraryFolder);
 
     [LoggerMessage(EventId = 1753, Level = LogLevel.Debug,
-        Message = "Could not find the name of the Steam game with AppId: \"{AppId}\" in acf: \"{Acf}\" in appmanifest")]
+        Message = "Could not find name of Steam game with AppId: \"{AppId}\" in acf: \"{Acf}\" in appmanifest")]
     private partial void LogSteamGameNameNotFound(string appId, string acf);
 
     [LoggerMessage(EventId = 1754, Level = LogLevel.Debug,

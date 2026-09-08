@@ -1,14 +1,13 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.Win32;
 
 namespace Restall.Infrastructure.Scanners;
 
-// EA Scanner Logging - EventId range: 1600 - 1649
+// EA Scanner Logging — EventId range: 1600 - 1649
 internal sealed partial class EAScanner
 {
     [LoggerMessage(EventId = 1600, Level = LogLevel.Error,
-        Message = "Failed to scan the EA library: \"{SubKey}\"")]
-    private partial void LogEAScannerFailure(string subKey, Exception ex);
+        Message = "Failed to scan EA library: \"{SubKey}\"")]
+    private partial void LogEAScanFailure(string subKey, Exception ex);
 
     [LoggerMessage(EventId = 1601, Level = LogLevel.Warning,
         Message = "Could not find the directory for the game from EA App: \"{DisplayName}\" in \"{SubKey}\"")]

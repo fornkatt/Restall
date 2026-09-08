@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Restall.Infrastructure.Scanners;
 
-// Epic Scanner Logging - EventId range: 1650 - 1699
+// Epic Scanner Logging — EventId range: 1650 - 1699
 internal sealed partial class EpicScanner
 {
     [LoggerMessage(EventId = 1650, Level = LogLevel.Error,

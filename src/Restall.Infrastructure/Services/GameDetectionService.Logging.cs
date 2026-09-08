@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Restall.Infrastructure.Services;
 
-// Game Detection Service Logging - EventId range: 1550 - 1599
+// Game Detection Service Logging — EventId range: 1550 - 1599
 internal sealed partial class GameDetectionService
 {
     [LoggerMessage(EventId = 1550, Level = LogLevel.Error,
