@@ -3,6 +3,8 @@ using PeNet;
 
 namespace Restall.Infrastructure.Helpers;
 
+// TODO: wrap every return null path in Result to get meaningful information up to caller for the log  
+//TODO: LOOK UP HOW I CAN BYPASS ICONHELPER WITH TRY/CATCH DUE TO PENET STANDARD
 internal static class PeIconHelper
 {
     private const int RtIcon = 3;
@@ -29,7 +31,6 @@ internal static class PeIconHelper
     private const ushort IcoTypeIcon = 1;
     private const int IcoDirHeaderSize = 6;
     private const int IcoDirEntrySize = 16;
-    
     
     internal static byte[]? ExtractLargestIconAsPng(string executablePath)
     {

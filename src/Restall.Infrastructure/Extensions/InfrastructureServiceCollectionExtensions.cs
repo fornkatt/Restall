@@ -8,6 +8,11 @@ using Restall.Application.UseCases;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
 using Restall.Infrastructure.Stores;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
+using Serilog.Formatting.Json;
+using Serilog.Templates;
 
 
 namespace Restall.Infrastructure.Extensions;
@@ -17,8 +22,7 @@ public static class InfrastructureServiceCollectionExtensions
     //TODO: TAKE A CLOSER LOOK WHAT IS NEEDED TO BE SINGLETONS OR TRANSIENT IN OUR DI
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
-        services.AddSingleton<IPathService, PathService>();
-        services.AddSingleton<ILogService, LogService>();
+        services.ConfigureLogging();
 
         services.AddHttpClient("ParseService", c => c.DefaultRequestHeaders.UserAgent.ParseAdd("Restall"));
         services.AddSingleton<IParseService, ParseService>();
@@ -76,4 +80,30 @@ public static class InfrastructureServiceCollectionExtensions
         return services;
     }
     
+    private static IServiceCollection ConfigureLogging(this IServiceCollection services)
+    {
+        var pathService = new PathService();
+        // TODO(logging-refactor): change to Information once settings page lands
+        var logLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
+
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.ControlledBy(logLevelSwitch)
+            .MinimumLevel.Override("Microsoft.Extensions.Http", LogEventLevel.Warning)
+            .MinimumLevel.Override("System.Net.Http", LogEventLevel.Information)
+            .Enrich.WithComputed("ShortContext", "Substring(SourceContext, LastIndexOf(SourceContext, '.') + 1)")
+            .WriteTo.Async(a => a.File(
+                new ExpressionTemplate(
+                    "[{@t:HH:mm:ss.fff}] [{@l:u3}] [{ShortContext,-22}]{#if IsDefined(EventId)} [{EventId.Id,4}]{#end} {@m}\n{@x}"),
+                Path.Combine(pathService.GetDefaultLogPath(), "restall-.log"),
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 10))
+            .CreateLogger();
+            
+        
+        services.AddSingleton<IPathService>(pathService);
+        services.AddSingleton(logLevelSwitch);
+        services.AddLogging(b => b.AddSerilog(dispose: true));
+        
+        return services;
+    }
 }

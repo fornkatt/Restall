@@ -8,18 +8,18 @@ namespace Restall.Infrastructure.Stores;
 internal sealed class VersionCatalog : IVersionCatalog
 {
     private readonly IParseService _parseService;
-    private readonly ILogService _logService;
 
-    private ImmutableDictionary<ReShade.Branch, ImmutableArray<string>> _reShadeVersions = ImmutableDictionary<ReShade.Branch, ImmutableArray<string>>.Empty;
-    private ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>> _renoDXTags = ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>>.Empty;
+    private ImmutableDictionary<ReShade.Branch, ImmutableArray<string>> _reShadeVersions =
+        ImmutableDictionary<ReShade.Branch, ImmutableArray<string>>.Empty;
+
+    private ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>> _renoDXTags =
+        ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>>.Empty;
 
     public VersionCatalog(
-        IParseService parseService,
-        ILogService logService
-        )
+        IParseService parseService
+    )
     {
         _parseService = parseService;
-        _logService = logService;
     }
 
     public async Task FetchVersionsAsync()
@@ -36,14 +36,9 @@ internal sealed class VersionCatalog : IVersionCatalog
         var renoDXBuilder = ImmutableDictionary.CreateBuilder<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>>();
         if (renoDXSnapshotTask.Result is not null)
             renoDXBuilder[RenoDX.Branch.Snapshot] = [renoDXSnapshotTask.Result];
-        
+
         renoDXBuilder[RenoDX.Branch.Nightly] = renoDXNightlyTask.Result;
         _renoDXTags = renoDXBuilder.ToImmutable();
-
-        await _logService.LogInfoAsync($"Version catalog populated. " +
-            $"ReShade {reShadeVersionsTask.Result.Length} versions. " +
-            $"RenoDX Snapshot: {(renoDXSnapshotTask.Result is not null ? renoDXSnapshotTask.Result.Version : "none")}. " +
-            $"RenoDX Nightly: {renoDXNightlyTask.Result.Length} tags.");
     }
 
     public string? GetLatestReShadeVersion(ReShade.Branch branch)

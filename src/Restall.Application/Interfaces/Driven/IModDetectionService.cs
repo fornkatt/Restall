@@ -16,7 +16,7 @@ public interface IModDetectionService
     /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
-    Task<Result<HashSet<ReShade>>> DetectInstalledReShadeAsync(string executablePath);
+    Task<Result<HashSet<ReShade>>> DetectInstalledReShadeAsync(string executableDirectory);
     
     /// <summary>
     /// Detects pre-installed RenoDX files in a given executable path. Including original filename, filename on disk and version.
@@ -29,7 +29,7 @@ public interface IModDetectionService
     /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
-    Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executablePath);
+    Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executableDirectory);
     
     /// <summary>
     /// Get file version info from a RenoDX mod file.

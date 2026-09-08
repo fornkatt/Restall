@@ -9,6 +9,8 @@
 		WindowDecorations="None"
 		CanResize="False"
 		Background="Transparent"
+		TextOptions.TextRenderingMode="Antialias"
+		TextOptions.TextHintingMode="None"
 		TransparencyLevelHint="Transparent">
 
 	<Border CornerRadius="15"

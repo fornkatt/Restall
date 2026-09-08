@@ -1,4 +1,5 @@
-﻿using Restall.Application.DTOs;
+﻿using Microsoft.Extensions.Logging;
+using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
@@ -7,30 +8,31 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.Facades;
 
-public sealed class ModManagementFacade : IModManagementFacade
+// TODO: combine with UseCases, add global exception handler instead
+public sealed partial class ModManagementFacade : IModManagementFacade
 {
+    private readonly ILogger<ModManagementFacade> _logger;
     private readonly IInstallReShadeUseCase _installReShadeUseCase;
     private readonly IUninstallReShadeUseCase _uninstallReShadeUseCase;
     private readonly IInstallRenoDXUseCase _installRenoDXUseCase;
     private readonly IUninstallRenoDXUseCase _uninstallRenoDXUseCase;
     private readonly IUpdateCheckService _updateCheckService;
-    private readonly ILogService _logService;
 
     public ModManagementFacade(
+        ILogger<ModManagementFacade> logger,
         IInstallReShadeUseCase installReShadeUseCase,
         IUninstallReShadeUseCase uninstallReShadeUseCase,
         IInstallRenoDXUseCase installRenoDXUseCase,
         IUninstallRenoDXUseCase uninstallRenoDXUseCase,
-        IUpdateCheckService updateCheckService,
-        ILogService logService
+        IUpdateCheckService updateCheckService
     )
     {
+        _logger = logger;
         _installReShadeUseCase = installReShadeUseCase;
         _uninstallReShadeUseCase = uninstallReShadeUseCase;
         _installRenoDXUseCase = installRenoDXUseCase;
         _uninstallRenoDXUseCase = uninstallRenoDXUseCase;
         _updateCheckService = updateCheckService;
-        _logService = logService;
     }
 
     public async Task<ModOperationResultDto> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
@@ -57,7 +59,7 @@ public sealed class ModManagementFacade : IModManagementFacade
         catch (Exception ex)
         {
             const string message = "Unexpected error occured while installing ReShade.";
-            await _logService.LogErrorAsync(message, ex);
+            LogError(message, ex);
             return new ModOperationResultDto(false, request.Game,
                 message + " Check logs for more information.");
         }
@@ -75,12 +77,12 @@ public sealed class ModManagementFacade : IModManagementFacade
 
         try
         {
-            return await _uninstallReShadeUseCase.ExecuteAsync(game);
+            return _uninstallReShadeUseCase.Execute(game);
         }
         catch (Exception ex)
         {
             const string message = "An unexpected error occured uninstalling ReShade.";
-            await _logService.LogErrorAsync(message, ex);
+            LogError(message, ex);
             return new ModOperationResultDto(false, game, message + " Check the logs for more details.");
         }
     }
@@ -109,7 +111,7 @@ public sealed class ModManagementFacade : IModManagementFacade
         catch (Exception ex)
         {
             const string message = "Unexpected error occured while installing RenoDX.";
-            await _logService.LogErrorAsync(message, ex);
+            LogError(message, ex);
             return new ModOperationResultDto(false, request.Game,
                 message + " Check logs for more information.");
         }
@@ -127,12 +129,12 @@ public sealed class ModManagementFacade : IModManagementFacade
 
         try
         {
-            return await _uninstallRenoDXUseCase.ExecuteAsync(game);
+            return _uninstallRenoDXUseCase.Execute(game);
         }
         catch (Exception ex)
         {
             const string message = "An unexpected error occured uninstalling RenoDX.";
-            await _logService.LogErrorAsync(message, ex);
+            LogError(message, ex);
             return new ModOperationResultDto(false, game, message + " Check the logs for more details.");
         }
     }

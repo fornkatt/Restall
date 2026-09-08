@@ -68,14 +68,14 @@ internal sealed class PathService : IPathService
     public string GetRenoDXCachePath(RenoDX renoDx) =>
         Path.Combine(_renoDXDownloadCacheBaseDir, renoDx.BranchName.ToString(), renoDx.OriginalName!);
 
-    public string GetReShadeDownloadCachePath(ReShade.Branch branch) =>
+    public string GetReShadeDownloadCacheDirectory(ReShade.Branch branch) =>
         Path.Combine(_reShadeDownloadCacheBaseDir, branch.ToString());
 
-    public string GetRenoDXDownloadCachePath(RenoDX.Branch branch) =>
+    public string GetRenoDXDownloadCacheDirectory(RenoDX.Branch branch) =>
         Path.Combine(_renoDXDownloadCacheBaseDir, branch.ToString());
 
     public string GetReShadeInstallerFilePath(ReShade.Branch branch, string version) =>
-        Path.Combine(GetReShadeDownloadCachePath(branch), $"ReShade_Setup_{version}_Addon.exe");
+        Path.Combine(GetReShadeDownloadCacheDirectory(branch), $"ReShade_Setup_{version}_Addon.exe");
 
     public string GetReShadeExtractedFilePath(ReShade reShade) =>
         Path.Combine(GetReShadeCachePath(reShade), reShade.OriginalFileName);

@@ -38,15 +38,6 @@
           "Avalonia.Themes.Simple": "11.3.20"
         }
       },
-      "Avalonia.Fonts.Inter": {
-        "type": "Direct",
-        "requested": "[12.1.2, )",
-        "resolved": "12.1.2",
-        "contentHash": "pFkrNWecSX3wP9kTsMyLKyP29/8T7cYywKuE+DC9HN+BstmcIx5iOi6ZZLYAK1HkNTAGjF+oQf5wpTj3gnkWXA==",
-        "dependencies": {
-          "Avalonia": "12.1.2"
-        }
-      },
       "Avalonia.Themes.Fluent": {
         "type": "Direct",
         "requested": "[12.1.2, )",
@@ -197,14 +188,6 @@
           "Avalonia.FreeDesktop": "12.1.2",
           "Avalonia.FreeDesktop.AtSpi": "12.1.2",
           "Avalonia.Skia": "12.1.2"
-        }
-      },
-      "craftersmine.SteamGridDB.Net": {
-        "type": "Transitive",
-        "resolved": "1.1.7",
-        "contentHash": "RpxgWjFG+syzl2pvSrt9VZGrPejxVYdWh5ylLOnW+nd6ygDNG3hrKiIGZHGInnkgQ9gxyRGsahC9/tRXbnhxBw==",
-        "dependencies": {
-          "Newtonsoft.Json": "13.0.1"
         }
       },
       "HarfBuzzSharp": {
@@ -396,11 +379,6 @@
         "resolved": "10.0.11",
         "contentHash": "SXcz+kF+4Oo9b1+55zntpJFYfwb1jw66ioxptyNOOTDc8g2FHnBFWjZpsWfCvZIhzr0x+4e2trVTs4OKwQfBtw=="
       },
-      "Newtonsoft.Json": {
-        "type": "Transitive",
-        "resolved": "13.0.1",
-        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
-      },
       "NWayland": {
         "type": "Transitive",
         "resolved": "0.11.0",
@@ -412,6 +390,44 @@
         "contentHash": "iA4YoK12fozNlikTmedzWkH8RxxfjzC5Z321MRTutQbik/90U5sRW7Vab49+o5u7rZBhjq3nBDjjXv9B83jiaQ==",
         "dependencies": {
           "System.Security.Cryptography.Pkcs": "10.0.7"
+        }
+      },
+      "Serilog": {
+        "type": "Transitive",
+        "resolved": "4.4.0",
+        "contentHash": "ZC6Le3rr4TVJJjS4KsQAesxeF1EhW9qcZmmG7eP5Y2G3+gTGkJEUXkq4+tZNPtyp05I0wWOxnIjwtxFweJsObw=="
+      },
+      "Serilog.Expressions": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "QhZjXtUcA2QfQRA60m+DfyIfidKsQV7HBstbYEDqzJKMbJH/KnKthkkjciRuYrmFE+scWv1JibC5LlXrdtOUmw==",
+        "dependencies": {
+          "Serilog": "4.0.0"
+        }
+      },
+      "Serilog.Extensions.Logging": {
+        "type": "Transitive",
+        "resolved": "10.0.0",
+        "contentHash": "vx0kABKl2dWbBhhqAfTOk53/i8aV/5VaT3a6il9gn72Wqs2pM7EK2OB6No6xdqK2IaY6Zf9gdjLuK9BVa2rT+Q==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging": "10.0.0",
+          "Serilog": "4.2.0"
+        }
+      },
+      "Serilog.Sinks.Async": {
+        "type": "Transitive",
+        "resolved": "2.1.0",
+        "contentHash": "SnmRknWsSMgyo9wDXeZZCqSp48kkQYy44taSM6vcpxfiRICzSf09oLKEmVr0RCwQnfd8mJQ2WNN6nvhqf0RowQ==",
+        "dependencies": {
+          "Serilog": "4.1.0"
+        }
+      },
+      "Serilog.Sinks.File": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "fKL7mXv7qaiNBUC71ssvn/dU0k9t0o45+qm2XgKAlSt19xF+ijjxyA3R6HmCgfKEKwfcfkwWjayuQtRueZFkYw==",
+        "dependencies": {
+          "Serilog": "4.2.0"
         }
       },
       "SkiaSharp": {
@@ -461,6 +477,7 @@
       "restall.application": {
         "type": "Project",
         "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "[10.0.11, )",
           "Restall.Domain": "[1.0.0, )"
         }
       },
@@ -473,11 +490,16 @@
           "HtmlAgilityPack": "[1.13.0, )",
           "Microsoft.Extensions.DependencyInjection": "[10.0.11, )",
           "Microsoft.Extensions.Http": "[10.0.11, )",
+          "Microsoft.Extensions.Logging.Abstractions": "[10.0.11, )",
           "PeNet": "[6.1.2, )",
           "Restall.Application": "[1.0.0, )",
           "Restall.Domain": "[1.0.0, )",
-          "System.Net.Http.WinHttpHandler": "[10.0.11, )",
-          "craftersmine.SteamGridDB.Net": "[1.1.7, )"
+          "Serilog": "[4.4.0, )",
+          "Serilog.Expressions": "[5.0.0, )",
+          "Serilog.Extensions.Logging": "[10.0.0, )",
+          "Serilog.Sinks.Async": "[2.1.0, )",
+          "Serilog.Sinks.File": "[7.0.0, )",
+          "System.Net.Http.WinHttpHandler": "[10.0.11, )"
         }
       }
     }
