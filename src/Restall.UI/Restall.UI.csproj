@@ -42,4 +42,8 @@
         <DependentUpon>GameListViewModel.cs</DependentUpon>
       </Compile>
     </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\LICENSE" CopyToOutputDirectory="PreserveNewest" Link="LICENSE" />
+    </ItemGroup>
 </Project>
