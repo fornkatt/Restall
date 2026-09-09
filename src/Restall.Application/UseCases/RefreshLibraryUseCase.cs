@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 ﻿using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
