@@ -4,5 +4,10 @@
         <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <RestoreLockedMode>true</RestoreLockedMode>
+        <Product>Restall</Product>
+        <Authors>Johan Lager, Kristofer Sell</Authors>
+        <Copyright>Copyright (C) 2026 Johan Lager &amp; Kristofer Sell</Copyright>
+        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/fornkatt/Restall</RepositoryUrl>
     </PropertyGroup>
 </Project>
