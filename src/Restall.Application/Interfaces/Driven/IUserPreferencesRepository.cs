@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿namespace Restall.Application.Interfaces.Driven;
+namespace Restall.Application.Interfaces.Driven;
 
 /// <summary>
 /// To be used in a later implementation to allow the user to save preferences to a JSON file.

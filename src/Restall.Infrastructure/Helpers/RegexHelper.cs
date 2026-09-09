@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Helpers;
 

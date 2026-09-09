@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿namespace Restall.Application.DTOs;
+namespace Restall.Application.DTOs;
 
 public record RenoDXModInfoDto(
     string Name,

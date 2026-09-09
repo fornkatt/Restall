@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Interfaces.Driven;
 using Restall.UI.Interfaces;
 using Restall.UI.Services;

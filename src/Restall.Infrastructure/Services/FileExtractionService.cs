@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using Restall.Application.Interfaces.Driven;
 using System.Diagnostics;
 using Restall.Application.Common;
