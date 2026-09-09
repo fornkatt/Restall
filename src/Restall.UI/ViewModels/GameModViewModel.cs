@@ -144,13 +144,13 @@ public sealed partial class GameModViewModel : ObservableObject
             (CompatibleRenoDXMod is not null
                 ? CompatibleRenoDXMod.SupportsX32 && !CompatibleRenoDXMod.SupportsX64
                 : CompatibleRenoDXGenericMod?.SupportsX32 == true)
-                ? RenoDX.Architecture.x32
-                : RenoDX.Architecture.x64);
+                ? RenoDX.Architecture.X32
+                : RenoDX.Architecture.X64);
 
     public ReShade.Architecture SelectedReShadeInstallArch =>
-        SelectedRenoDXInstallArch == RenoDX.Architecture.x32
-            ? ReShade.Architecture.x32
-            : ReShade.Architecture.x64;
+        SelectedRenoDXInstallArch == RenoDX.Architecture.X32
+            ? ReShade.Architecture.X32
+            : ReShade.Architecture.X64;
 
     public string? RenoDXWikiDownloadUrl64 => CompatibleRenoDXMod?.SnapshotUrl64;
     public string? RenoDXWikiDownloadUrl32 => CompatibleRenoDXMod?.SnapshotUrl32;

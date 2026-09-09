@@ -47,8 +47,8 @@ internal sealed partial class ModDetectionService : IModDetectionService
                             Version = versionInfo.ProductVersion,
                             BranchName = ReShade.Branch.Stable,
                             Arch = versionInfo.OriginalFilename?.Contains("64") == true
-                                ? ReShade.Architecture.x64
-                                : ReShade.Architecture.x32
+                                ? ReShade.Architecture.X64
+                                : ReShade.Architecture.X32
                         });
                         LogModFound("ReShade", filename, executableDirectory);
                     }
@@ -99,8 +99,8 @@ internal sealed partial class ModDetectionService : IModDetectionService
                                 RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
                             Version = ParseRenoDXVersion(versionInfo.FileVersion),
                             Arch = versionInfo.OriginalFilename.Contains("64")
-                                ? RenoDX.Architecture.x64
-                                : RenoDX.Architecture.x32
+                                ? RenoDX.Architecture.X64
+                                : RenoDX.Architecture.X32
                         });
                         LogModFound("RenoDX", filename, executableDirectory);
                     }
