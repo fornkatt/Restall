@@ -5,7 +5,5 @@ namespace Restall.Application.Common.Enums;
 
 public enum WarningType
 {
-    None,
-
-
+    None
 }
