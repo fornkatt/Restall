@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
@@ -49,7 +50,7 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
                 _ => $"Failed to uninstall ReShade from {gameName}. Check the log for details."
             };
 
-            _logger.ModUninstallFailure("ReShade", gameName, result.ErrorMessage, result.Exception);
+            _logger.ModUninstallFailure("ReShade", gameName, result.Message, result.Exception);
 
             return new ModOperationResultDto(false, game, userMessage);
         }

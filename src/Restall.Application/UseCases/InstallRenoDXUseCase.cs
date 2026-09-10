@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
@@ -105,7 +106,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             };
 
             _logger.ModDownloadFailure("RenoDX", _pathService.GetRenoDXDownloadCacheDirectory(renoDX.BranchName),
-                downloadResult.ErrorMessage, downloadResult.Exception);
+                downloadResult.Message, downloadResult.Exception);
 
             return new ModOperationResultDto(false, request.Game, userMessage);
         }
@@ -115,7 +116,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
         var renoDxVersion = _modDetectionService.GetRenoDXFileVersion(filePath);
 
         if (!renoDxVersion.IsSuccess)
-            LogRenoDXVersionReadFailure(addonFilename, request.Game.Name ?? "Unknown", renoDxVersion.ErrorMessage,
+            LogRenoDXVersionReadFailure(addonFilename, request.Game.Name ?? "Unknown", renoDxVersion.Message,
                 renoDxVersion.Exception);
 
         renoDX.Version = renoDxVersion.Value;
@@ -143,7 +144,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 };
 
                 _logger.ExistingModFileDeletionFailure("RenoDX", request.Game.Name ?? "Unknown",
-                    deleteResult.ErrorMessage, deleteResult.Exception);
+                    deleteResult.Message, deleteResult.Exception);
 
                 return new ModOperationResultDto(false, request.Game, userMessage);
             }
@@ -163,7 +164,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 _ => $"Failed to install {addonFilename}. Check log for details."
             };
 
-            _logger.ModInstallationFailure("RenoDX", request.Game.Name ?? "Unknown", installResult.ErrorMessage,
+            _logger.ModInstallationFailure("RenoDX", request.Game.Name ?? "Unknown", installResult.Message,
                 installResult.Exception);
 
             return new ModOperationResultDto(false, request.Game, userMessage);
@@ -202,7 +203,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         // TODO: develop proper failure path? A stale file might give the user a version different from what was requested
         if (!deleted.IsSuccess)
-            LogRenoDXStaleCacheDeletionFailure(cachedFilePath, deleted.ErrorMessage, deleted.Exception);
+            LogRenoDXStaleCacheDeletionFailure(cachedFilePath, deleted.Message, deleted.Exception);
     }
 
     private static bool IsCacheOutdated(string? cachedVersion, string? targetVersion)

@@ -4,6 +4,7 @@
 using Microsoft.Extensions.Logging;
 using PeNet.Header.Resource;
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Logging;
 using Restall.Domain.Entities;

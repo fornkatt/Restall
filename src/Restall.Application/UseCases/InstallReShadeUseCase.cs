@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
@@ -79,7 +80,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 };
 
                 _logger.ModDownloadFailure("ReShade", _pathService.GetReShadeDownloadCacheDirectory(reShade.BranchName),
-                    downloadResult.ErrorMessage, downloadResult.Exception);
+                    downloadResult.Message, downloadResult.Exception);
 
                 return new ModOperationResultDto(false, request.Game, userMessage);
             }
@@ -112,7 +113,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                     _ => "An unexpected error occured during file extraction. Check logs for more details."
                 };
 
-                _logger.ModExtractionFailure("ReShade", extractedCacheDir, extractionResult.ErrorMessage,
+                _logger.ModExtractionFailure("ReShade", extractedCacheDir, extractionResult.Message,
                     extractionResult.Exception);
 
                 return new ModOperationResultDto(false, request.Game, userMessage);
@@ -142,7 +143,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 };
 
                 _logger.ExistingModFileDeletionFailure("ReShade", request.Game.Name ?? "Unknown",
-                    deleteResult.ErrorMessage, deleteResult.Exception);
+                    deleteResult.Message, deleteResult.Exception);
 
                 return new ModOperationResultDto(false, request.Game, userMessage);
             }
@@ -163,7 +164,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 _ => "Failed to install ReShade. Check logs for details."
             };
 
-            _logger.ModInstallationFailure("ReShade", request.Game.Name ?? "Unknown", result.ErrorMessage,
+            _logger.ModInstallationFailure("ReShade", request.Game.Name ?? "Unknown", result.Message,
                 result.Exception);
 
             return new ModOperationResultDto(false, request.Game, userMessage);
