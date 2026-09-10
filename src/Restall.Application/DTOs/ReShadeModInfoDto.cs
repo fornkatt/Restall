@@ -13,5 +13,4 @@ public record ReShadeModInfoDto(
     string? StableUrl,
     string? NightlyUrl,
     string? RenoDXUrl,
-    string? Notes
-    );
+    string? Notes);

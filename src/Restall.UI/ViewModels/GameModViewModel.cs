@@ -18,8 +18,8 @@ public sealed partial class GameModViewModel : ObservableObject
     private readonly Game _game;
 
 
-    private const int s_coverTargetWidth = 600;
-    private const int s_thumbnailTargetWidth = 32;
+    private const int CoverTargetWidth = 600;
+    private const int ThumbnailTargetWidth = 32;
 
 
     private Lazy<Bitmap?> _coverBitMap;
@@ -33,8 +33,8 @@ public sealed partial class GameModViewModel : ObservableObject
         _thumbnailPathString = game.ThumbnailPathString;
         NormalizedName = GameNameHelper.NormalizeName(game.Name!);
 
-        _coverBitMap = CreateLazyBitmap(_coverPathString, s_coverTargetWidth);
-        _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, s_thumbnailTargetWidth);
+        _coverBitMap = CreateLazyBitmap(_coverPathString, CoverTargetWidth);
+        _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, ThumbnailTargetWidth);
     }
 
     [ObservableProperty] private UpdateCheckResultDto? _reShadeUpdateCheck;
@@ -186,13 +186,13 @@ public sealed partial class GameModViewModel : ObservableObject
     private string? _coverPathString;
 
     partial void OnCoverPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _coverBitMap, value, s_coverTargetWidth);
+        ResetLazyBitmap(ref _coverBitMap, value, CoverTargetWidth);
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
     private string? _thumbnailPathString;
 
     partial void OnThumbnailPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _thumbnailBitmap, value, s_thumbnailTargetWidth);
+        ResetLazyBitmap(ref _thumbnailBitmap, value, ThumbnailTargetWidth);
 
     public Bitmap? CoverBitmap => _coverBitMap.Value;
     public Bitmap? ThumbnailBitmap => _thumbnailBitmap.Value;

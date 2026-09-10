@@ -13,7 +13,7 @@ internal sealed class IconConverterService : IIconConverterService
     public byte[] IcoToPng(byte[] icoBytes, int width)
     {
         using var icoStream = new MemoryStream(icoBytes);
-        using var bitmap = Bitmap.DecodeToWidth(icoStream,width);
+        using var bitmap = Bitmap.DecodeToWidth(icoStream, width);
         using var pngStream = new MemoryStream();
         bitmap.Save(pngStream, PngBitmapEncoderOptions.Default);
         return pngStream.ToArray();

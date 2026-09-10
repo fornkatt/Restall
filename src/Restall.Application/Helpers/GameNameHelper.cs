@@ -7,10 +7,15 @@ namespace Restall.Application.Helpers;
 
 public static partial class GameNameHelper
 {
-    private static readonly Dictionary<char, int> RomanValues = new()
+    private static readonly Dictionary<char, int> s_romanValues = new()
     {
-        ['i'] = 1, ['v'] = 5, ['x'] = 10, ['l'] = 50,
-        ['c'] = 100, ['d'] = 500, ['m'] = 1000
+        ['i'] = 1,
+        ['v'] = 5,
+        ['x'] = 10,
+        ['l'] = 50,
+        ['c'] = 100,
+        ['d'] = 500,
+        ['m'] = 1000
     };
 
     [GeneratedRegex(@"[^\w\s]")]
@@ -195,8 +200,8 @@ public static partial class GameNameHelper
 
         for (var i = 0; i < roman.Length; i++)
         {
-            var current = RomanValues[roman[i]];
-            var next = i + 1 < roman.Length ? RomanValues[roman[i + 1]] : 0;
+            var current = s_romanValues[roman[i]];
+            var next = i + 1 < roman.Length ? s_romanValues[roman[i + 1]] : 0;
             result += current < next ? -current : current;
         }
 

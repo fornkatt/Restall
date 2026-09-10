@@ -30,7 +30,8 @@ internal sealed partial class ParseService
 
     [LoggerMessage(EventId = 1104, Level = LogLevel.Warning,
         Message =
-            "Could not parse snapshot release date. Snapshot will be unavailable. Value from site: \"{OriginalValue}\"")]
+            "Could not parse snapshot release date. Snapshot will be unavailable. Value from site:" +
+            " \"{OriginalValue}\"")]
     private partial void LogRenoDXSnapshotReleaseDateParseFailure(string originalValue);
 
     [LoggerMessage(EventId = 1105, Level = LogLevel.Information,
@@ -102,7 +103,8 @@ internal sealed partial class ParseService
     private partial void LogRenoDXNightlyTagParsingStart(string nightlyTag);
 
     [LoggerMessage(EventId = 1120, Level = LogLevel.Warning,
-        Message = "Could not parse date from nightly tag \"{NightlyTag}\" — Original value from site: \"{OriginalValue}\"")]
+        Message =
+            "Could not parse date from nightly tag \"{NightlyTag}\" — Original value from site: \"{OriginalValue}\"")]
     private partial void LogRenoDXNightlyTagDateParseFailure(string nightlyTag, string originalValue);
 
     /// <summary>

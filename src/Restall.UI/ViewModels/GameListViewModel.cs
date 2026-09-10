@@ -13,8 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
-using Serilog.Core;
-using Serilog.Events;
 
 namespace Restall.UI.ViewModels;
 

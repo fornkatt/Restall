@@ -19,7 +19,7 @@ internal sealed class ModInstallService : IModInstallService
         _fileService = fileService;
     }
 
-    // TODO: mod enum instead of T class? 
+    // TODO: mod enum instead of T class?
     public async Task<Result<Game>> InstallModAsync<T>(Game game, T modToInstall, string sourcePath) where T : class
     {
         try

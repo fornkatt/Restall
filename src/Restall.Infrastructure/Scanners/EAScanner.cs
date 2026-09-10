@@ -84,10 +84,7 @@ internal sealed partial class EAScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = displayName,
-                    InstallFolder = installDir,
-                    PlatformName = Platform,
-                    PlatformId = subName
+                    Name = displayName, InstallFolder = installDir, PlatformName = Platform, PlatformId = subName
                 });
             }
             catch (Exception ex)

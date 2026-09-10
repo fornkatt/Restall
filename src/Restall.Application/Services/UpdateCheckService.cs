@@ -10,12 +10,12 @@ namespace Restall.Application.Services;
 public sealed class UpdateCheckService : IUpdateCheckService
 {
     private readonly IVersionCatalog _versionCatalog;
-    
-    private const string s_dateFormat = "yyyyMMdd";
+
+    private const string DateFormat = "yyyyMMdd";
 
     public UpdateCheckService(
         IVersionCatalog versionCatalog
-        )
+    )
     {
         _versionCatalog = versionCatalog;
     }
@@ -40,14 +40,14 @@ public sealed class UpdateCheckService : IUpdateCheckService
                 installedVersion,
                 latestVersion,
                 $"Could not get ReShade versions: Installed = {installedVersion}, Latest = {latestVersion}"
-                );
+            );
         }
 
         return new UpdateCheckResultDto(
             latestSemVer > installedSemVer,
             installedVersion,
             latestVersion
-            );
+        );
     }
 
     public UpdateCheckResultDto CheckRenoDXUpdate(RenoDX installed)
@@ -75,19 +75,19 @@ public sealed class UpdateCheckService : IUpdateCheckService
         if (latestTag is null)
             return new UpdateCheckResultDto(false, installedVersionString, null);
 
-        if (!DateOnly.TryParseExact(installedVersionString, s_dateFormat, null,
-            System.Globalization.DateTimeStyles.None, out var installedDate))
+        if (!DateOnly.TryParseExact(installedVersionString, DateFormat, null,
+                System.Globalization.DateTimeStyles.None, out var installedDate))
             return new UpdateCheckResultDto(
                 false,
                 installedVersionString,
                 latestTag.Version,
                 $"Could not get date from installed RenoDX version: {installedVersionString}"
-                );
+            );
 
         return new UpdateCheckResultDto(
             latestTag.Date > installedDate,
             installedVersionString,
             latestTag.Version
-            );
+        );
     }
 }

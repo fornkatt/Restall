@@ -12,13 +12,12 @@ using Restall.Application.Logging;
 
 namespace Restall.Infrastructure.Scanners;
 
-
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 internal sealed partial class GOGScanner : IPlatformScannerService
 {
     private readonly ILogger<GOGScanner> _logger;
     private readonly IPathService _pathService;
-    
+
     public GOGScanner(
         ILogger<GOGScanner> logger,
         IPathService pathService)
@@ -26,7 +25,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         _logger = logger;
         _pathService = pathService;
     }
-    
+
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanGOG);
     public Game.Platform Platform => Game.Platform.GOG;
 
@@ -40,9 +39,9 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             games.AddRange(gogGames);
             if (error is not null) errors.Add(error);
         }
-        
+
         var gogHeroicPath = _pathService.GetHeroicPath();
-        
+
         if (Directory.Exists(gogHeroicPath))
         {
             var (heroicGames, error) = ScanHeroicLibrary();
@@ -64,15 +63,15 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
 
         using var key = GameScanHelper.GetOpenRegistryKey(@"GOG.com\Games");
-        if (key is null)  return (games, null);
-        
+        if (key is null) return (games, null);
+
         foreach (var subName in key.GetSubKeyNames())
         {
             try
             {
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey is null) continue;
-                
+
 
                 var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName", "gameName");
                 var path = GameScanHelper.GetRegistryValue(gameKey, "PATH", "path");
@@ -91,10 +90,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = name,
-                    InstallFolder = path,
-                    PlatformName = Platform,
-                    PlatformId = subName
+                    Name = name, InstallFolder = path, PlatformName = Platform, PlatformId = subName
                 });
             }
 
@@ -106,20 +102,20 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
         return (games, null);
     }
-    
+
     private (List<Game> games, string? error) ScanHeroicLibrary()
     {
         var games = new List<Game>();
-        
+
         var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
         var installedInstallInfoPath = _pathService.GetHeroicStoreCache(Platform, "gog_install_info.json");
-        
+
         if (!File.Exists(installedJsonPath) || !File.Exists(installedInstallInfoPath))
             return (games, null);
-        
-        
+
+
         var installInfoGames = new Dictionary<string, string>();
-        
+
         //TODO: Consider Regex vs JSON in both Epic and GOG Scanners
         try
         {
@@ -137,7 +133,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         {
             _logger.HeroicInstallInfoReadFailure(Platform, installedInstallInfoPath, ex);
         }
-        
+
         if (installInfoGames.Count == 0)
         {
             _logger.HeroicInstallInfoEmpty(Platform, installedInstallInfoPath);
@@ -155,7 +151,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             _logger.HeroicInstalledJsonReadFailure(Platform, installedJsonPath, ex);
             return (games, installedJsonPath);
         }
-        
+
         foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(installedJson))
         {
             try
@@ -166,44 +162,41 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                     is { Success: true } am
                     ? am.Groups[1].Value
                     : null;
-                
+
                 var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
                     is { Success: true } pm
                     ? pm.Groups[1].Value.Replace("\\\\", "\\")
                     : null;
                 installPath = GameScanHelper.NormalizePath(installPath);
-                
+
                 if (string.IsNullOrEmpty(appName))
                 {
                     _logger.HeroicAppNameNotFound(Platform, installPath);
                     continue;
                 }
-                
+
                 //TODO: INCLUDE THE BLOCKVALUE?
                 if (string.IsNullOrEmpty(installPath))
                 {
                     _logger.HeroicInstallPathNotFound(Platform, appName);
                     continue;
                 }
-                
+
                 if (!installInfoGames.TryGetValue(appName, out var title))
                 {
                     _logger.HeroicInstallInfoEntryNotFound(Platform, appName, installedInstallInfoPath);
                     continue;
                 }
 
-                if(string.IsNullOrEmpty(title))
+                if (string.IsNullOrEmpty(title))
                 {
                     _logger.HeroicGameNameNotFound(Platform, appName, installPath);
                     continue;
                 }
-                
+
                 games.Add(new Game
                 {
-                    Name = title,
-                    InstallFolder = installPath,
-                    PlatformName = Platform,
-                    PlatformId = appName
+                    Name = title, InstallFolder = installPath, PlatformName = Platform, PlatformId = appName
                 });
             }
             catch (Exception ex)

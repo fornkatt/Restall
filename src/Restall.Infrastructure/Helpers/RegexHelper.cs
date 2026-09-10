@@ -19,30 +19,29 @@ internal static partial class RegexHelper
 
     [GeneratedRegex(@"\b32[\s-]?bit\b", RegexOptions.IgnoreCase)]
     private static partial Regex Match32Bit();
-    
+
     [GeneratedRegex(@"^\d+\.(\d{4})\.(\d{4})\.\d+$")]
     private static partial Regex RenoDXVersion();
 
     [GeneratedRegex(@"ReShade (\d+\.\d+\.\d+)")]
     private static partial Regex ExtractReShadeFromSite();
-    
+
     [GeneratedRegex(@"""path""\s+""([^""]+)""")]
     private static partial Regex SteamLibrary();
 
     [GeneratedRegex(@"""appName""\s*:\s*""([^""]+)""")]
     private static partial Regex HeroicAppNameGOG();
-    
+
     [GeneratedRegex(@"""app_name""\s*:\s*""([^""]+)""")]
     private static partial Regex HeroicAppNameEpic();
-    
+
     [GeneratedRegex(@"\{[^{}]*""install_path""[^{}]*\}")]
     private static partial Regex HeroicGameBlock();
-    
+
     [GeneratedRegex(@"""install_path""\s*:\s*""([^""]+)""")]
     private static partial Regex HeroicInstallPath();
-    
-    [GeneratedRegex(@"""[^""]+""\s*:\s*\{\s*""game""\s*:\s*\{\s*""app_name""\s*:\s*""([^""]+)""\s*,\s*""title""\s*:\s*""([^""]+)""")]
+
+    [GeneratedRegex(
+        @"""[^""]+""\s*:\s*\{\s*""game""\s*:\s*\{\s*""app_name""\s*:\s*""([^""]+)""\s*,\s*""title""\s*:\s*""([^""]+)""")]
     private static partial Regex InstallInfoAppNameAndTitle();
-
-
 }

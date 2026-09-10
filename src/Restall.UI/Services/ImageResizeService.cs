@@ -17,6 +17,5 @@ internal sealed class ImageResizeService : IImageResizeService
         using var outputStream = new MemoryStream();
         bitmap.Save(outputStream, PngBitmapEncoderOptions.Default);
         return Task.FromResult(outputStream.ToArray());
-        
     }
 }

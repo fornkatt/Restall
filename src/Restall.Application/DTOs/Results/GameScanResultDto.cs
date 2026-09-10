@@ -9,5 +9,4 @@ public record GameScanResultDto(
     Game.Platform Platform,
     IReadOnlyList<Game> Games,
     bool IsSuccess,
-    string? Message = null
-);
+    string? Message = null);

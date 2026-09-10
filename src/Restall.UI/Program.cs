@@ -45,7 +45,7 @@ sealed class Program
         {
             builder = builder.UseWayland();
         }
-        
+
         return builder;
     }
 }

@@ -11,7 +11,7 @@ using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Services;
 
-// TODO: Look for more options to refactor this. 
+// TODO: Look for more options to refactor this.
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 // TODO(logging-refactor): just swap the logging implementations
 internal sealed partial class GameDetectionService : IGameDetectionService
@@ -20,10 +20,7 @@ internal sealed partial class GameDetectionService : IGameDetectionService
     private readonly IEngineDetectionService _engineDetectionService;
     private readonly ILogger<GameDetectionService> _logger;
 
-    private static readonly ParallelOptions s_engineParallelOptions = new()
-    {
-        MaxDegreeOfParallelism = 2
-    };
+    private static readonly ParallelOptions s_engineParallelOptions = new() { MaxDegreeOfParallelism = 2 };
 
     public GameDetectionService(
         IEnumerable<IPlatformScannerService> platformScannerService,
@@ -35,7 +32,7 @@ internal sealed partial class GameDetectionService : IGameDetectionService
         _platformScannerService = platformScannerService;
         _logger = logger;
     }
-    
+
     public async Task<GameScanResultDto> FindGamesAsync(IProgress<GameScanProgressReportDto>? progress = null)
     {
         try
@@ -54,9 +51,9 @@ internal sealed partial class GameDetectionService : IGameDetectionService
 
                 if (result.Message is not null)
                     allErrors.Add(result.Message);
-                
+
                 LogScannerComplete(result.Platform.ToString(), result.Games.Count);
-                
+
                 progress?.Report(new GameScanProgressReportDto(
                     CompletedPlatform: result.Platform.ToString(),
                     ScannersCompleted: completed,
@@ -67,12 +64,13 @@ internal sealed partial class GameDetectionService : IGameDetectionService
             }
 
             var deduped = allGames
-                 .GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
-                 .SelectMany(s => s.GroupBy(g => g.ExecutablePath, StringComparer.OrdinalIgnoreCase))
-                 .Select(g => g.OrderByDescending(x => x.PlatformId != null).First())
-                 .ToList<Game?>();
+                .GroupBy(g => g.InstallFolder, StringComparer.OrdinalIgnoreCase)
+                .SelectMany(s => s.GroupBy(g => g.ExecutablePath,
+                    StringComparer.OrdinalIgnoreCase))
+                .Select(g => g.OrderByDescending(x => x.PlatformId != null).First())
+                .ToList<Game?>();
 
-            
+
             var engineCache = new ConcurrentDictionary<(string root, Game.Platform platform),
                 (string? path, Game.Engine engine)>();
 
@@ -112,14 +110,11 @@ internal sealed partial class GameDetectionService : IGameDetectionService
                         game.ExecutablePath = executablePath;
                         game.EngineName = detectedEngine;
                         engineCache[rootKey] = (executablePath, detectedEngine);
-
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         LogExecutablePathDetectionFailure(game.Name ?? "Unknown", game.InstallFolder, ex);
                     }
-                    
-                    
                 });
             });
 
@@ -136,7 +131,6 @@ internal sealed partial class GameDetectionService : IGameDetectionService
         }
         catch (Exception ex)
         {
-            
             LogLibrariesScanFailure(ex);
             return new GameScanResultDto(
                 Platform: Game.Platform.Unknown,

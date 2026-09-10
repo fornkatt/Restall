@@ -10,5 +10,4 @@ public record InstallReShadeRequest(
     ReShade.Branch Branch,
     ReShade.Architecture Arch,
     string Version,
-    string SelectedFilename
-);
+    string SelectedFilename);

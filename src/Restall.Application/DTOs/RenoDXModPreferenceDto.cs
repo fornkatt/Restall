@@ -12,5 +12,4 @@ public record RenoDXModPreferenceDto(
     RenoDXModSource PreferredSource,
     string? LastSeenVersion = null,
     DateTimeOffset? LastUpdated = null,
-    DateOnly? LastChecked = null
-    );
+    DateOnly? LastChecked = null);

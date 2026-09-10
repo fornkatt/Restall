@@ -14,5 +14,6 @@ public interface IRefreshLibraryUseCase
 
 public interface ILightRefreshLibraryUseCase
 {
-    Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames, IProgress<GameScanProgressReportDto>? progress = null);
+    Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames,
+        IProgress<GameScanProgressReportDto>? progress = null);
 }

@@ -14,7 +14,7 @@ public sealed partial class RenoDXInstallDialogViewModel : ObservableObject
 {
     public RenoDXInstallDialogViewModel(
         IReadOnlyList<RenoDXTagInfoDto> availableVersions
-        )
+    )
     {
         AvailableVersions = availableVersions;
         _selectedVersion = availableVersions.FirstOrDefault();

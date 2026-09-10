@@ -91,13 +91,16 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             var userMessage = downloadResult.ErrorType switch
             {
                 ErrorType.PermissionDenied =>
-                    $"Permission denied writing {addonFilename} to the cache folder. Check your app permissions and try again.",
+                    $"Permission denied writing {addonFilename} to the cache folder." +
+                    $" Check your app permissions and try again.",
                 ErrorType.FileSystemError =>
                     $"Failed to write {addonFilename} to disk. The disk may be full or the file may be locked.",
                 ErrorType.NetworkTimeout =>
-                    $"Connection timed out while downloading {addonFilename}. Please check your internet connection and try again.",
+                    $"Connection timed out while downloading {addonFilename}." +
+                    $" Please check your internet connection and try again.",
                 ErrorType.DownloadFailed =>
-                    $"Download failed for {addonFilename}. The server may be unavailable or the file may no longer exist.",
+                    $"Download failed for {addonFilename}." +
+                    $" The server may be unavailable or the file may no longer exist.",
                 _ => $"Failed to download {addonFilename}. Check log for details."
             };
 
@@ -128,11 +131,14 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 var userMessage = deleteResult.ErrorType switch
                 {
                     ErrorType.PermissionDenied =>
-                        "Permission denied deleting existing RenoDX file. Please ensure you have write access to the game directory and try again.",
+                        "Permission denied deleting existing RenoDX file. Please ensure you have write access" +
+                        " to the game directory and try again.",
                     ErrorType.FileSystemError =>
-                        "Something went wrong uninstalling an existing RenoDX file. Please ensure the file is not in use and the disk is not full and try again.",
+                        "Something went wrong uninstalling an existing RenoDX file." +
+                        " Please ensure the file is not in use and the disk is not full and try again.",
                     ErrorType.FileNotFound =>
-                        "File not found at expected location. It might have been moved or deleted. Please perform a full rescan.",
+                        "File not found at expected location. It might have been moved or deleted." +
+                        " Please perform a full rescan.",
                     _ => "Unexpected error occurred while uninstalling existing mod record. Check logs for details."
                 };
 
@@ -150,7 +156,8 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             var userMessage = installResult.ErrorType switch
             {
                 ErrorType.PermissionDenied =>
-                    $"Permission denied writing {addonFilename} to the game folder. Check your app permissions and try again.",
+                    $"Permission denied writing {addonFilename} to the game folder. Check your app permissions" +
+                    $" and try again.",
                 ErrorType.FileSystemError =>
                     $"Failed to write {addonFilename} to disk. The disk may be full or the file may be locked.",
                 _ => $"Failed to install {addonFilename}. Check log for details."
@@ -166,11 +173,12 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             ? ""
             : $"\n\nVersion could not be read from {addonFilename}. It may not appear in the UI.\n" +
               $"Check the logs for information on why this might have happened.";
-        
+
         _logger.ModInstallationComplete("RenoDX", addonFilename, renoDX.Arch.ToString(),
             request.Game.Name ?? "Unknown");
-        
-        return new ModOperationResultDto(true, request.Game, $"Successfully installed {addonFilename}!{versionNote}");
+
+        return new ModOperationResultDto(true, request.Game,
+            $"Successfully installed {addonFilename} {versionNote}");
     }
 
     private async Task InvalidateCacheIfOutdatedAsync(RenoDX renoDX, string? targetVersion,
@@ -183,8 +191,8 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
         {
             if (string.IsNullOrWhiteSpace(targetVersion)) return;
 
-            if (!DateOnly.TryParseExact(targetVersion, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None,
-                    out _)) return;
+            if (!DateOnly.TryParseExact(targetVersion, "yyyyMMdd", null,
+                    System.Globalization.DateTimeStyles.None, out _)) return;
 
             var cachedVersion = _modDetectionService.GetRenoDXFileVersion(cachedFilePath);
             if (!IsCacheOutdated(cachedVersion.Value, targetVersion)) return;
@@ -236,7 +244,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
     {
         if (isExternallyHostedGeneric)
         {
-            var modType = request.GenericModInfo?.RenoDxWikiModType ??
+            var modType = request.GenericModInfo?.RenoDXWikiModType ??
                           RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(request.Game.EngineName) ??
                           RenoDXWikiModType.Unity;
 

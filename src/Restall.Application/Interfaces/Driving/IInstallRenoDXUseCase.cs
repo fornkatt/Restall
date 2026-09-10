@@ -9,5 +9,6 @@ namespace Restall.Application.Interfaces.Driving;
 
 public interface IInstallRenoDXUseCase
 {
-    Task<ModOperationResultDto> ExecuteAsync(InstallRenoDXRequest request, IProgress<DownloadProgressReportDto>? progress = null);
+    Task<ModOperationResultDto> ExecuteAsync(InstallRenoDXRequest request,
+        IProgress<DownloadProgressReportDto>? progress = null);
 }

@@ -74,7 +74,7 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
         {
             if (string.IsNullOrWhiteSpace(game.Name))
                 continue;
-            
+
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
             var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
 
@@ -98,7 +98,7 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
                 : null;
 
             var gameName = game.Name ?? "Unknown";
-            
+
             if (compatibleMod is not null)
                 LogRenoDXCompatibleGameFound(gameName, compatibleMod.Name);
             else if (compatibleGenericMod is not null)

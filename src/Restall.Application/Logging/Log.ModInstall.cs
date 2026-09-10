@@ -32,8 +32,8 @@ public static partial class Log
         string? errorMessage, Exception? ex);
 
     [LoggerMessage(EventId = 29, Level = LogLevel.Information,
-        Message =
-            "Starting installation of \"{ModType}\" as \"{ModName}\" \"{Arch}\" to \"{GameName}\" — \"{GameExecutableDirectory}\"")]
+        Message = "Starting installation of \"{ModType}\" as \"{ModName}\" \"{Arch}\" to \"{GameName}\"" +
+                  " — \"{GameExecutableDirectory}\"")]
     public static partial void ModInstallationStart(this ILogger logger, string modType, string modName, string arch,
         string gameName, string gameExecutableDirectory);
 

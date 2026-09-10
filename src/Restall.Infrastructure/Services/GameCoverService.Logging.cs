@@ -48,7 +48,8 @@ internal sealed partial class GameCoverService
 
     [LoggerMessage(EventId = 1409, Level = LogLevel.Debug,
         Message =
-            "The Heroic game entry for \"{GameName}\" with ID: \"{GameId}\" was not found at the cached file: \"{CacheFile}\"")]
+            "The Heroic game entry for \"{GameName}\" with ID: \"{GameId}\" was not found at the cached file:" +
+            " \"{CacheFile}\"")]
     private partial void LogHeroicGameNotFound(string gameName, string gameId, string cacheFile);
 
     [LoggerMessage(EventId = 1410, Level = LogLevel.Error,
@@ -56,7 +57,8 @@ internal sealed partial class GameCoverService
     private partial void LogHeroicCacheFileLookupFailure(string gameName, string cacheFile, Exception ex);
 
     [LoggerMessage(EventId = 1411, Level = LogLevel.Debug,
-        Message = "Could not execute 'exact' look up for \"{GameName}\" with URL: \"{ExactUrl}\". Proceeding to API Cargo")]
+        Message = "Could not execute 'exact' look up for \"{GameName}\" with URL: \"{ExactUrl}\"." +
+                  " Proceeding to API Cargo")]
     private partial void LogPCGamingWikiExactUrlLookupFailure(string gameName, string exactUrl);
 
     [LoggerMessage(EventId = 1412, Level = LogLevel.Error,
@@ -73,11 +75,13 @@ internal sealed partial class GameCoverService
 
     [LoggerMessage(EventId = 1415, Level = LogLevel.Debug,
         Message =
-            "The cover download for \"{GameName}\" was successful from 'PC Gaming Wiki'. Cover path: \"{CoverPath}\" | CoverUrl: \"{CoverUrl}\"")]
+            "The cover download for \"{GameName}\" was successful from 'PC Gaming Wiki'. Cover path: \"{CoverPath}\"" +
+            " | CoverUrl: \"{CoverUrl}\"")]
     private partial void LogDownloadCoverComplete(string gameName, string coverPath, string coverUrl);
 
     [LoggerMessage(EventId = 1416, Level = LogLevel.Error,
         Message =
-            "Failed to download the cover for \"{GameName}\" from 'PC Gaming Wiki'. Cover path: \"{CoverPath}\" | CoverUrl: \"{CoverUrl}\"")]
+            "Failed to download the cover for \"{GameName}\" from 'PC Gaming Wiki'. Cover path: \"{CoverPath}\"" +
+            " | CoverUrl: \"{CoverUrl}\"")]
     private partial void LogDownloadCoverFailure(string gameName, string coverPath, string coverUrl, Exception ex);
 }

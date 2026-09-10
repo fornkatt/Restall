@@ -13,7 +13,8 @@ namespace Restall.Infrastructure.Services;
 
 internal sealed partial class ModDetectionService : IModDetectionService
 {
-    private const long s_dllScanMaxBytes = 10 * 1024 * 1024;
+    private const long DllScanMaxBytes = 10 * 1024 * 1024;
+
     private readonly ILogger<ModDetectionService> _logger;
 
     public ModDetectionService(
@@ -32,7 +33,7 @@ internal sealed partial class ModDetectionService : IModDetectionService
 
         try
         {
-            await ScanFilesAsync(executableDirectory, ["*.dll", "*.asi"], s_dllScanMaxBytes,
+            await ScanFilesAsync(executableDirectory, ["*.dll", "*.asi"], DllScanMaxBytes,
                 async (file, versionInfo) =>
                 {
                     if (!string.IsNullOrWhiteSpace(versionInfo.ProductName) &&

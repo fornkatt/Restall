@@ -11,13 +11,12 @@ namespace Restall.UI.Extensions;
 
 public static class UIServiceCollectionExtensions
 {
-    
     public static IServiceCollection AddUIServices(this IServiceCollection services)
     {
         services.AddSingleton<IImageResizeService, ImageResizeService>();
         services.AddSingleton<IIconConverterService, IconConverterService>();
         services.AddTransient<IModSelectionDialogService, ModSelectionDialogService>();
-    
+
         services.AddTransient<StartupWindowViewModel>();
         services.AddTransient<GameListViewModel>();
         services.AddTransient<ModViewModel>();

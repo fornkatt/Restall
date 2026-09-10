@@ -24,8 +24,9 @@ public interface IModDownloadService
     /// <see cref="ErrorType.DownloadFailed"/>
     /// </para>
     /// </summary>
-    Task<Result> DownloadReShadeAsync(ReShade.Branch branch, string version, IProgress<DownloadProgressReportDto>? progress = null);
-    
+    Task<Result> DownloadReShadeAsync(ReShade.Branch branch, string version,
+        IProgress<DownloadProgressReportDto>? progress = null);
+
     /// <summary>
     /// Downloads a specified RenoDX version from a specific branch.
     /// <br/>
@@ -43,7 +44,7 @@ public interface IModDownloadService
     /// </summary>
     Task<Result> DownloadRenoDXAsync(RenoDX.Branch branch, string? addonFileName = null, string? version = null,
         string? wikiSnapshotUrl = null, IProgress<DownloadProgressReportDto>? progress = null);
-    
+
     /// <summary>
     /// Downloads a RenoDX mod variant hosted on a separate GitHub from the main RenoDX repo.
     /// Does not support branch selection.
@@ -60,5 +61,6 @@ public interface IModDownloadService
     /// <see cref="ErrorType.DownloadFailed"/>
     /// </para>
     /// </summary>
-    Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null);
+    Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName,
+        IProgress<DownloadProgressReportDto>? progress = null);
 }

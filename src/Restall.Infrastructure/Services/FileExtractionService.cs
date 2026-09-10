@@ -60,9 +60,9 @@ internal sealed class FileExtractionService : IFileExtractionService
             {
                 var stderr = process.StandardError.ReadToEnd();
                 return Result.Error($"""
-                                   Extraction failed with exit code
-                                   {process.ExitCode}: {stderr}
-                                   """, ErrorType.ExtractionFailed);
+                                     Extraction failed with exit code
+                                     {process.ExitCode}: {stderr}
+                                     """, ErrorType.ExtractionFailed);
             }
         }
         catch (Win32Exception ex)

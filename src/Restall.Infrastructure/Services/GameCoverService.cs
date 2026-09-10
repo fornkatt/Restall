@@ -17,15 +17,18 @@ internal sealed partial class GameCoverService : IGameCoverService
     private readonly IImageResizeService _imageResizeService;
     private readonly ILogger<GameCoverService> _logger;
     private readonly IPathService _pathService;
-    
+
     private const string PcgwCargoByPageNameUrl =
-        "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageName%3D%22{0}%22&format=json";
+        "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=" +
+        "Infobox_game.Cover_URL&where=Infobox_game._pageName%3D%22{0}%22&format=json";
 
     private const string PcgwSearchUrl =
-        "https://www.pcgamingwiki.com/w/api.php?action=query&list=search&srsearch={0}&srnamespace=0&srlimit=3&format=json";
+        "https://www.pcgamingwiki.com/" +
+        "w/api.php?action=query&list=search&srsearch={0}&srnamespace=0&srlimit=3&format=json";
 
     private const string PcgwCargoByPageIdUrl =
-        "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=Infobox_game.Cover_URL&where=Infobox_game._pageID%3D{0}&format=json";
+        "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=" +
+        "Infobox_game.Cover_URL&where=Infobox_game._pageID%3D{0}&format=json";
 
     private const string GogApiV2ProductUrl = "https://api.gog.com/v2/games/{0}";
 
@@ -41,7 +44,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         _logger = logger;
         _pathService = pathService;
     }
-    
+
     public async Task DownloadCoverIfMissingAsync(Game game, string coverPath)
     {
         if (File.Exists(coverPath)) return;
@@ -98,13 +101,13 @@ internal sealed partial class GameCoverService : IGameCoverService
 
         var appId = game.PlatformId;
         var steamRoot = FindSteamRoot();
-        
+
         if (steamRoot is null)
         {
             LogSteamCoverCopyFailure(game.Name ?? "Unknown Game");
             return null;
         }
-        
+
         var libCacheDir = Path.Combine(steamRoot, "appcache", "librarycache");
         var directPath = Path.Combine(libCacheDir, appId, "library_600x900.jpg");
         if (File.Exists(directPath)) return directPath;
@@ -139,8 +142,7 @@ internal sealed partial class GameCoverService : IGameCoverService
             if (Directory.Exists(defaultPath)) return defaultPath;
         }
 
-        return OperatingSystem.IsLinux() ? 
-            _pathService.GetSteamLinuxPaths().FirstOrDefault(Directory.Exists) : null;
+        return OperatingSystem.IsLinux() ? _pathService.GetSteamLinuxPaths().FirstOrDefault(Directory.Exists) : null;
     }
 
     // GOG ---------------------------------------------------------------------------------
@@ -211,7 +213,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         {
             LogGOGCoverApiLookupFailure(game.Name ?? "Unknown", ex);
         }
-        
+
         return null;
     }
 
@@ -219,13 +221,14 @@ internal sealed partial class GameCoverService : IGameCoverService
     private async Task<string?> TryResolveHeroicCoverAsync(Game game)
     {
         var isGog = game.PlatformName == Game.Platform.GOG;
-        var cacheFile = _pathService.GetHeroicStoreCache(game.PlatformName, isGog ? "gog_library.json" : "legendary_library.json");
-            
+        var cacheFile =
+            _pathService.GetHeroicStoreCache(game.PlatformName, isGog ? "gog_library.json" : "legendary_library.json");
+
         if (!File.Exists(cacheFile))
         {
             LogHeroicCacheFileNotFound(game.Name ?? "Unknown Game", cacheFile);
             return null;
-        }        
+        }
 
         try
         {
@@ -240,7 +243,6 @@ internal sealed partial class GameCoverService : IGameCoverService
 
             foreach (var entry in library.EnumerateArray())
             {
-
                 if (bestMatch is null)
                 {
                     var titleProp = entry.TryGetProperty("title", out var title) ? title.GetString() :
@@ -278,7 +280,7 @@ internal sealed partial class GameCoverService : IGameCoverService
     {
         var exactUrl =
             await TryPcgwCargoAsync(string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName)));
-        if (exactUrl is  null)
+        if (exactUrl is null)
         {
             LogPCGamingWikiExactUrlLookupFailure(gameName, exactUrl ?? "Unknown");
             return exactUrl;
@@ -303,7 +305,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         {
             LogPCGamingWikiSearchFailure(gameName, ex);
         }
-        
+
         return null;
     }
 
@@ -333,7 +335,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         {
             LogPCGamingWikiCargoApiFailure(apiUrl, ex);
         }
-        
+
         return null;
     }
 
@@ -362,13 +364,13 @@ internal sealed partial class GameCoverService : IGameCoverService
             {
                 bytes = await response.Content.ReadAsByteArrayAsync();
             }
-            
+
             if (bytes is { Length: 0 }) return;
 
             bytes = await _imageResizeService.ReSizeImageToWidthAsync(bytes, 600);
 
             await File.WriteAllBytesAsync(coverPath, bytes);
-            
+
             LogDownloadCoverComplete(gameName ?? "Unknown Game", coverPath, url);
         }
         catch (Exception ex)
@@ -376,5 +378,4 @@ internal sealed partial class GameCoverService : IGameCoverService
             LogDownloadCoverFailure(gameName ?? "Unknown Game", coverPath, url, ex);
         }
     }
-
 }
