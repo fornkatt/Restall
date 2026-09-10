@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.Interfaces.Driven;

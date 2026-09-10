@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;

@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
@@ -48,7 +49,7 @@ public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
                 _ => $"Failed to uninstall RenoDX from {gameName}. Check the log for details."
             };
 
-            _logger.ModUninstallFailure("RenoDX", gameName, result.ErrorMessage, result.Exception);
+            _logger.ModUninstallFailure("RenoDX", gameName, result.Message, result.Exception);
 
             return new ModOperationResultDto(false, game, userMessage);
         }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -62,7 +63,7 @@ internal sealed class ModInstallService : IModInstallService
         var deleted = _fileService.TryDeleteFile(expectedPath);
 
         if (!deleted.IsSuccess)
-            return Result<Game>.Error(deleted.ErrorMessage, deleted.ErrorType, deleted.Exception);
+            return Result<Game>.Error(deleted.Message, deleted.ErrorType, deleted.Exception);
 
         game.ReShade = null;
         return Result<Game>.Success(game);
@@ -74,7 +75,7 @@ internal sealed class ModInstallService : IModInstallService
         var deleted = _fileService.TryDeleteFile(expectedPath, verifyOriginalFilename: "renodx-");
 
         if (!deleted.IsSuccess)
-            return Result<Game>.Error(deleted.ErrorMessage, deleted.ErrorType, deleted.Exception);
+            return Result<Game>.Error(deleted.Message, deleted.ErrorType, deleted.Exception);
 
         game.RenoDX = null;
         return Result<Game>.Success(game);
