@@ -7,6 +7,7 @@
     <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=GOG/@EntryIndexedValue">GOG</s:String>
     <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=PC/@EntryIndexedValue">PC</s:String>
     <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=UE/@EntryIndexedValue">UE</s:String>
+    <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=API/@EntryIndexedValue">API</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Pcgw/@EntryIndexedValue">True</s:Boolean>
 
     <s:Boolean x:Key="/Default/UserDictionary/Words/=renodx/@EntryIndexedValue">True</s:Boolean>
