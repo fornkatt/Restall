@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
@@ -64,14 +64,17 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 var userMessage = downloadResult.ErrorType switch
                 {
                     ErrorType.PermissionDenied => "Permission denied downloading the ReShade installer to cache. " +
-                                                  "Please ensure your have read/write access to the appropriate directories and try again.",
+                                                  "Please ensure your have read/write access to" +
+                                                  " the appropriate directories and try again.",
                     ErrorType.FileSystemError =>
                         "Something went wrong writing cache directories or downloading files to cache. " +
                         "Please ensure the destination is not in use and the disk is not full and try again.",
                     ErrorType.DownloadFailed =>
-                        "Could not download ReShade installer. The server may be unavailable or  the file may no longer exist.",
+                        "Could not download ReShade installer." +
+                        " The server may be unavailable or the file may no longer exist.",
                     ErrorType.NetworkTimeout =>
-                        "Connection timed out while downloading ReShade installer. Please check your internet connection and try again.",
+                        "Connection timed out while downloading ReShade installer." +
+                        " Please check your internet connection and try again.",
                     _ => "Failed to download ReShade installer. Check logs for details."
                 };
 
@@ -98,11 +101,14 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                         "Permission denied extracting the ReShade installer files to cache. " +
                         "Please ensure your have read/write access to the appropriate directories and try again.",
                     ErrorType.FileSystemError => "Something went wrong writing cache directories or files to cache. " +
-                                                 "Please ensure the destination is not in use and the disk is not full and try again.",
+                                                 "Please ensure the destination is not in use and the disk is" +
+                                                 " not full and try again.",
                     ErrorType.ProcessStartFailed => "Extraction process failed to start. " +
-                                                    "The binary may be corrupt or missing execute permissions. Check logs for more details.",
+                                                    "The binary may be corrupt or missing execute permissions." +
+                                                    " Check logs for more details.",
                     ErrorType.ExtractionFailed => "File extraction failed. " +
-                                                  "Please ensure the files are not in use and there's enough disk space available and try again.",
+                                                  "Please ensure the files are not in use and there's enough" +
+                                                  " disk space available and try again.",
                     _ => "An unexpected error occured during file extraction. Check logs for more details."
                 };
 

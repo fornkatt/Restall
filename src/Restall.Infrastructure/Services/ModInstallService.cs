@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using Restall.Application.Common;
+using Restall.Application.Common;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
@@ -19,7 +19,7 @@ internal sealed class ModInstallService : IModInstallService
         _fileService = fileService;
     }
 
-    // TODO: mod enum instead of T class? 
+    // TODO: mod enum instead of T class?
     public async Task<Result<Game>> InstallModAsync<T>(Game game, T modToInstall, string sourcePath) where T : class
     {
         try

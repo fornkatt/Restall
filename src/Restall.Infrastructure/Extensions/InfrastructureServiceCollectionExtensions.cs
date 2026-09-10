@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using System.Net;
+using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Facades;
 using Restall.Application.Interfaces.Driven;
@@ -14,7 +14,6 @@ using Restall.Infrastructure.Stores;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Formatting.Json;
 using Serilog.Templates;
 
 
@@ -27,7 +26,8 @@ public static class InfrastructureServiceCollectionExtensions
     {
         services.ConfigureLogging();
 
-        services.AddHttpClient("ParseService", c => c.DefaultRequestHeaders.UserAgent.ParseAdd("Restall"));
+        services.AddHttpClient("ParseService", c => c.DefaultRequestHeaders.UserAgent
+            .ParseAdd("Restall"));
         services.AddSingleton<IParseService, ParseService>();
         services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
         services.AddSingleton<IVersionCatalog, VersionCatalog>();
@@ -37,7 +37,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IEngineDetectionService, EngineDetectionService>();
         services.AddSingleton<IGameDetectionService, GameDetectionService>();
         services.AddSingleton<IModDetectionService, ModDetectionService>();
-        
+
         services.AddTransient<IGameIconService, GameIconService>();
         services.AddTransient<IGameArtworkService, GameArtworkService>();
         services.AddTransient<ILightRefreshLibraryUseCase, RefreshLibraryUseCase>();
@@ -55,18 +55,18 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddHttpClient<IGameCoverService, GameCoverService>(c =>
             {
                 c.DefaultRequestHeaders.UserAgent.ParseAdd("Restall/1.0");
-
             })
             .ConfigurePrimaryHttpMessageHandler(() =>
                 OperatingSystem.IsWindows()
                     ? new WinHttpHandler
-                        { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate }
+                    {
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                    }
                     : new SocketsHttpHandler
                     {
                         AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate |
                                                  DecompressionMethods.Brotli
                     });
-        
 
 
         return services;
@@ -82,7 +82,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IPlatformScannerService, XboxScanner>();
         return services;
     }
-    
+
     private static IServiceCollection ConfigureLogging(this IServiceCollection services)
     {
         var pathService = new PathService();
@@ -101,12 +101,12 @@ public static class InfrastructureServiceCollectionExtensions
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 10))
             .CreateLogger();
-            
-        
+
+
         services.AddSingleton<IPathService>(pathService);
         services.AddSingleton(logLevelSwitch);
         services.AddLogging(b => b.AddSerilog(dispose: true));
-        
+
         return services;
     }
 }

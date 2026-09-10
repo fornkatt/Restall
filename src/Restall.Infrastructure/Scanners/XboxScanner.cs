@@ -15,7 +15,7 @@ namespace Restall.Infrastructure.Scanners;
 internal sealed partial class XboxScanner : IPlatformScannerService
 {
     private readonly ILogger<XboxScanner> _logger;
-    
+
     public XboxScanner(
         ILogger<XboxScanner> logger
     )
@@ -52,37 +52,36 @@ internal sealed partial class XboxScanner : IPlatformScannerService
         foreach (var gameDir in Directory.EnumerateDirectories(installPath))
         {
             var subDir = Path.GetFileName(gameDir);
-            
+
             try
             {
                 var contentDir = Path.Combine(gameDir, "Content");
-                
+
                 if (!Directory.Exists(contentDir))
                 {
-                    
                     LogXboxContentDirNotFound(subDir, gameDir);
                     continue;
                 }
-                
+
                 var configPath = Path.Combine(gameDir, "Content", "MicrosoftGame.config");
-                
+
                 if (!File.Exists(configPath))
                 {
                     LogXboxGameConfigNotFound(subDir, configPath);
                     continue;
                 }
-                
+
                 var (name, storeId, iconFile) = ParseMicrosoftGameConfig(configPath);
                 var resolvedName = name ?? Path.GetFileName(gameDir);
-                
+
                 if (string.IsNullOrWhiteSpace(resolvedName))
                 {
                     LogXboxGameNameNotFound(gameDir);
                     continue;
                 }
-                
+
                 var iconPath = iconFile is not null ? Path.Combine(gameDir, "Content", iconFile) : null;
-                
+
                 games.Add(new Game
                 {
                     Name = resolvedName,
@@ -96,7 +95,6 @@ internal sealed partial class XboxScanner : IPlatformScannerService
             catch (Exception ex)
             {
                 LogXboxScanFailure(gameDir, ex);
-                
             }
         }
 

@@ -29,10 +29,10 @@ internal sealed partial class GameArtworkService : IGameArtworkService
         _gameCoverService = gameCoverService;
         _gameIconService = gameIconService;
         _logger = logger;
-        
+
         Directory.CreateDirectory(pathService.GetArtworkCacheDirectory());
     }
-    
+
     public async Task EnrichGameArtworkAsync(Game game)
     {
         try

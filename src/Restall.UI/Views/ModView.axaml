@@ -35,7 +35,7 @@
                     <!--TODO: ADD ANIMATION FOR RELAYCOMMAND -->
                     <Grid Grid.Column="0" ColumnDefinitions="*, Auto"
                           VerticalAlignment="Center">
-                        
+
                         <TextBlock Grid.Column="0"
                                    Text="{Binding SelectedGame.Name}"
                                    FontSize="20"

@@ -15,7 +15,8 @@ public sealed partial class InstallRenoDXUseCase
 
     [LoggerMessage(EventId = 1301, Level = LogLevel.Warning,
         Message =
-            "Failed to read version from RenoDX file \"{Filename}\" for \"{GameName}\" — Service returned: \"{ErrorMessage}\"")]
+            "Failed to read version from RenoDX file \"{Filename}\" for \"{GameName}\"" +
+            " — Service returned: \"{ErrorMessage}\"")]
     private partial void LogRenoDXVersionReadFailure(string filename, string gameName, string? errorMessage,
         Exception? ex);
 

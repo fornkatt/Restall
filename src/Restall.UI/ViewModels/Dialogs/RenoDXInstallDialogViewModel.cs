@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
 using System;
@@ -14,7 +14,7 @@ public sealed partial class RenoDXInstallDialogViewModel : ObservableObject
 {
     public RenoDXInstallDialogViewModel(
         IReadOnlyList<RenoDXTagInfoDto> availableVersions
-        )
+    )
     {
         AvailableVersions = availableVersions;
         _selectedVersion = availableVersions.FirstOrDefault();

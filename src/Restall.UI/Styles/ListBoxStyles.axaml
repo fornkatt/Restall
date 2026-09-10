@@ -8,18 +8,18 @@
 
     <!--GameListView Game Selection -->
     <Style Selector="ListBox.game-list ListBoxItem">
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
     </Style>
-    
+
     <Style Selector="ListBox.game-list ListBoxItem:selected /template/ ContentPresenter">
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="Transparent" />
     </Style>
-    
+
     <Style Selector="ListBox.game-list ListBoxItem:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent" />
     </Style>
-    
+
     <Style Selector="ListBox.game-list ListBoxItem:selected Border.game-list-card">
         <Setter Property="Background" Value="{DynamicResource GameListSelection}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
@@ -27,5 +27,5 @@
     <Style Selector="ListBox.game-list ListBoxItem:pointerover:not(:selected) Border.game-list-card">
         <Setter Property="Background" Value="{DynamicResource GameListHover}" />
     </Style>
-    
+
 </Styles>

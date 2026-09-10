@@ -12,11 +12,9 @@ internal sealed class VersionCatalog : IVersionCatalog
 {
     private readonly IParseService _parseService;
 
-    private ImmutableDictionary<ReShade.Branch, ImmutableArray<string>> _reShadeVersions =
-        ImmutableDictionary<ReShade.Branch, ImmutableArray<string>>.Empty;
+    private ImmutableDictionary<ReShade.Branch, ImmutableArray<string>> _reShadeVersions = [];
 
-    private ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>> _renoDXTags =
-        ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>>.Empty;
+    private ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>> _renoDXTags = [];
 
     public VersionCatalog(
         IParseService parseService

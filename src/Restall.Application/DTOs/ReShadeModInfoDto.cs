@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿namespace Restall.Application.DTOs;
+namespace Restall.Application.DTOs;
 
 /// <summary>
 /// Not used yet. For use in a later implementation when we start working on
@@ -13,5 +13,4 @@ public record ReShadeModInfoDto(
     string? StableUrl,
     string? NightlyUrl,
     string? RenoDXUrl,
-    string? Notes
-    );
+    string? Notes);

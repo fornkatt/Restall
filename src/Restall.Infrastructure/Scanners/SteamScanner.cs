@@ -115,10 +115,7 @@ internal sealed partial class SteamScanner : IPlatformScannerService
 
                 games.AddRange(GameExpander.ExpandCollection(new Game
                 {
-                    Name = name,
-                    InstallFolder = rootPath,
-                    PlatformName = Platform,
-                    PlatformId = appId
+                    Name = name, InstallFolder = rootPath, PlatformName = Platform, PlatformId = appId
                 }));
             }
             catch (Exception ex)

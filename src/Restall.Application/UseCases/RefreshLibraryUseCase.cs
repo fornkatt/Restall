@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
@@ -74,7 +74,7 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
         {
             if (string.IsNullOrWhiteSpace(game.Name))
                 continue;
-            
+
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
             var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
 
@@ -98,7 +98,7 @@ public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILig
                 : null;
 
             var gameName = game.Name ?? "Unknown";
-            
+
             if (compatibleMod is not null)
                 LogRenoDXCompatibleGameFound(gameName, compatibleMod.Name);
             else if (compatibleGenericMod is not null)

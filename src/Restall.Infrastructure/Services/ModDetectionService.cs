@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using PeNet.Header.Resource;
 using Restall.Application.Common;
 using Restall.Application.Interfaces.Driven;
@@ -13,7 +13,8 @@ namespace Restall.Infrastructure.Services;
 
 internal sealed partial class ModDetectionService : IModDetectionService
 {
-    private const long s_dllScanMaxBytes = 10 * 1024 * 1024;
+    private const long DllScanMaxBytes = 10 * 1024 * 1024;
+
     private readonly ILogger<ModDetectionService> _logger;
 
     public ModDetectionService(
@@ -32,7 +33,7 @@ internal sealed partial class ModDetectionService : IModDetectionService
 
         try
         {
-            await ScanFilesAsync(executableDirectory, ["*.dll", "*.asi"], s_dllScanMaxBytes,
+            await ScanFilesAsync(executableDirectory, ["*.dll", "*.asi"], DllScanMaxBytes,
                 async (file, versionInfo) =>
                 {
                     if (!string.IsNullOrWhiteSpace(versionInfo.ProductName) &&
@@ -47,8 +48,8 @@ internal sealed partial class ModDetectionService : IModDetectionService
                             Version = versionInfo.ProductVersion,
                             BranchName = ReShade.Branch.Stable,
                             Arch = versionInfo.OriginalFilename?.Contains("64") == true
-                                ? ReShade.Architecture.x64
-                                : ReShade.Architecture.x32
+                                ? ReShade.Architecture.X64
+                                : ReShade.Architecture.X32
                         });
                         LogModFound("ReShade", filename, executableDirectory);
                     }
@@ -99,8 +100,8 @@ internal sealed partial class ModDetectionService : IModDetectionService
                                 RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
                             Version = ParseRenoDXVersion(versionInfo.FileVersion),
                             Arch = versionInfo.OriginalFilename.Contains("64")
-                                ? RenoDX.Architecture.x64
-                                : RenoDX.Architecture.x32
+                                ? RenoDX.Architecture.X64
+                                : RenoDX.Architecture.X32
                         });
                         LogModFound("RenoDX", filename, executableDirectory);
                     }

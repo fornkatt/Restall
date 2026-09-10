@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
 using Restall.Application.DTOs;
@@ -12,20 +12,20 @@ namespace Restall.Infrastructure.Services;
 
 internal sealed partial class ModDownloadService : IModDownloadService
 {
-    private const string s_reShadeStartUrl = "https://reshade.me/downloads/ReShade_Setup_";
-    private const string s_reShadeEndUrl = "_Addon.exe";
+    private const string ReShadeStartUrl = "https://reshade.me/downloads/ReShade_Setup_";
+    private const string ReShadeEndUrl = "_Addon.exe";
 
-    private const string s_renoDXSnapshotDownloadBaseUrl =
+    private const string RenoDXSnapshotDownloadBaseUrl =
         "https://github.com/clshortfuse/renodx/releases/download/snapshot/";
 
-    private const string s_renoDXNightlyDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/";
-    private const string s_renoDXUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
-    private const string s_renoDXUEExtendedDownloadBaseUrl = "https://marat569.github.io/renodx/";
+    private const string RenoDXNightlyDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/";
+    private const string RenoDXUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
+    private const string RenoDXUEExtendedDownloadBaseUrl = "https://marat569.github.io/renodx/";
 
     private static readonly Dictionary<RenoDXWikiModType, string> s_externalHostBaseUrls = new()
     {
-        [RenoDXWikiModType.Unity] = s_renoDXUnityDownloadBaseUrl,
-        [RenoDXWikiModType.UnrealExtended] = s_renoDXUEExtendedDownloadBaseUrl
+        [RenoDXWikiModType.Unity] = RenoDXUnityDownloadBaseUrl,
+        [RenoDXWikiModType.UnrealExtended] = RenoDXUEExtendedDownloadBaseUrl
     };
 
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> s_downloadLocks = new();
@@ -65,14 +65,14 @@ internal sealed partial class ModDownloadService : IModDownloadService
                 if (string.IsNullOrWhiteSpace(addonFileName))
                     return Result.Error("RenoDX snapshot branch requires a filename to download.");
 
-                downloadUrl = $"{s_renoDXSnapshotDownloadBaseUrl}{addonFileName}";
+                downloadUrl = $"{RenoDXSnapshotDownloadBaseUrl}{addonFileName}";
                 fileName = addonFileName;
                 break;
             case RenoDX.Branch.Nightly:
                 if (string.IsNullOrWhiteSpace(addonFileName) || string.IsNullOrWhiteSpace(version))
                     return Result.Error("RenoDX nightly branch requires both addon filename and version.");
 
-                downloadUrl = $"{s_renoDXNightlyDownloadBaseUrl}nightly-{version}/{addonFileName}";
+                downloadUrl = $"{RenoDXNightlyDownloadBaseUrl}nightly-{version}/{addonFileName}";
                 fileName = addonFileName;
                 break;
             default:
@@ -83,11 +83,12 @@ internal sealed partial class ModDownloadService : IModDownloadService
         return await DownloadFileAsync(downloadUrl, cacheDir, fileName, progress);
     }
 
-    public async Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName, IProgress<DownloadProgressReportDto>? progress = null)
+    public async Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName,
+        IProgress<DownloadProgressReportDto>? progress = null)
     {
         if (!s_externalHostBaseUrls.TryGetValue(renoDxWikiModType, out var baseUrl))
             return Result.Error($"{renoDxWikiModType} does not have and externally hosted RenoDX download configured.");
-        
+
         var downloadUrl = baseUrl + addonFileName;
         var cacheDir = _pathService.GetRenoDXDownloadCacheDirectory(RenoDX.Branch.Wiki);
         return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
@@ -96,7 +97,7 @@ internal sealed partial class ModDownloadService : IModDownloadService
     public async Task<Result> DownloadReShadeAsync(ReShade.Branch branch, string version,
         IProgress<DownloadProgressReportDto>? progress = null)
     {
-        var downloadUrl = $"{s_reShadeStartUrl}{version}{s_reShadeEndUrl}";
+        var downloadUrl = $"{ReShadeStartUrl}{version}{ReShadeEndUrl}";
         var installerPath = _pathService.GetReShadeInstallerFilePath(branch, version);
 
         return await DownloadFileAsync(downloadUrl, Path.GetDirectoryName(installerPath)!,
@@ -121,7 +122,8 @@ internal sealed partial class ModDownloadService : IModDownloadService
         }
 
         var destinationPath = Path.Combine(destinationDirectory, filename);
-        var fileLock = s_downloadLocks.GetOrAdd(destinationPath, _ => new SemaphoreSlim(1, 1));
+        var fileLock = s_downloadLocks.GetOrAdd(destinationPath, _ =>
+            new SemaphoreSlim(1, 1));
 
         await fileLock.WaitAsync();
 
@@ -213,7 +215,7 @@ internal sealed partial class ModDownloadService : IModDownloadService
                     LogPartialDownloadCleanupFailure(destinationPath, cleanupEx);
                 }
 
-            return Result.Error($"Failed to download {filename} from {url}", ErrorType.Unknown, ex);
+            return Result.Error($"Failed to download {filename} from {url}", ErrorType.None, ex);
         }
     }
 }

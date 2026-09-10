@@ -84,10 +84,7 @@ internal sealed partial class UbisoftScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = name,
-                    InstallFolder = installDir,
-                    PlatformName = Platform,
-                    PlatformId = subName
+                    Name = name, InstallFolder = installDir, PlatformName = Platform, PlatformId = subName
                 });
             }
             catch (Exception ex)

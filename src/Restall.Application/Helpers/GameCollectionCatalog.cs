@@ -12,8 +12,7 @@ public sealed record GameCollectionDefinition(
     ImmutableArray<string> NameKeywords,
     ImmutableArray<GameCollectionPart> Parts,
     string ExecutablePathTemplate,
-    bool CollapseForModMatching = true
-)
+    bool CollapseForModMatching = true)
 {
     public bool Matches(string? name) =>
         !string.IsNullOrWhiteSpace(name) &&
