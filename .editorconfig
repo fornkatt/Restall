@@ -8,9 +8,6 @@ indent_size = 4
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.DotSettings]
-charset = utf-8-bom
-
 [*.cs]
 file_header_template = SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell\nSPDX-License-Identifier: GPL-3.0-or-later
 dotnet_diagnostic.IDE0073.severity = warning
