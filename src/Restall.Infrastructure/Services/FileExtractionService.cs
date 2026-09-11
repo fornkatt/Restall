@@ -1,7 +1,11 @@
-﻿using System.ComponentModel;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using System.ComponentModel;
 using Restall.Application.Interfaces.Driven;
 using System.Diagnostics;
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 
 namespace Restall.Infrastructure.Services;
 
@@ -57,9 +61,9 @@ internal sealed class FileExtractionService : IFileExtractionService
             {
                 var stderr = process.StandardError.ReadToEnd();
                 return Result.Error($"""
-                                   Extraction failed with exit code
-                                   {process.ExitCode}: {stderr}
-                                   """, ErrorType.ExtractionFailed);
+                                     Extraction failed with exit code
+                                     {process.ExitCode}: {stderr}
+                                     """, ErrorType.ExtractionFailed);
             }
         }
         catch (Win32Exception ex)

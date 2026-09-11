@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
@@ -26,8 +29,8 @@ public sealed partial class ModViewModel : ViewModelBase
     private readonly IVersionCatalog _versionCatalog;
     private readonly IModCatalog _modCatalog;
 
-    private const string s_upToDateTextColor = "#eb5a2f";
-    private const string s_updateAvailableTextColor = "#1ab652";
+    private const string UpToDateTextColor = "#eb5a2f";
+    private const string UpdateAvailableTextColor = "#1ab652";
 
     public ModViewModel(
         IModManagementFacade modManagementFacade,
@@ -115,11 +118,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private void OpenUrl(string url)
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = url,
-            UseShellExecute = true
-        });
+        Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
     }
 
     /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
@@ -132,18 +131,14 @@ public sealed partial class ModViewModel : ViewModelBase
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "explorer.exe",
-                Arguments = $"\"{folder}\"",
-                UseShellExecute = false
+                FileName = "explorer.exe", Arguments = $"\"{folder}\"", UseShellExecute = false
             });
         }
         else
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "xdg-open",
-                ArgumentList = { folder },
-                UseShellExecute = false
+                FileName = "xdg-open", ArgumentList = { folder }, UseShellExecute = false
             });
         }
     }
@@ -196,7 +191,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public string? ReShadeVersionTextColor =>
         SelectedGame?.HasReShade == true
-            ? (CanShowReShadeUpdate ? s_upToDateTextColor : s_updateAvailableTextColor)
+            ? (CanShowReShadeUpdate ? UpToDateTextColor : UpdateAvailableTextColor)
             : null;
 
     public string InstallReShadeButtonText =>
@@ -350,8 +345,8 @@ public sealed partial class ModViewModel : ViewModelBase
             : string.Empty;
 
     public string? RenoDXWikiModTypeSectionNotes =>
-        EffectiveRenoDXWikiModType is { } renoDxWikiModType 
-            ? _modCatalog.GetRenoDXWikiModTypeNotes(renoDxWikiModType) 
+        EffectiveRenoDXWikiModType is { } renoDxWikiModType
+            ? _modCatalog.GetRenoDXWikiModTypeNotes(renoDxWikiModType)
             : null;
 
     public bool HasRenoDXWikiModTypeSectionNotes => !string.IsNullOrWhiteSpace(RenoDXWikiModTypeSectionNotes);
@@ -362,7 +357,7 @@ public sealed partial class ModViewModel : ViewModelBase
     private RenoDXWikiModType? EffectiveRenoDXWikiModType =>
         SelectedGame is null ? null :
         SelectedGame.CompatibleRenoDXMod is not null ? null :
-        SelectedGame.CompatibleRenoDXGenericMod?.RenoDxWikiModType ??
+        SelectedGame.CompatibleRenoDXGenericMod?.RenoDXWikiModType ??
         RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(SelectedGame.EngineName);
 
     public string? RenoDXNotes
@@ -451,7 +446,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
         var effectiveRenoDXWikiModType = hasCompatibleMod
             ? null
-            : game.CompatibleRenoDXGenericMod?.RenoDxWikiModType
+            : game.CompatibleRenoDXGenericMod?.RenoDXWikiModType
               ?? RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(game.EngineName);
 
         if (effectiveRenoDXWikiModType?.IsExternallyHosted() == true)
@@ -500,7 +495,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public string? RenoDXVersionTextColor =>
         SelectedGame?.HasRenoDX == true
-            ? (CanShowRenoDXUpdate ? s_upToDateTextColor : s_updateAvailableTextColor)
+            ? (CanShowRenoDXUpdate ? UpToDateTextColor : UpdateAvailableTextColor)
             : null;
 
     public string InstallRenoDXButtonText

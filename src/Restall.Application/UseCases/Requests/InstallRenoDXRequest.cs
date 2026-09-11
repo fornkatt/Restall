@@ -1,4 +1,7 @@
-﻿using Restall.Application.DTOs;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using Restall.Application.DTOs;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases.Requests;
@@ -9,5 +12,4 @@ public record InstallRenoDXRequest(
     RenoDX.Branch Branch,
     RenoDXModInfoDto? ModInfo = null,
     RenoDXGenericModInfoDto? GenericModInfo = null,
-    string? TargetVersion = null
-    );
+    string? TargetVersion = null);

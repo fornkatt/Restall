@@ -1,20 +1,28 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using System.Text.RegularExpressions;
 
 namespace Restall.Application.Helpers;
 
 public static partial class GameNameHelper
 {
-    private static readonly Dictionary<char, int> RomanValues = new()
+    private static readonly Dictionary<char, int> s_romanValues = new()
     {
-        ['i'] = 1, ['v'] = 5, ['x'] = 10, ['l'] = 50,
-        ['c'] = 100, ['d'] = 500, ['m'] = 1000
+        ['i'] = 1,
+        ['v'] = 5,
+        ['x'] = 10,
+        ['l'] = 50,
+        ['c'] = 100,
+        ['d'] = 500,
+        ['m'] = 1000
     };
 
     [GeneratedRegex(@"[^\w\s]")]
     private static partial Regex NonWordCharsRegex();
 
     [GeneratedRegex(
-        @"(\s*[-–:]\s*|\s+)(ultimate|complete|gold|deluxe|premium|anniversary|directors cut|goty|game of the year|standard)(\s+edition)?\s*$",
+        @"(\s*[-–:]\s*|\s+)(20 year celebration|ultimate|complete|gold|deluxe|premium|anniversary|directors cut|goty|game of the year|standard)(\s+edition)?\s*$",
         RegexOptions.IgnoreCase)]
     private static partial Regex EditionSuffixRegex();
 
@@ -61,7 +69,7 @@ public static partial class GameNameHelper
     public static string StripCollectionPartSuffix(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return name;
+            return string.Empty;
 
         var collection = GameCollectionCatalog.All.FirstOrDefault(d =>
             d.CollapseForModMatching && d.Matches(name));
@@ -192,8 +200,8 @@ public static partial class GameNameHelper
 
         for (var i = 0; i < roman.Length; i++)
         {
-            var current = RomanValues[roman[i]];
-            var next = i + 1 < roman.Length ? RomanValues[roman[i + 1]] : 0;
+            var current = s_romanValues[roman[i]];
+            var next = i + 1 < roman.Length ? s_romanValues[roman[i + 1]] : 0;
             result += current < next ? -current : current;
         }
 

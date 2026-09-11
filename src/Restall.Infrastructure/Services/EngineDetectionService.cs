@@ -1,35 +1,43 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using Microsoft.Extensions.Logging;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
-internal sealed class EngineDetectionService : IEngineDetectionService
+// TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
+// TODO: LOOK INTO CHANGING UNITY ENGINE DETECTION
+// TODO(logging-refactor): just swap the logging implementations
+internal sealed partial class EngineDetectionService : IEngineDetectionService
 {
-    private readonly ILogService _logService;
+    private readonly ILogger<EngineDetectionService> _logger;
 
-    public EngineDetectionService(ILogService logService)
+    public EngineDetectionService(
+        ILogger<EngineDetectionService> logger)
     {
-        _logService = logService;
+        _logger = logger;
     }
 
-    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath, Game.Platform platform)
+    public (string? executablePath, Game.Engine engine) DetectExecutablePathAndEngine(string rootPath,
+        Game.Platform platform)
     {
         var uePath = FindUEBinariesFolder(rootPath);
         var unityPlayer = FindFileShallow(rootPath, "UnityPlayer.dll", maxDepth: 2);
 
         Game.Engine engine =
-            uePath != null ? Game.Engine.Unreal :
-            unityPlayer != null ? Game.Engine.Unity :
+            uePath is not null ? Game.Engine.Unreal :
+            unityPlayer is not null ? Game.Engine.Unity :
             Game.Engine.Unknown;
-        
-        if(platform == Game.Platform.Xbox)
-            return (rootPath, engine);
 
-        if (uePath != null) return (uePath, Game.Engine.Unreal);
-        if (unityPlayer != null) return (Path.GetDirectoryName(unityPlayer), Game.Engine.Unity);
-        
-        return (FindShallowExeFolder(rootPath), Game.Engine.Unknown);
+        if (platform == Game.Platform.Xbox) return (rootPath, engine);
+
+        if (uePath is not null) return (uePath, Game.Engine.Unreal);
+        return unityPlayer is not null
+            ? (Path.GetDirectoryName(unityPlayer), Game.Engine.Unity)
+            : (FindShallowExeFolder(rootPath), Game.Engine.Unknown);
     }
 
 
@@ -38,8 +46,8 @@ internal sealed class EngineDetectionService : IEngineDetectionService
         if (string.IsNullOrEmpty(root)) return null;
         var candidates = new List<string>();
         CollectUEBinaries(root, 0, candidates);
-        if (candidates.Count == 0) return null;
 
+        if (candidates.Count == 0) return null;
 
         var withShipping = candidates.FirstOrDefault(c =>
             Directory.GetFiles(c, "*Shipping.exe").Length > 0 ||
@@ -51,7 +59,11 @@ internal sealed class EngineDetectionService : IEngineDetectionService
 
     private void CollectUEBinaries(string dir, int depth, List<string> results)
     {
-        if (depth > 5 || string.IsNullOrEmpty(dir)) return;
+        if (depth > 5 || string.IsNullOrEmpty(dir))
+        {
+            LogUEBinariesScanMaxDepthHit(dir);
+            return;
+        }
 
         try
         {
@@ -67,9 +79,9 @@ internal sealed class EngineDetectionService : IEngineDetectionService
                     {
                         var binName = Path.GetFileName(binSub);
 
-                        bool targetFolder = binName.Equals("Win64", StringComparison.OrdinalIgnoreCase)
-                                            || binName.Equals("Win32", StringComparison.OrdinalIgnoreCase)
-                                            || binName.Equals("WinGDK", StringComparison.OrdinalIgnoreCase);
+                        var targetFolder = binName.Equals("Win64", StringComparison.OrdinalIgnoreCase)
+                                           || binName.Equals("Win32", StringComparison.OrdinalIgnoreCase)
+                                           || binName.Equals("WinGDK", StringComparison.OrdinalIgnoreCase);
                         if (targetFolder && Directory.GetFiles(binSub, "*.exe").Length > 0)
                             results.Add(binSub);
                     }
@@ -83,7 +95,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
         //TODO: RETURNS THE RESULTS IN THE FUTURE AND CATCH GENERAL EXCEPTIONS IN FACADES AND USECASES
         catch (Exception ex)
         {
-            _logService.LogError($"Couldn't collect the files in Binaries folder", ex);
+            LogUEBinariesCollectionFailure(dir, ex);
         }
     }
 
@@ -98,18 +110,20 @@ internal sealed class EngineDetectionService : IEngineDetectionService
                 foreach (var sub in Directory.GetDirectories(folder))
                 {
                     var filePath = FindFileShallow(sub, pattern, maxDepth - 1);
-                    if (filePath is not null) return filePath;
+                    if (filePath is not null)
+                    {
+                        return filePath;
+                    }
                 }
         }
         catch (Exception ex)
         {
-            _logService.LogError($" Failed the find shallow files", ex);
+            LogShallowFileScanFailure(folder, ex);
         }
 
         return null;
     }
-    
-    //TODO: INCLUDE NONGAMEEXECUTABLE IN FINDSHALLOWEXEFOLDER
+
     private string? FindShallowExeFolder(string root)
     {
         var subFolders = GameScanHelper.GetPreferredExeSubFolders();
@@ -119,7 +133,9 @@ internal sealed class EngineDetectionService : IEngineDetectionService
             var preferredFolders = Path.Combine(root, sub);
             if (Directory.Exists(preferredFolders) &&
                 Directory.GetFiles(preferredFolders, "*.exe").Length > 0)
+            {
                 return preferredFolders;
+            }
         }
 
 
@@ -128,14 +144,22 @@ internal sealed class EngineDetectionService : IEngineDetectionService
         while (queue.Count > 0)
         {
             var (dir, depth) = queue.Dequeue();
-            if (depth > 4) continue;
+            if (depth > 4)
+            {
+                LogExecutableFolderNotFound(root);
+                continue;
+            }
+
             try
             {
                 if (Directory.GetFiles(dir, "*.exe")
-                    .Any(f => 
-                        !GameScanHelper.NonGameExecutable(Path.GetFileNameWithoutExtension(f))))
+                    .Any(f => !GameScanHelper.NonGameExecutable(Path.GetFileNameWithoutExtension(f))))
+                {
+                    if (depth > 0)
+                        LogExecutableViaBFSFound(depth, dir);
                     return dir;
-                
+                }
+
                 foreach (var sub in Directory.GetDirectories(dir))
                 {
                     var folderName = Path.GetFileName(sub);
@@ -145,7 +169,7 @@ internal sealed class EngineDetectionService : IEngineDetectionService
             }
             catch (Exception ex)
             {
-                _logService.LogError($" Couldn't find any EXE files in Folders:", ex);
+                LogShallowExeFolderScanFailure(root, ex);
             }
         }
 

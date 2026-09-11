@@ -12,6 +12,8 @@
         Height="750"
         MinHeight="750"
         Background="{DynamicResource AppBackground}"
+        TextOptions.TextRenderingMode="Antialias"
+        TextOptions.TextHintingMode="None"
         WindowStartupLocation="CenterScreen">
 
     <Grid>

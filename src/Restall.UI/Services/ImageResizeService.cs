@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
@@ -12,8 +15,7 @@ internal sealed class ImageResizeService : IImageResizeService
         using var inputStream = new MemoryStream(imageBytes);
         using var bitmap = Bitmap.DecodeToWidth(inputStream, width);
         using var outputStream = new MemoryStream();
-        bitmap.Save(outputStream);
+        bitmap.Save(outputStream, PngBitmapEncoderOptions.Default);
         return Task.FromResult(outputStream.ToArray());
-        
     }
 }

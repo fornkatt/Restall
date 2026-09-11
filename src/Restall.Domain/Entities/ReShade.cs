@@ -1,22 +1,25 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 namespace Restall.Domain.Entities;
 
 public sealed class ReShade
 {
     public enum Branch { Unknown, Stable, Nightly, RenoDX }
-    public enum Filename { Dxgi, D3d12, D3d11, D3d10, D3d9, Version, ReShade32, ReShade64 }
+    public enum Filename { Dxgi, D3D12, D3D11, D3D10, D3D9, Version, ReShade32, ReShade64 }
     public enum FileExtension { Dll, Asi }
-    public enum Architecture { x32 = 32, x64 = 64 }
+    public enum Architecture { X32 = 32, X64 = 64 }
 
-    public Architecture Arch { get; set; } = Architecture.x64;
+    public Architecture Arch { get; set; } = Architecture.X64;
 
     public static readonly IReadOnlyDictionary<Filename, string> FullFileName =
         new Dictionary<Filename, string>
         {
             [Filename.Dxgi] = "dxgi",
-            [Filename.D3d12] = "d3d12",
-            [Filename.D3d11] = "d3d11",
-            [Filename.D3d10] = "d3d10",
-            [Filename.D3d9] = "d3d9",
+            [Filename.D3D12] = "d3d12",
+            [Filename.D3D11] = "d3d11",
+            [Filename.D3D10] = "d3d10",
+            [Filename.D3D9] = "d3d9",
             [Filename.Version] = "version",
             [Filename.ReShade32] = "ReShade32",
             [Filename.ReShade64] = "ReShade64"

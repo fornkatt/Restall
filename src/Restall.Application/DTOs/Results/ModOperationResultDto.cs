@@ -1,4 +1,7 @@
-﻿using Restall.Domain.Entities;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using Restall.Domain.Entities;
 
 namespace Restall.Application.DTOs.Results;
 
@@ -11,5 +14,4 @@ public record ModOperationResultDto(
     Game UpdatedGame,
     string? Message = null,
     bool ShouldPromptForDeepScan = false,
-    UpdateCheckResultDto? UpdateCheckResult = null
-);
+    UpdateCheckResultDto? UpdateCheckResult = null);
