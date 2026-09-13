@@ -69,7 +69,7 @@ public static partial class GameNameHelper
     public static string StripCollectionPartSuffix(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return name;
+            return string.Empty;
 
         var collection = GameCollectionCatalog.All.FirstOrDefault(d =>
             d.CollapseForModMatching && d.Matches(name));
