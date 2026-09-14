@@ -1,3 +1,36 @@
+# Restall Logging
+
+--- 
+
+## Tables of Content
+* [Preface](#preface)
+* [Implementation](#implementation)
+    * [EventIDs and Allocations](#eventids-and-allocations)
+* [Logging Example](#logging-example)
+    * [Rules when implementing Warning or Error](#rules-when-implementing-warning-or-error)
+    * [More rules regarding naming conventions](#more-rules-regarding-naming-conventions)
+* [Loglevels and Architecture](#loglevels-and-architecture)
+    * [Where should you log](#where-should-you-log)
+* [PR Checklist](#pr-checklist)
+
+---
+
+## Preface
+
+Restall is using a logging system through `Microsoft.Extensions.Logging` with Serilog. We consider this documentation to be _THE_ single source of truth for how we handle logging in the project. We log to track what went wrong with our features, where it happened and to answer the question _"Why didn't this work as expected?"_ 
+
+Below you can see the strict conventions that we expect you to follow if you want to contribute:
+
+- Pattern: `partial` methods using `[LoggerMessage]` attribute.
+- Golden Rule: The naming convention and patterns are strictly required if you are contributing in our project. To see how the logging is handled and structured, go to [Logging Example](#logging-example) section.
+
+Before you submit a Pull Request. We highly suggest you to verify our [PR Checklist](#pr-checklist) for our log methods. 
+
+---
+
+## Implementation
+Our logs are divided into two categories, Global and Scoped.
+
 > **Global logs** are shared across multiple classes and live in a centralized file. **Scoped logs** belongs entirely to a single class and live besides the code. 
 
 Below you can see a comparison table on how we have structured both global and scoped: 
