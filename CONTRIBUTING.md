@@ -43,7 +43,7 @@ Please read these instructions carefully before contributing.
 - Ensure that your code follows current standards set by the codebase before contributing. This includes proper code quality and architecture.
 
 ## Logging
-If you are implementing a new feature, please make sure to follow our guidelines so everything matches our standard. You can find more information in [docs/logging.md](docs/logging.md).
+If you are implementing a new feature, please make sure to follow our guidelines so everything matches our standard. You can find more information in [docs/Logging.md](docs/Logging.md).
 
 ## Licensing
 
