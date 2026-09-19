@@ -21,6 +21,8 @@ Please read these instructions carefully before contributing.
   Therefore, the _beta_ branch is the default branch for this repository and any contributions will be expected to be made from this branch.
 
 ### Code style
+If you are implementing a new feature, please make sure to follow our guidelines so everything matches our standard.
+
 - [Logging](docs/Logging.md)
 
 ## Issues
