@@ -132,16 +132,16 @@ The expectation on a system like this is that our logs should be completely sile
 
 ### Where should you log
 
-For every candidate, ask yourself: _Could this fit in `Result.ErrorMessage` + `Exception`_ ?
+For every candidate, ask yourself: _Could this fit in `Result`'s message + `Exception`_ ?
 
-> **Yes** → Do not log it, return the `Result`. Logging AND returning creates duplicate failures at two different layers.
+> **Yes** → Do not log it, return the `Result`. Logging AND returning creates duplicate failures at two different layers. 
 
-> **No** → It is a per-iteration diagnostic detail. Log it locally at `Debug`.
+> **No** → It is a per-iteration diagnostic detail. Log it locally at `Debug`. `Error` is almost always carried by the `Result` instead. `Warning` is allowed, but it should be used sparingly where it makes most sense.
 
 Failures are reported at the layer that knows *what was being attempted*, `Result` carries the cause up to meet it:
 
 ```csharp
-LogRenoDXVersionReadFailure(addonFilename, request.Game.Name ?? "Unknown", renoDxVersion.ErrorMessage, renoDxVersion.Exception);
+LogRenoDXVersionReadFailure(addonFilename, request.Game.Name ?? "Unknown", renoDxVersion.Message, renoDxVersion.Exception);
                                 └─          UseCase's context           ─┘└─           service's cause, via Result         ─┘
 ```
 
