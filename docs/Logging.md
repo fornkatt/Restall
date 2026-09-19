@@ -141,9 +141,8 @@ For every candidate, ask yourself: _Could this fit in `Result.ErrorMessage` + `E
 Failures are reported at the layer that knows *what was being attempted*, `Result` carries the cause up to meet it:
 
 ```csharp
-LogRenoDXVersionReadFailure(addonFilename, request.Game.Name ?? "Unknown",
-    renoDxVersion.ErrorMessage, renoDxVersion.Exception);
-//  └─ UseCase's context ─┘        └─ service's cause, via Result ─┘
+LogRenoDXVersionReadFailure(addonFilename, request.Game.Name ?? "Unknown", renoDxVersion.ErrorMessage, renoDxVersion.Exception);
+                                └─          UseCase's context           ─┘└─           service's cause, via Result         ─┘
 ```
 
 ---
@@ -160,4 +159,4 @@ Before submitting your pull request, verify the following:
 - Would this log stay silent at `Warning`/`Error` on a healthy system? If not, demote it to `Debug`.
 - Is Exception always the last parameter and named `ex` ?
 - Does the layer above have better context? If so, return `Result` instead.
-- Does the message contain `Failed to` if it catches an exception? If it doesn't, name it  `Could not find` .
+- If the log catches an `Exception`, start with the message `Failed to ...`. If it does not catch an `Exception`, start with `Could not ...` instead.
