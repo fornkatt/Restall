@@ -1,4 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.Interfaces.Driven;
@@ -6,7 +10,8 @@ namespace Restall.Application.Interfaces.Driven;
 public interface IModDetectionService
 {
     /// <summary>
-    /// Detects pre-installed ReShade files in a given executable path. Including original filename, filename on disk and version.
+    /// Detects pre-installed ReShade files in a given executable path. Including the original filename,
+    /// filename on disk, and version.
     /// <br/>
     /// <para>
     /// Possible ResultErrors:
@@ -16,10 +21,11 @@ public interface IModDetectionService
     /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
-    Task<Result<HashSet<ReShade>>> DetectInstalledReShadeAsync(string executablePath);
-    
+    Task<Result<HashSet<ReShade>>> DetectInstalledReShadeAsync(string executableDirectory);
+
     /// <summary>
-    /// Detects pre-installed RenoDX files in a given executable path. Including original filename, filename on disk and version.
+    /// Detects pre-installed RenoDX files in a given executable path. Including the original filename,
+    /// filename on disk, and version.
     /// <br/>
     /// <para>
     /// Possible ResultErrors:
@@ -29,8 +35,8 @@ public interface IModDetectionService
     /// <see cref="ErrorType.FileSystemError"/>
     /// </para>
     /// </summary>
-    Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executablePath);
-    
+    Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executableDirectory);
+
     /// <summary>
     /// Get file version info from a RenoDX mod file.
     /// <br/>

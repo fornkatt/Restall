@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using System.Collections.Immutable;
 
 namespace Restall.Application.Helpers;
@@ -9,8 +12,7 @@ public sealed record GameCollectionDefinition(
     ImmutableArray<string> NameKeywords,
     ImmutableArray<GameCollectionPart> Parts,
     string ExecutablePathTemplate,
-    bool CollapseForModMatching = true
-)
+    bool CollapseForModMatching = true)
 {
     public bool Matches(string? name) =>
         !string.IsNullOrWhiteSpace(name) &&

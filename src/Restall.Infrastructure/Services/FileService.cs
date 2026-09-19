@@ -1,4 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.Interfaces.Driven;
 using Restall.Infrastructure.Helpers;
 
@@ -31,7 +35,8 @@ internal sealed class FileService : IFileService
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Result.Error($"Access denied trying to delete {path}. Please ensure the game is not running and try again.",
+            return Result.Error(
+                $"Access denied trying to delete {path}. Please ensure the game is not running and try again.",
                 ErrorType.PermissionDenied, ex);
         }
         catch (IOException ex)
@@ -40,7 +45,7 @@ internal sealed class FileService : IFileService
         }
         catch (Exception ex)
         {
-            return Result.Error($"Unexpected error occured. Failed to delete file at {path}", ErrorType.Unknown, ex);
+            return Result.Error($"Unexpected error occured. Failed to delete file at {path}", ErrorType.None, ex);
         }
     }
 }

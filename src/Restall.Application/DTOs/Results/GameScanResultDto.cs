@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using Restall.Domain.Entities;
 
 namespace Restall.Application.DTOs.Results;
@@ -6,5 +9,4 @@ public record GameScanResultDto(
     Game.Platform Platform,
     IReadOnlyList<Game> Games,
     bool IsSuccess,
-    string? Message = null
-);
+    string? Message = null);

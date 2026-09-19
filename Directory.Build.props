@@ -1,7 +1,14 @@
 <Project>
-  <PropertyGroup>
-    <BaseOutputPath>$(MSBuildProjectDirectory)\bin\</BaseOutputPath>
-    <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
-	<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Product>Restall</Product>
+        <Authors>Johan Lager, Kristofer Sell</Authors>
+        <Copyright>Copyright (C) 2026 Johan Lager &amp; Kristofer Sell</Copyright>
+        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/fornkatt/Restall</RepositoryUrl>
+        <BaseOutputPath>$(MSBuildProjectDirectory)\bin\</BaseOutputPath>
+        <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <RestoreLockedMode>true</RestoreLockedMode>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    </PropertyGroup>
 </Project>

@@ -1,4 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Restall.UI.Messages;
 
@@ -11,17 +14,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase,
     public GameListViewModel GameListViewModel { get; }
     public ModViewModel ModViewModel { get; }
 
-    [ObservableProperty]
-    private GameModViewModel? _selectedGame;
+    [ObservableProperty] private GameModViewModel? _selectedGame;
 
     public bool IsGameSelected => SelectedGame is not null;
 
     public MainWindowViewModel(
         GameListViewModel gameListViewModel,
         ModViewModel modViewModel
-        )
+    )
     {
-        
         GameListViewModel = gameListViewModel;
         ModViewModel = modViewModel;
 
@@ -35,7 +36,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase,
 
         GameListViewModel.ApplySelectedGame(value);
         ModViewModel.ApplySelectedGame(value);
-        
     }
 
     public void Receive(SelectedGameChangedMessage message) => SelectedGame = message.Value;

@@ -1,0 +1,14 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using Microsoft.Extensions.Logging;
+
+namespace Restall.Infrastructure.Services;
+
+// Game Artwork Service Logging — EventId range: 1500 - 1549
+internal sealed partial class GameArtworkService
+{
+    [LoggerMessage(EventId = 1500, Level = LogLevel.Error,
+        Message = "Failed to enrich the game artwork for \"{GameName}\"")]
+    private partial void LogGameArtworkEnrichmentFailure(string gameName, Exception ex);
+}

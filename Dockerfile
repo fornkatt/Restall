@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:10.0.200-noble AS base
+﻿FROM mcr.microsoft.com/dotnet/sdk:10.0.400-noble AS base
 WORKDIR /build
 
 COPY global.json .

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using System.Runtime.Versioning;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 
@@ -6,67 +10,79 @@ namespace Restall.Infrastructure.Helpers;
 
 internal static class GameScanHelper
 {
-    private const string s_softwareRegistryPath = @"SOFTWARE\";
-    private const string s_wow64RegistryPath = @"SOFTWARE\Wow6432Node\";
+    private const string SoftwareRegistryPath = @"SOFTWARE\";
+    private const string Wow64RegistryPath = @"SOFTWARE\Wow6432Node\";
 
     internal static string? NormalizePath(string? path)
     {
-        if(string.IsNullOrEmpty(path)) return null;
+        if (string.IsNullOrEmpty(path)) return null;
         var normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         return normalized.Trim().TrimEnd(Path.DirectorySeparatorChar);
     }
-    
+
     internal static string? ExtractVdfValue(string vdfContent, string key)
-        => Regex.Match(vdfContent, $@"""{Regex.Escape(key)}""\s+""([^""]+)""", 
-            RegexOptions.IgnoreCase) is { Success: true } m ? m.Groups[1].Value : null;
+        => Regex.Match(vdfContent, $@"""{Regex.Escape(key)}""\s+""([^""]+)""",
+            RegexOptions.IgnoreCase) is { Success: true } m
+            ? m.Groups[1].Value
+            : null;
+
     //Same thing as VdfValue, but it also handles escaped characters and normalises the path
     internal static string? ExtractJsonString(string json, string key) =>
         Regex.Match(json, $@"""{Regex.Escape(key)}""\s*:\s*""([^""\\]*(\\.[^""\\]*)*)""")
-            is { Success: true } m ? NormalizePath(m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/")) : null;
+            is { Success: true } m
+            ? NormalizePath(m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/"))
+            : null;
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Already checked at call site")]
+    [SupportedOSPlatform("windows")]
     internal static string? ReadRegistry(string keyPath, string valueName)
     {
         try
         {
-            var fullPath = keyPath.StartsWith(s_softwareRegistryPath, StringComparison.OrdinalIgnoreCase) ? keyPath : s_softwareRegistryPath + keyPath;
+            var fullPath = keyPath.StartsWith(SoftwareRegistryPath, StringComparison.OrdinalIgnoreCase)
+                ? keyPath
+                : SoftwareRegistryPath + keyPath;
 
-            using var currentUserKey =  Registry.CurrentUser.OpenSubKey(fullPath);
-            var value =  currentUserKey?.GetValue(valueName) as string;
-            if (value != null) return value;
-            
+            using var currentUserKey = Registry.CurrentUser.OpenSubKey(fullPath);
+            var value = currentUserKey?.GetValue(valueName) as string;
+            if (value is not null) return value;
+
             using var localMachineKey = Registry.LocalMachine.OpenSubKey(fullPath);
-            value  = localMachineKey?.GetValue(valueName) as string;
-            if(value != null) return value;
-            
-            var wow64Path = fullPath.Replace(s_softwareRegistryPath, s_wow64RegistryPath);
+            value = localMachineKey?.GetValue(valueName) as string;
+            if (value is not null) return value;
+
+            var wow64Path = fullPath.Replace(SoftwareRegistryPath, Wow64RegistryPath);
             using var wow64Key = Registry.LocalMachine.OpenSubKey(wow64Path);
             return wow64Key?.GetValue(valueName) as string;
-            
         }
-        catch { return null; }
+        catch
+        {
+            return null;
+        }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Already checked at call site")]
+    [SupportedOSPlatform("windows")]
     internal static RegistryKey? GetOpenRegistryKey(string keyPath)
     {
         try
         {
-            var fullPath = keyPath.StartsWith(s_softwareRegistryPath, StringComparison.OrdinalIgnoreCase)
+            var fullPath = keyPath.StartsWith(SoftwareRegistryPath, StringComparison.OrdinalIgnoreCase)
                 ? keyPath
-                : s_softwareRegistryPath + keyPath;
-            
+                : SoftwareRegistryPath + keyPath;
+
             var key = Registry.LocalMachine.OpenSubKey(fullPath);
-            if (key != null) return key;
-            
-            var wow64Path = fullPath.Replace(s_softwareRegistryPath, s_wow64RegistryPath);
+            if (key is not null) return key;
+
+            var wow64Path = fullPath.Replace(SoftwareRegistryPath, Wow64RegistryPath);
             return Registry.LocalMachine.OpenSubKey(wow64Path);
-           
         }
-        catch { return null; }
+        catch
+        {
+            return null;
+        }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Already checked at call site")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility",
+        Justification = "Already checked at call site")]
     internal static string? GetRegistryValue(RegistryKey key, params string[] valueNames)
     {
         foreach (var name in valueNames)
@@ -74,9 +90,10 @@ internal static class GameScanHelper
             if (key.GetValue(name) is string value && !string.IsNullOrEmpty(value))
                 return value;
         }
+
         return null;
     }
-    
+
     //TODO: CREATE MANIFEST FOR NONGAMEEXECUTABLE, NONGAME AND GETPREFERREDEXESUBFOLDERS
     //TODO: MOVE 'DedicatedServer' TO NONGAMEEXECUTABLE AND ADD 'Lossless Scaling' TO NONGAME
     internal static bool NonGameExecutable(string exeNameWithoutExtension)
@@ -100,13 +117,12 @@ internal static class GameScanHelper
             "unins",
             "redist",
             "DedicatedServer"
-
         };
 
         return keywords.Any(k => exeNameWithoutExtension.Contains(k, StringComparison.OrdinalIgnoreCase));
     }
-    
-    
+
+
     internal static bool NonGame(string name)
     {
         var nonGameArray = new HashSet<string>
@@ -120,11 +136,10 @@ internal static class GameScanHelper
             "_CommonRedist",
             "UE_",
             "Lossless Scaling"
-            
         };
         if (nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase)))
             return true;
-        
+
         var nonGameSuffixes = new HashSet<string>
         {
             "Demo",
@@ -136,10 +151,9 @@ internal static class GameScanHelper
             "Dedicated Server"
         };
         return nonGameSuffixes.Any(s => name.EndsWith(s, StringComparison.OrdinalIgnoreCase));
-        
     }
 
-    internal static string[] GetPreferredExeSubFolders() => 
+    internal static string[] GetPreferredExeSubFolders() =>
     [
         "bin",
         Path.Combine("bin", "x64_dx12"),

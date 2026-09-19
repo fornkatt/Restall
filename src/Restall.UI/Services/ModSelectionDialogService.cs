@@ -1,4 +1,7 @@
-﻿using Avalonia.Controls.ApplicationLifetimes;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using Avalonia.Controls.ApplicationLifetimes;
 using Restall.Application.DTOs;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -12,15 +15,12 @@ namespace Restall.UI.Services;
 
 public sealed class ModSelectionDialogService : IModSelectionDialogService
 {
-    private readonly ILogService _logService;
     private readonly IVersionCatalog _versionCatalog;
 
     public ModSelectionDialogService(
-        ILogService logService,
         IVersionCatalog versionCatalog
-        )
+    )
     {
-        _logService = logService;
         _versionCatalog = versionCatalog;
     }
 
@@ -35,7 +35,6 @@ public sealed class ModSelectionDialogService : IModSelectionDialogService
 
         if (versions.Length == 0)
         {
-            await _logService.LogWarningAsync("No ReShade versions available.");
             return null;
         }
 
@@ -43,7 +42,7 @@ public sealed class ModSelectionDialogService : IModSelectionDialogService
         var dialog = new ReShadeInstallDialog { DataContext = vm };
 
         await dialog.ShowDialog(mainWindow);
-        
+
         return vm.WasConfirmed ? vm.BuildResult() : null;
     }
 
@@ -58,7 +57,6 @@ public sealed class ModSelectionDialogService : IModSelectionDialogService
 
         if (versions.Length == 0)
         {
-            await _logService.LogWarningAsync("No RenoDX nightlies available.");
             return null;
         }
 
