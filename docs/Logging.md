@@ -88,7 +88,7 @@ We strictly request you follow these formatting rules when implementing logging 
 | Hole names are **PascalCase** | `{InstallPath}` — parameter stays `installPath` |
 | **No trailing period.** No trailing or double spaces | |
 | Em dash joins clauses | `… — all {Platform} Heroic games will be skipped` |
-| Provenance marker when relaying a `Result` | `… — Service returned: \"{ErrorMessage}\"` |
+| Provenance marker when relaying a `Result` | `… — Service returned: \"{Message}\"` |
 
 ---
 
