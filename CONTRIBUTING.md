@@ -20,6 +20,9 @@ Please read these instructions carefully before contributing.
 - The _beta_ branch is where all new features converge until deemed stable and feature complete enough to be merged into _main_, which acts as the stable branch.
   Therefore, the _beta_ branch is the default branch for this repository and any contributions will be expected to be made from this branch.
 
+### Code style
+- [Logging](docs/Logging.md)
+
 ## Issues
 
 - Search open and closed issues first before creating a new bug report or feature request.
@@ -41,10 +44,7 @@ Please read these instructions carefully before contributing.
   Refactorings are allowed but should be discussed and drafted beforehand.
   If you made changes in code authored by someone else, add a comment with an explanation.
 - Ensure that your code follows current standards set by the codebase before contributing. This includes proper code quality and architecture.
-
-## Logging
-If you are implementing a new feature, please make sure to follow our guidelines so everything matches our standard. You can find more information in [docs/Logging.md](docs/Logging.md).
-
+ 
 ## Licensing
 
 By contributing to Restall, you agree that your code will be licensed under the existing licensing terms.
