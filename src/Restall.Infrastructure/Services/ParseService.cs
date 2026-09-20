@@ -188,7 +188,8 @@ internal sealed partial class ParseService : IParseService
 
                 if (line.StartsWith("# Deprecated mods")) break;
 
-                if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase))
+                if (line.StartsWith("### Unreal Engine", StringComparison.OrdinalIgnoreCase) &&
+                    !line.Contains("Extended", StringComparison.OrdinalIgnoreCase))
                 {
                     currentEngine = RenoDXWikiModType.Unreal;
                     capturingNotesFor = currentEngine;
@@ -198,7 +199,7 @@ internal sealed partial class ParseService : IParseService
                     continue;
                 }
 
-                if (line.StartsWith("### UE Extended", StringComparison.OrdinalIgnoreCase))
+                if (line.StartsWith("### Unreal Engine Extended", StringComparison.OrdinalIgnoreCase))
                 {
                     currentEngine = RenoDXWikiModType.UnrealExtended;
                     capturingNotesFor = currentEngine;
