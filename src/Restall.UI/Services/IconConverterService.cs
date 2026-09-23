@@ -1,17 +1,21 @@
-using System.IO;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using Avalonia.Media.Imaging;
 using Restall.Application.Interfaces.Driven;
+using System.IO;
 
 namespace Restall.UI.Services;
 
+//TODO: REMOVE THIS AND FOCUS ON IMAGERESIZESERVICE FOR REFACTOR, THEY SERVE SAME PURPOSE AND HAVE TWO SCRIPTS ARE UNNECESSARY
 internal sealed class IconConverterService : IIconConverterService
 {
     public byte[] IcoToPng(byte[] icoBytes, int width)
     {
         using var icoStream = new MemoryStream(icoBytes);
-        using var bitmap = Bitmap.DecodeToWidth(icoStream,width);
+        using var bitmap = Bitmap.DecodeToWidth(icoStream, width);
         using var pngStream = new MemoryStream();
-        bitmap.Save(pngStream);
+        bitmap.Save(pngStream, PngBitmapEncoderOptions.Default);
         return pngStream.ToArray();
     }
 }

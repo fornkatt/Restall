@@ -1,0 +1,147 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using Microsoft.Extensions.Logging;
+using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
+using Restall.Application.Helpers;
+using Restall.Application.Interfaces.Driven;
+using Restall.Application.Interfaces.Driving;
+using Restall.Domain.Entities;
+using System.Collections.Immutable;
+
+namespace Restall.Application.UseCases;
+
+public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCase
+{
+    private readonly ILogger<FullLibraryRefreshUseCase> _logger;
+    private readonly IGameDetectionService _gameDetectionService;
+    private readonly IGameArtworkService _gameArtworkService;
+    private readonly IModDetectionService _modDetectionService;
+    private readonly IUpdateCheckService _updateCheckService;
+    private readonly IVersionCatalog _versionCatalog;
+    private readonly IModCatalog _modCatalog;
+
+    public FullLibraryRefreshUseCase(
+        ILogger<FullLibraryRefreshUseCase> logger,
+        IGameDetectionService gameDetectionService,
+        IGameArtworkService gameArtworkService,
+        IModDetectionService modDetectionService,
+        IUpdateCheckService updateCheckService,
+        IVersionCatalog versionCatalog,
+        IModCatalog modCatalog
+    )
+    {
+        _logger = logger;
+        _gameDetectionService = gameDetectionService;
+        _gameArtworkService = gameArtworkService;
+        _modDetectionService = modDetectionService;
+        _updateCheckService = updateCheckService;
+        _versionCatalog = versionCatalog;
+        _modCatalog = modCatalog;
+    }
+
+    public async Task<RefreshLibraryResultDto> ExecuteAsync(
+        IProgress<GameScanProgressReportDto>? progress = null)
+    {
+        var gameTask = _gameDetectionService.FindGamesAsync(progress);
+        var versionTask = _versionCatalog.FetchVersionsAsync();
+        var wikiTask = _modCatalog.FetchModsAsync();
+
+        await Task.WhenAll(gameTask, versionTask, wikiTask);
+
+        var gameScanResults = gameTask.Result;
+
+        var games = gameScanResults.Games.OrderBy(g => g.Name);
+        return await BuildResultAsync(games, gameScanResults.IsSuccess, gameScanResults.Message);
+    }
+
+    private async Task<RefreshLibraryResultDto> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success,
+        string? errorMessage)
+    {
+        HashSet<Task> artworkTasks = [];
+        List<GameInitResultDto> results = [];
+
+        foreach (var game in sortedGames)
+        {
+            if (string.IsNullOrWhiteSpace(game.Name))
+                continue;
+
+            var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
+            var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
+
+            // TODO(): handle multiple mods found with user choice
+            game.ReShade = reShade.Value?.FirstOrDefault();
+            game.RenoDX = renoDx.Value?.FirstOrDefault();
+
+            var reShadeUpdateResult = game.ReShade is not null
+                ? _updateCheckService.CheckReShadeUpdate(game.ReShade)
+                : null;
+
+            var renoDxUpdateResult = game.RenoDX is not null
+                ? _updateCheckService.CheckRenoDXUpdate(game.RenoDX)
+                : null;
+
+            var compatibleMod = FindCompatibleMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
+                _modCatalog.GetRenoDXWikiMods());
+            var compatibleGenericMod = compatibleMod is null
+                ? FindGenericMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
+                    _modCatalog.GetRenoDXGenericWikiMods())
+                : null;
+
+            var gameName = game.Name ?? "Unknown";
+
+            if (compatibleMod is not null)
+                LogRenoDXCompatibleGameFound(gameName, compatibleMod.Name);
+            else if (compatibleGenericMod is not null)
+                LogRenoDXCompatibleGenericGameFound(gameName, compatibleGenericMod.Name);
+            else
+                LogRenoDXCompatibleGameNotFound(gameName);
+
+            artworkTasks.Add(_gameArtworkService.EnrichGameArtworkAsync(game));
+
+            results.Add(new GameInitResultDto(
+                game,
+                compatibleMod,
+                compatibleGenericMod,
+                reShadeUpdateResult,
+                renoDxUpdateResult
+            ));
+        }
+
+        await Task.WhenAll(artworkTasks);
+
+        return new RefreshLibraryResultDto(results, success, errorMessage);
+    }
+
+    private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, ImmutableArray<RenoDXModInfoDto> mods)
+    {
+        if (string.IsNullOrWhiteSpace(gameName))
+            return null;
+
+        var candidates = mods.Where(m =>
+            GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
+
+        var normalizedGameName = GameNameHelper.NormalizeName(gameName);
+
+        return candidates.FirstOrDefault(m =>
+                   GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
+               candidates.FirstOrDefault();
+    }
+
+    private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName,
+        ImmutableArray<RenoDXGenericModInfoDto> mods)
+    {
+        if (string.IsNullOrWhiteSpace(gameName))
+            return null;
+
+        var candidates = mods.Where(m =>
+            GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
+
+        var normalizedGameName = GameNameHelper.NormalizeName(gameName);
+
+        return candidates.FirstOrDefault(m =>
+                   GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
+               candidates.FirstOrDefault();
+    }
+}

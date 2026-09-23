@@ -32,11 +32,28 @@
                       Margin="8"
                       VerticalAlignment="Top">
 
-                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding SelectedGame.Name}"
-                               FontSize="20" FontWeight="Bold"
-                               Foreground="{DynamicResource GameCardText}"
-                               Padding="6,0,0,0"
-                               TextWrapping="Wrap" />
+                    <!--TODO: ADD ANIMATION FOR RELAYCOMMAND -->
+                    <Grid Grid.Column="0" ColumnDefinitions="*, Auto"
+                          VerticalAlignment="Center">
+
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding SelectedGame.Name}"
+                                   FontSize="20"
+                                   FontWeight="Bold" Padding="6,0,0,0"
+                                   Foreground="{DynamicResource GameCardText}"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                        <Button Grid.Column="1"
+                                Classes="game-card-btn"
+                                CornerRadius="6"
+                                Margin="6,0">
+                            <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
+                                       FontSize="16"
+                                       Text="&#xE094;" />
+                        </Button>
+
+                    </Grid>
+
 
                     <TextBlock Grid.Row="1" Text="{Binding SelectedGame.PlatformName}"
                                FontSize="12" Foreground="{DynamicResource GameCardText}"

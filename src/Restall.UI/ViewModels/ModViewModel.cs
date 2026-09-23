@@ -1,6 +1,11 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
+using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.UseCases.Requests;
@@ -14,8 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Restall.Application.DTOs.Results;
-using Restall.Application.Helpers;
 
 namespace Restall.UI.ViewModels;
 
@@ -26,8 +29,8 @@ public sealed partial class ModViewModel : ViewModelBase
     private readonly IVersionCatalog _versionCatalog;
     private readonly IModCatalog _modCatalog;
 
-    private const string s_upToDateTextColor = "#eb5a2f";
-    private const string s_updateAvailableTextColor = "#1ab652";
+    private const string UpToDateTextColor = "#eb5a2f";
+    private const string UpdateAvailableTextColor = "#1ab652";
 
     public ModViewModel(
         IModManagementFacade modManagementFacade,
@@ -61,14 +64,14 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
     [NotifyPropertyChangedFor(nameof(AvailableRenoDXBranches))]
-    private GameModViewModel? _selectedGame;
+    public partial GameModViewModel? SelectedGame { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ReShadeLatestVersionForBranch))]
     [NotifyPropertyChangedFor(nameof(ReShadeVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
     [NotifyCanExecuteChangedFor(nameof(UpdateReShadeCommand))]
-    private ReShade.Branch _selectedReShadeBranch = ReShade.Branch.Stable;
+    public partial ReShade.Branch SelectedReShadeBranch { get; set; } = ReShade.Branch.Stable;
 
     public string? ReShadeLatestVersionForBranch =>
         _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
@@ -115,11 +118,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private void OpenUrl(string url)
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = url,
-            UseShellExecute = true
-        });
+        Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
     }
 
     /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
@@ -196,7 +195,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public string? ReShadeVersionTextColor =>
         SelectedGame?.HasReShade == true
-            ? (CanShowReShadeUpdate ? s_upToDateTextColor : s_updateAvailableTextColor)
+            ? (CanShowReShadeUpdate ? UpToDateTextColor : UpdateAvailableTextColor)
             : null;
 
     public string InstallReShadeButtonText =>
@@ -265,13 +264,13 @@ public sealed partial class ModViewModel : ViewModelBase
         switch (SelectedRenoDXBranch)
         {
             case RenoDX.Branch.Nightly:
-            {
-                var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
-                if (selectedTag is null) return;
+                {
+                    var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
+                    if (selectedTag is null) return;
 
-                targetVersion = selectedTag.Version;
-                break;
-            }
+                    targetVersion = selectedTag.Version;
+                    break;
+                }
             case RenoDX.Branch.Snapshot:
                 targetVersion = RenoDXLatestVersionForBranch;
                 break;
@@ -350,8 +349,8 @@ public sealed partial class ModViewModel : ViewModelBase
             : string.Empty;
 
     public string? RenoDXWikiModTypeSectionNotes =>
-        EffectiveRenoDXWikiModType is { } renoDxWikiModType 
-            ? _modCatalog.GetRenoDXWikiModTypeNotes(renoDxWikiModType) 
+        EffectiveRenoDXWikiModType is { } renoDxWikiModType
+            ? _modCatalog.GetRenoDXWikiModTypeNotes(renoDxWikiModType)
             : null;
 
     public bool HasRenoDXWikiModTypeSectionNotes => !string.IsNullOrWhiteSpace(RenoDXWikiModTypeSectionNotes);
@@ -362,7 +361,7 @@ public sealed partial class ModViewModel : ViewModelBase
     private RenoDXWikiModType? EffectiveRenoDXWikiModType =>
         SelectedGame is null ? null :
         SelectedGame.CompatibleRenoDXMod is not null ? null :
-        SelectedGame.CompatibleRenoDXGenericMod?.RenoDxWikiModType ??
+        SelectedGame.CompatibleRenoDXGenericMod?.RenoDXWikiModType ??
         RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(SelectedGame.EngineName);
 
     public string? RenoDXNotes
@@ -412,7 +411,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
-    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
+    public partial RenoDX.Branch SelectedRenoDXBranch { get; set; } = RenoDX.Branch.Snapshot;
 
     private RenoDX.Branch _preferredRenoDXBranch = RenoDX.Branch.Snapshot;
     private bool _isAdjustingRenoDXBranchSelection;
@@ -423,8 +422,9 @@ public sealed partial class ModViewModel : ViewModelBase
             _preferredRenoDXBranch = value;
     }
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
-    private IReadOnlyList<RenoDX.Branch> _availableRenoDXBranches = [];
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
+    public partial IReadOnlyList<RenoDX.Branch> AvailableRenoDXBranches { get; set; } = [];
 
     public string? RenoDXLatestVersionForBranch =>
         _versionCatalog.GetLatestRenoDXVersionByTag(SelectedRenoDXBranch)?.Version;
@@ -451,7 +451,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
         var effectiveRenoDXWikiModType = hasCompatibleMod
             ? null
-            : game.CompatibleRenoDXGenericMod?.RenoDxWikiModType
+            : game.CompatibleRenoDXGenericMod?.RenoDXWikiModType
               ?? RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(game.EngineName);
 
         if (effectiveRenoDXWikiModType?.IsExternallyHosted() == true)
@@ -500,7 +500,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public string? RenoDXVersionTextColor =>
         SelectedGame?.HasRenoDX == true
-            ? (CanShowRenoDXUpdate ? s_upToDateTextColor : s_updateAvailableTextColor)
+            ? (CanShowRenoDXUpdate ? UpToDateTextColor : UpdateAvailableTextColor)
             : null;
 
     public string InstallRenoDXButtonText
@@ -548,11 +548,11 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private bool CanOpenNexusLink =>
         SelectedGame is
-            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
+        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
 
     private bool CanOpenDiscordLink =>
         SelectedGame is
-            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
+        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
 
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
     private async Task UpdateRenoDXAsync()

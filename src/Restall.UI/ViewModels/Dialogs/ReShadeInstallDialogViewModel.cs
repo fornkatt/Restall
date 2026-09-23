@@ -1,4 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Domain.Entities;
 using Restall.UI.DTOs;
@@ -12,12 +15,13 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
 {
     public ReShadeInstallDialogViewModel(
         IReadOnlyList<string> availableVersions
-        )
+    )
     {
         AvailableVersions = availableVersions;
-        _selectedVersion = availableVersions.FirstOrDefault();
-        _selectedFilenameOption = FileNameOptions.FirstOrDefault();
-        _selectedExtensionOption = ExtensionOptions.FirstOrDefault();
+        SelectedVersion = availableVersions.FirstOrDefault();
+        SelectedFilenameOption = FileNameOptions.FirstOrDefault();
+        SelectedExtensionOption = ExtensionOptions.FirstOrDefault();
+        IsVersionExpanded = true;
     }
 
     public event EventHandler? CloseRequested;
@@ -35,13 +39,13 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
             .ToList();
 
     [ObservableProperty]
-    private bool _isVersionExpanded = true;
+    public partial bool IsVersionExpanded { get; set; }
 
     [ObservableProperty]
-    private bool _isFilenameExpanded;
+    public partial bool IsFilenameExpanded { get; set; }
 
     [ObservableProperty]
-    private bool _isExtensionExpanded;
+    public partial bool IsExtensionExpanded { get; set; }
 
     partial void OnIsVersionExpandedChanged(bool value)
     {
@@ -93,15 +97,15 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanConfirm))]
     [NotifyCanExecuteChangedFor(nameof(ConfirmCommand))]
-    private string? _selectedVersion;
+    public partial string? SelectedVersion { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedFilename))]
-    private ReShadeFileNameOption? _selectedFilenameOption;
+    public partial ReShadeFileNameOption? SelectedFilenameOption { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedExtension))]
-    private ReShadeExtensionOption? _selectedExtensionOption;
+    public partial ReShadeExtensionOption? SelectedExtensionOption { get; set; }
 
     public string? SelectedFilename => SelectedFilenameOption?.Display;
 
@@ -109,9 +113,9 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
 
     public bool WasConfirmed { get; private set; }
 
-    public bool CanConfirm => SelectedVersion is not null 
-                           && SelectedFilenameOption is not null 
-                           && SelectedExtensionOption is not null;
+    public bool CanConfirm => SelectedVersion is not null
+                              && SelectedFilenameOption is not null
+                              && SelectedExtensionOption is not null;
 
     public ReShadeInstallSelectionDto? BuildResult() =>
         CanConfirm
@@ -119,7 +123,7 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
                 SelectedVersion!,
                 SelectedFilenameOption!.Value,
                 SelectedExtensionOption!.Value
-                )
+            )
             : null;
 
     [RelayCommand(CanExecute = nameof(CanConfirm))]
@@ -133,5 +137,6 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
     private void Cancel() => CloseRequested?.Invoke(this, EventArgs.Empty);
 
     public record ReShadeFileNameOption(ReShade.Filename Value, string Display);
+
     public record ReShadeExtensionOption(ReShade.FileExtension Value, string Display);
 }

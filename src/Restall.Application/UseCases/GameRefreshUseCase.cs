@@ -1,58 +1,44 @@
-﻿using System.Collections.Immutable;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Domain.Entities;
+using System.Collections.Immutable;
 
 namespace Restall.Application.UseCases;
 
-public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefreshLibraryUseCase
+public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
 {
-    private readonly ILogService _logService;
-    private readonly IGameDetectionService _gameDetectionService;
-    private readonly IGameArtworkService _gameArtworkService;
-    private readonly IModDetectionService _modDetectionService;
-    private readonly IUpdateCheckService _updateCheckService;
+    private readonly ILogger<GameRefreshUseCase> _logger;
     private readonly IVersionCatalog _versionCatalog;
     private readonly IModCatalog _modCatalog;
+    private readonly IUpdateCheckService _updateCheckService;
+    private readonly IGameArtworkService _gameArtworkService;
+    private readonly IModDetectionService _modDetectionService;
 
-    public RefreshLibraryUseCase(
-        ILogService logService,
-        IGameDetectionService gameDetectionService,
-        IGameArtworkService gameArtworkService,
-        IModDetectionService modDetectionService,
-        IUpdateCheckService updateCheckService,
+    public GameRefreshUseCase(
+        ILogger<GameRefreshUseCase> logger,
         IVersionCatalog versionCatalog,
-        IModCatalog modCatalog
+        IModCatalog modCatalog,
+        IUpdateCheckService updateCheckService,
+        IGameArtworkService gameArtworkService,
+        IModDetectionService modDetectionService
     )
     {
-        _logService = logService;
-        _gameDetectionService = gameDetectionService;
-        _gameArtworkService = gameArtworkService;
-        _modDetectionService = modDetectionService;
-        _updateCheckService = updateCheckService;
+        _logger = logger;
         _versionCatalog = versionCatalog;
         _modCatalog = modCatalog;
+        _updateCheckService = updateCheckService;
+        _gameArtworkService = gameArtworkService;
+        _modDetectionService = modDetectionService;
     }
 
-    public async Task<RefreshLibraryResultDto> ExecuteFullRescanAsync(
-        IProgress<GameScanProgressReportDto>? progress = null)
-    {
-        var gameTask = _gameDetectionService.FindGamesAsync(progress);
-        var versionTask = _versionCatalog.FetchVersionsAsync();
-        var wikiTask = _modCatalog.FetchModsAsync();
-
-        await Task.WhenAll(gameTask, versionTask, wikiTask);
-
-        var gameScanResults = gameTask.Result;
-
-        var games = gameScanResults.Games.OrderBy(g => g.Name);
-        return await BuildResultAsync(games, gameScanResults.IsSuccess, gameScanResults.Message);
-    }
-
-    public async Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames,
+    public async Task<RefreshLibraryResultDto> ExecuteAsync(IReadOnlyList<Game> existingGames,
         IProgress<GameScanProgressReportDto>? progress = null)
     {
         await Task.WhenAll(_versionCatalog.FetchVersionsAsync(), _modCatalog.FetchModsAsync());
@@ -70,10 +56,11 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
         {
             if (string.IsNullOrWhiteSpace(game.Name))
                 continue;
-            
+
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
             var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
 
+            // TODO(): handle multiple mods found with user choice
             game.ReShade = reShade.Value?.FirstOrDefault();
             game.RenoDX = renoDx.Value?.FirstOrDefault();
 
@@ -91,6 +78,15 @@ public sealed class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefres
                 ? FindGenericMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
                     _modCatalog.GetRenoDXGenericWikiMods())
                 : null;
+
+            var gameName = game.Name ?? "Unknown";
+
+            if (compatibleMod is not null)
+                LogRenoDXCompatibleGameFound(gameName, compatibleMod.Name);
+            else if (compatibleGenericMod is not null)
+                LogRenoDXCompatibleGenericGameFound(gameName, compatibleGenericMod.Name);
+            else
+                LogRenoDXCompatibleGameNotFound(gameName);
 
             artworkTasks.Add(_gameArtworkService.EnrichGameArtworkAsync(game));
 

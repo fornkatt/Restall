@@ -1,10 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
-using Restall.Application.Interfaces.Driven;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driving;
 using System;
 using System.Threading.Tasks;
-using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
@@ -12,21 +14,18 @@ namespace Restall.UI.ViewModels;
 // It doesn't participate in the messenger system, it communicates via an event and is then disposed.
 public sealed partial class StartupWindowViewModel : ObservableObject
 {
-    private readonly IRefreshLibraryUseCase _refreshLibrary;
-    private readonly ILogService _logService;
+    private readonly IFullLibraryRefreshUseCase _fullLibraryRefresh;
 
     public event Action<RefreshLibraryResultDto>? InitializationCompleted;
 
     [ObservableProperty]
-    private string _statusMessage = "Loading...";
+    public partial string StatusMessage { get; set; } = "Loading...";
 
     public StartupWindowViewModel(
-        ILogService logService,
-        IRefreshLibraryUseCase refreshLibrary
-        )
+        IFullLibraryRefreshUseCase fullLibraryRefresh
+    )
     {
-        _logService = logService;
-        _refreshLibrary = refreshLibrary;
+        _fullLibraryRefresh = fullLibraryRefresh;
     }
 
     public async Task InitializeAsync()
@@ -34,21 +33,12 @@ public sealed partial class StartupWindowViewModel : ObservableObject
         var progress = new Progress<GameScanProgressReportDto>(report =>
         {
             StatusMessage = $"Scanning... Completed: {report.CompletedPlatform} " +
-            $"({report.ScannersCompleted}/{report.TotalScanners})";
+                            $"({report.ScannersCompleted}/{report.TotalScanners})";
         });
 
         StatusMessage = "Scanning for games...";
 
-        var result = await _refreshLibrary.ExecuteFullRescanAsync(progress);
-
-        foreach (var item in result.Games)
-        {
-            await _logService.LogInfoAsync(item.CompatibleMod is not null
-                ? $"Compatible RenoDX game: {item.Game.Name}"
-                : item.CompatibleGenericMod is not null
-                    ? $"Compatible generic RenoDX game: {item.Game.Name}"
-                    : $"Loaded game: {item.Game.Name}");
-        }
+        var result = await _fullLibraryRefresh.ExecuteAsync(progress);
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
 

@@ -1,8 +1,11 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Restall.Application.DTOs;
-using Restall.Application.Interfaces.Driven;
+using Microsoft.Extensions.Logging;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driving;
 using Restall.UI.Messages;
 using System;
@@ -10,47 +13,47 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
 public sealed partial class GameListViewModel : ViewModelBase
 {
-    private readonly IRefreshLibraryUseCase _fullRefreshLibrary;
-    private readonly ILightRefreshLibraryUseCase _lightRefreshLibrary;
-    private readonly ILogService _logService;
+    private readonly ILogger<GameListViewModel> _logger;
+    private readonly IFullLibraryRefreshUseCase _fullLibraryRefresh;
+    private readonly IGameRefreshUseCase _gameRefresh;
 
     public GameListViewModel(
-        IRefreshLibraryUseCase refreshLibrary,
-        ILightRefreshLibraryUseCase lightRefreshLibrary,
-        ILogService logService
-        )
+        ILogger<GameListViewModel> logger,
+        IFullLibraryRefreshUseCase fullLibraryRefresh,
+        IGameRefreshUseCase gameRefresh
+    )
     {
-        _fullRefreshLibrary = refreshLibrary;
-        _lightRefreshLibrary = lightRefreshLibrary;
-        _logService = logService;
+        _logger = logger;
+        _fullLibraryRefresh = fullLibraryRefresh;
+        _gameRefresh = gameRefresh;
     }
 
     private CancellationTokenSource _messageCts = new();
 
     [ObservableProperty]
-    private ObservableCollection<GameModViewModel> _games = [];
+    public partial ObservableCollection<GameModViewModel> Games { get; set; } = [];
 
     [ObservableProperty]
-    private GameModViewModel? _selectedGame;
+    public partial GameModViewModel? SelectedGame { get; set; }
 
-    [ObservableProperty] 
-    private string? _scanMessage;
-    
+    [ObservableProperty]
+    public partial string? ScanMessage { get; set; }
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FullRefreshLibraryCommand))]
     [NotifyCanExecuteChangedFor(nameof(LightRefreshLibraryCommand))]
-    private bool _isRefreshing;
+    public partial bool IsRefreshing { get; set; }
 
-    partial void OnSelectedGameChanged(GameModViewModel? value) => Messenger.Send(new SelectedGameChangedMessage(value));
+    partial void OnSelectedGameChanged(GameModViewModel? value) =>
+        Messenger.Send(new SelectedGameChangedMessage(value));
 
     public void ApplySelectedGame(GameModViewModel? value) => SelectedGame = value;
-    
+
     public void LoadGames(RefreshLibraryResultDto result)
     {
         Games.Clear();
@@ -71,37 +74,48 @@ public sealed partial class GameListViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task FullRefreshLibraryAsync()
     {
+        LogFullLibraryRefreshStart();
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _fullRefreshLibrary.ExecuteFullRescanAsync();
+            var result = await _fullLibraryRefresh.ExecuteAsync();
             LoadGames(result);
-            
+
+            // TODO: this doesn't actually produce warnings, it stops the whole process. Redo and yield return messages?
             if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
             {
+                LogLibraryRefreshFailure(result.ErrorMessage);
                 ScanMessage = $"{result.ErrorMessage}";
                 return true;
             }
 
             return false;
-
         });
-        
+
+        LogFullLibraryRefreshComplete();
+
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
     }
 
+    //TODO: MOVE OVER TO MODVIEWMODEL WHEN LIGHT REFRESH IS CHANGED
+
+    // TODO: make sure this only refreshes the currently selected game. Make it light
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task LightRefreshLibraryAsync()
     {
+        LogLightGameRefreshStart();
+
         var existingGames = Games.Select(g => g.GetGame()).ToList();
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _lightRefreshLibrary.ExecuteLightRescanAsync(existingGames);
+            var result = await _gameRefresh.ExecuteAsync(existingGames);
             UpdateModCompatibility(result);
 
             return false;
         });
+
+        LogLightGameRefreshComplete();
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
     }
@@ -134,21 +148,24 @@ public sealed partial class GameListViewModel : ViewModelBase
         {
             ScanMessage = "Scanning...";
             IsRefreshing = true;
-            
+
             var hasWarning = await work();
-            
-            if(!hasWarning) ScanMessage = "Completed!";
-            
+
+            if (!hasWarning) ScanMessage = "Completed!";
+        }
+        catch (OperationCanceledException ex)
+        {
+            LogRefreshCancelled(ex);
         }
         catch (Exception ex)
         {
-            await _logService.LogErrorAsync("An error occured during scanning", ex);
+            LogRefreshFailure(ex);
         }
         finally
         {
             IsRefreshing = false;
         }
-        
+
         // Protects the UI timer
         try
         {
@@ -158,7 +175,9 @@ public sealed partial class GameListViewModel : ViewModelBase
                 ScanMessage = string.Empty;
             }
         }
-        catch(OperationCanceledException) { }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
     private bool CanRefresh() => !IsRefreshing;
