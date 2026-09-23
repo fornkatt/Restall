@@ -18,7 +18,6 @@ namespace Restall.Infrastructure.Extensions;
 
 public static class InfrastructureServiceCollectionExtensions
 {
-    //TODO: TAKE A CLOSER LOOK WHAT IS NEEDED TO BE SINGLETONS OR TRANSIENT IN OUR DI
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.ConfigureLogging();
@@ -48,13 +47,12 @@ public static class InfrastructureServiceCollectionExtensions
             .ParseAdd("Restall"));
         services.AddSingleton<IParseService, ParseService>();
 
-        services.AddHttpClient(ModDownloadService.HttpClientName, c => c.DefaultRequestHeaders.UserAgent
-            .ParseAdd("Restall"));
+        services.AddHttpClient(ModDownloadService.HttpClientName, c => c.DefaultRequestHeaders
+            .UserAgent.ParseAdd("Restall"));
         services.AddSingleton<IModDownloadService, ModDownloadService>();
 
-        services.AddHttpClient<IGameCoverService, GameCoverService>(
-                GameCoverService.HttpClientName, c => c.DefaultRequestHeaders.UserAgent
-                    .ParseAdd("Restall"))
+        services.AddHttpClient(GameCoverService.HttpClientName, c => c.DefaultRequestHeaders
+                .UserAgent.ParseAdd("Restall"))
             .ConfigurePrimaryHttpMessageHandler(() =>
                 OperatingSystem.IsWindows()
                     ? new WinHttpHandler
