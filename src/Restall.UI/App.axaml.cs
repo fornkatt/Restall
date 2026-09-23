@@ -3,7 +3,7 @@
 
 /*
     Restall — ReShade and HDR mod manager
-    Copyright (C) 2026  Johan Lager & Kristofer Sell
+    Copyright (C) 2026  Johan Lager & Kristofer Sell & Filip Klaic
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
