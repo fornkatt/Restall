@@ -1,12 +1,12 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driving;
 using System;
 using System.Threading.Tasks;
-using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
@@ -14,17 +14,18 @@ namespace Restall.UI.ViewModels;
 // It doesn't participate in the messenger system, it communicates via an event and is then disposed.
 public sealed partial class StartupWindowViewModel : ObservableObject
 {
-    private readonly IRefreshLibraryUseCase _refreshLibrary;
+    private readonly IFullLibraryRefreshUseCase _fullLibraryRefresh;
 
     public event Action<RefreshLibraryResultDto>? InitializationCompleted;
 
-    [ObservableProperty] private string _statusMessage = "Loading...";
+    [ObservableProperty]
+    public partial string StatusMessage { get; set; } = "Loading...";
 
     public StartupWindowViewModel(
-        IRefreshLibraryUseCase refreshLibrary
+        IFullLibraryRefreshUseCase fullLibraryRefresh
     )
     {
-        _refreshLibrary = refreshLibrary;
+        _fullLibraryRefresh = fullLibraryRefresh;
     }
 
     public async Task InitializeAsync()
@@ -37,7 +38,7 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
         StatusMessage = "Scanning for games...";
 
-        var result = await _refreshLibrary.ExecuteFullRescanAsync(progress);
+        var result = await _fullLibraryRefresh.ExecuteAsync(progress);
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
 

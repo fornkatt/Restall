@@ -1,13 +1,9 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using System.Net;
 using Microsoft.Extensions.DependencyInjection;
-using Restall.Application.Facades;
 using Restall.Application.Interfaces.Driven;
-using Restall.Application.Interfaces.Driving;
 using Restall.Application.Services;
-using Restall.Application.UseCases;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
 using Restall.Infrastructure.Stores;
@@ -15,47 +11,48 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Templates;
+using System.Net;
 
 
 namespace Restall.Infrastructure.Extensions;
 
 public static class InfrastructureServiceCollectionExtensions
 {
-    //TODO: TAKE A CLOSER LOOK WHAT IS NEEDED TO BE SINGLETONS OR TRANSIENT IN OUR DI
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.ConfigureLogging();
 
-        services.AddHttpClient("ParseService", c => c.DefaultRequestHeaders.UserAgent
+        services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
+
+        services
+            .AddSingleton<IVersionCatalog, VersionCatalog>()
+            .AddSingleton<IModCatalog, ModCatalog>();
+
+        services
+            .AddPlatformScanners()
+            .AddSingleton<IEngineDetectionService, EngineDetectionService>()
+            .AddSingleton<IGameDetectionService, GameDetectionService>()
+            .AddSingleton<IModDetectionService, ModDetectionService>();
+
+        services
+            .AddSingleton<IGameIconService, GameIconService>()
+            .AddSingleton<IGameArtworkService, GameArtworkService>();
+
+        services
+            .AddSingleton<IModInstallService, ModInstallService>()
+            .AddSingleton<IFileExtractionService, FileExtractionService>()
+            .AddSingleton<IFileService, FileService>();
+
+        services.AddHttpClient(ParseService.HttpClientName, c => c.DefaultRequestHeaders.UserAgent
             .ParseAdd("Restall"));
         services.AddSingleton<IParseService, ParseService>();
-        services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
-        services.AddSingleton<IVersionCatalog, VersionCatalog>();
-        services.AddSingleton<IModCatalog, ModCatalog>();
 
-        services.AddPlatformScanners();
-        services.AddSingleton<IEngineDetectionService, EngineDetectionService>();
-        services.AddSingleton<IGameDetectionService, GameDetectionService>();
-        services.AddSingleton<IModDetectionService, ModDetectionService>();
+        services.AddHttpClient(ModDownloadService.HttpClientName, c => c.DefaultRequestHeaders
+            .UserAgent.ParseAdd("Restall"));
+        services.AddSingleton<IModDownloadService, ModDownloadService>();
 
-        services.AddTransient<IGameIconService, GameIconService>();
-        services.AddTransient<IGameArtworkService, GameArtworkService>();
-        services.AddTransient<ILightRefreshLibraryUseCase, RefreshLibraryUseCase>();
-        services.AddTransient<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
-        services.AddTransient<IModInstallService, ModInstallService>();
-        services.AddTransient<IFileExtractionService, FileExtractionService>();
-        services.AddTransient<IFileService, FileService>();
-        services.AddTransient<IInstallReShadeUseCase, InstallReShadeUseCase>();
-        services.AddTransient<IUninstallReShadeUseCase, UninstallReShadeUseCase>();
-        services.AddTransient<IInstallRenoDXUseCase, InstallRenoDXUseCase>();
-        services.AddTransient<IUninstallRenoDXUseCase, UninstallRenoDXUseCase>();
-        services.AddTransient<IModManagementFacade, ModManagementFacade>();
-
-        services.AddHttpClient<IModDownloadService, ModDownloadService>();
-        services.AddHttpClient<IGameCoverService, GameCoverService>(c =>
-            {
-                c.DefaultRequestHeaders.UserAgent.ParseAdd("Restall/1.0");
-            })
+        services.AddHttpClient(GameCoverService.HttpClientName, c => c.DefaultRequestHeaders
+                .UserAgent.ParseAdd("Restall"))
             .ConfigurePrimaryHttpMessageHandler(() =>
                 OperatingSystem.IsWindows()
                     ? new WinHttpHandler
@@ -67,21 +64,20 @@ public static class InfrastructureServiceCollectionExtensions
                         AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate |
                                                  DecompressionMethods.Brotli
                     });
+        services.AddSingleton<IGameCoverService, GameCoverService>();
 
 
         return services;
     }
 
-    private static IServiceCollection AddPlatformScanners(this IServiceCollection services)
-    {
-        services.AddSingleton<IPlatformScannerService, SteamScanner>();
-        services.AddSingleton<IPlatformScannerService, EpicScanner>();
-        services.AddSingleton<IPlatformScannerService, GOGScanner>();
-        services.AddSingleton<IPlatformScannerService, UbisoftScanner>();
-        services.AddSingleton<IPlatformScannerService, EAScanner>();
-        services.AddSingleton<IPlatformScannerService, XboxScanner>();
-        return services;
-    }
+    private static IServiceCollection AddPlatformScanners(this IServiceCollection services) =>
+        services
+            .AddSingleton<IPlatformScannerService, SteamScanner>()
+            .AddSingleton<IPlatformScannerService, EpicScanner>()
+            .AddSingleton<IPlatformScannerService, GOGScanner>()
+            .AddSingleton<IPlatformScannerService, UbisoftScanner>()
+            .AddSingleton<IPlatformScannerService, EAScanner>()
+            .AddSingleton<IPlatformScannerService, XboxScanner>();
 
     private static IServiceCollection ConfigureLogging(this IServiceCollection services)
     {

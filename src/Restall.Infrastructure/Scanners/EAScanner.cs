@@ -1,12 +1,12 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging;
-using System.Runtime.Versioning;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using System.Runtime.Versioning;
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -49,7 +49,7 @@ internal sealed partial class EAScanner : IPlatformScannerService
     //TODO: SEPARATE SCANLIBRARY FOR EA, GOG AND UBISOFT. ALSO INCLUDE MANY REGISTRY KEYS THROUGH MANIFEST
     //TODO: ADD PUBLISH KEYS HELPER/MANIFEST TO INCLUDE MANY DIFFERENT REGEDITS
     [SupportedOSPlatform("windows")]
-    private (List<Game>games, string? error) ScanEALibrary()
+    private (List<Game> games, string? error) ScanEALibrary()
     {
         var games = new List<Game>();
 
@@ -84,7 +84,10 @@ internal sealed partial class EAScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = displayName, InstallFolder = installDir, PlatformName = Platform, PlatformId = subName
+                    Name = displayName,
+                    InstallFolder = installDir,
+                    PlatformName = Platform,
+                    PlatformId = subName
                 });
             }
             catch (Exception ex)

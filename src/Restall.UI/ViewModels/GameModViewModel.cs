@@ -1,15 +1,15 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
 using Restall.Domain.Entities;
 using System;
 using System.IO;
 using System.Threading;
-using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
@@ -22,25 +22,23 @@ public sealed partial class GameModViewModel : ObservableObject
     private const int ThumbnailTargetWidth = 32;
 
 
-    private Lazy<Bitmap?> _coverBitMap;
-    private Lazy<Bitmap?> _thumbnailBitmap;
+    private Lazy<Bitmap?> _coverBitMap = CreateLazyBitmap(null, CoverTargetWidth);
+    private Lazy<Bitmap?> _thumbnailBitmap = CreateLazyBitmap(null, ThumbnailTargetWidth);
 
     public GameModViewModel(Game game)
     {
         _game = game;
-
-        _coverPathString = game.GameCoverPathString;
-        _thumbnailPathString = game.ThumbnailPathString;
         NormalizedName = GameNameHelper.NormalizeName(game.Name!);
 
-        _coverBitMap = CreateLazyBitmap(_coverPathString, CoverTargetWidth);
-        _thumbnailBitmap = CreateLazyBitmap(_thumbnailPathString, ThumbnailTargetWidth);
+        CoverPathString = game.GameCoverPathString;
+        ThumbnailPathString = game.ThumbnailPathString;
     }
 
-    [ObservableProperty] private UpdateCheckResultDto? _reShadeUpdateCheck;
+    [ObservableProperty]
+    public partial UpdateCheckResultDto? ReShadeUpdateCheck { get; set; }
 
-    [ObservableProperty] private UpdateCheckResultDto? _renoDXUpdateCheck;
-
+    [ObservableProperty]
+    public partial UpdateCheckResultDto? RenoDXUpdateCheck { get; set; }
     public string NormalizedName { get; }
     public string? Name => _game.Name;
     public Game.Platform PlatformName => _game.PlatformName;
@@ -119,15 +117,19 @@ public sealed partial class GameModViewModel : ObservableObject
     public bool HasDiscordLink => CompatibleRenoDXMod?.DiscordUrl is not null;
     public bool HasNexusLink => CompatibleRenoDXMod?.NexusUrl is not null;
 
-    [ObservableProperty] private string? _reShadeModActionStatus;
+    [ObservableProperty]
+    public partial string? ReShadeModActionStatus { get; set; }
 
-    [ObservableProperty] private bool _isShowingReShadeActionMessage;
+    [ObservableProperty]
+    public partial bool IsShowingReShadeActionMessage { get; set; }
 
     internal CancellationTokenSource? _reShadeMessageCts;
 
-    [ObservableProperty] private string? _renoDXModActionStatus;
+    [ObservableProperty]
+    public partial string? RenoDXModActionStatus { get; set; }
 
-    [ObservableProperty] private bool _isShowingRenoDXActionMessage;
+    [ObservableProperty]
+    public partial bool IsShowingRenoDXActionMessage { get; set; }
 
     internal CancellationTokenSource? _renoDXMessageCts;
 
@@ -137,7 +139,7 @@ public sealed partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl64))]
     [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl32))]
     [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename64))]
-    private RenoDX.Architecture? _archOverride;
+    public partial RenoDX.Architecture? ArchOverride { get; set; }
 
     public RenoDX.Architecture SelectedRenoDXInstallArch =>
         ArchOverride ?? (
@@ -167,7 +169,7 @@ public sealed partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(RenoDXIsDualArch))]
     [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename64))]
     [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename32))]
-    private RenoDXModInfoDto? _compatibleRenoDXMod;
+    public partial RenoDXModInfoDto? CompatibleRenoDXMod { get; set; }
 
     partial void OnCompatibleRenoDXModChanged(RenoDXModInfoDto? value) => ArchOverride = null;
     partial void OnCompatibleRenoDXGenericModChanged(RenoDXGenericModInfoDto? value) => ArchOverride = null;
@@ -178,18 +180,20 @@ public sealed partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
     [NotifyPropertyChangedFor(nameof(RenoDXSupportsX64))]
     [NotifyPropertyChangedFor(nameof(RenoDXSupportsX32))]
-    private RenoDXGenericModInfoDto? _compatibleRenoDXGenericMod;
+    public partial RenoDXGenericModInfoDto? CompatibleRenoDXGenericMod { get; set; }
 
     // Bitmaps -------------------------------------------------------------------------------
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CoverBitmap))]
-    private string? _coverPathString;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CoverBitmap))]
+    public partial string? CoverPathString { get; set; }
 
     partial void OnCoverPathStringChanged(string? value) =>
         ResetLazyBitmap(ref _coverBitMap, value, CoverTargetWidth);
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
-    private string? _thumbnailPathString;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
+    public partial string? ThumbnailPathString { get; set; }
 
     partial void OnThumbnailPathStringChanged(string? value) =>
         ResetLazyBitmap(ref _thumbnailBitmap, value, ThumbnailTargetWidth);

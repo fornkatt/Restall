@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.DependencyInjection;
@@ -13,14 +13,20 @@ public static class UIServiceCollectionExtensions
 {
     public static IServiceCollection AddUIServices(this IServiceCollection services)
     {
-        services.AddSingleton<IImageResizeService, ImageResizeService>();
-        services.AddSingleton<IIconConverterService, IconConverterService>();
-        services.AddTransient<IModSelectionDialogService, ModSelectionDialogService>();
+        services
+            .AddSingleton<IImageResizeService, ImageResizeService>()
+            .AddSingleton<IIconConverterService, IconConverterService>();
 
-        services.AddTransient<StartupWindowViewModel>();
-        services.AddTransient<GameListViewModel>();
-        services.AddTransient<ModViewModel>();
-        services.AddTransient<MainWindowViewModel>();
+        services
+            .AddSingleton<IModSelectionDialogService, ModSelectionDialogService>();
+
+        services
+            .AddSingleton<GameListViewModel>()
+            .AddSingleton<ModViewModel>()
+            .AddSingleton<MainWindowViewModel>();
+
+        services
+            .AddTransient<StartupWindowViewModel>();
 
         return services;
     }

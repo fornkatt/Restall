@@ -1,9 +1,9 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 /*
     Restall — ReShade and HDR mod manager
-    Copyright (C) 2026  Johan Lager & Kristofer Sell
+    Copyright (C) 2026  Johan Lager & Kristofer Sell & Filip Klaic
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,14 +23,15 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using Restall.Application.Extensions;
 using Restall.Infrastructure.Extensions;
 using Restall.UI.Extensions;
 using Restall.UI.ViewModels;
 using Restall.UI.Views;
+using Serilog;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Serilog;
 
 namespace Restall.UI;
 
@@ -65,10 +66,16 @@ public partial class App : Avalonia.Application
 
         var services = new ServiceCollection();
         ConfigureServices(services);
-        var serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true
+        });
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            desktop.Exit += (_, _) => serviceProvider.Dispose();
+
             var startupVm = serviceProvider.GetRequiredService<StartupWindowViewModel>();
             var startupWindow = new StartupWindow { DataContext = startupVm };
 
@@ -93,6 +100,7 @@ public partial class App : Avalonia.Application
 
     private static void ConfigureServices(IServiceCollection services)
     {
+        services.AddApplicationServices();
         services.AddInfrastructureServices();
         services.AddUIServices();
     }

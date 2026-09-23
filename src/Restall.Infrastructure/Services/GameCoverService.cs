@@ -1,22 +1,19 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using System.Text.Json;
 
 namespace Restall.Infrastructure.Services;
 
 // TODO: surface Result/Result<T> in applicable methods. Use ErrorType, log at call-site if appropriate
 internal sealed partial class GameCoverService : IGameCoverService
 {
-    private readonly HttpClient _httpClient;
-    private readonly IImageResizeService _imageResizeService;
-    private readonly ILogger<GameCoverService> _logger;
-    private readonly IPathService _pathService;
+    internal const string HttpClientName = nameof(GameCoverService);
 
     private const string PcgwCargoByPageNameUrl =
         "https://www.pcgamingwiki.com/w/api.php?action=cargoquery&tables=Infobox_game&fields=" +
@@ -32,14 +29,18 @@ internal sealed partial class GameCoverService : IGameCoverService
 
     private const string GogApiV2ProductUrl = "https://api.gog.com/v2/games/{0}";
 
+    private readonly IHttpClientFactory _clientFactory;
+    private readonly IImageResizeService _imageResizeService;
+    private readonly ILogger<GameCoverService> _logger;
+    private readonly IPathService _pathService;
 
     public GameCoverService(
-        HttpClient httpClient,
+        IHttpClientFactory clientFactory,
         IImageResizeService imageResizeService,
         ILogger<GameCoverService> logger,
         IPathService pathService)
     {
-        _httpClient = httpClient;
+        _clientFactory = clientFactory;
         _imageResizeService = imageResizeService;
         _logger = logger;
         _pathService = pathService;
@@ -196,7 +197,8 @@ internal sealed partial class GameCoverService : IGameCoverService
         try
         {
             var url = string.Format(GogApiV2ProductUrl, productId);
-            using var response = await _httpClient.GetAsync(url);
+            var httpClient = _clientFactory.CreateClient(HttpClientName);
+            using var response = await httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode) return null;
 
             var json = await response.Content.ReadAsStringAsync();
@@ -289,7 +291,8 @@ internal sealed partial class GameCoverService : IGameCoverService
         try
         {
             var searchApiUrl = string.Format(PcgwSearchUrl, Uri.EscapeDataString(gameName));
-            using var response = await _httpClient.GetAsync(searchApiUrl);
+            var httpClient = _clientFactory.CreateClient(HttpClientName);
+            using var response = await httpClient.GetAsync(searchApiUrl);
             if (!response.IsSuccessStatusCode) return null;
 
             var json = await response.Content.ReadAsStringAsync();
@@ -325,7 +328,8 @@ internal sealed partial class GameCoverService : IGameCoverService
     {
         try
         {
-            using var response = await _httpClient.GetAsync(apiUrl);
+            var httpClient = _clientFactory.CreateClient(HttpClientName);
+            using var response = await httpClient.GetAsync(apiUrl);
             if (!response.IsSuccessStatusCode) return null;
 
             var json = await response.Content.ReadAsStringAsync();
@@ -358,7 +362,8 @@ internal sealed partial class GameCoverService : IGameCoverService
         try
         {
             byte[] bytes = [];
-            var response = await _httpClient.GetAsync(url);
+            var httpClient = _clientFactory.CreateClient(HttpClientName);
+            var response = await httpClient.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {

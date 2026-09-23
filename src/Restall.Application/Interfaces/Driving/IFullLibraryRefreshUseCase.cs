@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.Interfaces.Driving;
 
-public interface IUninstallReShadeUseCase
+public interface IFullLibraryRefreshUseCase
 {
-    ModOperationResultDto Execute(Game game);
+    Task<RefreshLibraryResultDto> ExecuteAsync(IProgress<GameScanProgressReportDto>? progress = null);
 }

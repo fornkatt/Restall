@@ -1,14 +1,14 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using System.Runtime.Versioning;
-using Restall.Application.Interfaces.Driven;
-using Restall.Domain.Entities;
-using Restall.Infrastructure.Helpers;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
+using Restall.Application.Interfaces.Driven;
 using Restall.Application.Logging;
+using Restall.Domain.Entities;
+using Restall.Infrastructure.Helpers;
+using System.Runtime.Versioning;
+using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -90,7 +90,10 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = name, InstallFolder = path, PlatformName = Platform, PlatformId = subName
+                    Name = name,
+                    InstallFolder = path,
+                    PlatformName = Platform,
+                    PlatformId = subName
                 });
             }
 
@@ -196,7 +199,10 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = title, InstallFolder = installPath, PlatformName = Platform, PlatformId = appName
+                    Name = title,
+                    InstallFolder = installPath,
+                    PlatformName = Platform,
+                    PlatformId = appName
                 });
             }
             catch (Exception ex)

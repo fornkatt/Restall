@@ -1,9 +1,11 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.Logging;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driving;
 using Restall.UI.Messages;
 using System;
@@ -11,40 +13,41 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
 public sealed partial class GameListViewModel : ViewModelBase
 {
     private readonly ILogger<GameListViewModel> _logger;
-    private readonly IRefreshLibraryUseCase _fullRefreshLibrary;
-    private readonly ILightRefreshLibraryUseCase _lightRefreshLibrary;
+    private readonly IFullLibraryRefreshUseCase _fullLibraryRefresh;
+    private readonly IGameRefreshUseCase _gameRefresh;
 
     public GameListViewModel(
         ILogger<GameListViewModel> logger,
-        IRefreshLibraryUseCase refreshLibrary,
-        ILightRefreshLibraryUseCase lightRefreshLibrary
+        IFullLibraryRefreshUseCase fullLibraryRefresh,
+        IGameRefreshUseCase gameRefresh
     )
     {
         _logger = logger;
-        _fullRefreshLibrary = refreshLibrary;
-        _lightRefreshLibrary = lightRefreshLibrary;
+        _fullLibraryRefresh = fullLibraryRefresh;
+        _gameRefresh = gameRefresh;
     }
 
     private CancellationTokenSource _messageCts = new();
 
-    [ObservableProperty] private ObservableCollection<GameModViewModel> _games = [];
+    [ObservableProperty]
+    public partial ObservableCollection<GameModViewModel> Games { get; set; } = [];
 
-    [ObservableProperty] private GameModViewModel? _selectedGame;
+    [ObservableProperty]
+    public partial GameModViewModel? SelectedGame { get; set; }
 
-    [ObservableProperty] private string? _scanMessage;
+    [ObservableProperty]
+    public partial string? ScanMessage { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FullRefreshLibraryCommand))]
     [NotifyCanExecuteChangedFor(nameof(LightRefreshLibraryCommand))]
-    private bool _isRefreshing;
+    public partial bool IsRefreshing { get; set; }
 
     partial void OnSelectedGameChanged(GameModViewModel? value) =>
         Messenger.Send(new SelectedGameChangedMessage(value));
@@ -75,7 +78,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _fullRefreshLibrary.ExecuteFullRescanAsync();
+            var result = await _fullLibraryRefresh.ExecuteAsync();
             LoadGames(result);
 
             // TODO: this doesn't actually produce warnings, it stops the whole process. Redo and yield return messages?
@@ -106,7 +109,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _lightRefreshLibrary.ExecuteLightRescanAsync(existingGames);
+            var result = await _gameRefresh.ExecuteAsync(existingGames);
             UpdateModCompatibility(result);
 
             return false;

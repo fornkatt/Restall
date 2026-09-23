@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,7 +14,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase,
     public GameListViewModel GameListViewModel { get; }
     public ModViewModel ModViewModel { get; }
 
-    [ObservableProperty] private GameModViewModel? _selectedGame;
+    [ObservableProperty]
+    public partial GameModViewModel? SelectedGame { get; set; }
 
     public bool IsGameSelected => SelectedGame is not null;
 

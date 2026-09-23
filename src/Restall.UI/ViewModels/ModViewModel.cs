@@ -1,9 +1,11 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
+using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.UseCases.Requests;
@@ -17,8 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Restall.Application.DTOs.Results;
-using Restall.Application.Helpers;
 
 namespace Restall.UI.ViewModels;
 
@@ -64,14 +64,14 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
     [NotifyPropertyChangedFor(nameof(AvailableRenoDXBranches))]
-    private GameModViewModel? _selectedGame;
+    public partial GameModViewModel? SelectedGame { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ReShadeLatestVersionForBranch))]
     [NotifyPropertyChangedFor(nameof(ReShadeVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
     [NotifyCanExecuteChangedFor(nameof(UpdateReShadeCommand))]
-    private ReShade.Branch _selectedReShadeBranch = ReShade.Branch.Stable;
+    public partial ReShade.Branch SelectedReShadeBranch { get; set; } = ReShade.Branch.Stable;
 
     public string? ReShadeLatestVersionForBranch =>
         _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
@@ -131,14 +131,18 @@ public sealed partial class ModViewModel : ViewModelBase
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "explorer.exe", Arguments = $"\"{folder}\"", UseShellExecute = false
+                FileName = "explorer.exe",
+                Arguments = $"\"{folder}\"",
+                UseShellExecute = false
             });
         }
         else
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "xdg-open", ArgumentList = { folder }, UseShellExecute = false
+                FileName = "xdg-open",
+                ArgumentList = { folder },
+                UseShellExecute = false
             });
         }
     }
@@ -260,13 +264,13 @@ public sealed partial class ModViewModel : ViewModelBase
         switch (SelectedRenoDXBranch)
         {
             case RenoDX.Branch.Nightly:
-            {
-                var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
-                if (selectedTag is null) return;
+                {
+                    var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
+                    if (selectedTag is null) return;
 
-                targetVersion = selectedTag.Version;
-                break;
-            }
+                    targetVersion = selectedTag.Version;
+                    break;
+                }
             case RenoDX.Branch.Snapshot:
                 targetVersion = RenoDXLatestVersionForBranch;
                 break;
@@ -407,7 +411,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
-    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
+    public partial RenoDX.Branch SelectedRenoDXBranch { get; set; } = RenoDX.Branch.Snapshot;
 
     private RenoDX.Branch _preferredRenoDXBranch = RenoDX.Branch.Snapshot;
     private bool _isAdjustingRenoDXBranchSelection;
@@ -418,8 +422,9 @@ public sealed partial class ModViewModel : ViewModelBase
             _preferredRenoDXBranch = value;
     }
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
-    private IReadOnlyList<RenoDX.Branch> _availableRenoDXBranches = [];
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
+    public partial IReadOnlyList<RenoDX.Branch> AvailableRenoDXBranches { get; set; } = [];
 
     public string? RenoDXLatestVersionForBranch =>
         _versionCatalog.GetLatestRenoDXVersionByTag(SelectedRenoDXBranch)?.Version;
@@ -543,11 +548,11 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private bool CanOpenNexusLink =>
         SelectedGame is
-            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
+        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
 
     private bool CanOpenDiscordLink =>
         SelectedGame is
-            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
+        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
 
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
     private async Task UpdateRenoDXAsync()
