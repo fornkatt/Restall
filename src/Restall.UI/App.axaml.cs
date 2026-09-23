@@ -23,6 +23,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using Restall.Application.Extensions;
 using Restall.Infrastructure.Extensions;
 using Restall.UI.Extensions;
 using Restall.UI.ViewModels;
@@ -93,6 +94,7 @@ public partial class App : Avalonia.Application
 
     private static void ConfigureServices(IServiceCollection services)
     {
+        services.AddApplicationServices();
         services.AddInfrastructureServices();
         services.AddUIServices();
     }

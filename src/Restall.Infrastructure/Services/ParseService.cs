@@ -17,6 +17,8 @@ namespace Restall.Infrastructure.Services;
 
 internal sealed partial class ParseService : IParseService
 {
+    internal const string HttpClientName = nameof(ParseService);
+
     private const string ReShadeTagsUrl = "https://github.com/crosire/reshade/tags";
     private const string ReShadeSiteUrl = "https://reshade.me";
 
@@ -27,7 +29,7 @@ internal sealed partial class ParseService : IParseService
         RenoDXReleasesTagUrl =
             "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
 
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IHttpClientFactory _clientFactory;
     private readonly ILogger<ParseService> _logger;
 
     [GeneratedRegex("""^\[(?<icon>:[\w_]+:)\]\(#\s*"(?<title>[^"]*)"\)$""")]
@@ -53,14 +55,12 @@ internal sealed partial class ParseService : IParseService
 
     public ParseService(
         ILogger<ParseService> logger,
-        IHttpClientFactory httpClientFactory
+        IHttpClientFactory clientFactory
     )
     {
         _logger = logger;
-        _httpClientFactory = httpClientFactory;
+        _clientFactory = clientFactory;
     }
-
-    private HttpClient HttpClient => _httpClientFactory.CreateClient("ParseService");
 
     // TODO: need better catch safety, global exception handler?
     public async Task<ImmutableArray<string>> FetchReShadeVersionsAsync()
@@ -190,7 +190,8 @@ internal sealed partial class ParseService : IParseService
 
         try
         {
-            var markdown = await HttpClient.GetStringAsync(RenoDxUrl);
+            var httpClient = _clientFactory.CreateClient(HttpClientName);
+            var markdown = await httpClient.GetStringAsync(RenoDxUrl);
             var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
             RenoDXWikiModType? currentEngine = null;
@@ -417,7 +418,8 @@ internal sealed partial class ParseService : IParseService
     {
         try
         {
-            var document = await HttpClient.GetStringAsync(ReShadeSiteUrl);
+            var httpClient = _clientFactory.CreateClient(HttpClientName);
+            var document = await httpClient.GetStringAsync(ReShadeSiteUrl);
             var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
 
             if (!match.Success) return null;
@@ -576,7 +578,8 @@ internal sealed partial class ParseService : IParseService
 
     private async Task<HtmlDocument> LoadHtmlDocumentAsync(string url)
     {
-        await using var stream = await HttpClient.GetStreamAsync(url);
+        var httpClient = _clientFactory.CreateClient(HttpClientName);
+        await using var stream = await httpClient.GetStreamAsync(url);
         var document = new HtmlDocument();
         document.Load(stream);
         return document;

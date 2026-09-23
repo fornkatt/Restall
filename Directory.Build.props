@@ -1,8 +1,8 @@
 <Project>
     <PropertyGroup>
         <Product>Restall</Product>
-        <Authors>Johan Lager, Kristofer Sell</Authors>
-        <Copyright>Copyright (C) 2026 Johan Lager &amp; Kristofer Sell</Copyright>
+        <Authors>Johan Lager, Kristofer Sell, Filip Klaic</Authors>
+        <Copyright>Copyright (C) 2026 Johan Lager &amp; Kristofer Sell &amp; Filip Klaic</Copyright>
         <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/fornkatt/Restall</RepositoryUrl>
         <BaseOutputPath>$(MSBuildProjectDirectory)\bin\</BaseOutputPath>

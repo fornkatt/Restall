@@ -13,6 +13,8 @@ namespace Restall.Infrastructure.Services;
 
 internal sealed partial class ModDownloadService : IModDownloadService
 {
+    internal const string HttpClientName = nameof(ModDownloadService);
+
     private const string ReShadeStartUrl = "https://reshade.me/downloads/ReShade_Setup_";
     private const string ReShadeEndUrl = "_Addon.exe";
 
@@ -30,20 +32,19 @@ internal sealed partial class ModDownloadService : IModDownloadService
     };
 
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> s_downloadLocks = new();
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _clientFactory;
     private readonly ILogger<ModDownloadService> _logger;
     private readonly IPathService _pathService;
 
     public ModDownloadService(
         ILogger<ModDownloadService> logger,
-        HttpClient httpClient,
+        IHttpClientFactory clientFactory,
         IPathService pathService
     )
     {
         _logger = logger;
-        _httpClient = httpClient;
+        _clientFactory = clientFactory;
         _pathService = pathService;
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
     }
 
     // TODO: rename methods in this class
@@ -155,7 +156,8 @@ internal sealed partial class ModDownloadService : IModDownloadService
         {
             LogFileDownloadStart(filename, destinationDirectory, url);
 
-            using var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            var httpClient = _clientFactory.CreateClient(HttpClientName);
+            using var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
 
             var totalBytes = response.Content.Headers.ContentLength;
