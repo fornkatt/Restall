@@ -18,7 +18,8 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
     public event Action<RefreshLibraryResultDto>? InitializationCompleted;
 
-    [ObservableProperty] private string _statusMessage = "Loading...";
+    [ObservableProperty]
+    public partial string StatusMessage { get; set; } = "Loading...";
 
     public StartupWindowViewModel(
         IFullLibraryRefreshUseCase fullLibraryRefresh

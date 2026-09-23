@@ -35,16 +35,19 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     private CancellationTokenSource _messageCts = new();
 
-    [ObservableProperty] private ObservableCollection<GameModViewModel> _games = [];
+    [ObservableProperty]
+    public partial ObservableCollection<GameModViewModel> Games { get; set; } = [];
 
-    [ObservableProperty] private GameModViewModel? _selectedGame;
+    [ObservableProperty]
+    public partial GameModViewModel? SelectedGame { get; set; }
 
-    [ObservableProperty] private string? _scanMessage;
+    [ObservableProperty]
+    public partial string? ScanMessage { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FullRefreshLibraryCommand))]
     [NotifyCanExecuteChangedFor(nameof(LightRefreshLibraryCommand))]
-    private bool _isRefreshing;
+    public partial bool IsRefreshing { get; set; }
 
     partial void OnSelectedGameChanged(GameModViewModel? value) =>
         Messenger.Send(new SelectedGameChangedMessage(value));

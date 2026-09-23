@@ -66,10 +66,16 @@ public partial class App : Avalonia.Application
 
         var services = new ServiceCollection();
         ConfigureServices(services);
-        var serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true
+        });
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            desktop.Exit += (_, _) => serviceProvider.Dispose();
+
             var startupVm = serviceProvider.GetRequiredService<StartupWindowViewModel>();
             var startupWindow = new StartupWindow { DataContext = startupVm };
 

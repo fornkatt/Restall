@@ -18,9 +18,10 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
     )
     {
         AvailableVersions = availableVersions;
-        _selectedVersion = availableVersions.FirstOrDefault();
-        _selectedFilenameOption = FileNameOptions.FirstOrDefault();
-        _selectedExtensionOption = ExtensionOptions.FirstOrDefault();
+        SelectedVersion = availableVersions.FirstOrDefault();
+        SelectedFilenameOption = FileNameOptions.FirstOrDefault();
+        SelectedExtensionOption = ExtensionOptions.FirstOrDefault();
+        IsVersionExpanded = true;
     }
 
     public event EventHandler? CloseRequested;
@@ -37,11 +38,14 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
             .Select(kv => new ReShadeExtensionOption(kv.Key, kv.Value))
             .ToList();
 
-    [ObservableProperty] private bool _isVersionExpanded = true;
+    [ObservableProperty]
+    public partial bool IsVersionExpanded { get; set; }
 
-    [ObservableProperty] private bool _isFilenameExpanded;
+    [ObservableProperty]
+    public partial bool IsFilenameExpanded { get; set; }
 
-    [ObservableProperty] private bool _isExtensionExpanded;
+    [ObservableProperty]
+    public partial bool IsExtensionExpanded { get; set; }
 
     partial void OnIsVersionExpandedChanged(bool value)
     {
@@ -93,15 +97,15 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanConfirm))]
     [NotifyCanExecuteChangedFor(nameof(ConfirmCommand))]
-    private string? _selectedVersion;
+    public partial string? SelectedVersion { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedFilename))]
-    private ReShadeFileNameOption? _selectedFilenameOption;
+    public partial ReShadeFileNameOption? SelectedFilenameOption { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedExtension))]
-    private ReShadeExtensionOption? _selectedExtensionOption;
+    public partial ReShadeExtensionOption? SelectedExtensionOption { get; set; }
 
     public string? SelectedFilename => SelectedFilenameOption?.Display;
 

@@ -14,7 +14,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase,
     public GameListViewModel GameListViewModel { get; }
     public ModViewModel ModViewModel { get; }
 
-    [ObservableProperty] private GameModViewModel? _selectedGame;
+    [ObservableProperty]
+    public partial GameModViewModel? SelectedGame { get; set; }
 
     public bool IsGameSelected => SelectedGame is not null;
 

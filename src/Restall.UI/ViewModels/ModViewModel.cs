@@ -64,14 +64,14 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(SpecificRenoDXModAvailableWarning))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
     [NotifyPropertyChangedFor(nameof(AvailableRenoDXBranches))]
-    private GameModViewModel? _selectedGame;
+    public partial GameModViewModel? SelectedGame { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ReShadeLatestVersionForBranch))]
     [NotifyPropertyChangedFor(nameof(ReShadeVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
     [NotifyCanExecuteChangedFor(nameof(UpdateReShadeCommand))]
-    private ReShade.Branch _selectedReShadeBranch = ReShade.Branch.Stable;
+    public partial ReShade.Branch SelectedReShadeBranch { get; set; } = ReShade.Branch.Stable;
 
     public string? ReShadeLatestVersionForBranch =>
         _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
@@ -411,7 +411,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
-    private RenoDX.Branch _selectedRenoDXBranch = RenoDX.Branch.Snapshot;
+    public partial RenoDX.Branch SelectedRenoDXBranch { get; set; } = RenoDX.Branch.Snapshot;
 
     private RenoDX.Branch _preferredRenoDXBranch = RenoDX.Branch.Snapshot;
     private bool _isAdjustingRenoDXBranchSelection;
@@ -424,7 +424,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
-    private IReadOnlyList<RenoDX.Branch> _availableRenoDXBranches = [];
+    public partial IReadOnlyList<RenoDX.Branch> AvailableRenoDXBranches { get; set; } = [];
 
     public string? RenoDXLatestVersionForBranch =>
         _versionCatalog.GetLatestRenoDXVersionByTag(SelectedRenoDXBranch)?.Version;
