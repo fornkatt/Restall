@@ -14,17 +14,17 @@ namespace Restall.UI.ViewModels;
 // It doesn't participate in the messenger system, it communicates via an event and is then disposed.
 public sealed partial class StartupWindowViewModel : ObservableObject
 {
-    private readonly IRefreshLibraryUseCase _refreshLibrary;
+    private readonly IFullLibraryRefreshUseCase _fullLibraryRefresh;
 
     public event Action<RefreshLibraryResultDto>? InitializationCompleted;
 
     [ObservableProperty] private string _statusMessage = "Loading...";
 
     public StartupWindowViewModel(
-        IRefreshLibraryUseCase refreshLibrary
+        IFullLibraryRefreshUseCase fullLibraryRefresh
     )
     {
-        _refreshLibrary = refreshLibrary;
+        _fullLibraryRefresh = fullLibraryRefresh;
     }
 
     public async Task InitializeAsync()
@@ -37,7 +37,7 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
         StatusMessage = "Scanning for games...";
 
-        var result = await _refreshLibrary.ExecuteFullRescanAsync(progress);
+        var result = await _fullLibraryRefresh.ExecuteAsync(progress);
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
 

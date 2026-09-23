@@ -12,51 +12,33 @@ using System.Collections.Immutable;
 
 namespace Restall.Application.UseCases;
 
-public sealed partial class RefreshLibraryUseCase : IRefreshLibraryUseCase, ILightRefreshLibraryUseCase
+public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
 {
-    private readonly ILogger<RefreshLibraryUseCase> _logger;
-    private readonly IGameDetectionService _gameDetectionService;
-    private readonly IGameArtworkService _gameArtworkService;
-    private readonly IModDetectionService _modDetectionService;
-    private readonly IUpdateCheckService _updateCheckService;
+    private readonly ILogger<GameRefreshUseCase> _logger;
     private readonly IVersionCatalog _versionCatalog;
     private readonly IModCatalog _modCatalog;
+    private readonly IUpdateCheckService _updateCheckService;
+    private readonly IGameArtworkService _gameArtworkService;
+    private readonly IModDetectionService _modDetectionService;
 
-    public RefreshLibraryUseCase(
-        ILogger<RefreshLibraryUseCase> logger,
-        IGameDetectionService gameDetectionService,
-        IGameArtworkService gameArtworkService,
-        IModDetectionService modDetectionService,
-        IUpdateCheckService updateCheckService,
+    public GameRefreshUseCase(
+        ILogger<GameRefreshUseCase> logger,
         IVersionCatalog versionCatalog,
-        IModCatalog modCatalog
+        IModCatalog modCatalog,
+        IUpdateCheckService updateCheckService,
+        IGameArtworkService gameArtworkService,
+        IModDetectionService modDetectionService
     )
     {
         _logger = logger;
-        _gameDetectionService = gameDetectionService;
-        _gameArtworkService = gameArtworkService;
-        _modDetectionService = modDetectionService;
-        _updateCheckService = updateCheckService;
         _versionCatalog = versionCatalog;
         _modCatalog = modCatalog;
+        _updateCheckService = updateCheckService;
+        _gameArtworkService = gameArtworkService;
+        _modDetectionService = modDetectionService;
     }
 
-    public async Task<RefreshLibraryResultDto> ExecuteFullRescanAsync(
-        IProgress<GameScanProgressReportDto>? progress = null)
-    {
-        var gameTask = _gameDetectionService.FindGamesAsync(progress);
-        var versionTask = _versionCatalog.FetchVersionsAsync();
-        var wikiTask = _modCatalog.FetchModsAsync();
-
-        await Task.WhenAll(gameTask, versionTask, wikiTask);
-
-        var gameScanResults = gameTask.Result;
-
-        var games = gameScanResults.Games.OrderBy(g => g.Name);
-        return await BuildResultAsync(games, gameScanResults.IsSuccess, gameScanResults.Message);
-    }
-
-    public async Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames,
+    public async Task<RefreshLibraryResultDto> ExecuteAsync(IReadOnlyList<Game> existingGames,
         IProgress<GameScanProgressReportDto>? progress = null)
     {
         await Task.WhenAll(_versionCatalog.FetchVersionsAsync(), _modCatalog.FetchModsAsync());

@@ -19,18 +19,18 @@ namespace Restall.UI.ViewModels;
 public sealed partial class GameListViewModel : ViewModelBase
 {
     private readonly ILogger<GameListViewModel> _logger;
-    private readonly IRefreshLibraryUseCase _fullRefreshLibrary;
-    private readonly ILightRefreshLibraryUseCase _lightRefreshLibrary;
+    private readonly IFullLibraryRefreshUseCase _fullLibraryRefresh;
+    private readonly IGameRefreshUseCase _gameRefresh;
 
     public GameListViewModel(
         ILogger<GameListViewModel> logger,
-        IRefreshLibraryUseCase refreshLibrary,
-        ILightRefreshLibraryUseCase lightRefreshLibrary
+        IFullLibraryRefreshUseCase fullLibraryRefresh,
+        IGameRefreshUseCase gameRefresh
     )
     {
         _logger = logger;
-        _fullRefreshLibrary = refreshLibrary;
-        _lightRefreshLibrary = lightRefreshLibrary;
+        _fullLibraryRefresh = fullLibraryRefresh;
+        _gameRefresh = gameRefresh;
     }
 
     private CancellationTokenSource _messageCts = new();
@@ -75,7 +75,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _fullRefreshLibrary.ExecuteFullRescanAsync();
+            var result = await _fullLibraryRefresh.ExecuteAsync();
             LoadGames(result);
 
             // TODO: this doesn't actually produce warnings, it stops the whole process. Redo and yield return messages?
@@ -106,7 +106,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _lightRefreshLibrary.ExecuteLightRescanAsync(existingGames);
+            var result = await _gameRefresh.ExecuteAsync(existingGames);
             UpdateModCompatibility(result);
 
             return false;

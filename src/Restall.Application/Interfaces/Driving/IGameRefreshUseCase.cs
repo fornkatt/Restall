@@ -7,13 +7,8 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.Interfaces.Driving;
 
-public interface IRefreshLibraryUseCase
+public interface IGameRefreshUseCase
 {
-    Task<RefreshLibraryResultDto> ExecuteFullRescanAsync(IProgress<GameScanProgressReportDto>? progress = null);
-}
-
-public interface ILightRefreshLibraryUseCase
-{
-    Task<RefreshLibraryResultDto> ExecuteLightRescanAsync(IReadOnlyList<Game> existingGames,
+    Task<RefreshLibraryResultDto> ExecuteAsync(IReadOnlyList<Game> existingGames,
         IProgress<GameScanProgressReportDto>? progress = null);
 }

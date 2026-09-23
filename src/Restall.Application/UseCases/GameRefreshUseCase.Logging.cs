@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Restall.Application.UseCases;
 
-// Library Refresh Logging — EventId range: 1250 - 1299
-public sealed partial class FullLibraryRefreshUseCase
+// Game Refresh Logging — EventId range: 1900 - 1949
+public sealed partial class GameRefreshUseCase
 {
     [LoggerMessage(EventId = 1250, Level = LogLevel.Debug,
         Message = "Found compatible RenoDX mod for \"{GameName}\" — Mod name: \"{ModName}\"")]

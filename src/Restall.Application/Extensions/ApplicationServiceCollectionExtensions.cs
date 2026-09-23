@@ -17,6 +17,6 @@ public static class ApplicationServiceCollectionExtensions
             .AddSingleton<IUninstallReShadeUseCase, UninstallReShadeUseCase>()
             .AddSingleton<IInstallRenoDXUseCase, InstallRenoDXUseCase>()
             .AddSingleton<IUninstallRenoDXUseCase, UninstallRenoDXUseCase>()
-            .AddSingleton<ILightRefreshLibraryUseCase, RefreshLibraryUseCase>()
-            .AddSingleton<IRefreshLibraryUseCase, RefreshLibraryUseCase>();
+            .AddSingleton<IGameRefreshUseCase, GameRefreshUseCase>()
+            .AddSingleton<IFullLibraryRefreshUseCase, FullLibraryRefreshUseCase>();
 }

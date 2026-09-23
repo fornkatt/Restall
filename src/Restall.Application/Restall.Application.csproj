@@ -16,13 +16,16 @@
 
     <ItemGroup>
       <Compile Update="UseCases\RefreshLibraryUseCase.Logging.cs">
-        <DependentUpon>RefreshLibraryUseCase.cs</DependentUpon>
+        <DependentUpon>FullLibraryRefreshUseCase.cs</DependentUpon>
       </Compile>
       <Compile Update="UseCases\InstallRenoDXUseCase.Logging.cs">
         <DependentUpon>InstallRenoDXUseCase.cs</DependentUpon>
       </Compile>
       <Compile Update="Facades\ModManagementFacade.Logging.cs">
         <DependentUpon>ModManagementFacade.cs</DependentUpon>
+      </Compile>
+      <Compile Update="UseCases\GameRefreshUseCase.Logging.cs">
+        <DependentUpon>GameRefreshUseCase.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 
