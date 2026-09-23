@@ -1,13 +1,13 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Collections.Concurrent;
-using Microsoft.Extensions.Logging;
-using Restall.Application.DTOs.Results;
 
 namespace Restall.Infrastructure.Services;
 

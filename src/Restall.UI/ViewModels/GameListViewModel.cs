@@ -1,9 +1,11 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.Logging;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driving;
 using Restall.UI.Messages;
 using System;
@@ -11,8 +13,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 

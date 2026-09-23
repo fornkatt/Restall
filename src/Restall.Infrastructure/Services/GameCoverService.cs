@@ -1,12 +1,12 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using System.Text.Json;
 
 namespace Restall.Infrastructure.Services;
 

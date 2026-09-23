@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using System.Net;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace Restall.Infrastructure.Services;
 

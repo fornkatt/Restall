@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.Common;
@@ -28,19 +28,19 @@ internal sealed class ModInstallService : IModInstallService
             switch (modToInstall)
             {
                 case ReShade reShade:
-                {
-                    var destinationPath = Path.Combine(game.ExecutablePath!, reShade.SelectedFilename);
-                    File.Copy(sourcePath, destinationPath, true);
-                    game.ReShade = reShade;
-                    break;
-                }
+                    {
+                        var destinationPath = Path.Combine(game.ExecutablePath!, reShade.SelectedFilename);
+                        File.Copy(sourcePath, destinationPath, true);
+                        game.ReShade = reShade;
+                        break;
+                    }
                 case RenoDX renoDX:
-                {
-                    var destinationPath = Path.Combine(game.ExecutablePath!, renoDX.SelectedName!);
-                    File.Copy(sourcePath, destinationPath, true);
-                    game.RenoDX = renoDX;
-                    break;
-                }
+                    {
+                        var destinationPath = Path.Combine(game.ExecutablePath!, renoDX.SelectedName!);
+                        File.Copy(sourcePath, destinationPath, true);
+                        game.RenoDX = renoDX;
+                        break;
+                    }
             }
 
             return Result<Game>.Success(game);

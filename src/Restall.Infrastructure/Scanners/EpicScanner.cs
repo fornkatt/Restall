@@ -1,13 +1,13 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Microsoft.Extensions.Logging;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
+using Restall.Application.Logging;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
-using Restall.Application.DTOs.Results;
-using Restall.Application.Logging;
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -92,7 +92,10 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = name, InstallFolder = rootPath, PlatformName = Platform, PlatformId = catalogItemId
+                    Name = name,
+                    InstallFolder = rootPath,
+                    PlatformName = Platform,
+                    PlatformId = catalogItemId
                 });
             }
             catch (Exception ex)
@@ -104,7 +107,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         return (games, null);
     }
 
-    private (List<Game>games, string? error) ScanHeroicLibrary()
+    private (List<Game> games, string? error) ScanHeroicLibrary()
     {
         var games = new List<Game>();
         var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
@@ -198,7 +201,10 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = title, InstallFolder = installPath, PlatformName = Platform, PlatformId = appName
+                    Name = title,
+                    InstallFolder = installPath,
+                    PlatformName = Platform,
+                    PlatformId = appName
                 });
             }
             catch (Exception ex)

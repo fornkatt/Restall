@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -95,10 +95,12 @@ public sealed partial class ReShadeInstallDialogViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(ConfirmCommand))]
     private string? _selectedVersion;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(SelectedFilename))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedFilename))]
     private ReShadeFileNameOption? _selectedFilenameOption;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(SelectedExtension))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedExtension))]
     private ReShadeExtensionOption? _selectedExtensionOption;
 
     public string? SelectedFilename => SelectedFilenameOption?.Display;

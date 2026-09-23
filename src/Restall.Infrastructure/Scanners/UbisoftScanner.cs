@@ -1,12 +1,12 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging;
-using System.Runtime.Versioning;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using System.Runtime.Versioning;
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -84,7 +84,10 @@ internal sealed partial class UbisoftScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = name, InstallFolder = installDir, PlatformName = Platform, PlatformId = subName
+                    Name = name,
+                    InstallFolder = installDir,
+                    PlatformName = Platform,
+                    PlatformId = subName
                 });
             }
             catch (Exception ex)

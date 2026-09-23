@@ -1,15 +1,15 @@
-// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
 using Restall.Domain.Entities;
 using System;
 using System.IO;
 using System.Threading;
-using Restall.Application.DTOs.Results;
 
 namespace Restall.UI.ViewModels;
 
@@ -182,13 +182,15 @@ public sealed partial class GameModViewModel : ObservableObject
 
     // Bitmaps -------------------------------------------------------------------------------
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CoverBitmap))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CoverBitmap))]
     private string? _coverPathString;
 
     partial void OnCoverPathStringChanged(string? value) =>
         ResetLazyBitmap(ref _coverBitMap, value, CoverTargetWidth);
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
     private string? _thumbnailPathString;
 
     partial void OnThumbnailPathStringChanged(string? value) =>
