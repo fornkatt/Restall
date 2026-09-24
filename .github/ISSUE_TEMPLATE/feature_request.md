@@ -3,7 +3,7 @@
 name: Feature Request
 about: Request a feature
 title: ''
-labels: enhancements
+labels: enhancement
 assignees: ''
 
 ---
