@@ -17,7 +17,7 @@ _Write if you have a general bug or which game you are having issues with._
 
 - **OS:** _Linux/Distro_ or _Windows_
 
-_Insert text here with the issue you are facing. Also include the issues in the pre-determined list._
+_Insert text here with the issue you are facing. Also include the information in the pre-determined list._
 
 
 ### Steps and behavior
