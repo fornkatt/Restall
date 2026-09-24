@@ -4,9 +4,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Services;
-using Restall.Infrastructure.Startup;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
+using Restall.Infrastructure.Startup;
 using Restall.Infrastructure.Stores;
 using Serilog;
 using Serilog.Core;
