@@ -4,6 +4,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Services;
+using Restall.Infrastructure.Startup;
 using Restall.Infrastructure.Scanners;
 using Restall.Infrastructure.Services;
 using Restall.Infrastructure.Stores;
@@ -85,23 +86,11 @@ public static class InfrastructureServiceCollectionExtensions
         // TODO(logging-refactor): change to Information once settings page lands
         var logLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
 
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.ControlledBy(logLevelSwitch)
-            .MinimumLevel.Override("Microsoft.Extensions.Http", LogEventLevel.Warning)
-            .MinimumLevel.Override("System.Net.Http", LogEventLevel.Information)
-            .Enrich.WithComputed("ShortContext", "Substring(SourceContext, LastIndexOf(SourceContext, '.') + 1)")
-            .WriteTo.Async(a => a.File(
-                new ExpressionTemplate(
-                    "[{@t:HH:mm:ss.fff}] [{@l:u3}] [{ShortContext,-22}]{#if IsDefined(EventId)} [{EventId.Id,4}]{#end} {@m}\n{@x}"),
-                Path.Combine(pathService.GetDefaultLogPath(), "restall-.log"),
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 10))
-            .CreateLogger();
-
+        SerilogSetup.ReplaceBootstrapLogger(pathService, logLevelSwitch);
 
         services.AddSingleton<IPathService>(pathService);
         services.AddSingleton(logLevelSwitch);
-        services.AddLogging(b => b.AddSerilog(dispose: true));
+        services.AddLogging(b => b.AddSerilog(dispose: false));
 
         return services;
     }

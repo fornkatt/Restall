@@ -21,7 +21,12 @@
 */
 
 using Avalonia;
+using Restall.Infrastructure.Startup;
+using Serilog;
 using System;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Restall.UI;
 
@@ -31,15 +36,38 @@ sealed class Program
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static int Main(string[] args)
+    {
+        SerilogSetup.CreateBootstrapLogger();
+        RegisterCrashHandlers();
+        Log.ForContext<Program>().Information("Restall starting on {OS} ({Runtime})",
+            RuntimeInformation.OSDescription, RuntimeInformation.FrameworkDescription);
+        try
+        {
+            var exitCode = BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            Log.ForContext<Program>().Information("Restall exited with code {ExitCode}", exitCode);
+            return exitCode;
+        }
+        catch (Exception ex)
+        {
+            Log.ForContext<Program>().Fatal(ex, "Restall terminated unexpectedly");
+            return 1;
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp()
+    private static AppBuilder BuildAvaloniaApp()
     {
         var builder = AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .LogToTrace();
+            .LogToDelegate(message =>
+                    Log.ForContext("SourceContext", "Avalonia")
+                        .Warning("{AvaloniaMessage}", message),
+                Avalonia.Logging.LogEventLevel.Warning);
 
         if (OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") is not null)
         {
@@ -47,5 +75,25 @@ sealed class Program
         }
 
         return builder;
+    }
+
+    private static void RegisterCrashHandlers()
+    {
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            Log.ForContext<Program>().Fatal(e.ExceptionObject as Exception, "Unhandled exception");
+            Log.CloseAndFlush();
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            if (e.Exception.InnerExceptions.All(ex => ex is TaskCanceledException or OperationCanceledException))
+            {
+                e.SetObserved();
+                return;
+            }
+
+            Log.ForContext<Program>().Error(e.Exception, "Unobserved task exception");
+        };
     }
 }
