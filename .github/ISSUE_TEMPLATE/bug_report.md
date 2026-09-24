@@ -21,6 +21,7 @@ _Insert text here with the issue you are facing. Also include the issues in the 
 
 ### Steps and behavior
 _Explain your steps so we can preproduce the behavior, for an example:_
+
 1.
 2.
 3.
