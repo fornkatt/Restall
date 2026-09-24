@@ -26,7 +26,7 @@ _Explain your steps so we can preproduce the behavior, for an example:_
 3.
 
 ### Screenshots and logs
-Please provide with screenshots and link the log from the day and timestamp you are facing issues with. Example: `restall-20260924` 
+Please provide with screenshots and link the log from the day and timestamp you are facing issues with. Example: `restall-20260924.log` 
 
 You can find the logs folder at:
 
