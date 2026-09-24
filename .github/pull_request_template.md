@@ -1,8 +1,8 @@
 ### Description
-Introduction of the purpose for and describe further with this created branch. Is it a `fix`, `feature` , `refactor` or `chore` ?
+Introduction of the purpose for and describe further with this created branch. Is it a `fix`, `feature` , `refactor` or `chore`? Alternatively, include screenshot or gif.
 
 ### Overview of Changes
-Explaining of the changes that have been made with the help of examples of bullet list:
+Explaining of the changes that have been made with the help of different bullet list:
 
 - 1
 
@@ -22,5 +22,3 @@ Explaining of the changes that have been made with the help of examples of bulle
 - [ ] Test A
 - [ ] Test B
 - [ ] Test C
-
-### 
