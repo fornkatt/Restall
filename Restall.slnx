@@ -1,6 +1,11 @@
 <Solution>
-  <Project Path="src/Restall.Application/Restall.Application.csproj" />
-  <Project Path="src/Restall.Domain/Restall.Domain.csproj" />
-  <Project Path="src/Restall.Infrastructure/Restall.Infrastructure.csproj" />
-  <Project Path="src/Restall.UI/Restall.UI.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Restall.Application/Restall.Application.csproj" />
+    <Project Path="src/Restall.Domain/Restall.Domain.csproj" />
+    <Project Path="src/Restall.Infrastructure/Restall.Infrastructure.csproj" />
+    <Project Path="src/Restall.UI/Restall.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Restall.Application.Tests/Restall.Application.Tests.csproj" />
+  </Folder>
 </Solution>
