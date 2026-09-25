@@ -66,7 +66,7 @@ sealed class Program
             .UsePlatformDetect()
             .LogToDelegate(message =>
                     Log.ForContext("SourceContext", "Avalonia")
-                        .Warning("{AvaloniaMessage}", message),
+                        .Debug("{AvaloniaMessage}", message),
                 Avalonia.Logging.LogEventLevel.Warning);
 
         if (OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") is not null)
