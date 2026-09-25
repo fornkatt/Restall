@@ -11,7 +11,6 @@ using Restall.Infrastructure.Stores;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Templates;
 using System.Net;
 
 

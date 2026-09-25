@@ -30,12 +30,10 @@ using Restall.UI.ViewModels;
 using Restall.UI.Views;
 using Serilog;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Restall.UI;
 
-public partial class App : Avalonia.Application
+public class App : Avalonia.Application
 {
     public override void Initialize()
     {

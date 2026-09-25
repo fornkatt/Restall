@@ -65,3 +65,4 @@ dotnet_naming_rule.nonpublic_fields_underscore.style = underscore_camel
 dotnet_naming_rule.nonpublic_fields_underscore.severity = warning
 
 dotnet_diagnostic.IDE1006.severity = warning
+dotnet_diagnostic.IDE0005.severity = warning
