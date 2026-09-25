@@ -30,12 +30,10 @@ using Restall.UI.ViewModels;
 using Restall.UI.Views;
 using Serilog;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Restall.UI;
 
-public partial class App : Avalonia.Application
+public class App : Avalonia.Application
 {
     public override void Initialize()
     {
@@ -44,26 +42,6 @@ public partial class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // Fall back logging if crash occurs as a last resort during initialization
-        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
-        {
-            if (e.ExceptionObject is TaskCanceledException or OperationCanceledException)
-                return;
-
-            Log.Fatal(e.ExceptionObject as Exception, "Unhandled exception");
-        };
-
-        TaskScheduler.UnobservedTaskException += (_, e) =>
-        {
-            if (e.Exception.InnerExceptions.All(ex => ex is TaskCanceledException or OperationCanceledException))
-            {
-                e.SetObserved();
-                return;
-            }
-
-            Log.Fatal(e.Exception, "Unobserved task exception");
-        };
-
         var services = new ServiceCollection();
         ConfigureServices(services);
         var serviceProvider = services.BuildServiceProvider(new ServiceProviderOptions
@@ -92,10 +70,23 @@ public partial class App : Avalonia.Application
                 startupWindow.Close();
             };
 
-            _ = startupVm.InitializeAsync();
+            RunStartup(startupVm, desktop);
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static async void RunStartup(StartupWindowViewModel vm, IClassicDesktopStyleApplicationLifetime desktop)
+    {
+        try
+        {
+            await vm.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.ForContext<App>().Fatal(ex, "Fatal error occurred during startup");
+            desktop.Shutdown(1);
+        }
     }
 
     private static void ConfigureServices(IServiceCollection services)

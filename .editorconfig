@@ -10,7 +10,6 @@ insert_final_newline = true
 
 [*.cs]
 file_header_template = SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic\nSPDX-License-Identifier: GPL-3.0-or-later
-dotnet_diagnostic.IDE0073.severity = warning
 
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_using_directive_placement = outside_namespace:warning
@@ -64,4 +63,9 @@ dotnet_naming_rule.nonpublic_fields_underscore.symbols = nonpublic_fields
 dotnet_naming_rule.nonpublic_fields_underscore.style = underscore_camel
 dotnet_naming_rule.nonpublic_fields_underscore.severity = warning
 
+# noinspection EditorConfigKeyCorrectness
 dotnet_diagnostic.IDE1006.severity = warning
+# noinspection EditorConfigKeyCorrectness
+dotnet_diagnostic.IDE0073.severity = warning
+# noinspection EditorConfigKeyCorrectness
+dotnet_diagnostic.IDE0005.severity = warning

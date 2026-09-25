@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging;
-using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
