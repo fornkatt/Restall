@@ -73,4 +73,8 @@
       </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Restall.Infrastructure.Tests" />
+    </ItemGroup>
+
 </Project>
