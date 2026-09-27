@@ -14,4 +14,18 @@ public record RenoDXGameMod(
     string? NexusUrl,
     string? DiscordUrl,
     string? DiscussionUrl,
-    string? Notes);
+    string? Notes)
+{
+    public string? AddonFilename => GetAddonFilename(SnapshotUrl, ".addon64");
+    public string? AddonFilename32 => GetAddonFilename(SnapshotUrl32, ".addon32");
+
+    private static string? GetAddonFilename(string? url, string extension)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+            return null;
+
+        var filename = Uri.UnescapeDataString(Path.GetFileName(uri.AbsolutePath));
+
+        return filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase) ? filename : null;
+    }
+}
