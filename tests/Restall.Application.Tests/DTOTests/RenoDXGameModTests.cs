@@ -38,7 +38,7 @@ public class RenoDXGameModTests
     }
 
     [Fact]
-    public void AddonFilename_Only32BitUrl_ReturnsNull()
+    public void AddonFilename_Only32BitUrl_DoesNotFallBackTo32BitFile()
     {
         var mod = CreateMod(snapshotUrl32: "https://restalltest.com/renodx-game.addon32");
 
@@ -47,7 +47,7 @@ public class RenoDXGameModTests
 
     [Theory]
     [MemberData(nameof(UnusableUrls), ".addon64", ".addon32")]
-    public void AddonFilename_UnusableUrl_DoesNotFallBackTo32BitFile(string snapshotUrl)
+    public void AddonFilename_UnusableUrl_ReturnsNull(string snapshotUrl)
     {
         var mod = CreateMod(snapshotUrl: snapshotUrl);
 
