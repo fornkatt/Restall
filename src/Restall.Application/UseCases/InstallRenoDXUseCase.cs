@@ -11,6 +11,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.Logging;
 using Restall.Application.UseCases.Requests;
+using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
@@ -224,14 +225,14 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             return originalName;
 
         if (request.ModInfo is { HasWikiFilename: true } modInfo)
-            return request.Arch == RenoDX.Architecture.X32
+            return request.Arch == Architecture.X32
                 ? modInfo.AddonFilename32 ?? modInfo.AddonFilename64
                 : modInfo.AddonFilename64 ?? modInfo.AddonFilename32;
 
         if (request.GenericModInfo is { } generic)
-            return request.Arch == RenoDX.Architecture.X64 ? generic.AddonFilename64 : generic.AddonFilename32;
+            return request.Arch == Architecture.X64 ? generic.AddonFilename64 : generic.AddonFilename32;
 
-        var bit = request.Arch == RenoDX.Architecture.X64 ? "64" : "32";
+        var bit = request.Arch == Architecture.X64 ? "64" : "32";
 
         var fallbackModType = RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(request.Game.EngineName);
 
@@ -256,7 +257,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             request.Branch,
             addonFilename,
             request.TargetVersion,
-            request.Arch == RenoDX.Architecture.X32
+            request.Arch == Architecture.X32
                 ? request.ModInfo?.SnapshotUrl32
                 : request.ModInfo?.SnapshotUrl64,
             progress

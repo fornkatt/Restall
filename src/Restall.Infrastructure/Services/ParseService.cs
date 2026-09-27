@@ -7,6 +7,7 @@ using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
+using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using System.Collections.Immutable;

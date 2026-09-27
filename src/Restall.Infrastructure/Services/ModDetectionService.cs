@@ -7,6 +7,7 @@ using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Logging;
+using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 
@@ -49,8 +50,8 @@ internal sealed partial class ModDetectionService : IModDetectionService
                             Version = versionInfo.ProductVersion,
                             BranchName = ReShade.Branch.Stable,
                             Arch = versionInfo.OriginalFilename?.Contains("64") == true
-                                ? ReShade.Architecture.X64
-                                : ReShade.Architecture.X32
+                                ? Architecture.X64
+                                : Architecture.X32
                         });
                         LogModFound("ReShade", filename, executableDirectory);
                     }
@@ -101,8 +102,8 @@ internal sealed partial class ModDetectionService : IModDetectionService
                                 RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
                             Version = ParseRenoDXVersion(versionInfo.FileVersion),
                             Arch = versionInfo.OriginalFilename.Contains("64")
-                                ? RenoDX.Architecture.X64
-                                : RenoDX.Architecture.X32
+                                ? Architecture.X64
+                                : Architecture.X32
                         });
                         LogModFound("RenoDX", filename, executableDirectory);
                     }

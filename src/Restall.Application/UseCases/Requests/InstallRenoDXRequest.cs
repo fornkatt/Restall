@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.DTOs;
+using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases.Requests;
 
 public record InstallRenoDXRequest(
     Game Game,
-    RenoDX.Architecture Arch,
+    Architecture Arch,
     RenoDX.Branch Branch,
     RenoDXModInfoDto? ModInfo = null,
     RenoDXGenericModInfoDto? GenericModInfo = null,

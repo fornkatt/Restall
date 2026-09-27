@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Domain.Common.Enums;
+
 namespace Restall.Domain.Entities;
 
 public sealed class Game
@@ -13,6 +15,7 @@ public sealed class Game
     public string? Name { get; init; }
     public Platform PlatformName { get; set; } = Platform.Unknown;
     public Engine EngineName { get; set; } = Engine.Unknown;
+    public Architecture Architecture { get; set; } = Architecture.X64;
     public string? ExecutablePath { get; set; }
     public string? InstallFolder { get; set; }
     public string? PlatformId { get; init; }

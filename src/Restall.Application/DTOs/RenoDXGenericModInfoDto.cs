@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Domain.Common.Enums;
+
 namespace Restall.Application.DTOs;
 
 public record RenoDXGenericModInfoDto(
@@ -29,8 +31,6 @@ public record RenoDXGenericModInfoDto(
 
     private string GetAddonFilename(string bit) => GetAddonFilename(RenoDXWikiModType, bit);
 }
-
-public enum Architecture { X32 = 32, X64 = 64 }
 
 public enum RenoDXWikiModType { Unreal, UnrealExtended, Unity }
 

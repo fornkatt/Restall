@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
+using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
 using System;
 using System.IO;
@@ -139,20 +140,20 @@ public sealed partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl64))]
     [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl32))]
     [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename64))]
-    public partial RenoDX.Architecture? ArchOverride { get; set; }
+    public partial Architecture? ArchOverride { get; set; }
 
-    public RenoDX.Architecture SelectedRenoDXInstallArch =>
+    public Architecture SelectedRenoDXInstallArch =>
         ArchOverride ?? (
             (CompatibleRenoDXMod is not null
                 ? CompatibleRenoDXMod.SupportsX32 && !CompatibleRenoDXMod.SupportsX64
                 : CompatibleRenoDXGenericMod?.SupportsX32 == true)
-                ? RenoDX.Architecture.X32
-                : RenoDX.Architecture.X64);
+                ? Architecture.X32
+                : Architecture.X64);
 
-    public ReShade.Architecture SelectedReShadeInstallArch =>
-        SelectedRenoDXInstallArch == RenoDX.Architecture.X32
-            ? ReShade.Architecture.X32
-            : ReShade.Architecture.X64;
+    public Architecture SelectedReShadeInstallArch =>
+        SelectedRenoDXInstallArch == Architecture.X32
+            ? Architecture.X32
+            : Architecture.X64;
 
     public string? RenoDXWikiDownloadUrl64 => CompatibleRenoDXMod?.SnapshotUrl64;
     public string? RenoDXWikiDownloadUrl32 => CompatibleRenoDXMod?.SnapshotUrl32;

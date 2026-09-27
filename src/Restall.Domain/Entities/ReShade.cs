@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Domain.Common.Enums;
+
 namespace Restall.Domain.Entities;
 
 public sealed class ReShade
@@ -8,7 +10,6 @@ public sealed class ReShade
     public enum Branch { Unknown, Stable, Nightly, RenoDX }
     public enum Filename { Dxgi, D3D12, D3D11, D3D10, D3D9, Version, ReShade32, ReShade64 }
     public enum FileExtension { Dll, Asi }
-    public enum Architecture { X32 = 32, X64 = 64 }
 
     public Architecture Arch { get; set; } = Architecture.X64;
 
