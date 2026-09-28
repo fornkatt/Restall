@@ -7,6 +7,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Application.Logging;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using Restall.Infrastructure.Scanners.Heroic;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 
@@ -155,59 +156,47 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             return (games, installedJsonPath);
         }
 
-        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(installedJson))
+        foreach (var entry in HeroicInstalledParser.GOGHeroicParser(installedJson))
         {
             try
             {
-                var blockValue = match.Value;
 
-                var appName = RegexHelper.GOGHeroicAppNameRegex.Match(blockValue)
-                    is { Success: true } am
-                    ? am.Groups[1].Value
-                    : null;
-
-                var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
-                    is { Success: true } pm
-                    ? pm.Groups[1].Value.Replace("\\\\", "\\")
-                    : null;
-                installPath = GameScanHelper.NormalizePath(installPath);
-
-                if (string.IsNullOrEmpty(appName))
+                if (string.IsNullOrEmpty(entry.AppName))
                 {
-                    _logger.HeroicAppNameNotFound(Platform, installPath);
+                    _logger.HeroicAppNameNotFound(Platform, entry.InstallPath);
                     continue;
                 }
 
                 //TODO: INCLUDE THE BLOCKVALUE?
-                if (string.IsNullOrEmpty(installPath))
+                if (string.IsNullOrEmpty(entry.InstallPath))
                 {
-                    _logger.HeroicInstallPathNotFound(Platform, appName);
+                    _logger.HeroicInstallPathNotFound(Platform, entry.AppName);
                     continue;
                 }
 
-                if (!installInfoGames.TryGetValue(appName, out var title))
+                if (!installInfoGames.TryGetValue(entry.AppName, out var title))
                 {
-                    _logger.HeroicInstallInfoEntryNotFound(Platform, appName, installedInstallInfoPath);
+                    _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, installedInstallInfoPath);
                     continue;
                 }
 
                 if (string.IsNullOrEmpty(title))
                 {
-                    _logger.HeroicGameNameNotFound(Platform, appName, installPath);
+                    _logger.HeroicGameNameNotFound(Platform, entry.AppName, entry.InstallPath);
                     continue;
                 }
 
                 games.Add(new Game
                 {
                     Name = title,
-                    InstallFolder = installPath,
+                    InstallFolder = entry.InstallPath,
                     PlatformName = Platform,
-                    PlatformId = appName
+                    PlatformId = entry.AppName
                 });
             }
             catch (Exception ex)
             {
-                _logger.HeroicJsonBlockScanFailure(Platform, match.Value, ex);
+                _logger.HeroicJsonBlockScanFailure(Platform, installedJson, ex);
             }
         }
 
