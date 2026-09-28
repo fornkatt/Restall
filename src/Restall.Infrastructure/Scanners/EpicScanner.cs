@@ -7,6 +7,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Application.Logging;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using Restall.Infrastructure.Scanners.Heroic;
 using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Scanners;
@@ -92,10 +93,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
                 games.Add(new Game
                 {
-                    Name = name,
-                    InstallFolder = rootPath,
-                    PlatformName = Platform,
-                    PlatformId = catalogItemId
+                    Name = name, InstallFolder = rootPath, PlatformName = Platform, PlatformId = catalogItemId
                 });
             }
             catch (Exception ex)
@@ -153,66 +151,82 @@ internal sealed partial class EpicScanner : IPlatformScannerService
             return (games, installedJsonPath);
         }
 
-        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(installedJson))
+        foreach (var entry in EpicHeroicParser(installedJson))
         {
             try
             {
-                var blockValue = match.Value;
-
-                var appName = RegexHelper.EpicHeroicAppNameRegex.Match(blockValue)
-                    is { Success: true } am
-                    ? am.Groups[1].Value
-                    : null;
-
-                var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
-                    is { Success: true } pm
-                    ? pm.Groups[1].Value.Replace("\\\\", "\\")
-                    : null;
-                installPath = GameScanHelper.NormalizePath(installPath);
-
-                var isDlcMatch = Regex.IsMatch(blockValue, @"""is_dlc""\s*:\s*true", RegexOptions.IgnoreCase);
-
-                if (isDlcMatch)
-                    continue;
-
-                if (string.IsNullOrEmpty(appName))
+                if (string.IsNullOrEmpty(entry.AppName))
                 {
-                    _logger.HeroicAppNameNotFound(Platform, installPath);
+                    _logger.HeroicAppNameNotFound(Platform, entry.InstallPath);
                     continue;
                 }
 
-                if (!installInfoGames.TryGetValue(appName, out var title))
+                if (!installInfoGames.TryGetValue(entry.AppName, out var title))
                 {
-                    _logger.HeroicInstallInfoEntryNotFound(Platform, appName, installInfoPath);
+                    _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, installInfoPath);
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(installPath))
+                if (string.IsNullOrEmpty(entry.InstallPath))
                 {
-                    _logger.HeroicInstallPathNotFound(Platform, appName);
+                    _logger.HeroicInstallPathNotFound(Platform, entry.AppName);
                     continue;
                 }
 
                 if (string.IsNullOrEmpty(title))
                 {
-                    _logger.HeroicGameNameNotFound(Platform, appName, installPath);
+                    _logger.HeroicGameNameNotFound(Platform, entry.AppName, entry.InstallPath);
                     continue;
                 }
 
                 games.Add(new Game
                 {
                     Name = title,
-                    InstallFolder = installPath,
+                    InstallFolder = entry.InstallPath,
                     PlatformName = Platform,
-                    PlatformId = appName
+                    PlatformId = entry.AppName
                 });
             }
             catch (Exception ex)
             {
-                _logger.HeroicJsonBlockScanFailure(Platform, match.Value, ex);
+                _logger.HeroicJsonBlockScanFailure(Platform, installedJson, ex);
             }
         }
 
         return (games, null);
     }
+
+
+    internal static List<HeroicInstalledGame> EpicHeroicParser(string json)
+    {
+        var games = new List<HeroicInstalledGame>();
+
+        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(json))
+        {
+            var blockValue = match.Value;
+
+            var appName = RegexHelper.EpicHeroicAppNameRegex.Match(blockValue)
+                is { Success: true } am
+                ? am.Groups[1].Value
+                : null;
+
+            var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
+                is { Success: true } pm
+                ? pm.Groups[1].Value.Replace("\\\\", "\\")
+                : null;
+
+            installPath = GameScanHelper.NormalizePath(installPath);
+
+            var isDlcMatch = Regex.IsMatch(blockValue, @"""is_dlc""\s*:\s*true", RegexOptions.IgnoreCase);
+
+            if (isDlcMatch) continue;
+
+            games.Add(new HeroicInstalledGame(appName, installPath, isDlcMatch));
+        }
+
+        return games;
+    }
 }
+
+
+
