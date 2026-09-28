@@ -3,14 +3,10 @@
 
 using Restall.Application.Common.Enums;
 
-namespace Restall.Application.DTOs;
+namespace Restall.Application.DTOs.RenoDXDTOs;
 
-public record RenoDXUnrealGenericMod(
+public sealed record RenoDXUnityGenericMod(
     string Name,
     RenoDXModStatus Status,
-    RenoDXUnrealGenericMod.UnrealModMethod Method,
     string? Upgrades,
-    string? Comments)
-{
-    public enum UnrealModMethod { Unknown, Native, Upgrade, Ini }
-}
+    string? Comments);

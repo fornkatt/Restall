@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Application.DTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
@@ -20,7 +21,7 @@ public sealed class UpdateCheckService : IUpdateCheckService
         _versionCatalog = versionCatalog;
     }
 
-    public UpdateCheckResultDto CheckReShadeUpdate(ReShade installed)
+    public UpdateCheck CheckReShadeUpdate(ReShade installed)
     {
         var branch = installed.BranchName == ReShade.Branch.Unknown
             ? ReShade.Branch.Stable
@@ -30,30 +31,28 @@ public sealed class UpdateCheckService : IUpdateCheckService
         var latestVersion = _versionCatalog.GetLatestReShadeVersion(branch);
 
         if (string.IsNullOrWhiteSpace(installedVersion) || string.IsNullOrWhiteSpace(latestVersion))
-            return new UpdateCheckResultDto(false, installedVersion, latestVersion);
+            return new UpdateCheck(false, installedVersion, latestVersion);
 
         if (!Version.TryParse(installedVersion, out var installedSemVer) ||
             !Version.TryParse(latestVersion, out var latestSemVer))
         {
-            return new UpdateCheckResultDto(
+            return new UpdateCheck(
                 false,
                 installedVersion,
-                latestVersion,
-                $"Could not get ReShade versions: Installed = {installedVersion}, Latest = {latestVersion}"
-            );
+                latestVersion);
         }
 
-        return new UpdateCheckResultDto(
+        return new UpdateCheck(
             latestSemVer > installedSemVer,
             installedVersion,
             latestVersion
         );
     }
 
-    public UpdateCheckResultDto CheckRenoDXUpdate(RenoDX installed)
+    public UpdateCheck CheckRenoDXUpdate(RenoDX installed)
     {
         if (!installed.IsUpdateCheckSupported)
-            return new UpdateCheckResultDto(false, installed.Version, null);
+            return new UpdateCheck(false, installed.Version, null);
 
         var branch = installed.BranchName == RenoDX.Branch.Unknown
             ? RenoDX.Branch.Snapshot
@@ -62,29 +61,27 @@ public sealed class UpdateCheckService : IUpdateCheckService
         var installedVersionString = installed.Version;
 
         if (string.IsNullOrWhiteSpace(installedVersionString))
-            return new UpdateCheckResultDto(false, null, null);
+            return new UpdateCheck(false, null, null);
 
-        var effectiveBranch = branch == RenoDX.Branch.Wiki
+        var effectiveBranch = branch == RenoDX.Branch.Direct
             ? RenoDX.Branch.Snapshot
             : branch;
 
         if (effectiveBranch is not (RenoDX.Branch.Snapshot or RenoDX.Branch.Nightly))
-            return new UpdateCheckResultDto(false, installedVersionString, null);
+            return new UpdateCheck(false, installedVersionString, null);
 
         var latestTag = _versionCatalog.GetLatestRenoDXVersionByTag(effectiveBranch);
         if (latestTag is null)
-            return new UpdateCheckResultDto(false, installedVersionString, null);
+            return new UpdateCheck(false, installedVersionString, null);
 
         if (!DateOnly.TryParseExact(installedVersionString, DateFormat, null,
                 System.Globalization.DateTimeStyles.None, out var installedDate))
-            return new UpdateCheckResultDto(
+            return new UpdateCheck(
                 false,
                 installedVersionString,
-                latestTag.Version,
-                $"Could not get date from installed RenoDX version: {installedVersionString}"
-            );
+                latestTag.Version);
 
-        return new UpdateCheckResultDto(
+        return new UpdateCheck(
             latestTag.Date > installedDate,
             installedVersionString,
             latestTag.Version

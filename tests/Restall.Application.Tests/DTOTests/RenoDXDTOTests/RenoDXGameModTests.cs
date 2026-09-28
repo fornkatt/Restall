@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.Common.Enums;
-using Restall.Application.DTOs;
+using Restall.Application.DTOs.RenoDXDTOs;
 
-namespace Restall.Application.Tests.DTOTests;
+namespace Restall.Application.Tests.DTOTests.RenoDXDTOTests;
 
 public class RenoDXGameModTests
 {

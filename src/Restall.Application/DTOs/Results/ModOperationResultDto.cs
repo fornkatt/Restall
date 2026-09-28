@@ -14,4 +14,4 @@ public record ModOperationResultDto(
     Game UpdatedGame,
     string? Message = null,
     bool ShouldPromptForDeepScan = false,
-    UpdateCheckResultDto? UpdateCheckResult = null);
+    UpdateCheck? UpdateCheckResult = null);

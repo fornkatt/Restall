@@ -3,9 +3,9 @@
 
 using Restall.Application.Common.Enums;
 
-namespace Restall.Application.DTOs;
+namespace Restall.Application.DTOs.RenoDXDTOs;
 
-public record RenoDXGameMod(
+public sealed record RenoDXGameMod(
     string Name,
     RenoDXModStatus Status,
     string? Author,

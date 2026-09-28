@@ -7,7 +7,7 @@ namespace Restall.Domain.Entities;
 
 public sealed class RenoDX
 {
-    public enum Branch { Unknown, Wiki, Snapshot, Nightly, Discord, Nexus }
+    public enum Branch { Unknown, Direct, Snapshot, Nightly, Discord, Nexus }
 
     public string? SelectedName { get; set; }
     public string? OriginalName { get; set; }

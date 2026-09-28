@@ -455,7 +455,7 @@ public sealed partial class ModViewModel : ViewModelBase
               ?? RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(game.EngineName);
 
         if (effectiveRenoDXWikiModType?.IsExternallyHosted() == true)
-            return [RenoDX.Branch.Wiki];
+            return [RenoDX.Branch.Direct];
 
         var hasWikiDownloadLink = game.RenoDXWikiDownloadUrl64 is not null || game.RenoDXWikiDownloadUrl32 is not null;
         var isMainRepoUnrealGeneric = !hasWikiDownloadLink && effectiveRenoDXWikiModType == RenoDXWikiModType.Unreal;
@@ -469,7 +469,7 @@ public sealed partial class ModViewModel : ViewModelBase
         }
 
         if (hasWikiDownloadLink)
-            branches.Add(RenoDX.Branch.Wiki);
+            branches.Add(RenoDX.Branch.Direct);
 
         return branches.Count > 0 ? branches : [RenoDX.Branch.Snapshot];
     }
@@ -583,7 +583,7 @@ public sealed partial class ModViewModel : ViewModelBase
     public bool CanShowRenoDXUpdate =>
         SelectedGame?.HasRenoDX == true &&
         SelectedGame.EngineName != Game.Engine.Unity &&
-        SelectedRenoDXBranch != RenoDX.Branch.Wiki &&
+        SelectedRenoDXBranch != RenoDX.Branch.Direct &&
         SelectedGame.RenoDXBranchName == SelectedRenoDXBranch &&
         SelectedGame.RenoDXUpdateCheck?.UpdateAvailable == true;
 }

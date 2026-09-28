@@ -56,7 +56,7 @@ internal sealed partial class ModDownloadService : IModDownloadService
 
         switch (branch)
         {
-            case RenoDX.Branch.Wiki:
+            case RenoDX.Branch.Direct:
                 if (string.IsNullOrWhiteSpace(wikiSnapshotUrl))
                     return Result.Error("RenoDX wiki branch requires a wiki snapshot URL.");
 
@@ -92,7 +92,7 @@ internal sealed partial class ModDownloadService : IModDownloadService
             return Result.Error($"{renoDxWikiModType} does not have and externally hosted RenoDX download configured.");
 
         var downloadUrl = baseUrl + addonFileName;
-        var cacheDir = _pathService.GetRenoDXDownloadCacheDirectory(RenoDX.Branch.Wiki);
+        var cacheDir = _pathService.GetRenoDXDownloadCacheDirectory(RenoDX.Branch.Direct);
         return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
     }
 

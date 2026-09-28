@@ -80,7 +80,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
         {
             SelectedName = request.Game.RenoDX is not null ? request.Game.RenoDX.SelectedName : addonFilename,
             OriginalName = addonFilename,
-            BranchName = isExternallyHostedGeneric ? RenoDX.Branch.Wiki : request.Branch,
+            BranchName = isExternallyHostedGeneric ? RenoDX.Branch.Direct : request.Branch,
             Arch = request.Arch
         };
 
