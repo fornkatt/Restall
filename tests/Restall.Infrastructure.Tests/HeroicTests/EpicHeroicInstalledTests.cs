@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Scanners.Heroic;
+using Xunit.Sdk;
 
 namespace Restall.Infrastructure.Tests.HeroicTests;
 
@@ -31,6 +32,23 @@ public class EpicHeroicInstalledTests
         var actual = Assert.Single(result);
         Assert.Equal(expected, actual.AppName);
     }
+
+    [Theory]
+    [InlineData(@"C:\\Games\\Heroic\\Redacted", @"C:\Games\Heroic\Redacted")]
+    [InlineData(@"C:\\Games\\Heroic\\Redacted\\", @"C:\Games\Heroic\Redacted")]
+    [InlineData(@"C:/Games/Heroic/Redacted", @"C:\Games\Heroic\Redacted")]
+    public void EpicHeroicParser_WindowsInstallPath_ReturnNormalizedPath(string installedPath, string expected)
+    {
+        //Arrange
+        var json = "{" + Entry("temp_appName", installedPath) + "}";
+        // Act
+        var result = HeroicInstalledParser.EpicHeroicParser(json);
+        //Assert
+        var actual = Assert.Single(result);
+        Assert.Equal(expected, actual.InstallPath);
+    }
+
+
 
     //Checking the properties for Epic installed.json
     private static string Entry(string appName, string installPath, bool isDlc = false)
