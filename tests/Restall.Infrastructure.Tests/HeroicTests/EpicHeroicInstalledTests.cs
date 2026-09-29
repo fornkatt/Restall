@@ -21,7 +21,7 @@ public class EpicHeroicInstalledTests
 {
 
     [Fact]
-    public void EpicHeroicParser_ValidEntry_ReturnAppName()
+    public void EpicHeroicParser_ValidEntry_ReturnsAppName()
     {
         // Arrange
         var json = ReadInstalledFile(Entry("98614687b212444c9ff0d42095f56cb3", @"C:\\Games\\Heroic\\Redacted"));
@@ -34,7 +34,7 @@ public class EpicHeroicInstalledTests
     }
 
     [Fact]
-    public void EpicHeroicParser_WindowsInstallPath_ReturnNormalizedPath()
+    public void EpicHeroicParser_WindowsInstallPath_ReturnsNormalizedPath()
     {
         Assert.SkipUnless(OperatingSystem.IsWindows(), "Windows pathing");
 
@@ -49,7 +49,7 @@ public class EpicHeroicInstalledTests
     }
 
     [Fact]
-    public void EpicHeroicParser_LinuxInstallPath_ReturnNormalizedPath()
+    public void EpicHeroicParser_LinuxInstallPath_ReturnsNormalizedPath()
     {
         Assert.SkipUnless(OperatingSystem.IsLinux(), "Linux pathing");
 
@@ -65,7 +65,7 @@ public class EpicHeroicInstalledTests
     }
 
     [Fact]
-    public void EpicHeroicParser_CheckIfEntryIsDLC_ReturnTrue()
+    public void EpicHeroicParser_CheckIfEntryIsDLC_ReturnsTrue()
     {
          // Arrange
          var json = ReadInstalledFile(Entry("4fa3d8d9b2cb4714a19a38d1a598be8f", @"C:\\Games\\Heroic\\FalloutNewVegas", isDlc: true));
@@ -77,7 +77,7 @@ public class EpicHeroicInstalledTests
     }
 
     [Fact]
-    public void EpicHeroicParser_CheckIfEntryIsMissing_ReturnNull()
+    public void EpicHeroicParser_CheckIfEntryIsMissing_ReturnsNull()
     {
         // Arrange
         var json = ReadInstalledFile(Entry("",@"C:\\Games\\Heroic\\BackpackHerog4I7F"));
@@ -86,6 +86,18 @@ public class EpicHeroicInstalledTests
         // Assert
         var actual = Assert.Single(result);
         Assert.Null(actual.AppName);
+    }
+
+    [Fact]
+    public void EpicHeroicParser_CheckIfInstallPathIsMissing_ReturnsNull()
+    {
+        // Arrange
+        var json = ReadInstalledFile(Entry("c2568782280f414aa8476c9fba8bfd60", ""));
+        // Act
+        var result = HeroicInstalledParser.EpicHeroicParser(json);
+        //Assert
+        var actual = Assert.Single(result);
+        Assert.Null(actual.InstallPath);
     }
 
     //Checking the properties for Epic installed.json
