@@ -11,7 +11,6 @@ namespace Restall.Infrastructure.Tests.HeroicTests;
 /// Progression for my Heroic tests:
 /// Regex:
 /// Single Epic Fact tests
-/// Inline install path tests - Valid/Unusable
 /// Add additional Epic Fact tests
 /// Begin GOG testing in "GOGHeroicInstalledTests"
 /// Same Process
@@ -63,6 +62,30 @@ public class EpicHeroicInstalledTests
          var actual = Assert.Single(result);
          Assert.Equal(expected, actual.InstallPath);
 
+    }
+
+    [Fact]
+    public void EpicHeroicParser_CheckIfEntryIsDLC_ReturnTrue()
+    {
+         // Arrange
+         var json = ReadInstalledFile(Entry("4fa3d8d9b2cb4714a19a38d1a598be8f", @"C:\\Games\\Heroic\\FalloutNewVegas", isDlc: true));
+         // Act
+        var result = HeroicInstalledParser.EpicHeroicParser(json);
+         //Assert
+         var actual = Assert.Single(result);
+         Assert.True(actual.IsDlc);
+    }
+
+    [Fact]
+    public void EpicHeroicParser_CheckIfEntryIsMissing_ReturnNull()
+    {
+        // Arrange
+        var json = ReadInstalledFile(Entry("",@"C:\\Games\\Heroic\\BackpackHerog4I7F"));
+        // Act
+        var result = HeroicInstalledParser.EpicHeroicParser(json);
+        // Assert
+        var actual = Assert.Single(result);
+        Assert.Null(actual.AppName);
     }
 
     //Checking the properties for Epic installed.json

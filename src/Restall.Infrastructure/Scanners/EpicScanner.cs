@@ -179,6 +179,8 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                     continue;
                 }
 
+                if (entry.IsDlc) continue;
+
                 games.Add(new Game
                 {
                     Name = title,
