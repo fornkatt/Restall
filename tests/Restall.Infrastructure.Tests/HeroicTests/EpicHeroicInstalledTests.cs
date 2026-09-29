@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Scanners.Heroic;
-using Xunit.Sdk;
+
+
 
 namespace Restall.Infrastructure.Tests.HeroicTests;
 
@@ -24,31 +25,45 @@ public class EpicHeroicInstalledTests
     public void EpicHeroicParser_ValidEntry_ReturnAppName()
     {
         // Arrange
-        var json = "{" + Entry("98614687b212444c9ff0d42095f56cb3", @"C:\\Games\\Heroic\\Redacted", isDlc: false) + "}";
+        var json = ReadInstalledFile(Entry("98614687b212444c9ff0d42095f56cb3", @"C:\\Games\\Heroic\\Redacted"));
         var expected = "98614687b212444c9ff0d42095f56cb3";
         // Act
         var result = HeroicInstalledParser.EpicHeroicParser(json);
-        //Assert
+        // Assert
         var actual = Assert.Single(result);
         Assert.Equal(expected, actual.AppName);
     }
 
-    [Theory]
-    [InlineData(@"C:\\Games\\Heroic\\Redacted", @"C:\Games\Heroic\Redacted")]
-    [InlineData(@"C:\\Games\\Heroic\\Redacted\\", @"C:\Games\Heroic\Redacted")]
-    [InlineData(@"C:/Games/Heroic/Redacted", @"C:\Games\Heroic\Redacted")]
-    public void EpicHeroicParser_WindowsInstallPath_ReturnNormalizedPath(string installedPath, string expected)
+    [Fact]
+    public void EpicHeroicParser_WindowsInstallPath_ReturnNormalizedPath()
     {
-        //Arrange
-        var json = "{" + Entry("temp_appName", installedPath) + "}";
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "Windows pathing");
+
+        // Arrange
+        var json = ReadInstalledFile(Entry("temp_appName", @"C:\\Games\\Heroic\\Redacted\\"));
+        var expected = @"C:\Games\Heroic\Redacted";
         // Act
         var result = HeroicInstalledParser.EpicHeroicParser(json);
-        //Assert
+        // Assert
         var actual = Assert.Single(result);
         Assert.Equal(expected, actual.InstallPath);
     }
 
+    [Fact]
+    public void EpicHeroicParser_LinuxInstallPath_ReturnNormalizedPath()
+    {
+        Assert.SkipUnless(OperatingSystem.IsLinux(), "Linux pathing");
 
+         // Arrange
+         var json = ReadInstalledFile(Entry("temp_appName", "/home/user/Games/Heroic/AlanWake2"));
+         var expected = "/home/user/Games/Heroic/AlanWake2";
+         // Act
+        var result = HeroicInstalledParser.EpicHeroicParser(json);
+         //Assert
+         var actual = Assert.Single(result);
+         Assert.Equal(expected, actual.InstallPath);
+
+    }
 
     //Checking the properties for Epic installed.json
     private static string Entry(string appName, string installPath, bool isDlc = false)
@@ -57,4 +72,8 @@ public class EpicHeroicInstalledTests
              "install_path": "{{installPath}}",
              "is_dlc": {{(isDlc ? "true" : "false")}} }
              """;
+
+    private static string ReadInstalledFile(params string[] entries) =>
+        "{" + string.Join(",", entries) + "}";
+
 }
