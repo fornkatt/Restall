@@ -56,12 +56,9 @@ internal static class HeroicInstalledParser
                 : null;
             installPath = GameScanHelper.NormalizePath(installPath);
 
-            var isDlcMatch = Regex.IsMatch(blockValue, @"""is_dlc""\s*:\s*true", RegexOptions.IgnoreCase);
+            var isDlc = Regex.IsMatch(blockValue, @"""is_dlc""\s*:\s*true", RegexOptions.IgnoreCase);
 
-            if (isDlcMatch) continue;
-
-
-            games.Add(new HeroicInstalledGame(appName, installPath, isDlcMatch));
+            games.Add(new HeroicInstalledGame(appName, installPath, isDlc));
         }
 
         return games;

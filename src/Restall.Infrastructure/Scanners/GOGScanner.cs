@@ -186,6 +186,8 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                     continue;
                 }
 
+                if (entry.IsDlc) continue;
+
                 games.Add(new Game
                 {
                     Name = title,
