@@ -74,7 +74,7 @@ public class GOGHeroicInstalledTests
         Assert.Null(actual.InstallPath);
     }
 
-    //TODO: SHARED HELPER FOR EPIC AND GOG
+
     private static string Entry(string appName,string installPath, bool isDlc = false)
         => $$"""
              "installed": { "install_path": "{{installPath}}",
