@@ -19,8 +19,16 @@ internal sealed partial class CustomFolderScanner : IPlatformScannerService
     private GameScanResultDto ScanCustomFolders()
     {
         var games = new List<Game>();
+        var errors = new List<string>();
+
         foreach (var root in _folderProvider.GetFolders())
         {
+            if (!Directory.Exists(root))
+            {
+                errors.Add($"Custom game folder not found: {root}");
+                continue;
+            }
+
             // Only direct subfolders count as games. EngineDetectionService goes deeper for the exe later
             foreach (var sub in Directory.EnumerateDirectories(root))
             {
@@ -41,6 +49,6 @@ internal sealed partial class CustomFolderScanner : IPlatformScannerService
             Platform: Platform,
             Games: games,
             IsSuccess: games.Count > 0,
-            Message: null);
+            Message: errors.Count > 0 ? string.Join(", ", errors) : null);
     }
 }

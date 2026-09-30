@@ -47,6 +47,21 @@ public sealed class CustomFolderScannerTests : IDisposable
         Assert.Equal("Hades", game.Name);
     }
 
+    [Fact]
+    public async Task ScanAsync_ReturnsMessage_WhenFolderDoesNotExist()
+    {
+        // Arrange
+        var missingFolder = Path.Combine(_root, "DoesNotExist");
+        var scanner = new CustomFolderScanner(new FakeFolderProvider(missingFolder));
+
+        // Act
+        var result = await scanner.ScanAsync();
+
+        // Assert
+        Assert.Empty(result.Games);
+        Assert.NotNull(result.Message);
+    }
+
     // Handwritten stand-in so each test controls exactly which root folders are scanned.
     private sealed class FakeFolderProvider(params string[] folders) : ICustomGameFolderProvider
     {
