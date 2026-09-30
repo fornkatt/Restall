@@ -62,6 +62,23 @@ public sealed class CustomFolderScannerTests : IDisposable
         Assert.NotNull(result.Message);
     }
 
+    [Fact]
+    public async Task ScanAsync_StillReturnsGames_WhenOneFolderIsMissing()
+    {
+        //Arrange
+        Directory.CreateDirectory(Path.Combine(_root, "Hades"));
+        var missingFolder = Path.Combine(_root, "MissingFolder");
+        var scanner = new CustomFolderScanner(new FakeFolderProvider(missingFolder, _root));
+
+        //Act
+        var result = await scanner.ScanAsync();
+
+        //Assert
+        var game = Assert.Single(result.Games);
+        Assert.Equal("Hades", game.Name);
+        Assert.NotNull(result.Message);
+    }
+
     // Handwritten stand-in so each test controls exactly which root folders are scanned.
     private sealed class FakeFolderProvider(params string[] folders) : ICustomGameFolderProvider
     {
