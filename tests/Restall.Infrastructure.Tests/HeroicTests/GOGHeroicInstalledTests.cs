@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Scanners.Heroic;
+using Restall.Infrastructure.Tests.HeroicTests.Common;
 
 namespace Restall.Infrastructure.Tests.HeroicTests;
 
@@ -11,7 +12,7 @@ public class GOGHeroicInstalledTests
     public void GOGHeroicParser_ValidEntry_ReturnsAppName()
     {
         // Arrange
-        var json = SharedHelpers.ReadInstalledFile(Entry("58459452021155541", @"C:\\Games\\Heroic\\Alan Wake"));
+        var json = SharedHeroic.ReadHeroicBlock(Entry("58459452021155541", @"C:\\Games\\Heroic\\Alan Wake"));
         var expected = "58459452021155541";
         // Act
         var result = HeroicInstalledParser.GOGHeroicParser(json);
@@ -22,13 +23,13 @@ public class GOGHeroicInstalledTests
 
     [Fact(
         Skip = "Windows pathing",
-        SkipUnless = nameof(SharedHelpers.IsWindows),
-        SkipType = typeof(SharedHelpers)
+        SkipUnless = nameof(SharedHeroic.IsWindows),
+        SkipType = typeof(SharedHeroic)
     )]
     public void GOGHeroicParser_WindowsInstallPath_ReturnsNormalizedPath()
     {
         // Arrange
-        var json = SharedHelpers.ReadInstalledFile(Entry("58459452021155541", @"C:\\Games\\Heroic\\Alan Wake"));
+        var json = SharedHeroic.ReadHeroicBlock(Entry("58459452021155541", @"C:\\Games\\Heroic\\Alan Wake"));
         var expected = @"C:\Games\Heroic\Alan Wake";
         // Act
         var result = HeroicInstalledParser.GOGHeroicParser(json);
@@ -38,10 +39,10 @@ public class GOGHeroicInstalledTests
     }
 
     [Fact]
-    public void GOGHeroicParser_CheckIfEntryIsNotDLC_ReturnsFalse()
+    public void GOGHeroicParser_EntryIsDLC_ReturnsFalse()
     {
         // Arrange
-        var json = SharedHelpers.ReadInstalledFile(Entry("58459452021155541", @"C:\\Games\\Heroic\\Alan Wake", isDlc: false));
+        var json = SharedHeroic.ReadHeroicBlock(Entry("58459452021155541", @"C:\\Games\\Heroic\\Alan Wake", isDlc: false));
         // Act
         var result = HeroicInstalledParser.GOGHeroicParser(json);
         //Assert
@@ -50,10 +51,10 @@ public class GOGHeroicInstalledTests
     }
 
     [Fact]
-    public void GOGHeroicParser_CheckIfEntryIsMissing_ReturnsNull()
+    public void GOGHeroicParser_MissingAppName_ReturnsNullAppName()
     {
         // Arrange
-        var json = SharedHelpers.ReadInstalledFile(Entry("", @"C:\\Games\\Heroic\\Shadow of the Tomb Raider"));
+        var json = SharedHeroic.ReadHeroicBlock(Entry("", @"C:\\Games\\Heroic\\Shadow of the Tomb Raider"));
         // Act
         var result = HeroicInstalledParser.GOGHeroicParser(json);
         //Assert
@@ -62,10 +63,10 @@ public class GOGHeroicInstalledTests
     }
 
     [Fact]
-    public void GOGHeroicParser_CheckIfInstallPathIsMissing_ReturnsNull()
+    public void GOGHeroicParser_MissingInstallPath_ReturnsNullInstallPath()
     {
         // Arrange
-        var json = SharedHelpers.ReadInstalledFile(Entry("1356518037", ""));
+        var json = SharedHeroic.ReadHeroicBlock(Entry("1356518037", ""));
         // Act
         var result = HeroicInstalledParser.GOGHeroicParser(json);
         //Assert
@@ -73,7 +74,7 @@ public class GOGHeroicInstalledTests
         Assert.Null(actual.InstallPath);
     }
 
-
+    //TODO: SHARED HELPER FOR EPIC AND GOG
     private static string Entry(string appName,string installPath, bool isDlc = false)
         => $$"""
              "installed": { "install_path": "{{installPath}}",

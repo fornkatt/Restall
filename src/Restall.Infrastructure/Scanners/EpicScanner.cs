@@ -109,35 +109,35 @@ internal sealed partial class EpicScanner : IPlatformScannerService
     {
         var games = new List<Game>();
         var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
-        var installInfoPath = _pathService.GetHeroicStoreCache(Platform, "legendary_install_info.json");
+        //var installInfoPath = _pathService.GetHeroicStoreCache(Platform, "legendary_install_info.json");
 
-        if (!File.Exists(installedJsonPath) || !File.Exists(installInfoPath))
-            return (games, null);
-
-        var installInfoGames = new Dictionary<string, string>();
-
-        try
-        {
-            var infoJson = File.ReadAllText(installInfoPath);
-
-            foreach (Match match in RegexHelper.InstallInfoAppNameAndTitleRegex.Matches(infoJson))
-            {
-                var appName = match.Groups[1].Value;
-                var title = match.Groups[2].Value;
-
-                installInfoGames[appName] = title;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.HeroicInstallInfoReadFailure(Platform, installInfoPath, ex);
-        }
-
-        if (installInfoGames.Count == 0)
-        {
-            _logger.HeroicInstallInfoEmpty(Platform, installInfoPath);
-            return (games, null);
-        }
+        // if (!File.Exists(installedJsonPath) || !File.Exists(installInfoPath))
+        //     return (games, null);
+        //
+        // var installInfoGames = new Dictionary<string, string>();
+        //
+        // try
+        // {
+        //     var infoJson = File.ReadAllText(installInfoPath);
+        //
+        //     foreach (Match match in RegexHelper.InstallInfoAppNameAndTitleRegex.Matches(infoJson))
+        //     {
+        //         var appName = match.Groups[1].Value;
+        //         var title = match.Groups[2].Value;
+        //
+        //         installInfoGames[appName] = title;
+        //     }
+        // }
+        // catch (Exception ex)
+        // {
+        //     _logger.HeroicInstallInfoReadFailure(Platform, installInfoPath, ex);
+        // }
+        //
+        // if (installInfoGames.Count == 0)
+        // {
+        //     _logger.HeroicInstallInfoEmpty(Platform, installInfoPath);
+        //     return (games, null);
+        // }
 
         string installedJson;
 
@@ -155,17 +155,19 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         {
             try
             {
+                if (entry.IsDlc) continue;
+
                 if (string.IsNullOrEmpty(entry.AppName))
                 {
                     _logger.HeroicAppNameNotFound(Platform, entry.InstallPath);
                     continue;
                 }
 
-                if (!installInfoGames.TryGetValue(entry.AppName, out var title))
-                {
-                    _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, installInfoPath);
-                    continue;
-                }
+                // if (string.IsNullOrEmpty(entry.Title))
+                // {
+                //     _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, installInfoPath);
+                //     continue;
+                // }
 
                 if (string.IsNullOrEmpty(entry.InstallPath))
                 {
@@ -173,17 +175,16 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(title))
+                if (string.IsNullOrEmpty(entry.Title))
                 {
                     _logger.HeroicGameNameNotFound(Platform, entry.AppName, entry.InstallPath);
                     continue;
                 }
 
-                if (entry.IsDlc) continue;
 
                 games.Add(new Game
                 {
-                    Name = title,
+                    Name = entry.Title,
                     InstallFolder = entry.InstallPath,
                     PlatformName = Platform,
                     PlatformId = entry.AppName
@@ -191,7 +192,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
             }
             catch (Exception ex)
             {
-                _logger.HeroicJsonBlockScanFailure(Platform, installedJson, ex);
+                _logger.HeroicJsonBlockScanFailure(Platform, entry.AppName!, ex);
             }
         }
 
