@@ -4,6 +4,7 @@
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.DTOs.Results;
 using Restall.Domain.Entities;
+using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -23,10 +24,13 @@ internal sealed partial class CustomFolderScanner : IPlatformScannerService
             // Only direct subfolders count as games. EngineDetectionService goes deeper for the exe later
             foreach (var sub in Directory.EnumerateDirectories(root))
             {
+                var name = Path.GetFileName(sub);
+                if (GameScanHelper.NonGame(name)) continue;
+
                 // PlatformId is left null so a Steam/Epic/etc. entry for the same folder is kept during deduplication.
                 games.Add(new Game
                 {
-                    Name = Path.GetFileName(sub),
+                    Name = name,
                     InstallFolder = sub,
                     PlatformName = Platform
                 });

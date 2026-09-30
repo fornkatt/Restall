@@ -29,16 +29,30 @@ public sealed class CustomFolderScannerTests : IDisposable
         Assert.Equal("Hades", game.Name);
         Assert.Equal(Game.Platform.Custom, game.PlatformName);
         Assert.Null(game.PlatformId);
+    }
 
+    [Fact]
+    public async Task ScanAsync_SkipsNonGameFolders()
+    {
+        // Arrange
+        Directory.CreateDirectory(Path.Combine(_root, "Hades"));
+        Directory.CreateDirectory(Path.Combine(_root, "_CommonRedist"));
+        var scanner = new CustomFolderScanner(new FakeFolderProvider(_root));
+
+        // Act
+        var result = await scanner.ScanAsync();
+
+        // Assert
+        var game = Assert.Single(result.Games);
+        Assert.Equal("Hades", game.Name);
     }
 
     // Handwritten stand-in so each test controls exactly which root folders are scanned.
     private sealed class FakeFolderProvider(params string[] folders) : ICustomGameFolderProvider
     {
         public IReadOnlyCollection<string> GetFolders() => folders;
-
-
     }
+
 
 }
 
