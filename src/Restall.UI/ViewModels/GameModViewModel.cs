@@ -4,7 +4,6 @@
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
 using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
