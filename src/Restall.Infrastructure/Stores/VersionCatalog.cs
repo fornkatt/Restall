@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Restall.Application.DTOs;
+using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using System.Collections.Immutable;
@@ -14,7 +14,7 @@ internal sealed class VersionCatalog : IVersionCatalog
 
     private ImmutableDictionary<ReShade.Branch, ImmutableArray<string>> _reShadeVersions = [];
 
-    private ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>> _renoDXTags = [];
+    private ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfo>> _renoDXTags = [];
 
     public VersionCatalog(
         IParseService parseService
@@ -34,7 +34,7 @@ internal sealed class VersionCatalog : IVersionCatalog
         _reShadeVersions = ImmutableDictionary<ReShade.Branch, ImmutableArray<string>>.Empty
             .Add(ReShade.Branch.Stable, reShadeVersionsTask.Result);
 
-        var renoDXBuilder = ImmutableDictionary.CreateBuilder<RenoDX.Branch, ImmutableArray<RenoDXTagInfoDto>>();
+        var renoDXBuilder = ImmutableDictionary.CreateBuilder<RenoDX.Branch, ImmutableArray<RenoDXTagInfo>>();
         if (renoDXSnapshotTask.Result is not null)
             renoDXBuilder[RenoDX.Branch.Snapshot] = [renoDXSnapshotTask.Result];
 
@@ -53,7 +53,7 @@ internal sealed class VersionCatalog : IVersionCatalog
     public ImmutableArray<string> GetAvailableReShadeVersions(ReShade.Branch branch) =>
         _reShadeVersions.TryGetValue(branch, out var versions) ? versions : [];
 
-    public RenoDXTagInfoDto? GetLatestRenoDXVersionByTag(RenoDX.Branch branch)
+    public RenoDXTagInfo? GetLatestRenoDXVersionByTag(RenoDX.Branch branch)
     {
         if (!_renoDXTags.TryGetValue(branch, out var versions) || versions.Length == 0)
             return null;
@@ -61,6 +61,6 @@ internal sealed class VersionCatalog : IVersionCatalog
         return versions[0];
     }
 
-    public ImmutableArray<RenoDXTagInfoDto> GetAllRenoDXNightlies() =>
+    public ImmutableArray<RenoDXTagInfo> GetAllRenoDXNightlies() =>
         _renoDXTags.TryGetValue(RenoDX.Branch.Nightly, out var versions) ? versions : [];
 }

@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:dto="clr-namespace:Restall.Application.DTOs;assembly=Restall.Application"
         xmlns:vm="clr-namespace:Restall.UI.ViewModels.Dialogs"
+        xmlns:renoDxdtOs="clr-namespace:Restall.Application.DTOs.RenoDXDTOs;assembly=Restall.Application"
         x:Class="Restall.UI.Views.Dialogs.RenoDXInstallDialog"
         x:DataType="vm:RenoDXInstallDialogViewModel"
         Title="Install RenoDX Nightly"
@@ -50,7 +51,7 @@
                      MaxHeight="200"
                      ClipToBounds="True">
                 <ListBox.ItemTemplate>
-                    <DataTemplate x:DataType="dto:RenoDXTagInfoDto">
+                    <DataTemplate x:DataType="renoDxdtOs:RenoDXTagInfo">
                         <RadioButton Content="{Binding Version}"
                                      IsChecked="{Binding $parent[ListBoxItem].IsSelected}"
                                      IsHitTestVisible="True"

@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Restall.Application.DTOs;
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Domain.Entities;
 using System.Collections.Immutable;
@@ -10,10 +9,10 @@ namespace Restall.Application.Tests.DTOTests.RenoDXDTOTests;
 
 public class RenoDXAddonFileTests
 {
-    private static readonly RenoDXTagInfoDto s_snapshot = new(new DateOnly(2026, 9, 28),
+    private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 9, 28),
         RenoDX.Branch.Snapshot);
 
-    private static readonly RenoDXTagInfoDto s_nightly = new(new DateOnly(2026, 9, 28),
+    private static readonly RenoDXTagInfo s_nightly = new(new DateOnly(2026, 9, 28),
         RenoDX.Branch.Nightly);
 
     private static readonly Uri s_directUrl = new("https://restalltests.com/renodx-game.addon64");
@@ -58,7 +57,7 @@ public class RenoDXAddonFileTests
         Assert.Empty(file.Branches);
     }
 
-    private static RenoDXAddonFile CreateFile(RenoDXTagInfoDto? snapshot = null,
-        ImmutableArray<RenoDXTagInfoDto>? nightlies = null, Uri? directUrl = null) =>
+    private static RenoDXAddonFile CreateFile(RenoDXTagInfo? snapshot = null,
+        ImmutableArray<RenoDXTagInfo>? nightlies = null, Uri? directUrl = null) =>
         new("renodx-game.addon64", directUrl, snapshot, nightlies ?? []);
 }

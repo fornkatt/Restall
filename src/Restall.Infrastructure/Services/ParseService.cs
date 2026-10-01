@@ -4,6 +4,7 @@
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.DTOs.Results;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
@@ -84,7 +85,7 @@ internal sealed partial class ParseService : IParseService
     }
 
     // TODO: surface Result<T>
-    public async Task<RenoDXTagInfoDto?> FetchRenoDXSnapshotAsync()
+    public async Task<RenoDXTagInfo?> FetchRenoDXSnapshotAsync()
     {
         const string renoDXSnapshotUrl = RenoDXReleasesTagUrl + "snapshot";
 
@@ -142,7 +143,7 @@ internal sealed partial class ParseService : IParseService
             if (_logger.IsEnabled(LogLevel.Debug))
                 LogRenoDXSnapshotCommitNotesFetchComplete(string.Join(Environment.NewLine, commitNotes));
 
-            return new RenoDXTagInfoDto(date.Value, RenoDX.Branch.Snapshot, commitNotes);
+            return new RenoDXTagInfo(date.Value, RenoDX.Branch.Snapshot, commitNotes);
         }
         catch (HttpRequestException ex)
         {
@@ -157,7 +158,7 @@ internal sealed partial class ParseService : IParseService
     }
 
     // TODO: surface Result<T>
-    public async Task<ImmutableArray<RenoDXTagInfoDto>> FetchRenoDXNightlyTagsAsync()
+    public async Task<ImmutableArray<RenoDXTagInfo>> FetchRenoDXNightlyTagsAsync()
     {
         LogRenoDXNightlyVersionsFetchStart(RenoDXTagsUrl);
 
@@ -171,7 +172,7 @@ internal sealed partial class ParseService : IParseService
 
         var tagInfoResults =
             await Task.WhenAll(nightlyTags.Select(FetchRenoDXNightlyReleaseInfoAsync));
-        var tagInfos = tagInfoResults.OfType<RenoDXTagInfoDto>().ToImmutableArray();
+        var tagInfos = tagInfoResults.OfType<RenoDXTagInfo>().ToImmutableArray();
 
         LogRenoDXNightlyVersionsFetchComplete(tagInfos.Length, tagInfos.FirstOrDefault()?.Version);
 
@@ -524,7 +525,7 @@ internal sealed partial class ParseService : IParseService
         return [.. tags];
     }
 
-    private async Task<RenoDXTagInfoDto?> FetchRenoDXNightlyReleaseInfoAsync(string nightlyTag)
+    private async Task<RenoDXTagInfo?> FetchRenoDXNightlyReleaseInfoAsync(string nightlyTag)
     {
         LogRenoDXNightlyTagParsingStart(nightlyTag);
 
@@ -563,7 +564,7 @@ internal sealed partial class ParseService : IParseService
             if (_logger.IsEnabled(LogLevel.Debug))
                 LogRenoDXNightlyTagParseComplete(nightlyTag, string.Join(Environment.NewLine, commitNotes));
 
-            return new RenoDXTagInfoDto(date, RenoDX.Branch.Nightly, commitNotes);
+            return new RenoDXTagInfo(date, RenoDX.Branch.Nightly, commitNotes);
         }
         catch (HttpRequestException ex)
         {

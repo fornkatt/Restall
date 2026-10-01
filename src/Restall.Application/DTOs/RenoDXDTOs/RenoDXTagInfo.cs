@@ -3,9 +3,9 @@
 
 using Restall.Domain.Entities;
 
-namespace Restall.Application.DTOs;
+namespace Restall.Application.DTOs.RenoDXDTOs;
 
-public record RenoDXTagInfoDto(
+public record RenoDXTagInfo(
     DateOnly Date,
     RenoDX.Branch Branch,
     List<string>? CommitNotes = null)

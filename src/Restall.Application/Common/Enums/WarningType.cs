@@ -9,5 +9,6 @@ public enum WarningType
 
     // RenoDX
     RenoDXModDatabaseIncomplete,
-    TagReleasesIncomplete
+    RenoDXNightliesIncomplete,
+    RenoDXSnapshotFileListUnavailable
 }

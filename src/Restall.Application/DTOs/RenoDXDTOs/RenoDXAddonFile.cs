@@ -9,8 +9,8 @@ namespace Restall.Application.DTOs.RenoDXDTOs;
 public sealed record RenoDXAddonFile(
     string Filename,
     Uri? DirectUrl,
-    RenoDXTagInfoDto? Snapshot,
-    ImmutableArray<RenoDXTagInfoDto> Nightlies)
+    RenoDXTagInfo? Snapshot,
+    ImmutableArray<RenoDXTagInfo> Nightlies)
 {
     public ImmutableArray<RenoDX.Branch> Branches
     {
