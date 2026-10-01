@@ -48,7 +48,7 @@ public sealed record Result(
 ///     </para>
 /// </remarks>
 public sealed record Result<T>(
-    ResultStatus Status,
+    Result<T>.ResultStatus Status,
     T? Value = default,
     string? Message = null,
     Exception? Exception = null,
@@ -74,6 +74,6 @@ public sealed record Result<T>(
     public static Result<T> Error(string? message = null, ErrorType errorType = ErrorType.None,
         Exception? exception = null) =>
         new(ResultStatus.Error, Message: message, Exception: exception, ErrorType: errorType);
-}
 
-public enum ResultStatus { Success, Partial, Error }
+    public enum ResultStatus { Success, Partial, Error }
+}

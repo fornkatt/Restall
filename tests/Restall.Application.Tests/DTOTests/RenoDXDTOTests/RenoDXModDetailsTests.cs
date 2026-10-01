@@ -16,7 +16,7 @@ public class RenoDXModDetailsTests
         Assert.Null(emptyDetails.Status);
         Assert.Null(emptyDetails.Author);
         Assert.Null(emptyDetails.Notes);
-        Assert.Null(emptyDetails.Method);
+        Assert.Null(emptyDetails.UnrealMethod);
         Assert.Empty(emptyDetails.Upgrades);
         Assert.Empty(emptyDetails.Links);
     }

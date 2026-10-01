@@ -10,7 +10,7 @@ public sealed record RenoDXModDetails(
     string? Status,
     string? Author,
     string? Notes,
-    string? Method,
+    string? UnrealMethod,
     ImmutableArray<string> Upgrades,
     ImmutableArray<RenoDXModLink> Links)
 {

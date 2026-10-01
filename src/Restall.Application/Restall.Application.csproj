@@ -27,6 +27,9 @@
       <Compile Update="UseCases\GameRefreshUseCase.Logging.cs">
         <DependentUpon>GameRefreshUseCase.cs</DependentUpon>
       </Compile>
+      <Compile Update="Services\RenoDXModDatabaseBuilder.Logging.cs">
+        <DependentUpon>RenoDXModDatabaseBuilder.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

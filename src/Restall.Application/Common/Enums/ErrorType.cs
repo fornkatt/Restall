@@ -22,4 +22,7 @@ public enum ErrorType
 
     // Install
     FileNotFound,
+
+    // RenoDX mod source
+    RenoDXModDatabaseUnavailable
 }

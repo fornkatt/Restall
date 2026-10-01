@@ -4,7 +4,7 @@
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
-using System.Collections.Immutable;
+using System.Collections.Frozen;
 
 namespace Restall.Application.DTOs;
 
@@ -13,5 +13,5 @@ public sealed record GameEntry(
     Architecture RecommendedArchitecture,
     RenoDXAvailability RenoDX,
     RenoDXModDetails RenoDXDetails,
-    ImmutableDictionary<RenoDX.Branch, UpdateCheck> RenoDXUpdates,
+    FrozenDictionary<RenoDX.Branch, UpdateCheck> RenoDXUpdates,
     UpdateCheck? ReShadeUpdate);

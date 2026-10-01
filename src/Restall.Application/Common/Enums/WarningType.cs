@@ -8,6 +8,6 @@ public enum WarningType
     None,
 
     // RenoDX
-    ModDatabaseIncomplete,
+    RenoDXModDatabaseIncomplete,
     TagReleasesIncomplete
 }

@@ -25,7 +25,7 @@ public sealed record RenoDXAddonFile(
             if (DirectUrl is not null)
                 branches.Add(RenoDX.Branch.Direct);
 
-            return branches.ToImmutable();
+            return branches.DrainToImmutable();
         }
     }
 }
