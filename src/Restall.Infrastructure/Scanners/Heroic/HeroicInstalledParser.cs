@@ -19,7 +19,8 @@ internal static class HeroicInstalledParser
             var appName = entry.Value.TryGetProperty("app_name", out var appNameElement)
                 ? appNameElement.GetString() : null;
 
-            var installPath = GameScanHelper.NormalizePath(entry.Value.TryGetProperty("install_path", out var installPathElement) ? installPathElement.GetString() : null);
+            var installPath = GameScanHelper.NormalizePath(entry.Value.TryGetProperty("install_path", out var installPathElement)
+                ? installPathElement.GetString() : null);
 
             var isDlc = entry.Value.TryGetProperty("is_dlc", out var isDlcElement) && isDlcElement.GetBoolean();
 
@@ -35,24 +36,19 @@ internal static class HeroicInstalledParser
     internal static List<HeroicInstalledGame> GOGHeroicParser(string installedJson)
     {
         var games = new List<HeroicInstalledGame>();
+        using var doc = JsonDocument.Parse(installedJson);
 
+        if (!doc.RootElement.TryGetProperty("installed", out var installedArray)) return games;
 
-        foreach (Match match in RegexHelper.HeroicGameBlockRegex.Matches(installedJson))
+        foreach (var entry in installedArray.EnumerateArray())
         {
-            var blockValue = match.Value;
+            var appName = entry.TryGetProperty("appName", out var appNameElement)
+                ? appNameElement.GetString() : null;
 
-            var appName = RegexHelper.GOGHeroicAppNameRegex.Match(blockValue)
-                is { Success: true } am
-                ? am.Groups[1].Value
-                : null;
+            var installPath = GameScanHelper.NormalizePath(entry.TryGetProperty("install_path", out var installPathElement)
+                ? installPathElement.GetString() : null);
 
-            var installPath = RegexHelper.HeroicInstallPathRegex.Match(blockValue)
-                is { Success: true } pm
-                ? pm.Groups[1].Value.Replace("\\\\", "\\")
-                : null;
-            installPath = GameScanHelper.NormalizePath(installPath);
-
-            var isDlc = Regex.IsMatch(blockValue, @"""is_dlc""\s*:\s*true", RegexOptions.IgnoreCase);
+            var isDlc = entry.TryGetProperty("is_dlc", out var isDlcElement) && isDlcElement.GetBoolean();
 
             games.Add(new HeroicInstalledGame(appName, installPath, isDlc, null));
         }

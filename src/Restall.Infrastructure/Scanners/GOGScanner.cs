@@ -160,6 +160,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         {
             try
             {
+                if (entry.IsDlc) continue;
 
                 if (string.IsNullOrEmpty(entry.AppName))
                 {
@@ -186,7 +187,6 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                     continue;
                 }
 
-                if (entry.IsDlc) continue;
 
                 games.Add(new Game
                 {
