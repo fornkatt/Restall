@@ -8,7 +8,8 @@ using Restall.Application.Logging;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using Restall.Infrastructure.Scanners.Heroic;
-using System.Text.RegularExpressions;
+using System.Text.Json;
+
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -139,11 +140,11 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         //     return (games, null);
         // }
 
-        string installedJson;
-
+        List<HeroicInstalledGame> installedGames;
         try
         {
-            installedJson = File.ReadAllText(installedJsonPath);
+            var installedJson = File.ReadAllText(installedJsonPath);
+            installedGames = HeroicInstalledParser.EpicHeroicParser(installedJson);
         }
         catch (Exception ex)
         {
@@ -151,7 +152,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
             return (games, installedJsonPath);
         }
 
-        foreach (var entry in HeroicInstalledParser.EpicHeroicParser(installedJson))
+        foreach (var entry in installedGames)
         {
             try
             {
@@ -169,15 +170,18 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                 //     continue;
                 // }
 
-                if (string.IsNullOrEmpty(entry.InstallPath))
+                var installPath = GameScanHelper.NormalizePath(entry.InstallPath);
+
+                if (string.IsNullOrEmpty(installPath))
                 {
                     _logger.HeroicInstallPathNotFound(Platform, entry.AppName);
                     continue;
                 }
 
+
                 if (string.IsNullOrEmpty(entry.Title))
                 {
-                    _logger.HeroicGameNameNotFound(Platform, entry.AppName, entry.InstallPath);
+                    _logger.HeroicGameNameNotFound(Platform, entry.ToString(), entry.InstallPath);
                     continue;
                 }
 
@@ -185,14 +189,14 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                 games.Add(new Game
                 {
                     Name = entry.Title,
-                    InstallFolder = entry.InstallPath,
+                    InstallFolder = installPath,
                     PlatformName = Platform,
                     PlatformId = entry.AppName
                 });
             }
             catch (Exception ex)
             {
-                _logger.HeroicJsonBlockScanFailure(Platform, entry.AppName!, ex);
+                _logger.HeroicJsonBlockScanFailure(Platform, entry.ToString(), ex);
             }
         }
 

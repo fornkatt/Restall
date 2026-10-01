@@ -9,6 +9,7 @@ using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
 using Restall.Infrastructure.Scanners.Heroic;
 using System.Runtime.Versioning;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Scanners;
@@ -112,9 +113,9 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         var games = new List<Game>();
 
         var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
-        var installedInstallInfoPath = _pathService.GetHeroicStoreCache(Platform, "gog_install_info.json");
+        var gogLibraryJsonPath = _pathService.GetHeroicStoreCache(Platform, "gog_library.json");
 
-        if (!File.Exists(installedJsonPath) || !File.Exists(installedInstallInfoPath))
+        if (!File.Exists(installedJsonPath) || !File.Exists(gogLibraryJsonPath))
             return (games, null);
 
 
@@ -123,7 +124,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         //TODO: Consider Regex vs JSON in both Epic and GOG Scanners
         try
         {
-            var infoJson = File.ReadAllText(installedInstallInfoPath);
+            var infoJson = File.ReadAllText(gogLibraryJsonPath);
 
             foreach (Match match in RegexHelper.InstallInfoAppNameAndTitleRegex.Matches(infoJson))
             {
@@ -135,20 +136,20 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            _logger.HeroicInstallInfoReadFailure(Platform, installedInstallInfoPath, ex);
+            _logger.HeroicInstallInfoReadFailure(Platform, gogLibraryJsonPath, ex);
         }
 
         if (installInfoGames.Count == 0)
         {
-            _logger.HeroicInstallInfoEmpty(Platform, installedInstallInfoPath);
+            _logger.HeroicInstallInfoEmpty(Platform, gogLibraryJsonPath);
             return (games, null);
         }
 
-        string installedJson;
-
+        List<HeroicInstalledGame> installedGames;
         try
         {
-            installedJson = File.ReadAllText(installedJsonPath);
+            var installedJson = File.ReadAllText(installedJsonPath);
+            installedGames = HeroicInstalledParser.GOGHeroicParser(installedJson);
         }
         catch (Exception ex)
         {
@@ -156,7 +157,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             return (games, installedJsonPath);
         }
 
-        foreach (var entry in HeroicInstalledParser.GOGHeroicParser(installedJson))
+        foreach (var entry in installedGames)
         {
             try
             {
@@ -168,8 +169,9 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                     continue;
                 }
 
-                //TODO: INCLUDE THE BLOCKVALUE?
-                if (string.IsNullOrEmpty(entry.InstallPath))
+                var installPath = GameScanHelper.NormalizePath(entry.InstallPath);
+
+                if (string.IsNullOrEmpty(installPath))
                 {
                     _logger.HeroicInstallPathNotFound(Platform, entry.AppName);
                     continue;
@@ -177,7 +179,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
                 if (!installInfoGames.TryGetValue(entry.AppName, out var title))
                 {
-                    _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, installedInstallInfoPath);
+                    _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, gogLibraryJsonPath);
                     continue;
                 }
 
@@ -191,14 +193,14 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                 games.Add(new Game
                 {
                     Name = title,
-                    InstallFolder = entry.InstallPath,
+                    InstallFolder = installPath,
                     PlatformName = Platform,
                     PlatformId = entry.AppName
                 });
             }
             catch (Exception ex)
             {
-                _logger.HeroicJsonBlockScanFailure(Platform, installedJson, ex);
+                _logger.HeroicJsonBlockScanFailure(Platform, entry.ToString(), ex);
             }
         }
 

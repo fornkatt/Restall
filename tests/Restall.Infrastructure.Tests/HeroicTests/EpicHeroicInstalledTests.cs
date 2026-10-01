@@ -8,16 +8,6 @@ using Restall.Infrastructure.Tests.HeroicTests.Common;
 
 namespace Restall.Infrastructure.Tests.HeroicTests;
 
-
-/// <summary>
-/// First iteration of tests done
-/// Write JSON-only tests, confirm they are red on Regex
-/// Switch Parser to JSON on Epic
-/// All tests are green
-/// Do the same process with GOG
-/// Move to library process
-/// </summary>
-
 public class EpicHeroicInstalledTests
 {
 
@@ -27,46 +17,13 @@ public class EpicHeroicInstalledTests
         // Arrange
         var json = SharedHeroic.ReadHeroicBlock(Entry("98614687b212444c9ff0d42095f56cb3", @"C:\\Games\\Heroic\\Redacted"));
         var expected = "98614687b212444c9ff0d42095f56cb3";
+
         // Act
         var result = HeroicInstalledParser.EpicHeroicParser(json);
+
         // Assert
         var actual = Assert.Single(result);
         Assert.Equal(expected, actual.AppName);
-    }
-
-    [Fact(
-        Skip = "Windows pathing",
-        SkipUnless = nameof(SharedHeroic.IsWindows),
-        SkipType = typeof(SharedHeroic)
-        )]
-    public void EpicHeroicParser_WindowsInstallPath_ReturnsNormalizedPath()
-    {
-        // Arrange
-        var json = SharedHeroic.ReadHeroicBlock(Entry("temp_appName", @"C:\\Games\\Heroic\\Redacted\\"));
-        var expected = @"C:\Games\Heroic\Redacted";
-        // Act
-        var result = HeroicInstalledParser.EpicHeroicParser(json);
-        // Assert
-        var actual = Assert.Single(result);
-        Assert.Equal(expected, actual.InstallPath);
-    }
-
-    [Fact(
-        Skip = "Linux pathing",
-        SkipUnless = nameof(SharedHeroic.IsLinux),
-        SkipType = typeof(SharedHeroic)
-    )]
-    public void EpicHeroicParser_LinuxInstallPath_ReturnsNormalizedPath()
-    {
-         // Arrange
-         var json = SharedHeroic.ReadHeroicBlock(Entry("temp_appName", "/home/user/Games/Heroic/AlanWake2"));
-         var expected = "/home/user/Games/Heroic/AlanWake2";
-         // Act
-        var result = HeroicInstalledParser.EpicHeroicParser(json);
-         //Assert
-         var actual = Assert.Single(result);
-         Assert.Equal(expected, actual.InstallPath);
-
     }
 
     [Fact]
@@ -74,15 +31,17 @@ public class EpicHeroicInstalledTests
     {
          // Arrange
          var json = SharedHeroic.ReadHeroicBlock(Entry("4fa3d8d9b2cb4714a19a38d1a598be8f", @"C:\\Games\\Heroic\\FalloutNewVegas", isDlc: true));
+
          // Act
         var result = HeroicInstalledParser.EpicHeroicParser(json);
-         //Assert
+
+        //Assert
          var actual = Assert.Single(result);
          Assert.True(actual.IsDlc);
     }
 
     [Fact]
-    public void EpicHeroicParser_MissingAppName_ReturnsNullAppName()
+    public void EpicHeroicParser_MissingAppName_ReturnsEmptyAppName()
     {
         // Arrange
         var json = SharedHeroic.ReadHeroicBlock("""
@@ -92,13 +51,14 @@ public class EpicHeroicInstalledTests
                                             """);
         // Act
         var result = HeroicInstalledParser.EpicHeroicParser(json);
+
         // Assert
         var actual = Assert.Single(result);
-        Assert.Null(actual.AppName);
+        Assert.Empty(actual.AppName);
     }
 
     [Fact]
-    public void EpicHeroicParser_MissingInstallPath_ReturnsNullInstallPath()
+    public void EpicHeroicParser_MissingInstallPath_ReturnsEmptyInstallPath()
     {
         // Arrange
         var json = SharedHeroic.ReadHeroicBlock("""
@@ -109,9 +69,10 @@ public class EpicHeroicInstalledTests
 
         // Act
         var result = HeroicInstalledParser.EpicHeroicParser(json);
+
         //Assert
         var actual = Assert.Single(result);
-        Assert.Null(actual.InstallPath);
+        Assert.Empty(actual.InstallPath);
     }
 
     [Fact]

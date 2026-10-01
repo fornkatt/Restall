@@ -5,9 +5,9 @@
 namespace Restall.Infrastructure.Scanners.Heroic;
 
 internal sealed record HeroicInstalledGame(
-    string? AppName,
-    string? InstallPath,
+    string AppName,
+    string InstallPath,
     bool IsDlc,
-    string? Title);
+    string Title);
 
 
