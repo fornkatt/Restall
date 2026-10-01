@@ -13,13 +13,13 @@ internal sealed partial class RenoDXModSourceService
     private partial void LogRenoDXDatabaseFileFetchStart(string url);
 
     [LoggerMessage(EventId = 1951, Level = LogLevel.Information,
-        Message = "Read {EntryCount} RenoDX mod entries from \"{Url}\". Skipped: {SkippedCount}")]
+        Message = "Read {EntryCount} RenoDX mod entries from \"{Url}\" — skipped count: {SkippedCount}")]
     private partial void LogRenoDXDatabaseFileReadComplete(int entryCount, string url, int skippedCount);
 
     [LoggerMessage(EventId = 1952, Level = LogLevel.Warning,
-        Message = "Failed to read RenoDX mod entry in \"{Url}\": {Reason}\n" +
+        Message = "Failed to read RenoDX mod entry in \"{Url}\"\n" +
                   "Raw entry: {RawEntry}")]
-    private partial void LogRenoDXDatabaseFileEntryReadFailure(string url, string reason, string rawEntry,
+    private partial void LogRenoDXDatabaseFileEntryReadFailure(string url, string rawEntry,
         Exception ex);
 
     [LoggerMessage(EventId = 1953, Level = LogLevel.Warning,

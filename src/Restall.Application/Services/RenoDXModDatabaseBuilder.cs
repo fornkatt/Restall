@@ -38,7 +38,8 @@ public sealed partial class RenoDXModDatabaseBuilder
         var unityModsDroppedCount = unityGenericMods.Length - database.UnityGenericMods.Length;
         var totalDroppedCount = gameModsDroppedCount + unrealModsDroppedCount + unityModsDroppedCount;
 
-        LogRenoDXDatabaseBuildComplete(gameMods.Length, unrealGenericMods.Length, unityGenericMods.Length);
+        LogRenoDXDatabaseBuildComplete(database.GameMods.Length, database.UnrealGenericMods.Length,
+            database.UnityGenericMods.Length);
 
         if (database.GameMods.IsEmpty && database.UnrealGenericMods.IsEmpty && database.UnityGenericMods.IsEmpty)
             return Result<RenoDXModDatabase>.Error("No 'RenoDX' mods available from database files",

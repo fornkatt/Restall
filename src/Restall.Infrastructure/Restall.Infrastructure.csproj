@@ -74,6 +74,9 @@
       <Compile Update="Services\RenoDXModSource.Logging.cs">
         <DependentUpon>RenoDXModSourceService.cs</DependentUpon>
       </Compile>
+      <Compile Update="Services\RenoDXModSourceService.Logging.cs">
+        <DependentUpon>RenoDXModSourceService.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

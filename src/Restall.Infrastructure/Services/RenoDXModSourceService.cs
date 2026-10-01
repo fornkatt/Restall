@@ -113,7 +113,7 @@ internal sealed partial class RenoDXModSourceService : IRenoDXModSourceService
         }
         catch (JsonException ex)
         {
-            LogRenoDXDatabaseFileEntryReadFailure(url, "JSON error", element.GetRawText(), ex);
+            LogRenoDXDatabaseFileEntryReadFailure(url, element.GetRawText(), ex);
             return null;
         }
 
