@@ -71,8 +71,8 @@
       <Compile Update="Scanners\XboxScanner.Logging.cs">
         <DependentUpon>XboxScanner.cs</DependentUpon>
       </Compile>
-      <Compile Update="Services\RenoDXModSourceService.Logging.cs">
-        <DependentUpon>RenoDXModSourceServiceService.cs</DependentUpon>
+      <Compile Update="Services\RenoDXModSource.Logging.cs">
+        <DependentUpon>RenoDXModSourceService.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 

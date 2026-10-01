@@ -47,10 +47,10 @@ public static class InfrastructureServiceCollectionExtensions
             .ParseAdd("Restall"));
         services.AddSingleton<IParseService, ParseService>();
 
-        services.AddHttpClient(RenoDXModSourceServiceService.HttpClientName,
+        services.AddHttpClient(RenoDXModSourceService.HttpClientName,
             c => c.DefaultRequestHeaders.UserAgent
                 .ParseAdd("Restall"));
-        services.AddSingleton<IRenoDXModSourceService, RenoDXModSourceServiceService>();
+        services.AddSingleton<IRenoDXModSourceService, RenoDXModSourceService>();
 
         services.AddHttpClient(ModDownloadService.HttpClientName, c => c.DefaultRequestHeaders
             .UserAgent.ParseAdd("Restall"));

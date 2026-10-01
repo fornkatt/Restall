@@ -11,9 +11,9 @@ using System.Text.Json.Serialization;
 
 namespace Restall.Infrastructure.Services;
 
-internal sealed partial class RenoDXModSourceServiceService : IRenoDXModSourceService
+internal sealed partial class RenoDXModSourceService : IRenoDXModSourceService
 {
-    internal const string HttpClientName = nameof(RenoDXModSourceServiceService);
+    internal const string HttpClientName = nameof(RenoDXModSourceService);
     private const string DatabaseUrl = "https://raw.githubusercontent.com/RankFTW/rhi-repo/main/database/";
     internal const string GameModsUrl = DatabaseUrl + "RenoDXdb.json";
     internal const string UnrealGenericModsUrl = DatabaseUrl + "RenoDXdb-unreal.json";
@@ -26,11 +26,11 @@ internal sealed partial class RenoDXModSourceServiceService : IRenoDXModSourceSe
         Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: false) }
     };
 
-    private readonly ILogger<RenoDXModSourceServiceService> _logger;
+    private readonly ILogger<RenoDXModSourceService> _logger;
     private readonly IHttpClientFactory _clientFactory;
 
-    public RenoDXModSourceServiceService(
-        ILogger<RenoDXModSourceServiceService> logger,
+    public RenoDXModSourceService(
+        ILogger<RenoDXModSourceService> logger,
         IHttpClientFactory clientFactory)
     {
         _logger = logger;

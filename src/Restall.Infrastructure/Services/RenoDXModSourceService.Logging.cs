@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Restall.Infrastructure.Services;
 
 // RenoDX Mod Source Fetch Logging — EventId range: 1950 - 1999
-internal sealed partial class RenoDXModSourceServiceService
+internal sealed partial class RenoDXModSourceService
 {
     [LoggerMessage(EventId = 1950, Level = LogLevel.Information,
         Message = "Fetching RenoDX mod source file \"{Url}\"")]
