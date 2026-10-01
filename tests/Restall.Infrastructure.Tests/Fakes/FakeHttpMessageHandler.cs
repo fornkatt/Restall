@@ -5,10 +5,10 @@ namespace Restall.Infrastructure.Tests.Fakes;
 
 internal sealed class FakeHttpMessageHandler : HttpMessageHandler
 {
-    private readonly IReadOnlyDictionary<string, Func<HttpResponseMessage>> _responses;
+    private readonly Dictionary<string, HttpResponseMessage> _responses = [];
 
-    public FakeHttpMessageHandler(IReadOnlyDictionary<string, Func<HttpResponseMessage>> responses) =>
-        _responses = responses;
+    public void RespondWith(string url, HttpResponseMessage response) =>
+        _responses[url] = response;
 
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
         CancellationToken cancellationToken)
@@ -16,11 +16,11 @@ internal sealed class FakeHttpMessageHandler : HttpMessageHandler
         cancellationToken.ThrowIfCancellationRequested();
 
         var url = request.RequestUri?.AbsoluteUri
-                  ?? throw new InvalidOperationException("The rquest has no URL");
+                  ?? throw new InvalidOperationException("The request has no URL");
 
-        if (!_responses.TryGetValue(url, out var respond))
+        if (!_responses.TryGetValue(url, out var response))
             throw new InvalidOperationException($"No fake response is set up for \"{url}\"");
 
-        return Task.FromResult(respond());
+        return Task.FromResult(response);
     }
 }
