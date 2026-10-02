@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Scanners.Heroic;
+using Restall.Infrastructure.Tests.Common;
+using Restall.Infrastructure.Tests.HeroicTests.Common;
 
 
 namespace Restall.Infrastructure.Tests.HeroicTests;
@@ -12,7 +14,10 @@ public class GOGHeroicInstalledTests
     public void GOGHeroicParser_ValidEntry_ReturnsAppName()
     {
         // Arrange
-        var json = """{ "installed": [ { "appName": "1207659037", "install_path": "C:\\Games\\Heroic\\Alan Wake" } ] }""";
+        var json = SharedHeroic.ReadHeroicBlockArray("\"installed\"", """
+                                                                      { "appName": "1207659037",
+                                                                      "install_path": "C:\\Games\\Heroic\\Alan Wake" }
+                                                                      """);
         var expected = "1207659037";
 
         // Act
@@ -27,7 +32,11 @@ public class GOGHeroicInstalledTests
     public void GOGHeroicParser_EntryIsDLC_ReturnsFalse()
     {
         // Arrange
-        var json = """{ "installed": [ { "install_path": "C:\\Games\\Heroic\\Shadow of the Tomb Raider", "appName": "1356518037", "is_dlc": false } ] }""";
+        var json = SharedHeroic.ReadHeroicBlockArray("\"installed\"", """
+                                                                      {
+                                                                      "install_path": "C:\\Games\\Heroic\\Shadow of the Tomb Raider",
+                                                                       "appName": "1356518037", "is_dlc": false }
+                                                                      """);
 
         // Act
         var result = HeroicInstalledParser.GOGHeroicParser(json);
@@ -41,7 +50,9 @@ public class GOGHeroicInstalledTests
     public void GOGHeroicParser_MissingAppName_ReturnsEmptyAppName()
     {
         // Arrange
-        var json = """{ "installed": [ { "install_path": "C:\\Games\\Heroic\\Shadow of the Tomb Raider" } ] }""";
+        var json = SharedHeroic.ReadHeroicBlockArray("\"installed\"", """
+                                                                      { "install_path": "C:\\Games\\Heroic\\Shadow of the Tomb Raider" }
+                                                                      """);
 
         // Act
         var result = HeroicInstalledParser.GOGHeroicParser(json);
@@ -55,8 +66,9 @@ public class GOGHeroicInstalledTests
     public void GOGHeroicParser_MissingInstallPath_ReturnsEmptyInstallPath()
     {
         // Arrange
-        var json = """{ "installed": [ { "appName": "1356518037", "is_dlc": false } ] }""";
-
+        var json = SharedHeroic.ReadHeroicBlockArray("\"installed\"", """
+                                                                      { "appName": "1356518037", "is_dlc": false }
+                                                                      """);
         // Act
         var result = HeroicInstalledParser.GOGHeroicParser(json);
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Scanners.Heroic;
+using Restall.Infrastructure.Tests.HeroicTests.Common;
 
 namespace Restall.Infrastructure.Tests.HeroicTests;
 
@@ -11,8 +12,9 @@ public class GOGHeroicLibraryTests
     public void GOGLibraryParser_CheckValidEntry_ReturnsAppNameAndTitle()
     {
         // Arrange
-        var json = """{ "games": [ { "app_name": "1207659037", "title": "Alan Wake" } ] }""";
-
+        var json = SharedHeroic.ReadHeroicBlockArray("\"games\"", """
+                                                                      { "app_name": "1207659037", "title": "Alan Wake" }
+                                                                      """);
         // Act
         var result = HeroicLibraryParser.GOGLibraryParser(json);
 
@@ -28,7 +30,9 @@ public class GOGHeroicLibraryTests
     public void GOGLibraryParser_MissingAppName_ReturnsEmpty()
     {
         // Arrange
-        var json = """{ "games": [ { "app_name": "", "title": "Alan Wake" } ] }""";
+        var json = SharedHeroic.ReadHeroicBlockArray("\"games\"", """
+                                                                      { "app_name": "", "title": "Alan Wake" }
+                                                                      """);
         // Act
         var result = HeroicLibraryParser.GOGLibraryParser(json);
         //Assert
@@ -40,7 +44,9 @@ public class GOGHeroicLibraryTests
     public void GOGLibraryParser_MissingTitle_ReturnsEmpty()
     {
         // Arrange
-        var json = """{ "games": [ { "app_name": "1207659037", "title": "" } ] }""";
+        var json = SharedHeroic.ReadHeroicBlockArray("\"games\"", """
+                                                                      { "app_name": "1207659037", "title": "" }
+                                                                      """);
         // Act
         var result = HeroicLibraryParser.GOGLibraryParser(json);
         //Assert
