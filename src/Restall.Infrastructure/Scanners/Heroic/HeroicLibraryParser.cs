@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Helpers;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Scanners.Heroic;
@@ -11,15 +13,30 @@ internal static class HeroicLibraryParser
     internal static List<HeroicLibrary> GOGLibraryParser(string libraryJson)
     {
         var libraries = new List<HeroicLibrary>();
+        using var doc = JsonDocument.Parse(libraryJson);
 
-        foreach (Match match in RegexHelper.InstallInfoAppNameAndTitleRegex.Matches(libraryJson))
+        if (!doc.RootElement.TryGetProperty("games", out var gamesArray)) return libraries;
+
+        foreach (var entry in gamesArray.EnumerateArray())
         {
-            var appName = match.Groups[1].Value;
-            var title = match.Groups[2].Value;
+            var appName = entry.TryGetProperty("app_name", out var appNameElement) &&
+                          appNameElement.ValueKind == JsonValueKind.String ? appNameElement.GetString() ?? string.Empty : string.Empty;
+
+            var title = entry.TryGetProperty("title", out var titleElement) &&
+                        titleElement.ValueKind == JsonValueKind.String
+                ? titleElement.GetString() ?? string.Empty
+                : string.Empty;
 
             libraries.Add(new HeroicLibrary(appName, title));
         }
 
         return libraries;
     }
+
+    internal static List<HeroicLibrary> EpicLibraryParser(string libraryJson)
+    {
+        var libraries = new List<HeroicLibrary>();
+        return libraries;
+    }
+
 }

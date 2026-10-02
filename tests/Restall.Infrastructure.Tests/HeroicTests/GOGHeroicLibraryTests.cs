@@ -23,7 +23,6 @@ public class GOGHeroicLibraryTests
         Assert.Equal("1207659037", actual.AppName);
         Assert.Equal("Alan Wake", actual.Title);
 
-
     }
 
     [Fact]
@@ -36,7 +35,8 @@ public class GOGHeroicLibraryTests
         // Act
         var result = HeroicLibraryParser.GOGLibraryParser(json);
         //Assert
-        Assert.Empty(result);
+        var actual = Assert.Single(result);
+        Assert.Empty(actual.AppName);
 
     }
 
@@ -50,7 +50,23 @@ public class GOGHeroicLibraryTests
         // Act
         var result = HeroicLibraryParser.GOGLibraryParser(json);
         //Assert
-        Assert.Empty(result);
+        var actual = Assert.Single(result);
+        Assert.Empty(actual.Title);
+    }
+
+    [Fact]
+    public void GOGLibraryParser_UnicodeCharacterInTitle_ReturnsDecoded()
+    {
+        var json = SharedHeroic.ReadHeroicBlockArray("\"games\"", """
+                                                                      { "app_name": "1656650384", "title": "R\u00f6ki" }
+                                                                      """);
+        var expected = "Röki";
+        // Act
+        var result = HeroicLibraryParser.GOGLibraryParser(json);
+        //Assert
+        var actual = Assert.Single(result);
+        Assert.Equal(expected,actual.Title);
+
     }
 
 }

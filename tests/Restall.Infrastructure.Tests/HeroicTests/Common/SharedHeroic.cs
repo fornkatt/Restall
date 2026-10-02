@@ -13,4 +13,3 @@ public static class SharedHeroic
 
 }
 
-//"""{ "installed": [ { "appName": "1207659037", "install_path": "C:\\Games\\Heroic\\Alan Wake" } ] }"""

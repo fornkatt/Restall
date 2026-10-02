@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Scanners.Heroic;
-using Restall.Infrastructure.Tests.Common;
 using Restall.Infrastructure.Tests.HeroicTests.Common;
 
 
