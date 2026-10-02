@@ -74,7 +74,6 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                 using var gameKey = key.OpenSubKey(subName);
                 if (gameKey is null) continue;
 
-
                 var name = GameScanHelper.GetRegistryValue(gameKey, "GAMENAME", "GameName", "gameName");
                 var path = GameScanHelper.GetRegistryValue(gameKey, "PATH", "path");
 
@@ -150,7 +149,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
 
             foreach(var entry in HeroicLibraryParser.GOGLibraryParser(libraryJson))
             {
-                libraryTitles[entry.AppName] = entry.Title;
+                libraryTitles.TryAdd(entry.AppName, entry.Title);
             }
         }
         catch (Exception ex)

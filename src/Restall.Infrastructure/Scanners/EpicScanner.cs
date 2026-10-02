@@ -145,7 +145,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
             foreach (var entry in HeroicLibraryParser.EpicLibraryParser(libraryJson))
             {
-                libraryTitles[entry.AppName] = entry.Title;
+                libraryTitles.TryAdd(entry.AppName, entry.Title);
             }
         }
         catch (Exception ex)
