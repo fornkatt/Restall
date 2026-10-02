@@ -23,4 +23,28 @@ public class GOGHeroicLibraryTests
 
 
     }
+
+    [Fact]
+    public void GOGLibraryParser_MissingAppName_ReturnsEmpty()
+    {
+        // Arrange
+        var json = """{ "games": [ { "app_name": "", "title": "Alan Wake" } ] }""";
+        // Act
+        var result = HeroicLibraryParser.GOGLibraryParser(json);
+        //Assert
+        Assert.Empty(result);
+
+    }
+
+    [Fact]
+    public void GOGLibraryParser_MissingTitle_ReturnsEmpty()
+    {
+        // Arrange
+        var json = """{ "games": [ { "app_name": "1207659037", "title": "" } ] }""";
+        // Act
+        var result = HeroicLibraryParser.GOGLibraryParser(json);
+        //Assert
+        Assert.Empty(result);
+    }
+
 }
