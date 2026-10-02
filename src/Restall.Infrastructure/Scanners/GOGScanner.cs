@@ -10,7 +10,7 @@ using Restall.Infrastructure.Helpers;
 using Restall.Infrastructure.Scanners.Heroic;
 using System.Runtime.Versioning;
 using System.Text.Json;
-using System.Text.RegularExpressions;
+
 
 namespace Restall.Infrastructure.Scanners;
 
@@ -119,16 +119,38 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             return (games, null);
 
 
-        var installInfoGames = new Dictionary<string, string>();
-
-        //TODO: Consider Regex vs JSON in both Epic and GOG Scanners
+        List<HeroicInstalledGame> installedGames;
         try
         {
-            var infoJson = File.ReadAllText(gogLibraryJsonPath);
+            var installedJson = File.ReadAllText(installedJsonPath);
+            installedGames = HeroicInstalledParser.GOGHeroicParser(installedJson);
+        }
+        catch (JsonException ex)
+        {
+            //Add logging
+            return (games, installedJsonPath);
+        }
+        catch (Exception ex)
+        {
+            _logger.HeroicInstalledJsonReadFailure(Platform, installedJsonPath, ex);
+            return (games, installedJsonPath);
+        }
 
-            foreach(var entry in HeroicLibraryParser.GOGLibraryParser(infoJson))
+        if (installedGames.Count == 0)
+        {
+            //Add logging
+            return (games, null);
+        }
+
+        var libraryTitles = new Dictionary<string, string>();
+
+        try
+        {
+            var libraryJson = File.ReadAllText(gogLibraryJsonPath);
+
+            foreach(var entry in HeroicLibraryParser.GOGLibraryParser(libraryJson))
             {
-                installInfoGames[entry.AppName] = entry.Title;
+                libraryTitles[entry.AppName] = entry.Title;
             }
         }
         catch (Exception ex)
@@ -136,22 +158,10 @@ internal sealed partial class GOGScanner : IPlatformScannerService
             _logger.HeroicInstallInfoReadFailure(Platform, gogLibraryJsonPath, ex);
         }
 
-        if (installInfoGames.Count == 0)
+        if (libraryTitles.Count == 0)
         {
             _logger.HeroicInstallInfoEmpty(Platform, gogLibraryJsonPath);
             return (games, null);
-        }
-
-        List<HeroicInstalledGame> installedGames;
-        try
-        {
-            var installedJson = File.ReadAllText(installedJsonPath);
-            installedGames = HeroicInstalledParser.GOGHeroicParser(installedJson);
-        }
-        catch (Exception ex)
-        {
-            _logger.HeroicInstalledJsonReadFailure(Platform, installedJsonPath, ex);
-            return (games, installedJsonPath);
         }
 
         foreach (var entry in installedGames)
@@ -174,7 +184,7 @@ internal sealed partial class GOGScanner : IPlatformScannerService
                     continue;
                 }
 
-                if (!installInfoGames.TryGetValue(entry.AppName, out var title))
+                if (!libraryTitles.TryGetValue(entry.AppName, out var title))
                 {
                     _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, gogLibraryJsonPath);
                     continue;

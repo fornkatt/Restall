@@ -11,7 +11,6 @@ internal static partial class RegexHelper
     internal static Regex ExtractReShadeVersionFromSite => ExtractReShadeFromSite();
     internal static Regex SteamLibraryRegex => SteamLibrary();
     internal static Regex Match32BitRegex => Match32Bit();
-    internal static Regex InstallInfoAppNameAndTitleRegex => InstallInfoAppNameAndTitle();
 
     [GeneratedRegex(@"\b32[\s-]?bit\b", RegexOptions.IgnoreCase)]
     private static partial Regex Match32Bit();
@@ -25,7 +24,4 @@ internal static partial class RegexHelper
     [GeneratedRegex(@"""path""\s+""([^""]+)""")]
     private static partial Regex SteamLibrary();
 
-    [GeneratedRegex(
-        @"""app_name""\s*:\s*""([^""]+)""\s*,\s*""title""\s*:\s*""([^""]+)""")]
-    private static partial Regex InstallInfoAppNameAndTitle();
 }

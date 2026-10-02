@@ -110,35 +110,11 @@ internal sealed partial class EpicScanner : IPlatformScannerService
     {
         var games = new List<Game>();
         var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
-        //var installInfoPath = _pathService.GetHeroicStoreCache(Platform, "legendary_install_info.json");
+        var epicLibraryJsonPath = _pathService.GetHeroicStoreCache(Platform, "legendary_library.json");
 
-        // if (!File.Exists(installedJsonPath) || !File.Exists(installInfoPath))
-        //     return (games, null);
-        //
-        // var installInfoGames = new Dictionary<string, string>();
-        //
-        // try
-        // {
-        //     var infoJson = File.ReadAllText(installInfoPath);
-        //
-        //     foreach (Match match in RegexHelper.InstallInfoAppNameAndTitleRegex.Matches(infoJson))
-        //     {
-        //         var appName = match.Groups[1].Value;
-        //         var title = match.Groups[2].Value;
-        //
-        //         installInfoGames[appName] = title;
-        //     }
-        // }
-        // catch (Exception ex)
-        // {
-        //     _logger.HeroicInstallInfoReadFailure(Platform, installInfoPath, ex);
-        // }
-        //
-        // if (installInfoGames.Count == 0)
-        // {
-        //     _logger.HeroicInstallInfoEmpty(Platform, installInfoPath);
-        //     return (games, null);
-        // }
+         if (!File.Exists(installedJsonPath) || !File.Exists(epicLibraryJsonPath))
+             return (games, null);
+
 
         List<HeroicInstalledGame> installedGames;
         try
@@ -146,11 +122,43 @@ internal sealed partial class EpicScanner : IPlatformScannerService
             var installedJson = File.ReadAllText(installedJsonPath);
             installedGames = HeroicInstalledParser.EpicHeroicParser(installedJson);
         }
+        catch(JsonException ex)
+        {
+            return (games, installedJsonPath);
+        }
         catch (Exception ex)
         {
             _logger.HeroicInstalledJsonReadFailure(Platform, installedJsonPath, ex);
             return (games, installedJsonPath);
         }
+
+        if (installedGames.Count == 0)
+        {
+            return (games, null);
+        }
+
+        var libraryTitles = new Dictionary<string, string>();
+
+        try
+        {
+            var libraryJson = File.ReadAllText(epicLibraryJsonPath);
+
+            foreach (var entry in HeroicLibraryParser.EpicLibraryParser(libraryJson))
+            {
+                libraryTitles[entry.AppName] = entry.Title;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.HeroicInstallInfoReadFailure(Platform,epicLibraryJsonPath,ex);
+        }
+
+        if (libraryTitles.Count == 0)
+        {
+            _logger.HeroicInstallInfoEmpty(Platform, epicLibraryJsonPath);
+            return (games, null);
+        }
+
 
         foreach (var entry in installedGames)
         {
@@ -164,13 +172,8 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                     continue;
                 }
 
-                // if (string.IsNullOrEmpty(entry.Title))
-                // {
-                //     _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, installInfoPath);
-                //     continue;
-                // }
-
                 var installPath = GameScanHelper.NormalizePath(entry.InstallPath);
+
 
                 if (string.IsNullOrEmpty(installPath))
                 {
@@ -178,17 +181,22 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                     continue;
                 }
 
-
-                if (string.IsNullOrEmpty(entry.Title))
+                if(!libraryTitles.TryGetValue(entry.AppName, out var title))
                 {
-                    _logger.HeroicGameNameNotFound(Platform, entry.ToString(), entry.InstallPath);
+                    _logger.HeroicInstallInfoEntryNotFound(Platform, entry.AppName, epicLibraryJsonPath);
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(title))
+                {
+                    _logger.HeroicGameNameNotFound(Platform, entry.AppName, entry.InstallPath);
                     continue;
                 }
 
 
                 games.Add(new Game
                 {
-                    Name = entry.Title,
+                    Name = title,
                     InstallFolder = installPath,
                     PlatformName = Platform,
                     PlatformId = entry.AppName

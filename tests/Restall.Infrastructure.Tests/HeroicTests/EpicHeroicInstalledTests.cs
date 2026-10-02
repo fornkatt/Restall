@@ -30,7 +30,9 @@ public class EpicHeroicInstalledTests
     public void EpicHeroicParser_EntryIsDLC_ReturnsTrue()
     {
          // Arrange
-         var json = SharedHeroic.ReadHeroicBlock(Entry("4fa3d8d9b2cb4714a19a38d1a598be8f", @"C:\\Games\\Heroic\\FalloutNewVegas", isDlc: true));
+         var json = SharedHeroic.ReadHeroicBlock(Entry("4fa3d8d9b2cb4714a19a38d1a598be8f",
+             @"C:\\Games\\Heroic\\FalloutNewVegas",
+             isDlc: true));
 
          // Act
         var result = HeroicInstalledParser.EpicHeroicParser(json);
@@ -45,10 +47,13 @@ public class EpicHeroicInstalledTests
     {
         // Arrange
         var json = SharedHeroic.ReadHeroicBlock("""
-                                            "c2568782280f414aa8476c9fba8bfd60":
+                                            "temp_app":
                                             { "install_path": "C:\\Games\\Heroic\\BackpackHerog4I7F",
                                             "is_dlc": false }
                                             """);
+
+
+
         // Act
         var result = HeroicInstalledParser.EpicHeroicParser(json);
 
@@ -62,7 +67,7 @@ public class EpicHeroicInstalledTests
     {
         // Arrange
         var json = SharedHeroic.ReadHeroicBlock("""
-                                            "c2568782280f414aa8476c9fba8bfd60":
+                                            "temp_app":
                                             { "app_name": "c2568782280f414aa8476c9fba8bfd60",
                                             "is_dlc": false }
                                             """);
@@ -75,27 +80,6 @@ public class EpicHeroicInstalledTests
         Assert.Empty(actual.InstallPath);
     }
 
-    [Fact]
-    public void EpicHeroicParser_UnicodeCharactersInTitle_ReturnsRemovedCharacters()
-    {
-        // Arrange
-        var json = SharedHeroic.ReadHeroicBlock("""
-                                            "c2568782280f414aa8476c9fba8bfd60":
-                                            {
-                                            "install_path": "C:\\Games\\Heroic\\FallOutNewVegas",
-                                            "title": "Fallout New Vegas\u00ae: Lonesome Road\u2122" }
-                                            """);
-        var expected = "Fallout New Vegas®: Lonesome Road™";
-
-        // Act
-        var result = HeroicInstalledParser.EpicHeroicParser(json);
-
-        //Assert
-        var actual = Assert.Single(result);
-        Assert.Equal(expected, actual.Title);
-    }
-
-    //Checking the properties for Epic installed.json
     private static string Entry(string appName, string installPath, bool isDlc = false)
         => $$"""
              "{{appName}}": { "app_name": "{{appName}}",

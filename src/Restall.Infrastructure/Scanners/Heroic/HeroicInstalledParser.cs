@@ -27,12 +27,8 @@ internal static class HeroicInstalledParser
             var isDlc = entry.Value.TryGetProperty("is_dlc", out var isDlcElement) &&
                         isDlcElement.ValueKind == JsonValueKind.True;
 
-            var title = entry.Value.TryGetProperty("title", out var titleElement)
-                        && titleElement.ValueKind == JsonValueKind.String
-                ? titleElement.GetString() ?? string.Empty
-                : string.Empty;
 
-            games.Add(new HeroicInstalledGame(appName, installPath, isDlc, title));
+            games.Add(new HeroicInstalledGame(appName, installPath, isDlc));
         }
 
         return games;
@@ -60,7 +56,7 @@ internal static class HeroicInstalledParser
             var isDlc = entry.TryGetProperty("is_dlc", out var isDlcElement) &&
                         isDlcElement.ValueKind == JsonValueKind.True;
 
-            games.Add(new HeroicInstalledGame(appName, installPath, isDlc, null));
+            games.Add(new HeroicInstalledGame(appName, installPath, isDlc));
         }
 
         return games;
