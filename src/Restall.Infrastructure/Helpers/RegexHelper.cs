@@ -26,6 +26,8 @@ internal static partial class RegexHelper
     private static partial Regex SteamLibrary();
 
     [GeneratedRegex(
-        @"""[^""]+""\s*:\s*\{\s*""game""\s*:\s*\{\s*""app_name""\s*:\s*""([^""]+)""\s*,\s*""title""\s*:\s*""([^""]+)""")]
+        """app_name"\s*:\s*"([^"]+)"\s*,\s*"title"\s*:\s*"([^"]+)"""
+
+    )]
     private static partial Regex InstallInfoAppNameAndTitle();
 }

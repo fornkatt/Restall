@@ -126,12 +126,9 @@ internal sealed partial class GOGScanner : IPlatformScannerService
         {
             var infoJson = File.ReadAllText(gogLibraryJsonPath);
 
-            foreach (Match match in RegexHelper.InstallInfoAppNameAndTitleRegex.Matches(infoJson))
+            foreach(var entry in HeroicLibraryParser.GOGLibraryParser(infoJson))
             {
-                var appName = match.Groups[1].Value;
-                var title = match.Groups[2].Value;
-
-                installInfoGames[appName] = title;
+                installInfoGames[entry.AppName] = entry.Title;
             }
         }
         catch (Exception ex)
