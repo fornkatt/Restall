@@ -26,11 +26,10 @@ internal static class GameScanHelper
             ? m.Groups[1].Value
             : null;
 
-    //Same thing as VdfValue, but it also handles escaped characters and normalises the path
     internal static string? ExtractJsonString(string json, string key) =>
         Regex.Match(json, $@"""{Regex.Escape(key)}""\s*:\s*""([^""\\]*(\\.[^""\\]*)*)""")
             is { Success: true } m
-            ? NormalizePath(m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/"))
+            ? m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/")
             : null;
 
     [SupportedOSPlatform("windows")]

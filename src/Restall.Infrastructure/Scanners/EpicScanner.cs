@@ -75,7 +75,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                 var json = File.ReadAllText(file);
                 var name = GameScanHelper.ExtractJsonString(json, "DisplayName");
                 var rootPath = GameScanHelper.ExtractJsonString(json, "InstallLocation");
-                var catalogItemId = GameScanHelper.ExtractJsonString(json, "CatalogItemId");
+                var appName = GameScanHelper.ExtractJsonString(json, "AppName");
 
 
                 if (string.IsNullOrEmpty(name))
@@ -90,11 +90,21 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                     continue;
                 }
 
-                if (GameScanHelper.NonGame(rootPath)) continue;
+                var installPath = GameScanHelper.NormalizePath(rootPath);
+
+                if(string.IsNullOrEmpty(installPath))
+                {
+                    continue;
+                }
+
+                if (GameScanHelper.NonGame(installPath)) continue;
 
                 games.Add(new Game
                 {
-                    Name = name, InstallFolder = rootPath, PlatformName = Platform, PlatformId = catalogItemId
+                    Name = name,
+                    InstallFolder = installPath,
+                    PlatformName = Platform,
+                    PlatformId = appName
                 });
             }
             catch (Exception ex)
@@ -142,8 +152,9 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         try
         {
             var libraryJson = File.ReadAllText(epicLibraryJsonPath);
+            var heroicLibrary = HeroicLibraryParser.LibraryParser(libraryJson, Platform);
 
-            foreach (var entry in HeroicLibraryParser.EpicLibraryParser(libraryJson))
+            foreach (var entry in heroicLibrary)
             {
                 libraryTitles.TryAdd(entry.AppName, entry.Title);
             }
@@ -151,6 +162,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         catch (Exception ex)
         {
             _logger.HeroicInstallInfoReadFailure(Platform,epicLibraryJsonPath,ex);
+            return (games, epicLibraryJsonPath);
         }
 
         if (libraryTitles.Count == 0)
