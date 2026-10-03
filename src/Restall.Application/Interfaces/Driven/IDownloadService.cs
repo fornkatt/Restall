@@ -8,8 +8,29 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.Interfaces.Driven;
 
-public interface IModDownloadService
+public interface IDownloadService
 {
+    /// <summary>
+    /// Downloads a file from a URL to the specified destination folder, replacing any existing file.
+    /// <br/>
+    /// <br/>
+    /// Doesn't replace the file until the whole download is complete, utilizing a temporary .part file.
+    /// <br/>
+    /// <para>
+    /// Possible ResultErrors:
+    /// <br/>
+    /// <see cref="ErrorType.PermissionDenied"/>
+    /// <br/>
+    /// <see cref="ErrorType.FileSystemError"/>
+    /// <br/>
+    /// <see cref="ErrorType.NetworkTimeout"/>
+    /// <br/>
+    /// <see cref="ErrorType.DownloadFailed"/>
+    /// </para>
+    /// </summary>
+    Task<Result> DownloadAsync(Uri url, string destinationPath, IProgress<DownloadProgressReportDto>? progress = null,
+        CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Downloads the specified ReShade version from a specific branch.
     /// <br/>

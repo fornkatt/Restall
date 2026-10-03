@@ -27,7 +27,7 @@ internal sealed partial class ParseService : IParseService
     private const string ReShadeTagsUrl = "https://github.com/crosire/reshade/tags";
     private const string ReShadeSiteUrl = "https://reshade.me";
 
-    private const string RenoDxUrl = "https://raw.githubusercontent.com/wiki/clshortfuse/renodx/Mods.md";
+    private const string RenoDXUrl = "https://raw.githubusercontent.com/wiki/clshortfuse/renodx/Mods.md";
     private const string RenoDXTagsUrl = "https://github.com/clshortfuse/renodx/tags";
 
     private const string
@@ -439,7 +439,7 @@ internal sealed partial class ParseService : IParseService
     // TODO: surface Result<T>
     public async Task<RenoDXWikiParseResultDto> FetchRenoDXWikiModsAsync()
     {
-        LogRenoDXWikiModsFetchStart(RenoDxUrl);
+        LogRenoDXWikiModsFetchStart(RenoDXUrl);
 
         var skippedCount = 0;
 
@@ -450,7 +450,7 @@ internal sealed partial class ParseService : IParseService
         try
         {
             var httpClient = _clientFactory.CreateClient(HttpClientName);
-            var markdown = await httpClient.GetStringAsync(RenoDxUrl);
+            var markdown = await httpClient.GetStringAsync(RenoDXUrl);
             var lines = markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
             RenoDXWikiModType? currentEngine = null;
@@ -622,11 +622,11 @@ internal sealed partial class ParseService : IParseService
         }
         catch (HttpRequestException ex)
         {
-            LogSiteUnreachable(RenoDxUrl, ex.StatusCode, ex);
+            LogSiteUnreachable(RenoDXUrl, ex.StatusCode, ex);
         }
         catch (TaskCanceledException ex)
         {
-            LogSiteTimeout(RenoDxUrl, ex);
+            LogSiteTimeout(RenoDXUrl, ex);
         }
 
         var dedupedUnrealGenericMods = DedupedUnrealMods(genericWikiMods);

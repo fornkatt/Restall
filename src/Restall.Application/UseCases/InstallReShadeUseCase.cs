@@ -18,7 +18,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
 {
     private readonly ILogger<InstallReShadeUseCase> _logger;
     private readonly IPathService _pathService;
-    private readonly IModDownloadService _modDownloadService;
+    private readonly IDownloadService _downloadService;
     private readonly IFileExtractionService _fileExtractionService;
     private readonly IModInstallService _modInstallService;
     private readonly IFileService _fileService;
@@ -26,7 +26,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
     public InstallReShadeUseCase(
         ILogger<InstallReShadeUseCase> logger,
         IPathService pathService,
-        IModDownloadService modDownloadService,
+        IDownloadService downloadService,
         IFileExtractionService fileExtractionService,
         IModInstallService modInstallService,
         IFileService fileService
@@ -34,7 +34,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
     {
         _logger = logger;
         _pathService = pathService;
-        _modDownloadService = modDownloadService;
+        _downloadService = downloadService;
         _fileExtractionService = fileExtractionService;
         _modInstallService = modInstallService;
         _fileService = fileService;
@@ -184,6 +184,6 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         if (File.Exists(installerPath))
             return Result.Success();
 
-        return await _modDownloadService.DownloadReShadeAsync(reShade.BranchName, reShade.Version!, progress);
+        return await _downloadService.DownloadReShadeAsync(reShade.BranchName, reShade.Version!, progress);
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Restall.Infrastructure.Services;
 
 // Mod Download Logging — EventId range: 1150 - 1199
-internal sealed partial class ModDownloadService
+internal sealed partial class DownloadService
 {
     [LoggerMessage(EventId = 1150, Level = LogLevel.Information,
         Message = "\"{Filename}\" already exists in cache \"{DestinationDirectory}\". Skipping download")]

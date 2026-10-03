@@ -20,7 +20,7 @@ namespace Restall.Application.UseCases;
 public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
 {
     private readonly ILogger<InstallRenoDXUseCase> _logger;
-    private readonly IModDownloadService _modDownloadService;
+    private readonly IDownloadService _downloadService;
     private readonly IModInstallService _modInstallService;
     private readonly IModDetectionService _modDetectionService;
     private readonly IFileService _fileService;
@@ -28,7 +28,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
     public InstallRenoDXUseCase(
         ILogger<InstallRenoDXUseCase> logger,
-        IModDownloadService modDownloadService,
+        IDownloadService downloadService,
         IModInstallService modInstallService,
         IModDetectionService modDetectionService,
         IFileService fileService,
@@ -36,7 +36,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
     )
     {
         _logger = logger;
-        _modDownloadService = modDownloadService;
+        _downloadService = downloadService;
         _modInstallService = modInstallService;
         _modDetectionService = modDetectionService;
         _fileService = fileService;
@@ -250,10 +250,10 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
                           RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(request.Game.EngineName) ??
                           RenoDXWikiModType.Unity;
 
-            return _modDownloadService.DownloadExternalRenoDXAsync(modType, addonFilename, progress);
+            return _downloadService.DownloadExternalRenoDXAsync(modType, addonFilename, progress);
         }
 
-        return _modDownloadService.DownloadRenoDXAsync(
+        return _downloadService.DownloadRenoDXAsync(
             request.Branch,
             addonFilename,
             request.TargetVersion,

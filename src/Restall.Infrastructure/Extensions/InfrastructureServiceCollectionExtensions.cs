@@ -63,9 +63,9 @@ public static class InfrastructureServiceCollectionExtensions
                 .ParseAdd("Restall"));
         services.AddSingleton<IRenoDXModSourceService, RenoDXModSourceService>();
 
-        services.AddHttpClient(ModDownloadService.HttpClientName, c => c.DefaultRequestHeaders
+        services.AddHttpClient(DownloadService.HttpClientName, c => c.DefaultRequestHeaders
             .UserAgent.ParseAdd("Restall"));
-        services.AddSingleton<IModDownloadService, ModDownloadService>();
+        services.AddSingleton<IDownloadService, DownloadService>();
 
         services.AddHttpClient(GameCoverService.HttpClientName, c => c.DefaultRequestHeaders
                 .UserAgent.ParseAdd("Restall"))

@@ -35,7 +35,7 @@ internal sealed class VersionCatalog : IVersionCatalog
             .Add(ReShade.Branch.Stable, reShadeVersionsTask.Result);
 
         var renoDXBuilder = ImmutableDictionary.CreateBuilder<RenoDX.Branch, ImmutableArray<RenoDXTagInfo>>();
-        if (renoDXSnapshotTask.Result is { IsSuccess: true, Value: { } snapshot})
+        if (renoDXSnapshotTask.Result is { IsSuccess: true, Value: { } snapshot })
             renoDXBuilder[RenoDX.Branch.Snapshot] = [snapshot];
 
         var nightliesResult = renoDXNightlyTask.Result;

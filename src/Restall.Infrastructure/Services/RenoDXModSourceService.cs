@@ -15,9 +15,9 @@ internal sealed partial class RenoDXModSourceService : IRenoDXModSourceService
 {
     internal const string HttpClientName = nameof(RenoDXModSourceService);
     private const string DatabaseUrl = "https://raw.githubusercontent.com/RankFTW/rhi-repo/main/database/";
-    internal const string GameModsUrl = DatabaseUrl + "RenoDXdb.json";
-    internal const string UnrealGenericModsUrl = DatabaseUrl + "RenoDXdb-unreal.json";
-    internal const string UnityGenericModsUrl = DatabaseUrl + "RenoDXdb-unity.json";
+    private const string GameModsUrl = DatabaseUrl + "RenoDXdb.json";
+    private const string UnrealGenericModsUrl = DatabaseUrl + "RenoDXdb-unreal.json";
+    private const string UnityGenericModsUrl = DatabaseUrl + "RenoDXdb-unity.json";
 
     private static readonly JsonSerializerOptions s_jsonOptions = new(JsonSerializerDefaults.Web)
     {

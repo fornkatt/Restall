@@ -11,9 +11,9 @@ using System.Collections.Concurrent;
 
 namespace Restall.Infrastructure.Services;
 
-internal sealed partial class ModDownloadService : IModDownloadService
+internal sealed partial class DownloadService : IDownloadService
 {
-    internal const string HttpClientName = nameof(ModDownloadService);
+    internal const string HttpClientName = nameof(DownloadService);
 
     private const string ReShadeStartUrl = "https://reshade.me/downloads/ReShade_Setup_";
     private const string ReShadeEndUrl = "_Addon.exe";
@@ -33,11 +33,11 @@ internal sealed partial class ModDownloadService : IModDownloadService
 
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> s_downloadLocks = new();
     private readonly IHttpClientFactory _clientFactory;
-    private readonly ILogger<ModDownloadService> _logger;
+    private readonly ILogger<DownloadService> _logger;
     private readonly IPathService _pathService;
 
-    public ModDownloadService(
-        ILogger<ModDownloadService> logger,
+    public DownloadService(
+        ILogger<DownloadService> logger,
         IHttpClientFactory clientFactory,
         IPathService pathService
     )
@@ -45,6 +45,12 @@ internal sealed partial class ModDownloadService : IModDownloadService
         _logger = logger;
         _clientFactory = clientFactory;
         _pathService = pathService;
+    }
+
+    public async Task<Result> DownloadAsync(Uri url, string destinationPath,
+        IProgress<DownloadProgressReportDto>? progress = null, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 
     // TODO: rename methods in this class

@@ -13,6 +13,8 @@ namespace Restall.Infrastructure.Tests.Services;
 
 public class RenoDXModSourceServiceTests
 {
+    private const string GameModsUrl = "https://raw.githubusercontent.com/RankFTW/rhi-repo/main/database/RenoDXdb.json";
+
     private const string ValidGameModEntry =
         """
         {
@@ -47,7 +49,7 @@ public class RenoDXModSourceServiceTests
     public async Task FetchGameModsAsync_ValidEntry_ReturnsSuccessWithEveryField()
     {
         var handler = new FakeHttpMessageHandler();
-        handler.RespondWith(RenoDXModSourceService.GameModsUrl, JsonResponse($"[{ValidGameModEntry}]"));
+        handler.RespondWith(GameModsUrl, JsonResponse($"[{ValidGameModEntry}]"));
         var sut = CreateService(handler);
 
         var result = await sut.FetchGameModsAsync(TestContext.Current.CancellationToken);
@@ -70,8 +72,7 @@ public class RenoDXModSourceServiceTests
     public async Task FetchGameModsAsync_InvalidAndValidEntry_ReturnsPartialWithOnlyReadableEntries()
     {
         var handler = new FakeHttpMessageHandler();
-        handler.RespondWith(RenoDXModSourceService.GameModsUrl,
-            JsonResponse($"[{ValidGameModEntry}, {InvalidGameModEntry}]"));
+        handler.RespondWith(GameModsUrl, JsonResponse($"[{ValidGameModEntry}, {InvalidGameModEntry}]"));
         var sut = CreateService(handler);
 
         var result = await sut.FetchGameModsAsync(TestContext.Current.CancellationToken);
@@ -85,7 +86,7 @@ public class RenoDXModSourceServiceTests
     public async Task FetchGameModsAsync_FileUnreachable_ReturnsErrorWithException()
     {
         var handler = new FakeHttpMessageHandler();
-        handler.RespondWith(RenoDXModSourceService.GameModsUrl, new HttpResponseMessage(HttpStatusCode.NotFound));
+        handler.RespondWith(GameModsUrl, new HttpResponseMessage(HttpStatusCode.NotFound));
         var sut = CreateService(handler);
 
         var result = await sut.FetchGameModsAsync(TestContext.Current.CancellationToken);
@@ -98,7 +99,7 @@ public class RenoDXModSourceServiceTests
     public async Task FetchGameModsAsync_FileNotAJsonArray_ReturnsError()
     {
         var handler = new FakeHttpMessageHandler();
-        handler.RespondWith(RenoDXModSourceService.GameModsUrl, JsonResponse("{}"));
+        handler.RespondWith(GameModsUrl, JsonResponse("{}"));
         var sut = CreateService(handler);
 
         var result = await sut.FetchGameModsAsync(TestContext.Current.CancellationToken);
@@ -123,8 +124,7 @@ public class RenoDXModSourceServiceTests
                                                      }
                                                      """;
         var handler = new FakeHttpMessageHandler();
-        handler.RespondWith(RenoDXModSourceService.GameModsUrl,
-            JsonResponse($"[{validGameModWithUnknownStatus}, {ValidGameModEntry}]"));
+        handler.RespondWith(GameModsUrl, JsonResponse($"[{validGameModWithUnknownStatus}, {ValidGameModEntry}]"));
         var sut = CreateService(handler);
 
         var result = await sut.FetchGameModsAsync(TestContext.Current.CancellationToken);
