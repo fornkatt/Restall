@@ -77,6 +77,22 @@ public class RenoDXDatabaseBuilderTests
         Assert.Equal(ErrorType.RenoDXModDatabaseUnavailable, result.ErrorType);
     }
 
+    [Fact]
+    public void Build_OutOfRangeStatusEntry_ReturnsPartialWithoutOutOfRangeStatusEntry()
+    {
+        var entryWithOutOfRangeStatus = s_validGameMod with { Status = (RenoDXModStatus)99 };
+        var sut = CreateBuilder();
+
+        var result = sut.Build([s_validGameMod, entryWithOutOfRangeStatus],
+            [s_validUnrealGenericMod], [s_validUnityGenericMod]);
+
+        Assert.True(result.IsSuccess);
+        Assert.True(result.IsPartial);
+        Assert.Equal(WarningType.RenoDXModDatabaseIncomplete, result.WarningType);
+        Assert.NotNull(result.Value);
+        Assert.Equal(s_validGameMod, Assert.Single(result.Value.GameMods));
+    }
+
     private static RenoDXModDatabaseBuilder CreateBuilder() =>
         new(NullLogger<RenoDXModDatabaseBuilder>.Instance);
 }

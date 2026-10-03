@@ -106,6 +106,34 @@ public class RenoDXModSourceServiceTests
         Assert.False(result.IsSuccess);
     }
 
+    [Fact]
+    public async Task FetchGameModsAsync_OutOfRangeModStatusEntry_ReturnsPartialWithoutEntry()
+    {
+        const string validGameModWithUnknownStatus = """
+                                                     {
+                                                        "name": "Test Game",
+                                                        "status": "Unknown",
+                                                        "author": "Tester",
+                                                        "snapshotUrl": "https://restalltests.com/renodx-game.addon64",
+                                                        "snapshotUrl32": "https://restalltests.com/renodx-game.addon32",
+                                                        "nexusUrl": null,
+                                                        "discordUrl": null,
+                                                        "discussionUrl": null,
+                                                        "notes": "test game"
+                                                     }
+                                                     """;
+        var handler = new FakeHttpMessageHandler();
+        handler.RespondWith(RenoDXModSourceService.GameModsUrl,
+            JsonResponse($"[{validGameModWithUnknownStatus}, {ValidGameModEntry}]"));
+        var sut = CreateService(handler);
+
+        var result = await sut.FetchGameModsAsync(TestContext.Current.CancellationToken);
+
+        Assert.True(result.IsPartial);
+        Assert.True(result.IsSuccess);
+        Assert.Single(result.Value);
+    }
+
     private static RenoDXModSourceService CreateService(FakeHttpMessageHandler handler) =>
         new(NullLogger<RenoDXModSourceService>.Instance, new FakeHttpClientFactory(handler));
 

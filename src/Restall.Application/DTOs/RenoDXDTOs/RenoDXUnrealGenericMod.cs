@@ -12,5 +12,5 @@ public sealed record RenoDXUnrealGenericMod(
     string? Upgrades,
     string? Comments)
 {
-    public enum UnrealModMethod { Unknown, Native, Upgrade, Ini }
+    public enum UnrealModMethod { Native, Upgrade, Ini }
 }

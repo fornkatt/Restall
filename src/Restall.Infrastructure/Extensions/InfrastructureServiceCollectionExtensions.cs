@@ -44,7 +44,18 @@ public static class InfrastructureServiceCollectionExtensions
             .AddSingleton<IFileService, FileService>();
 
         services.AddHttpClient(ParseService.HttpClientName, c => c.DefaultRequestHeaders.UserAgent
-            .ParseAdd("Restall"));
+                .ParseAdd("Restall"))
+            .ConfigurePrimaryHttpMessageHandler(() =>
+                OperatingSystem.IsWindows()
+                    ? new WinHttpHandler
+                    {
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                    }
+                    : new SocketsHttpHandler
+                    {
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate |
+                                                 DecompressionMethods.Brotli
+                    });
         services.AddSingleton<IParseService, ParseService>();
 
         services.AddHttpClient(RenoDXModSourceService.HttpClientName,

@@ -2,13 +2,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Domain.Entities;
+using System.Collections.Frozen;
 
 namespace Restall.Application.DTOs.RenoDXDTOs;
 
 public record RenoDXTagInfo(
     DateOnly Date,
     RenoDX.Branch Branch,
+    Uri DownloadBaseUrl,
+    FrozenSet<string> AddonFilenames,
     List<string>? CommitNotes = null)
 {
     public string Version => $"{Date:yyyyMMdd}";
+
+    public Uri GetDownloadUrl(string addonFilename) =>
+        new(DownloadBaseUrl, Uri.EscapeDataString(addonFilename));
 }

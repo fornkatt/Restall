@@ -3,4 +3,4 @@
 
 namespace Restall.Application.Common.Enums;
 
-public enum RenoDXModStatus { Unknown, Done, Wip }
+public enum RenoDXModStatus { Done, Wip }

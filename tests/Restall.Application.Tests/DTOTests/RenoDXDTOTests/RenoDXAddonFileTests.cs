@@ -10,10 +10,10 @@ namespace Restall.Application.Tests.DTOTests.RenoDXDTOTests;
 public class RenoDXAddonFileTests
 {
     private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 9, 28),
-        RenoDX.Branch.Snapshot);
+        RenoDX.Branch.Snapshot, new Uri("https://restalltests.com/snapshot/"), []);
 
     private static readonly RenoDXTagInfo s_nightly = new(new DateOnly(2026, 9, 28),
-        RenoDX.Branch.Nightly);
+        RenoDX.Branch.Nightly, new Uri("https://restalltests.com/nightly/"), []);
 
     private static readonly Uri s_directUrl = new("https://restalltests.com/renodx-game.addon64");
 

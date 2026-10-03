@@ -3,6 +3,8 @@
 
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.DTOs.Results;
@@ -11,6 +13,7 @@ using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
 using Restall.Infrastructure.Helpers;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -28,8 +31,11 @@ internal sealed partial class ParseService : IParseService
     private const string RenoDXTagsUrl = "https://github.com/clshortfuse/renodx/tags";
 
     private const string
-        RenoDXReleasesTagUrl =
+        RenoDXTagReleasesUrl =
             "https://github.com/clshortfuse/renodx/releases/tag/"; // Follow by snapshot or nightly-yyyyMMdd
+
+    private const string RenoDXExpandedAssetsUrl = "https://github.com/clshortfuse/renodx/releases/expanded_assets/";
+    private const string RenoDXDownloadUrl = "https://github.com/clshortfuse/renodx/releases/download/";
 
     private readonly IHttpClientFactory _clientFactory;
     private readonly ILogger<ParseService> _logger;
@@ -84,99 +90,350 @@ internal sealed partial class ParseService : IParseService
         return [.. versions];
     }
 
-    // TODO: surface Result<T>
-    public async Task<RenoDXTagInfo?> FetchRenoDXSnapshotAsync()
+    public async Task<Result<RenoDXTagInfo>> FetchRenoDXSnapshotAsync(CancellationToken cancellationToken = default)
     {
-        const string renoDXSnapshotUrl = RenoDXReleasesTagUrl + "snapshot";
+        const string tag = "snapshot";
+        const string snapshotUrl = RenoDXTagReleasesUrl + tag;
 
-        LogRenoDXSnapshotFetchStart(renoDXSnapshotUrl);
+        HtmlDocument document;
+
+        LogRenoDXSnapshotFetchStart(snapshotUrl);
 
         try
         {
-            var document = await LoadHtmlDocumentAsync(renoDXSnapshotUrl);
-
-            var timeNode = document.DocumentNode.SelectSingleNode("//relative-time");
-
-            DateOnly? date = null;
-            var datetime = string.Empty;
-
-            if (timeNode is not null)
-            {
-                datetime = timeNode.GetAttributeValue("datetime", string.Empty);
-                if (DateTime.TryParse(datetime, out var parsed))
-                    date = DateOnly.FromDateTime(parsed.ToUniversalTime());
-            }
-
-            if (date is null)
-            {
-                LogRenoDXSnapshotReleaseDateParseFailure(datetime);
-                return null;
-            }
-
-            var bodyNode = document.DocumentNode.SelectSingleNode(
-                "//div[contains(@class, 'markdown-body')]");
-            var commitNotes = new List<string>();
-
-            if (bodyNode is not null)
-            {
-                string? currentSection = null;
-                foreach (var node in bodyNode.ChildNodes)
-                {
-                    if (node.Name == "h2")
-                    {
-                        currentSection = node.InnerText.Trim();
-                        continue;
-                    }
-
-                    if (node.Name == "ul")
-                        foreach (var li in node.SelectNodes(".//li") ?? Enumerable.Empty<HtmlNode>())
-                        {
-                            var text = li.InnerText.Trim();
-                            if (!string.IsNullOrWhiteSpace(text))
-                                commitNotes.Add(currentSection is not null ? $"[{currentSection}] {text}" : text);
-                        }
-                }
-            }
-
-            LogRenoDXSnapshotFetchSuccess(date.Value);
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-                LogRenoDXSnapshotCommitNotesFetchComplete(string.Join(Environment.NewLine, commitNotes));
-
-            return new RenoDXTagInfo(date.Value, RenoDX.Branch.Snapshot, commitNotes);
+            document = await LoadHtmlDocumentAsync(snapshotUrl, cancellationToken);
         }
         catch (HttpRequestException ex)
         {
-            LogSiteUnreachable(renoDXSnapshotUrl, ex.StatusCode, ex);
+            return Result<RenoDXTagInfo>.Error($"Could not load the RenoDX snapshot page \"{snapshotUrl}\"",
+                ErrorType.PageLoadFailure, ex);
+        }
+        catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            return Result<RenoDXTagInfo>.Error($"Request to \"{snapshotUrl}\" timed out", ErrorType.NetworkTimeout, ex);
+        }
+
+        var datetime = document.DocumentNode.SelectSingleNode("//relative-time")
+            ?.GetAttributeValue("datetime", string.Empty) ?? string.Empty;
+
+        if (!DateTime.TryParse(datetime, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal,
+                out var releaseTime))
+            return Result<RenoDXTagInfo>.Error($"Could not find the release date on \"{snapshotUrl}\" " +
+                                               $"— value on the page: \"{datetime}\"");
+
+        var date = DateOnly.FromDateTime(releaseTime);
+        var commitNotes = FetchRenoDXSnapshotCommitNotes(document);
+        var downloadBaseUrl = new Uri(RenoDXDownloadUrl + tag + "/");
+        var addonFilenames = await FetchRenoDXAddonFilenamesAsync(tag, cancellationToken);
+
+        if (addonFilenames.Count == 0)
+            return Result<RenoDXTagInfo>.Partial(new RenoDXTagInfo(date, RenoDX.Branch.Snapshot, downloadBaseUrl,
+                    [], commitNotes),
+                "Could not fetch addon filenames for latest 'RenoDX' snapshot",
+                WarningType.RenoDXSnapshotFileListUnavailable);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            LogRenoDXSnapshotCommitNotesFetchComplete(string.Join(Environment.NewLine, commitNotes));
+
+        LogRenoDXSnapshotFetchSuccess(date, addonFilenames.Count);
+
+        return Result<RenoDXTagInfo>.Success(new RenoDXTagInfo(date, RenoDX.Branch.Snapshot, downloadBaseUrl,
+            addonFilenames, commitNotes));
+    }
+
+    public async Task<Result<ImmutableArray<RenoDXTagInfo>>> FetchRenoDXNightlyTagsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        HtmlDocument document;
+
+        LogRenoDXNightliesFetchStart(RenoDXTagsUrl);
+
+        try
+        {
+            document = await LoadHtmlDocumentAsync(RenoDXTagsUrl, cancellationToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            return Result<ImmutableArray<RenoDXTagInfo>>.Error(
+                $"Could not load the 'RenoDX' tags page \"{RenoDXTagsUrl}\"",
+                ErrorType.PageLoadFailure, ex);
+        }
+        catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            return Result<ImmutableArray<RenoDXTagInfo>>.Error($"Request to \"{RenoDXTagsUrl}\" timed out",
+                ErrorType.NetworkTimeout, ex);
+        }
+
+        var nightlyTags = FetchRenoDXNightlyTagNames(document);
+
+        if (nightlyTags.IsEmpty)
+            return Result<ImmutableArray<RenoDXTagInfo>>.Error($"Could not find any 'RenoDX' on \"{RenoDXTagsUrl}\"");
+
+        var nightlyResults = await Task.WhenAll(
+            nightlyTags.Select(nightlyTag => FetchRenoDXNightlyAsync(nightlyTag, cancellationToken)));
+        var nightlies = nightlyResults.OfType<RenoDXTagInfo>().ToImmutableArray();
+
+        LogRenoDXNightliesFetchComplete(nightlies.Length, nightlyTags.Length,
+            nightlies.FirstOrDefault()?.Version);
+
+        if (nightlies.IsEmpty)
+            return Result<ImmutableArray<RenoDXTagInfo>>
+                .Error($"Could not load any of the {nightlyTags.Length} RenoDX nightly releases");
+
+        if (nightlies.Length < nightlyTags.Length)
+            return Result<ImmutableArray<RenoDXTagInfo>>.Partial(nightlies,
+                $"Could not load {nightlyTags.Length - nightlies.Length} RenoDX nightly tags",
+                WarningType.RenoDXNightliesIncomplete);
+
+        return Result<ImmutableArray<RenoDXTagInfo>>.Success(nightlies);
+    }
+
+    private async Task<string?> FetchLatestReShadeVersionFromSiteAsync()
+    {
+        try
+        {
+            var httpClient = _clientFactory.CreateClient(HttpClientName);
+            var document = await httpClient.GetStringAsync(ReShadeSiteUrl);
+            var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
+
+            if (!match.Success) return null;
+
+            LogReShadeSiteVersionFetchSuccess(ReShadeSiteUrl);
+
+            return match.Groups[1].Value;
+        }
+        catch (HttpRequestException ex)
+        {
+            LogSiteUnreachable(ReShadeSiteUrl, ex.StatusCode, ex);
             return null;
         }
         catch (TaskCanceledException ex)
         {
-            LogSiteTimeout(renoDXSnapshotUrl, ex);
+            LogSiteTimeout(ReShadeSiteUrl, ex);
             return null;
         }
     }
 
-    // TODO: surface Result<T>
-    public async Task<ImmutableArray<RenoDXTagInfo>> FetchRenoDXNightlyTagsAsync()
+    private async Task<List<string>> FetchReShadeVersionsFromGitHubTagsAsync()
     {
-        LogRenoDXNightlyVersionsFetchStart(RenoDXTagsUrl);
+        var versions = new List<string>();
 
-        var nightlyTags = await FetchRenoDXNightlyTagNamesAsync();
-
-        if (nightlyTags.Length <= 0)
+        try
         {
-            LogRenoDXNightlyVersionsNotFound();
+            var document = await LoadHtmlDocumentAsync(ReShadeTagsUrl);
+
+            var tagNodes = document.DocumentNode
+                .SelectNodes("//a[contains(@href, 'crosire/reshade/releases/tag/')]");
+
+            if (tagNodes is null)
+            {
+                LogReShadeTagsNotFound(ReShadeTagsUrl);
+                return versions;
+            }
+
+            foreach (var node in tagNodes)
+            {
+                var href = node.GetAttributeValue("href", string.Empty);
+                var tag = href.Split('/').LastOrDefault();
+
+                if (string.IsNullOrWhiteSpace(tag)) continue;
+
+                var version = tag.TrimStart('v');
+
+                if (string.IsNullOrWhiteSpace(version) || versions.Contains(version)) continue;
+
+                versions.Add(version);
+                LogReShadeVersionFound(version, ReShadeTagsUrl);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            LogSiteUnreachable(ReShadeTagsUrl, ex.StatusCode, ex);
+            return versions;
+        }
+        catch (TaskCanceledException ex)
+        {
+            LogSiteTimeout(ReShadeTagsUrl, ex);
+            return versions;
+        }
+
+        return versions;
+    }
+
+    private async Task<RenoDXTagInfo?> FetchRenoDXNightlyAsync(string nightlyTag, CancellationToken cancellationToken)
+    {
+        LogRenoDXNightlyTagParsingStart(nightlyTag);
+
+        var dateText = nightlyTag["nightly-".Length..];
+
+        if (!DateOnly.TryParseExact(dateText, "yyyyMMdd", CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out var date))
+        {
+            LogRenoDXNightlyTagDateParseFailure(nightlyTag, dateText);
+            return null;
+        }
+
+        var nightlyUrl = RenoDXTagReleasesUrl + nightlyTag;
+        HtmlDocument document;
+
+        try
+        {
+            document = await LoadHtmlDocumentAsync(nightlyUrl, cancellationToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            LogRenoDXNightlyTagFetchFailure(nightlyTag, nightlyUrl, ex);
+            return null;
+        }
+        catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            LogRenoDXNightlyTagFetchFailure(nightlyTag, nightlyUrl, ex);
+            return null;
+        }
+
+        var addonFilenames = await FetchRenoDXAddonFilenamesAsync(nightlyTag, cancellationToken);
+
+        if (addonFilenames.Count == 0)
+            return null;
+
+        var commitNotes = FetchRenoDXNightlyCommitNotes(document);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            LogRenoDXNightlyTagParseComplete(nightlyTag, string.Join(Environment.NewLine, commitNotes));
+
+        return new RenoDXTagInfo(date, RenoDX.Branch.Nightly, new Uri(RenoDXDownloadUrl + nightlyTag + "/"),
+            addonFilenames, commitNotes);
+    }
+
+    private async Task<FrozenSet<string>> FetchRenoDXAddonFilenamesAsync(string tag,
+        CancellationToken cancellationToken = default)
+    {
+        var assetUrl = RenoDXExpandedAssetsUrl + tag;
+        HtmlDocument document;
+
+        try
+        {
+            document = await LoadHtmlDocumentAsync(assetUrl, cancellationToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            LogRenoDXAddonFileListFetchFailure(assetUrl, ex);
+            return [];
+        }
+        catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            LogRenoDXAddonFileListFetchFailure(assetUrl, ex);
             return [];
         }
 
-        var tagInfoResults =
-            await Task.WhenAll(nightlyTags.Select(FetchRenoDXNightlyReleaseInfoAsync));
-        var tagInfos = tagInfoResults.OfType<RenoDXTagInfo>().ToImmutableArray();
+        var downloadPath = $"/clshortfuse/renodx/releases/download/{tag}/";
+        var linkNodes = document.DocumentNode
+            .SelectNodes($"//a[starts-with(@href, '{downloadPath}')]");
 
-        LogRenoDXNightlyVersionsFetchComplete(tagInfos.Length, tagInfos.FirstOrDefault()?.Version);
+        if (linkNodes is null)
+        {
+            LogRenoDXAddonFileListEmpty(assetUrl);
+            return [];
+        }
 
-        return tagInfos;
+        List<string> addonFilenames = [];
+
+        foreach (var linkNode in linkNodes)
+        {
+            var href = HtmlEntity.DeEntitize(linkNode.GetAttributeValue("href", string.Empty));
+            var filename = Uri.UnescapeDataString(href[downloadPath.Length..]);
+
+            if (filename.EndsWith(".addon64", StringComparison.OrdinalIgnoreCase) ||
+                filename.EndsWith(".addon32", StringComparison.OrdinalIgnoreCase))
+                addonFilenames.Add(filename);
+        }
+
+        if (addonFilenames.Count == 0)
+        {
+            LogRenoDXAddonFileListEmpty(assetUrl);
+            return [];
+        }
+
+        return addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static ImmutableArray<string> FetchRenoDXNightlyTagNames(HtmlDocument document)
+    {
+        var tagNodes = document.DocumentNode
+            .SelectNodes("//a[contains(@href, 'clshortfuse/renodx/releases/tag/nightly-')]");
+
+        if (tagNodes is null)
+            return [];
+
+        List<string> tags = [];
+
+        foreach (var node in tagNodes)
+        {
+            var tag = node.GetAttributeValue("href", string.Empty).Split('/').LastOrDefault();
+
+            if (string.IsNullOrWhiteSpace(tag) || !tag.StartsWith("nightly-") || tags.Contains(tag))
+                continue;
+
+            tags.Add(tag);
+        }
+
+        return [.. tags];
+    }
+
+    private static List<string> FetchRenoDXSnapshotCommitNotes(HtmlDocument document)
+    {
+        var bodyNode = document.DocumentNode.SelectSingleNode("//div[contains(@class, 'markdown-body')]");
+        List<string> commitNotes = [];
+
+        if (bodyNode is null)
+            return commitNotes;
+
+        string? currentSection = null;
+
+        foreach (var node in bodyNode.ChildNodes)
+        {
+            if (node.Name == "h2")
+            {
+                currentSection = node.InnerText.Trim();
+                continue;
+            }
+
+            if (node.Name == "ul")
+                foreach (var li in node.SelectNodes(".//li") ?? Enumerable.Empty<HtmlNode>())
+                {
+                    var text = li.InnerText.Trim();
+
+                    if (!string.IsNullOrWhiteSpace(text))
+                        commitNotes.Add(currentSection is not null ? $"[{currentSection}] {text}" : text);
+                }
+        }
+
+        return commitNotes;
+    }
+
+    private static List<string> FetchRenoDXNightlyCommitNotes(HtmlDocument document)
+    {
+        var preNode = document.DocumentNode
+            .SelectSingleNode("//pre[contains(@class, 'text-small') and contains(@class, 'ws-pre-wrap')]");
+
+        if (preNode is null)
+            return [];
+
+        return HtmlEntity.DeEntitize(preNode.InnerText)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(l => l.Trim())
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Skip(1)
+            .ToList();
+    }
+
+    private async Task<HtmlDocument> LoadHtmlDocumentAsync(string url, CancellationToken cancellationToken = default)
+    {
+        var httpClient = _clientFactory.CreateClient(HttpClientName);
+        var html = await httpClient.GetStringAsync(url, cancellationToken);
+        var document = new HtmlDocument();
+        document.LoadHtml(html);
+        return document;
     }
 
     // TODO: surface Result<T>
@@ -414,177 +671,6 @@ internal sealed partial class ParseService : IParseService
 
             start = urlEnd + 1;
         }
-    }
-
-    private async Task<string?> FetchLatestReShadeVersionFromSiteAsync()
-    {
-        try
-        {
-            var httpClient = _clientFactory.CreateClient(HttpClientName);
-            var document = await httpClient.GetStringAsync(ReShadeSiteUrl);
-            var match = RegexHelper.ExtractReShadeVersionFromSite.Match(document);
-
-            if (!match.Success) return null;
-
-            LogReShadeSiteVersionFetchSuccess(ReShadeSiteUrl);
-
-            return match.Groups[1].Value;
-        }
-        catch (HttpRequestException ex)
-        {
-            LogSiteUnreachable(ReShadeSiteUrl, ex.StatusCode, ex);
-            return null;
-        }
-        catch (TaskCanceledException ex)
-        {
-            LogSiteTimeout(ReShadeSiteUrl, ex);
-            return null;
-        }
-    }
-
-    private async Task<List<string>> FetchReShadeVersionsFromGitHubTagsAsync()
-    {
-        var versions = new List<string>();
-
-        try
-        {
-            var document = await LoadHtmlDocumentAsync(ReShadeTagsUrl);
-
-            var tagNodes = document.DocumentNode
-                .SelectNodes("//a[contains(@href, 'crosire/reshade/releases/tag/')]");
-
-            if (tagNodes is null)
-            {
-                LogReShadeTagsNotFound(ReShadeTagsUrl);
-                return versions;
-            }
-
-            foreach (var node in tagNodes)
-            {
-                var href = node.GetAttributeValue("href", string.Empty);
-                var tag = href.Split('/').LastOrDefault();
-
-                if (string.IsNullOrWhiteSpace(tag)) continue;
-
-                var version = tag.TrimStart('v');
-
-                if (string.IsNullOrWhiteSpace(version) || versions.Contains(version)) continue;
-
-                versions.Add(version);
-                LogReShadeVersionFound(version, ReShadeTagsUrl);
-            }
-        }
-        catch (HttpRequestException ex)
-        {
-            LogSiteUnreachable(ReShadeTagsUrl, ex.StatusCode, ex);
-            return versions;
-        }
-        catch (TaskCanceledException ex)
-        {
-            LogSiteTimeout(ReShadeTagsUrl, ex);
-            return versions;
-        }
-
-        return versions;
-    }
-
-    private async Task<ImmutableArray<string>> FetchRenoDXNightlyTagNamesAsync()
-    {
-        List<string> tags = [];
-
-        try
-        {
-            var document = await LoadHtmlDocumentAsync(RenoDXTagsUrl);
-
-            var tagNodes = document.DocumentNode
-                .SelectNodes("//a[contains(@href, 'clshortfuse/renodx/releases/tag/nightly-')]");
-
-            if (tagNodes is null) return [];
-
-            foreach (var node in tagNodes)
-            {
-                var href = node.GetAttributeValue("href", string.Empty);
-                var tag = href.Split('/').LastOrDefault();
-
-                if (string.IsNullOrWhiteSpace(tag) || !tag.StartsWith("nightly-")) continue;
-                if (!tags.Contains(tag))
-                    tags.Add(tag);
-            }
-        }
-        catch (HttpRequestException ex)
-        {
-            LogSiteUnreachable(RenoDXTagsUrl, ex.StatusCode, ex);
-            return [];
-        }
-        catch (TaskCanceledException ex)
-        {
-            LogSiteTimeout(RenoDXTagsUrl, ex);
-            return [];
-        }
-
-        return [.. tags];
-    }
-
-    private async Task<RenoDXTagInfo?> FetchRenoDXNightlyReleaseInfoAsync(string nightlyTag)
-    {
-        LogRenoDXNightlyTagParsingStart(nightlyTag);
-
-        var renoDXNightlyTagUrl = RenoDXReleasesTagUrl + nightlyTag;
-
-        try
-        {
-            var dateStr = nightlyTag["nightly-".Length..];
-            if (!DateOnly.TryParseExact(dateStr, "yyyyMMdd", null,
-                    DateTimeStyles.None, out var date))
-            {
-                LogRenoDXNightlyTagDateParseFailure(nightlyTag, dateStr);
-                return null;
-            }
-
-            var document = await LoadHtmlDocumentAsync(renoDXNightlyTagUrl);
-
-            var preNode = document.DocumentNode
-                .SelectSingleNode("//pre[contains(@class, 'text-small') and contains(@class, 'ws-pre-wrap')]");
-
-            List<string> commitNotes = [];
-
-            if (preNode is not null)
-            {
-                var lines = HtmlEntity.DeEntitize(preNode.InnerText)
-                    .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(l => l.Trim())
-                    .Where(l => !string.IsNullOrWhiteSpace(l))
-                    .Skip(1)
-                    .ToList();
-
-                if (lines.Count > 0)
-                    commitNotes = lines;
-            }
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-                LogRenoDXNightlyTagParseComplete(nightlyTag, string.Join(Environment.NewLine, commitNotes));
-
-            return new RenoDXTagInfo(date, RenoDX.Branch.Nightly, commitNotes);
-        }
-        catch (HttpRequestException ex)
-        {
-            LogSiteUnreachable(renoDXNightlyTagUrl, ex.StatusCode, ex);
-            return null;
-        }
-        catch (TaskCanceledException ex)
-        {
-            LogSiteTimeout(renoDXNightlyTagUrl, ex);
-            return null;
-        }
-    }
-
-    private async Task<HtmlDocument> LoadHtmlDocumentAsync(string url)
-    {
-        var httpClient = _clientFactory.CreateClient(HttpClientName);
-        await using var stream = await httpClient.GetStreamAsync(url);
-        var document = new HtmlDocument();
-        document.Load(stream);
-        return document;
     }
 
     private static List<RenoDXGenericModInfoDto> DedupedUnrealMods(List<RenoDXGenericModInfoDto> mods)
