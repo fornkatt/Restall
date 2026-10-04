@@ -23,6 +23,7 @@ internal sealed class JsonCustomGameFolderStore : ICustomGameFolderStore
 
     public void AddFolder(string path)
     {
+        if (_folders.Contains(path)) return;
         _folders.Add(path);
         File.WriteAllText(_filePath, JsonSerializer.Serialize(_folders));
     }

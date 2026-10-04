@@ -8,6 +8,7 @@ public sealed class JsonCustomGameFolderStoreTests : IDisposable
     private readonly string _tempDir = Directory.CreateTempSubdirectory("restall-tests-").FullName;
     private string FilePath => Path.Combine(_tempDir, "custom-game-folders.json");
     public void Dispose() => Directory.Delete(_tempDir, recursive: true);
+
     [Fact]
     public void AddFolder_IsRemembered_AfterRestart()
     {
@@ -21,5 +22,19 @@ public sealed class JsonCustomGameFolderStoreTests : IDisposable
         // Assert
         var folder = Assert.Single(reloaded.GetFolders());
         Assert.Equal("/Games", folder);
+    }
+
+    [Fact]
+    public void AddFolder_IgnoresDuplicates()
+    {
+        //Arrange
+        var store = new JsonCustomGameFolderStore(FilePath);
+
+        //Act
+        store.AddFolder("/Games");
+        store.AddFolder("/Games");
+
+        //Assert
+        Assert.Single(store.GetFolders());
     }
 }
