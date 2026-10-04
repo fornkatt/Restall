@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Stores;
+using System.ComponentModel.Design.Serialization;
+
 namespace Restall.Infrastructure.Tests.Stores;
 public sealed class JsonCustomGameFolderStoreTests : IDisposable
 {
@@ -36,5 +38,32 @@ public sealed class JsonCustomGameFolderStoreTests : IDisposable
 
         //Assert
         Assert.Single(store.GetFolders());
+    }
+
+    [Fact]
+    public void Constructor_StartsEmpty_WhenFileIsCorrupt()
+    {
+        //Arrange
+        File.WriteAllText(FilePath, "this is not json");
+
+        //Act
+        var store = new JsonCustomGameFolderStore(FilePath);
+
+        //Assert
+        Assert.Empty(store.GetFolders());
+    }
+
+    [Fact]
+    public void AddFolder_CreatesDirectory_WhenItDoesNotExist()
+    {
+        //Arrange
+        var filePath = Path.Combine(_tempDir, "NewFolder", "custom-game-folders.json");
+        var store = new JsonCustomGameFolderStore(filePath);
+
+        //Act
+        store.AddFolder("/Games");
+
+        //Assert
+        Assert.True(File.Exists(filePath));
     }
 }

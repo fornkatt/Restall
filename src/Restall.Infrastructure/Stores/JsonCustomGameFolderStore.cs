@@ -14,9 +14,20 @@ internal sealed class JsonCustomGameFolderStore : ICustomGameFolderStore
     public JsonCustomGameFolderStore(string filePath)
     {
         _filePath = filePath;
-        _folders = File.Exists(filePath)
-            ? JsonSerializer.Deserialize<List<string>>(File.ReadAllText(filePath)) ?? []
-            : [];
+        _folders = LoadFolders(filePath);
+    }
+
+    private static List<string> LoadFolders(string filePath)
+    {
+        if (!File.Exists(filePath)) return [];
+        try
+        {
+            return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(filePath)) ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 
     public IReadOnlyCollection<string> GetFolders() => _folders;
@@ -25,6 +36,7 @@ internal sealed class JsonCustomGameFolderStore : ICustomGameFolderStore
     {
         if (_folders.Contains(path)) return;
         _folders.Add(path);
+        Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
         File.WriteAllText(_filePath, JsonSerializer.Serialize(_folders));
     }
 }
