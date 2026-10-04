@@ -25,4 +25,5 @@ public interface IPathService
     string GetHeroicInstalledPath(Game.Platform platform);
     string GetHeroicStoreCache(Game.Platform platform, string destination);
     string GetDefaultLogPath();
+    string GetCustomGameFoldersFilePath();
 }

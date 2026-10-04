@@ -72,12 +72,17 @@ public static class InfrastructureServiceCollectionExtensions
 
     private static IServiceCollection AddPlatformScanners(this IServiceCollection services) =>
         services
+            .AddSingleton<ICustomGameFolderStore>(sp =>
+                new JsonCustomGameFolderStore(sp.GetRequiredService<IPathService>().GetCustomGameFoldersFilePath()))
+            .AddSingleton<ICustomGameFolderProvider>(sp => sp.GetRequiredService<ICustomGameFolderStore>())
             .AddSingleton<IPlatformScannerService, SteamScanner>()
             .AddSingleton<IPlatformScannerService, EpicScanner>()
             .AddSingleton<IPlatformScannerService, GOGScanner>()
             .AddSingleton<IPlatformScannerService, UbisoftScanner>()
             .AddSingleton<IPlatformScannerService, EAScanner>()
-            .AddSingleton<IPlatformScannerService, XboxScanner>();
+            .AddSingleton<IPlatformScannerService, XboxScanner>()
+            .AddSingleton<IPlatformScannerService, CustomFolderScanner>();
+
 
     private static IServiceCollection ConfigureLogging(this IServiceCollection services)
     {
