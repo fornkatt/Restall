@@ -38,7 +38,7 @@
       <Compile Update="Services\ParseService.Logging.cs">
         <DependentUpon>ParseService.cs</DependentUpon>
       </Compile>
-      <Compile Update="Services\ModDownloadService.Logging.cs">
+      <Compile Update="Services\DownloadService.Logging.cs">
         <DependentUpon>DownloadService.cs</DependentUpon>
       </Compile>
       <Compile Update="Services\GameCoverService.Logging.cs">

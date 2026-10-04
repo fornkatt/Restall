@@ -44,7 +44,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
     }
 
     public async Task<ModOperationResultDto> ExecuteAsync(InstallRenoDXRequest request,
-        IProgress<DownloadProgressReportDto>? progress = null)
+        IProgress<DownloadProgressReport>? progress = null)
     {
         var addonFilename = ResolveAddonFilename(request);
 
@@ -242,7 +242,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
     }
 
     private Task<Result> DownloadAsync(bool isExternallyHostedGeneric, InstallRenoDXRequest request,
-        string addonFilename, IProgress<DownloadProgressReportDto>? progress = null)
+        string addonFilename, IProgress<DownloadProgressReport>? progress = null)
     {
         if (isExternallyHostedGeneric)
         {

@@ -39,7 +39,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
     }
 
     public async Task<ModOperationResultDto> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
-        IProgress<DownloadProgressReportDto>? progress = null)
+        IProgress<DownloadProgressReport>? progress = null)
     {
         if (IsGamePathInvalid(request.Game, out var error))
             return error;
@@ -91,7 +91,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
     }
 
     public async Task<ModOperationResultDto> InstallOrUpdateRenoDXAsync(InstallRenoDXRequest request,
-        IProgress<DownloadProgressReportDto>? progress = null)
+        IProgress<DownloadProgressReport>? progress = null)
     {
         if (IsGamePathInvalid(request.Game, out var error))
             return error;

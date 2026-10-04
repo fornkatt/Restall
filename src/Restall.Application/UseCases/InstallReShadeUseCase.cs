@@ -41,7 +41,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
     }
 
     public async Task<ModOperationResultDto> ExecuteAsync(InstallReShadeRequest request,
-        IProgress<DownloadProgressReportDto>? progress = null)
+        IProgress<DownloadProgressReport>? progress = null)
     {
         _logger.ModInstallationStart("ReShade", request.SelectedFilename, request.Arch.ToString(),
             request.Game.Name ?? "Unknown", request.Game.ExecutablePath ?? "Unknown");
@@ -177,7 +177,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
             $"Successfully installed ReShade as {reShade.SelectedFilename}!");
     }
 
-    private async Task<Result> EnsureDownloadedAsync(ReShade reShade, IProgress<DownloadProgressReportDto>? progress)
+    private async Task<Result> EnsureDownloadedAsync(ReShade reShade, IProgress<DownloadProgressReport>? progress)
     {
         var installerPath = _pathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version!);
 

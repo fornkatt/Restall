@@ -148,7 +148,7 @@ public sealed partial class ModViewModel : ViewModelBase
     }
 
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
-    private async Task ExecuteReShadeActionAsync(Func<Progress<DownloadProgressReportDto>,
+    private async Task ExecuteReShadeActionAsync(Func<Progress<DownloadProgressReport>,
         Task<ModOperationResultDto>> work, int delayMs = 5000)
     {
         var game = SelectedGame!;
@@ -157,7 +157,7 @@ public sealed partial class ModViewModel : ViewModelBase
         var cts = new CancellationTokenSource();
         game._reShadeMessageCts = cts;
 
-        var progress = new Progress<DownloadProgressReportDto>(report =>
+        var progress = new Progress<DownloadProgressReport>(report =>
         {
             game.ReShadeModActionStatus = report.PercentComplete >= 0
                 ? $"""
@@ -293,7 +293,7 @@ public sealed partial class ModViewModel : ViewModelBase
     }
 
     private async Task ExecuteRenoDXActionAsync(
-        Func<Progress<DownloadProgressReportDto>, Task<ModOperationResultDto>> work,
+        Func<Progress<DownloadProgressReport>, Task<ModOperationResultDto>> work,
         int delayMs = 5000)
     {
         var game = SelectedGame!;
@@ -302,7 +302,7 @@ public sealed partial class ModViewModel : ViewModelBase
         var cts = new CancellationTokenSource();
         game._renoDXMessageCts = cts;
 
-        var progress = new Progress<DownloadProgressReportDto>(report =>
+        var progress = new Progress<DownloadProgressReport>(report =>
         {
             game.RenoDXModActionStatus = report.PercentComplete >= 0
                 ? $"""
