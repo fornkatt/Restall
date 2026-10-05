@@ -8,7 +8,7 @@ using Restall.Infrastructure.Tests.Fakes;
 using System.IO.Pipelines;
 using System.Net;
 
-namespace Restall.Infrastructure.Tests.Services;
+namespace Restall.Infrastructure.Tests.ServiceTests;
 
 public class DownloadServiceTests : IDisposable
 {

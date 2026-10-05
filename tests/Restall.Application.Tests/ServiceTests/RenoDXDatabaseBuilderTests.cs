@@ -6,7 +6,7 @@ using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.Services;
 
-namespace Restall.Application.Tests.Services;
+namespace Restall.Application.Tests.ServiceTests;
 
 public class RenoDXDatabaseBuilderTests
 {

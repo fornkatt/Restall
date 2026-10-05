@@ -9,7 +9,7 @@ using Restall.Infrastructure.Tests.Fakes;
 using System.Net;
 using System.Text;
 
-namespace Restall.Infrastructure.Tests.Services;
+namespace Restall.Infrastructure.Tests.ServiceTests;
 
 public class RenoDXModSourceServiceTests
 {
