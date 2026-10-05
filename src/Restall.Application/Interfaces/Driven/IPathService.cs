@@ -9,9 +9,12 @@ public interface IPathService
 {
     string GetReShadeCachePath(ReShade reShade);
     string GetRenoDXCachePath(RenoDX renoDx);
-    string GetReShadeDownloadCacheDirectory(ReShade.Branch branch);
     string GetRenoDXDownloadCacheDirectory(RenoDX.Branch branch);
+    string GetRenoDXSnapshotDownloadPath(string snapshotVersion, string addonFilename);
+    string GetRenoDXNightlyDownloadPath(string nightlyVersion, string addonFilename);
+    string GetRenoDXDirectDownloadPath(string addonFilename);
 
+    string GetReShadeDownloadCacheDirectory(ReShade.Branch branch);
     string GetReShadeInstallerFilePath(ReShade.Branch branch, string version);
     string GetReShadeExtractedFilePath(ReShade reShade);
 

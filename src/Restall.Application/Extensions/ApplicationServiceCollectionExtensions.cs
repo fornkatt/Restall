@@ -4,6 +4,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Facades;
 using Restall.Application.Interfaces.Driving;
+using Restall.Application.Services;
+using Restall.Application.Stores;
 using Restall.Application.UseCases;
 
 namespace Restall.Application.Extensions;
@@ -18,5 +20,7 @@ public static class ApplicationServiceCollectionExtensions
             .AddSingleton<IInstallRenoDXUseCase, InstallRenoDXUseCase>()
             .AddSingleton<IUninstallRenoDXUseCase, UninstallRenoDXUseCase>()
             .AddSingleton<IGameRefreshUseCase, GameRefreshUseCase>()
-            .AddSingleton<IFullLibraryRefreshUseCase, FullLibraryRefreshUseCase>();
+            .AddSingleton<IFullLibraryRefreshUseCase, FullLibraryRefreshUseCase>()
+            .AddSingleton<RenoDXModDatabaseBuilder>()
+            .AddSingleton<RenoDXCatalog>();
 }
