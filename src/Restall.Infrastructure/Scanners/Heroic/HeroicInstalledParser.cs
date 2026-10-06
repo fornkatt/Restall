@@ -37,7 +37,7 @@ internal static class HeroicInstalledParser
     private static List<HeroicInstalledGame> ReadGOGInstalled(JsonElement root)
     {
         var games = new List<HeroicInstalledGame>();
-        foreach(var entry in root.GetProperty("installed").EnumerateArray())
+        foreach (var entry in root.GetProperty("installed").EnumerateArray())
         {
             games.Add(ReadEntry(entry, "appName"));
         }

@@ -35,7 +35,7 @@ public class HeroicLibraryTests
         // Arrange
         var json = LibraryArray(platform, LibraryEntry(appName, title));
         // Act
-        var result = HeroicLibraryParser.LibraryParser(json,platform);
+        var result = HeroicLibraryParser.LibraryParser(json, platform);
         //Assert
         var actual = Assert.Single(result);
         Assert.Equal(appName, actual.AppName);
@@ -49,7 +49,7 @@ public class HeroicLibraryTests
         // Arrange
         var json = LibraryArray(platform, appName);
         // Act
-        var result = HeroicLibraryParser.LibraryParser(json,platform);
+        var result = HeroicLibraryParser.LibraryParser(json, platform);
         //Assert
         var actual = Assert.Single(result);
         Assert.Empty(actual.AppName);
@@ -63,7 +63,7 @@ public class HeroicLibraryTests
         // Arrange
         var json = LibraryArray(platform, title);
         // Act
-        var result = HeroicLibraryParser.LibraryParser(json,platform);
+        var result = HeroicLibraryParser.LibraryParser(json, platform);
         //Assert
         var actual = Assert.Single(result);
         Assert.Empty(actual.Title);

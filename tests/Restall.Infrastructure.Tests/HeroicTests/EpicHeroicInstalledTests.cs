@@ -29,18 +29,18 @@ public class EpicHeroicInstalledTests
     [Fact]
     public void InstalledParser_EntryIsDLC_ReturnsTrue()
     {
-         // Arrange
-         var json = SharedHeroic.ReadHeroicBlock(InstalledEntry(
-             "4fa3d8d9b2cb4714a19a38d1a598be8f",
-             @"C:\\Games\\Heroic\\FalloutNewVegas",
-             isDlc: true));
+        // Arrange
+        var json = SharedHeroic.ReadHeroicBlock(InstalledEntry(
+            "4fa3d8d9b2cb4714a19a38d1a598be8f",
+            @"C:\\Games\\Heroic\\FalloutNewVegas",
+            isDlc: true));
 
-         // Act
-         var result = HeroicInstalledParser.InstalledParser(json, Game.Platform.Epic);
+        // Act
+        var result = HeroicInstalledParser.InstalledParser(json, Game.Platform.Epic);
 
         //Assert
-         var actual = Assert.Single(result);
-         Assert.True(actual.IsDlc);
+        var actual = Assert.Single(result);
+        Assert.True(actual.IsDlc);
     }
 
     [Fact]

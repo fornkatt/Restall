@@ -99,7 +99,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
 
                 if (!Directory.Exists(installPath))
                 {
-                    LogEpicGameInstallFolderNotFound(installPath,name, item);
+                    LogEpicGameInstallFolderNotFound(installPath, name, item);
                     continue;
                 }
 
@@ -128,8 +128,8 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         var installedJsonPath = _pathService.GetHeroicInstalledPath(Platform);
         var epicLibraryJsonPath = _pathService.GetHeroicStoreCache(Platform, "legendary_library.json");
 
-         if (!File.Exists(installedJsonPath) || !File.Exists(epicLibraryJsonPath))
-             return (games, null);
+        if (!File.Exists(installedJsonPath) || !File.Exists(epicLibraryJsonPath))
+            return (games, null);
 
         List<HeroicInstalledGame> installedGames;
         try
@@ -163,7 +163,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
         }
         catch (Exception ex)
         {
-            _logger.HeroicLibraryReadFailure(Platform,epicLibraryJsonPath,ex);
+            _logger.HeroicLibraryReadFailure(Platform, epicLibraryJsonPath, ex);
             return (games, epicLibraryJsonPath);
         }
 
@@ -193,7 +193,7 @@ internal sealed partial class EpicScanner : IPlatformScannerService
                     continue;
                 }
 
-                if(!libraryTitles.TryGetValue(entry.AppName, out var title))
+                if (!libraryTitles.TryGetValue(entry.AppName, out var title))
                 {
                     _logger.HeroicLibraryEntryNotFound(Platform, entry.AppName, epicLibraryJsonPath);
                     continue;
