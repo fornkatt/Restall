@@ -3,6 +3,7 @@
 
 using Microsoft.Win32;
 using System.Runtime.Versioning;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 
@@ -26,11 +27,10 @@ internal static class GameScanHelper
             ? m.Groups[1].Value
             : null;
 
-    internal static string? ExtractJsonString(string json, string key) =>
-        Regex.Match(json, $@"""{Regex.Escape(key)}""\s*:\s*""([^""\\]*(\\.[^""\\]*)*)""")
-            is { Success: true } m
-            ? m.Groups[1].Value.Replace("\\\\", "\\").Replace("\\/", "/")
-            : null;
+    internal static string ReadJsonString(JsonElement json, string key) =>
+        json.TryGetProperty(key, out var value) &&
+        value.ValueKind == JsonValueKind.String ? value.GetString()
+                                                   ?? string.Empty : string.Empty;
 
     [SupportedOSPlatform("windows")]
     internal static string? ReadRegistry(string keyPath, string valueName)
@@ -80,8 +80,7 @@ internal static class GameScanHelper
         }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility",
-        Justification = "Already checked at call site")]
+    [SupportedOSPlatform("windows")]
     internal static string? GetRegistryValue(RegistryKey key, params string[] valueNames)
     {
         foreach (var name in valueNames)
@@ -94,7 +93,6 @@ internal static class GameScanHelper
     }
 
     //TODO: CREATE MANIFEST FOR NONGAMEEXECUTABLE, NONGAME AND GETPREFERREDEXESUBFOLDERS
-    //TODO: MOVE 'DedicatedServer' TO NONGAMEEXECUTABLE AND ADD 'Lossless Scaling' TO NONGAME
     internal static bool NonGameExecutable(string exeNameWithoutExtension)
     {
         var keywords = new HashSet<string>()
@@ -121,7 +119,6 @@ internal static class GameScanHelper
         return keywords.Any(k => exeNameWithoutExtension.Contains(k, StringComparison.OrdinalIgnoreCase));
     }
 
-
     internal static bool NonGame(string name)
     {
         var nonGameArray = new HashSet<string>
@@ -134,7 +131,8 @@ internal static class GameScanHelper
             "__Installer",
             "_CommonRedist",
             "UE_",
-            "Lossless Scaling"
+            "Lossless Scaling",
+            "SteamVR"
         };
         if (nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase)))
             return true;

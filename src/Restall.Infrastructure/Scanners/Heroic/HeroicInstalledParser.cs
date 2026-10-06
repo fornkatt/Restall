@@ -1,64 +1,54 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Domain.Entities;
+using Restall.Infrastructure.Helpers;
 using System.Text.Json;
 
 namespace Restall.Infrastructure.Scanners.Heroic;
 
 internal static class HeroicInstalledParser
 {
-    internal static List<HeroicInstalledGame> EpicHeroicParser(string installedJson)
+    internal static List<HeroicInstalledGame> InstalledParser(string installedJson, Game.Platform platform)
+    {
+        using var doc = JsonDocument.Parse(installedJson);
+        var root = doc.RootElement;
+
+        return platform switch
+        {
+            Game.Platform.Epic => ReadEpicInstalled(root),
+            Game.Platform.GOG => ReadGOGInstalled(root),
+            _ => throw new ArgumentOutOfRangeException(nameof(platform), "Unsupported Platform")
+        };
+
+    }
+
+    private static List<HeroicInstalledGame> ReadEpicInstalled(JsonElement root)
     {
         var games = new List<HeroicInstalledGame>();
-        using var doc = JsonDocument.Parse(installedJson);
-
-        foreach(var entry in doc.RootElement.EnumerateObject())
+        foreach (var prop in root.EnumerateObject())
         {
-            var appName = entry.Value.TryGetProperty("app_name", out var appNameElement) &&
-                          appNameElement.ValueKind == JsonValueKind.String
-                ? appNameElement.GetString() ?? string.Empty
-                : string.Empty;
-
-            var installPath = entry.Value.TryGetProperty("install_path", out var installPathElement) &&
-                              installPathElement.ValueKind == JsonValueKind.String
-                              ? installPathElement.GetString() ?? string.Empty
-                              : string.Empty;
-
-            var isDlc = entry.Value.TryGetProperty("is_dlc", out var isDlcElement) &&
-                        isDlcElement.ValueKind == JsonValueKind.True;
-
-
-            games.Add(new HeroicInstalledGame(appName, installPath, isDlc));
+            games.Add(ReadEntry(prop.Value, "app_name"));
         }
-
         return games;
     }
 
-    internal static List<HeroicInstalledGame> GOGHeroicParser(string installedJson)
+    private static List<HeroicInstalledGame> ReadGOGInstalled(JsonElement root)
     {
         var games = new List<HeroicInstalledGame>();
-        using var doc = JsonDocument.Parse(installedJson);
-
-        if (!doc.RootElement.TryGetProperty("installed", out var installedArray)) return games;
-
-        foreach (var entry in installedArray.EnumerateArray())
+        foreach(var entry in root.GetProperty("installed").EnumerateArray())
         {
-            var appName = entry.TryGetProperty("appName", out var appNameElement) &&
-                          appNameElement.ValueKind == JsonValueKind.String
-                ? appNameElement.GetString() ?? string.Empty
-                : string.Empty;
-
-            var installPath = entry.TryGetProperty("install_path", out var installPathElement) &&
-                              installPathElement.ValueKind == JsonValueKind.String
-                ? installPathElement.GetString() ?? string.Empty
-                : string.Empty;
-
-            var isDlc = entry.TryGetProperty("is_dlc", out var isDlcElement) &&
-                        isDlcElement.ValueKind == JsonValueKind.True;
-
-            games.Add(new HeroicInstalledGame(appName, installPath, isDlc));
+            games.Add(ReadEntry(entry, "appName"));
         }
-
         return games;
     }
+
+    private static HeroicInstalledGame ReadEntry(JsonElement entry, string appName) =>
+        new(
+            GameScanHelper.ReadJsonString(entry, appName),
+            GameScanHelper.ReadJsonString(entry, "install_path"),
+            entry.TryGetProperty("is_dlc", out var isDlcElement)
+            && isDlcElement.ValueKind == JsonValueKind.True
+        );
+
 }

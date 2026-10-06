@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using Restall.Domain.Entities;
+using Restall.Infrastructure.Helpers;
 using System.Text.Json;
 
 
@@ -9,23 +11,22 @@ namespace Restall.Infrastructure.Scanners.Heroic;
 
 internal static class HeroicLibraryParser
 {
-    internal static List<HeroicLibrary> GOGLibraryParser(string libraryJson)
+    internal static List<HeroicLibrary> LibraryParser(string libraryJson, Game.Platform platform)
     {
         var libraries = new List<HeroicLibrary>();
         using var doc = JsonDocument.Parse(libraryJson);
-
-        if (!doc.RootElement.TryGetProperty("games", out var gamesElement)) return libraries;
-
-        foreach (var entry in gamesElement.EnumerateArray())
+        var arrayKey = platform switch
         {
-            var appName = entry.TryGetProperty("app_name", out var appNameElement) &&
-                          appNameElement.ValueKind == JsonValueKind.String ? appNameElement.GetString()
-                                                                             ?? string.Empty : string.Empty;
+            Game.Platform.Epic => "library",
+            Game.Platform.GOG => "games",
+            _ => throw new ArgumentOutOfRangeException(nameof(platform), "Unsupported Platform")
+        };
 
-            var title = entry.TryGetProperty("title", out var titleElement) &&
-                        titleElement.ValueKind == JsonValueKind.String
-                ? titleElement.GetString() ?? string.Empty
-                : string.Empty;
+        foreach (var entry in doc.RootElement.GetProperty(arrayKey).EnumerateArray())
+        {
+            var appName = GameScanHelper.ReadJsonString(entry, "app_name");
+
+            var title = GameScanHelper.ReadJsonString(entry, "title");
 
             libraries.Add(new HeroicLibrary(appName, title));
         }
@@ -33,28 +34,5 @@ internal static class HeroicLibraryParser
         return libraries;
     }
 
-    internal static List<HeroicLibrary> EpicLibraryParser(string libraryJson)
-    {
-        var libraries = new List<HeroicLibrary>();
-        using var doc = JsonDocument.Parse(libraryJson);
-
-        if (!doc.RootElement.TryGetProperty("library", out var libraryElement)) return libraries;
-
-        foreach (var entry in libraryElement.EnumerateArray())
-        {
-            var appName = entry.TryGetProperty("app_name", out var appNameElement) &&
-                          appNameElement.ValueKind == JsonValueKind.String ? appNameElement.GetString()
-                                                                             ?? string.Empty : string.Empty;
-
-            var title = entry.TryGetProperty("title", out var titleElement) &&
-                        titleElement.ValueKind == JsonValueKind.String
-                ? titleElement.GetString() ?? string.Empty
-                : string.Empty;
-
-            libraries.Add(new HeroicLibrary(appName, title));
-        }
-
-        return libraries;
-    }
 
 }

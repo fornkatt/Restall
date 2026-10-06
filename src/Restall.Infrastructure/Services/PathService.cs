@@ -56,25 +56,20 @@ internal sealed class PathService : IPathService
         ? Path.Combine(s_userProfileDirectory, "AppData", "Roaming", "heroic")
         : Path.Combine(s_userProfileDirectory, ".config", "heroic");
 
-    public string GetHeroicInstalledPath(Game.Platform platform) =>
-        (GetHeroicPath() is { } root
-            ? platform switch
-            {
-                Game.Platform.Epic => Path.Combine(root, "legendaryConfig", "legendary", "installed.json"),
-                Game.Platform.GOG => Path.Combine(root, "gog_store", "installed.json"),
-                _ => null
-            }
-            : null) ?? "Unknown";
+    public string GetHeroicInstalledPath(Game.Platform platform) => platform switch
+    {
+        Game.Platform.Epic => Path.Combine(GetHeroicPath(), "legendaryConfig", "legendary", "installed.json"),
+        Game.Platform.GOG => Path.Combine(GetHeroicPath(), "gog_store", "installed.json"),
+        _ => throw new ArgumentOutOfRangeException(nameof(platform), "Unsupported Platform")
+    };
 
-    public string GetHeroicStoreCache(Game.Platform platform, string destination) =>
-        (GetHeroicPath() is { } root
-            ? platform switch
-            {
-                Game.Platform.Epic => Path.Combine(root, "store_cache", destination),
-                Game.Platform.GOG => Path.Combine(root, "store_cache", destination),
-                _ => null
-            }
-            : null) ?? "Unknown";
+    public string GetHeroicStoreCache(Game.Platform platform, string destination) => platform switch
+    {
+        Game.Platform.Epic => Path.Combine(GetHeroicPath(), "store_cache", destination),
+        Game.Platform.GOG => Path.Combine(GetHeroicPath(), "store_cache", destination),
+        _ => throw new ArgumentOutOfRangeException(nameof(platform), "Unsupported Platform")
+    };
+
 
 
     public string GetReShadeCachePath(ReShade reShade) =>
