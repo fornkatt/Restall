@@ -14,11 +14,7 @@ internal static partial class RegexHelper
     internal static Regex HeroicInstallPathRegex => HeroicInstallPath();
     internal static Regex GOGHeroicAppNameRegex => HeroicAppNameGOG();
     internal static Regex EpicHeroicAppNameRegex => HeroicAppNameEpic();
-    internal static Regex Match32BitRegex => Match32Bit();
     internal static Regex InstallInfoAppNameAndTitleRegex => InstallInfoAppNameAndTitle();
-
-    [GeneratedRegex(@"\b32[\s-]?bit\b", RegexOptions.IgnoreCase)]
-    private static partial Regex Match32Bit();
 
     [GeneratedRegex(@"^\d+\.(\d{4})\.(\d{4})\.\d+$")]
     private static partial Regex RenoDXVersion();

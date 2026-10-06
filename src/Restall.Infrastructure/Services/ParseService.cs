@@ -573,7 +573,7 @@ internal sealed partial class ParseService : IParseService
 
                     var notes = CombineNotes(statusNote, columnNotes);
 
-                    if (notes is not null && RegexHelper.Match32BitRegex.IsMatch(notes))
+                    if (ArchitectureRecommender.Mentions32Bit(notes))
                         architecture = Architecture.X32;
 
                     genericWikiMods.Add(new RenoDXGenericModInfoDto(

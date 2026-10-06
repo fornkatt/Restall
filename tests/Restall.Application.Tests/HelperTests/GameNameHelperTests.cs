@@ -60,11 +60,11 @@ public class GameNameHelperTests
     [Fact]
     public void SplitInWordSeparators_HyphenBetweenSpaces_ReturnsNameUnchanged()
     {
-        const string game = "RoboCop: Rogue City - Unfinished Business";
+        const string gameName = "RoboCop: Rogue City - Unfinished Business";
 
-        var actual = GameNameHelper.SplitInWordSeparators(game);
+        var actual = GameNameHelper.SplitInWordSeparators(gameName);
 
-        Assert.Equal(game, actual);
+        Assert.Equal(gameName, actual);
     }
 
     [Fact]
