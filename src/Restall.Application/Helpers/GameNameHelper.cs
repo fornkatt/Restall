@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Restall.Application.Helpers;
@@ -44,6 +46,9 @@ public static partial class GameNameHelper
     [GeneratedRegex(@"[\u2018\u2019\u02BC\u0060\u00B4']s\b", RegexOptions.IgnoreCase)]
     private static partial Regex PossessiveRegex();
 
+    [GeneratedRegex(@"(?<=\w)-(?=\w)")]
+    private static partial Regex InWordHyphenRegex();
+
     public static string NormalizeName(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return string.Empty;
@@ -86,6 +91,31 @@ public static partial class GameNameHelper
         }
 
         return name;
+    }
+
+    public static string RemoveAccents(string name)
+    {
+        var decomposed = name.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder(decomposed.Length);
+
+        foreach (var character in decomposed)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
+                sb.Append(character);
+        }
+
+        return sb.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    public static string SplitInWordSeparators(string name) =>
+        InWordHyphenRegex().Replace(name, " ").Replace('_', ' ');
+
+    public static int CountSharedWords(string a, string b)
+    {
+        var aWords = NormalizeName(a).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bWords = NormalizeName(b).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        return aWords.Intersect(bWords).Count();
     }
 
     public static bool FuzzyNameMatch(string a, string b)
