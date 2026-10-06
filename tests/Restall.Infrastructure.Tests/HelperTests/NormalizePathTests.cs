@@ -4,7 +4,7 @@
 using Restall.Infrastructure.Helpers;
 using Restall.Infrastructure.Tests.Common;
 
-namespace Restall.Infrastructure.Tests.HelpersTests;
+namespace Restall.Infrastructure.Tests.HelperTests;
 
 public class NormalizePathTests
 {

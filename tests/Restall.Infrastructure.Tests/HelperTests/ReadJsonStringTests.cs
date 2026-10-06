@@ -4,8 +4,7 @@
 using Restall.Infrastructure.Helpers;
 using System.Text.Json;
 
-
-namespace Restall.Infrastructure.Tests.HelpersTests;
+namespace Restall.Infrastructure.Tests.HelperTests;
 
 public class ReadJsonStringTests
 {
