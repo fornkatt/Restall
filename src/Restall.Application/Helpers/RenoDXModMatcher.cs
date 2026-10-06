@@ -70,15 +70,12 @@ public static class RenoDXModMatcher
 
     private static int? FindExactMatch(string preparedGameName, ImmutableArray<string> preparedModNames)
     {
-        var normalizedGameName = GameNameHelper.NormalizeName(preparedGameName);
+        var normalizedModNames = preparedModNames.Select(GameNameHelper.NormalizeName)
+            .ToImmutableArray();
 
-        for (var index = 0; index < preparedModNames.Length; index++)
-        {
-            if (GameNameHelper.NormalizeName(preparedModNames[index]) == normalizedGameName)
-                return index;
-        }
+        var index = normalizedModNames.IndexOf(GameNameHelper.NormalizeName(preparedGameName));
 
-        return null;
+        return index == -1 ? null : index;
     }
 
     private static ImmutableArray<int> FindClosestFuzzyMatches(string preparedGameName,

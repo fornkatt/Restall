@@ -119,6 +119,18 @@ public class RenoDXModMatcherTests
         Assert.Same(RenoDXModMatch.None, actual);
     }
 
+    [Fact]
+    public void Match_ExpansionNameWithSubtitle_ReturnsNothing()
+    {
+        var database = new RenoDXModDatabase([CreateGameMod("RoboCop: Rogue City")],
+            [], []);
+
+        var actual = RenoDXModMatcher.Match("RoboCop: Rogue City - Unfinished Business",
+            database);
+
+        Assert.Same(RenoDXModMatch.None, actual);
+    }
+
     private static RenoDXGameMod CreateGameMod(string name) =>
         new(name, RenoDXModStatus.Done, null, null, null, null, null,
             null, null);
