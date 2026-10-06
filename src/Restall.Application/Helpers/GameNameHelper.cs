@@ -93,15 +93,26 @@ public static partial class GameNameHelper
         return name;
     }
 
-    public static string RemoveAccents(string name)
+    public static string RemoveLatinAccents(string name)
     {
         var decomposed = name.Normalize(NormalizationForm.FormD);
         var sb = new StringBuilder(decomposed.Length);
+        var lastBaseCharacter = '\0';
 
         foreach (var character in decomposed)
         {
-            if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
-                sb.Append(character);
+            var isMark = CharUnicodeInfo.GetUnicodeCategory(character) == UnicodeCategory.NonSpacingMark;
+
+            switch (isMark)
+            {
+                case true when char.IsAsciiLetter(lastBaseCharacter):
+                    continue;
+                case false:
+                    lastBaseCharacter = character;
+                    break;
+            }
+
+            sb.Append(character);
         }
 
         return sb.ToString().Normalize(NormalizationForm.FormC);

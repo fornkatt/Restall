@@ -114,5 +114,5 @@ public static class RenoDXModMatcher
         [.. names.Select(PrepareName)];
 
     private static string PrepareName(string name) =>
-        GameNameHelper.SplitInWordSeparators(GameNameHelper.RemoveAccents(name));
+        GameNameHelper.SplitInWordSeparators(GameNameHelper.RemoveLatinAccents(name));
 }
