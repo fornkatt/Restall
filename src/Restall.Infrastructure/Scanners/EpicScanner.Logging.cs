@@ -17,6 +17,11 @@ internal sealed partial class EpicScanner
     private partial void LogEpicGameNameNotFound(string file, string item);
 
     [LoggerMessage(EventId = 1652, Level = LogLevel.Warning,
-        Message = "Could not find root path for Epic game \"{Name}\" with item: \"{Item}\"")]
-    private partial void LogEpicGameRootPathNotFound(string name, string item);
+        Message = "Could not find the install folder \"{InstallPath}\" for Epic game \"{Name}\" with item: \"{Item}\"")]
+    private partial void LogEpicGameInstallFolderNotFound(string installPath, string name, string item);
+
+    [LoggerMessage(EventId = 1653, Level = LogLevel.Warning,
+        Message = "Could not find the install path for Epic game \"{Name}\" with item: \"{Item}\"")]
+    private partial void LogEpicGameInstallPathNotFound(string name, string item);
+
 }

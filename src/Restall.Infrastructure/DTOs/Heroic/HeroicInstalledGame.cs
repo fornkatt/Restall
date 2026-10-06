@@ -1,0 +1,12 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+
+namespace Restall.Infrastructure.DTOs.Heroic;
+
+internal sealed record HeroicInstalledGame(
+    string AppName,
+    string InstallPath,
+    bool IsDlc);
+
+

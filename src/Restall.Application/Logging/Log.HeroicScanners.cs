@@ -10,9 +10,9 @@ namespace Restall.Application.Logging;
 public static partial class Log
 {
     [LoggerMessage(EventId = 75, Level = LogLevel.Error,
-        Message = "Failed to read the {Platform} Heroic install info file \"{InstallInfoPath}\"")]
-    public static partial void HeroicInstallInfoReadFailure(this ILogger logger, Game.Platform platform,
-        string installInfoPath, Exception ex);
+        Message = "Failed to read the {Platform} Heroic library file \"{LibraryPath}\"")]
+    public static partial void HeroicLibraryReadFailure(this ILogger logger, Game.Platform platform,
+        string libraryPath, Exception ex);
 
     [LoggerMessage(EventId = 76, Level = LogLevel.Error,
         Message = "Failed to read the {Platform} Heroic 'installed.json' file in \"{InstalledJsonPath}\"")]
@@ -20,13 +20,13 @@ public static partial class Log
         string installedJsonPath, Exception ex);
 
     [LoggerMessage(EventId = 77, Level = LogLevel.Error,
-        Message = "Failed to scan {Platform} Heroic JSON block \"{Json}\"")]
-    public static partial void HeroicJsonBlockScanFailure(this ILogger logger, Game.Platform platform, string json,
+        Message = "Failed to scan {Platform} Heroic entry \"{Entry}\"")]
+    public static partial void HeroicEntryScanFailure(this ILogger logger, Game.Platform platform, string entry,
         Exception ex);
 
     [LoggerMessage(EventId = 78, Level = LogLevel.Warning,
         Message = "Could not find the app name for {Platform} Heroic game at \"{InstallPath}\"")]
-    public static partial void HeroicAppNameNotFound(this ILogger logger, Game.Platform platform, string? installPath);
+    public static partial void HeroicAppNameNotFound(this ILogger logger, Game.Platform platform, string installPath);
 
     [LoggerMessage(EventId = 79, Level = LogLevel.Warning,
         Message = "Could not find the install path for {Platform} Heroic game with app name: \"{AppName}\"")]
@@ -36,18 +36,23 @@ public static partial class Log
     [LoggerMessage(EventId = 80, Level = LogLevel.Warning,
         Message =
             "Could not find the name for {Platform} Heroic game with \"{AppName}\" at: \"{InstallPath}\"")]
-    public static partial void HeroicGameNameNotFound(this ILogger logger, Game.Platform platform, string? appName,
+    public static partial void HeroicGameNameNotFound(this ILogger logger, Game.Platform platform, string appName,
         string installPath);
 
     [LoggerMessage(EventId = 81, Level = LogLevel.Warning,
-        Message = "No entries found in {Platform} Heroic install info file \"{InstallInfoPath}\"" +
+        Message = "No entries found in {Platform} Heroic library file \"{LibraryPath}\"" +
                   " — all {Platform} Heroic games will be skipped")]
-    public static partial void HeroicInstallInfoEmpty(this ILogger logger, Game.Platform platform,
-        string installInfoPath);
+    public static partial void HeroicLibraryEmpty(this ILogger logger, Game.Platform platform,
+        string libraryPath);
 
     [LoggerMessage(EventId = 82, Level = LogLevel.Warning,
         Message =
-            "Could not find install info entry for {Platform} Heroic game \"{AppName}\" in \"{InstallInfoPath}\"")]
-    public static partial void HeroicInstallInfoEntryNotFound(this ILogger logger, Game.Platform platform,
-        string? appName, string installInfoPath);
+            "Could not find library entry for {Platform} Heroic game \"{AppName}\" in \"{LibraryPath}\"")]
+    public static partial void HeroicLibraryEntryNotFound(this ILogger logger, Game.Platform platform,
+        string? appName, string libraryPath);
+
+    [LoggerMessage(EventId = 83, Level = LogLevel.Debug,
+        Message = "No entries found in {Platform} Heroic installed file \"{InstalledJsonPath}\"")]
+    public static partial void HeroicInstalledEmpty(this ILogger logger, Game.Platform platform,
+        string installedJsonPath);
 }
