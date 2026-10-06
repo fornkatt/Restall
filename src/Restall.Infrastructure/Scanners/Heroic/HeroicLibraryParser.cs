@@ -3,6 +3,7 @@
 
 
 using Restall.Domain.Entities;
+using Restall.Infrastructure.DTOs.Heroic;
 using Restall.Infrastructure.Helpers;
 using System.Text.Json;
 

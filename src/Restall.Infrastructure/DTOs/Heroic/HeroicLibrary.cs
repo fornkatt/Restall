@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-namespace Restall.Infrastructure.Scanners.Heroic;
+namespace Restall.Infrastructure.DTOs.Heroic;
 
 internal sealed record HeroicLibrary(
     string AppName,

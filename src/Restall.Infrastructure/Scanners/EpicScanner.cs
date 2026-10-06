@@ -6,6 +6,7 @@ using Restall.Application.DTOs.Results;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Logging;
 using Restall.Domain.Entities;
+using Restall.Infrastructure.DTOs.Heroic;
 using Restall.Infrastructure.Helpers;
 using Restall.Infrastructure.Scanners.Heroic;
 using System.Text.Json;
