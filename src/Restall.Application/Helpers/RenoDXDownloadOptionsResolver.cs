@@ -6,18 +6,18 @@ using System.Collections.Immutable;
 
 namespace Restall.Application.Helpers;
 
-public static class RenoDXAddonFileResolver
+public static class RenoDXDownloadOptionsResolver
 {
-    public static RenoDXAddonFile? Resolve(string addonFilename, Uri? directUrl, RenoDXTagInfo? snapshot,
+    public static RenoDXDownloadOptions? Resolve(string addonFilename, Uri? directUrl, RenoDXTagInfo? snapshot,
         ImmutableArray<RenoDXTagInfo> nightlies)
     {
-        var addonFile = new RenoDXAddonFile(
+        var downloadOptions = new RenoDXDownloadOptions(
             addonFilename,
             directUrl,
             FindSnapshot(addonFilename, snapshot),
             [.. nightlies.Where(nightly => nightly.AddonFilenames.Contains(addonFilename))]);
 
-        return addonFile.Branches.IsEmpty ? null : addonFile;
+        return downloadOptions.Branches.IsEmpty ? null : downloadOptions;
     }
 
     private static RenoDXTagInfo? FindSnapshot(string addonFilename, RenoDXTagInfo? snapshot) => snapshot switch

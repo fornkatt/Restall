@@ -7,11 +7,22 @@ namespace Restall.Application.DTOs.RenoDXDTOs;
 
 public sealed record RenoDXAvailability(
     bool IsSupported,
-    RenoDXAddonFile? File,
+    RenoDXDownloadOptions? DownloadOptions,
     RenoDXModLink? ManualSource,
-    ImmutableArray<string> Notices,
+    ImmutableArray<RenoDXAvailability.Notice> Notices,
     RenoDXGenericAddonInfo? GenericAddonInfo)
 {
     public static readonly RenoDXAvailability NotSupported = new(false, null, null, [],
         null);
+
+    public enum Notice
+    {
+        EngineFallback,
+        GameSpecificModAvailable,
+        NoBuildForArchitecture,
+        InstalledArchitectureMismatch,
+        NoDownloadListed,
+        SnapshotFileUnconfirmed,
+        AmbiguousMatch
+    }
 }

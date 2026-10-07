@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 
 namespace Restall.Application.DTOs.RenoDXDTOs;
 
-public sealed record RenoDXAddonFile(
+public sealed record RenoDXDownloadOptions(
     string Filename,
     Uri? DirectUrl,
     RenoDXTagInfo? Snapshot,

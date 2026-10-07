@@ -13,7 +13,7 @@ public class RenoDXAvailabilityTests
         var availability = RenoDXAvailability.NotSupported;
 
         Assert.False(availability.IsSupported);
-        Assert.Null(availability.File);
+        Assert.Null(availability.DownloadOptions);
         Assert.Null(availability.ManualSource);
         Assert.Empty(availability.Notices);
         Assert.Null(availability.GenericAddonInfo);

@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 
 namespace Restall.Application.Tests.DTOTests.RenoDXDTOTests;
 
-public class RenoDXAddonFileTests
+public class RenoDXDownloadOptionsTests
 {
     private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 9, 28),
         RenoDX.Branch.Snapshot, new Uri("https://restalltests.com/snapshot/"), []);
@@ -20,44 +20,44 @@ public class RenoDXAddonFileTests
     [Fact]
     public void Branches_AllSources_ReturnsSnapshotNightlyDirectInThatOrder()
     {
-        var file = CreateFile(s_snapshot, [s_nightly], s_directUrl);
+        var actual = CreateOptions(s_snapshot, [s_nightly], s_directUrl);
 
-        Assert.Equal([RenoDX.Branch.Snapshot, RenoDX.Branch.Nightly, RenoDX.Branch.Direct], file.Branches);
+        Assert.Equal([RenoDX.Branch.Snapshot, RenoDX.Branch.Nightly, RenoDX.Branch.Direct], actual.Branches);
     }
 
     [Fact]
     public void Branches_OnlySnapshot_ReturnsOnlySnapshot()
     {
-        var file = CreateFile(s_snapshot);
+        var actual = CreateOptions(s_snapshot);
 
-        Assert.Equal([RenoDX.Branch.Snapshot], file.Branches);
+        Assert.Equal([RenoDX.Branch.Snapshot], actual.Branches);
     }
 
     [Fact]
     public void Branches_OnlyNightly_ReturnsOnlyNightly()
     {
-        var file = CreateFile(nightlies: [s_nightly]);
+        var actual = CreateOptions(nightlies: [s_nightly]);
 
-        Assert.Equal([RenoDX.Branch.Nightly], file.Branches);
+        Assert.Equal([RenoDX.Branch.Nightly], actual.Branches);
     }
 
     [Fact]
     public void Branches_OnlyDirect_ReturnsOnlyDirect()
     {
-        var file = CreateFile(directUrl: s_directUrl);
+        var actual = CreateOptions(directUrl: s_directUrl);
 
-        Assert.Equal([RenoDX.Branch.Direct], file.Branches);
+        Assert.Equal([RenoDX.Branch.Direct], actual.Branches);
     }
 
     [Fact]
     public void Branches_NoSource_ReturnsEmpty()
     {
-        var file = CreateFile();
+        var actual = CreateOptions();
 
-        Assert.Empty(file.Branches);
+        Assert.Empty(actual.Branches);
     }
 
-    private static RenoDXAddonFile CreateFile(RenoDXTagInfo? snapshot = null,
+    private static RenoDXDownloadOptions CreateOptions(RenoDXTagInfo? snapshot = null,
         ImmutableArray<RenoDXTagInfo>? nightlies = null, Uri? directUrl = null) =>
         new("renodx-game.addon64", directUrl, snapshot, nightlies ?? []);
 }

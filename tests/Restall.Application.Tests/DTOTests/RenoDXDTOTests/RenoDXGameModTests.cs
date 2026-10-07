@@ -132,6 +132,45 @@ public class RenoDXGameModTests
         Assert.Equal("Renodx-New.ADDoN32", mod.AddonFilename32);
     }
 
+    // Download URL tests
+
+    [Fact]
+    public void GetDownloadUrl_64BitAddonFilename_Returns64BitUrl()
+    {
+        var mod = CreateMod("https://restalltests.com/renodx-game.addon64",
+            "https://restalltests.com/renodx-game.addon32");
+
+        Assert.Equal(new Uri("https://restalltests.com/renodx-game.addon64"),
+            mod.GetDownloadUrl("renodx-game.addon64"));
+    }
+
+    [Fact]
+    public void GetDownloadUrl_32BitAddonFilename_Returns32BitUrl()
+    {
+        var mod = CreateMod("https://restalltests.com/renodx-game.addon64",
+            "https://restalltests.com/renodx-game.addon32");
+
+        Assert.Equal(new Uri("https://restalltests.com/renodx-game.addon32"),
+            mod.GetDownloadUrl("renodx-game.addon32"));
+    }
+
+    [Fact]
+    public void GetDownloadUrl_AddonFilenameWithOtherCasing_ReturnsUrl()
+    {
+        var mod = CreateMod("https://restalltests.com/renodx-game.addon64");
+
+        Assert.Equal(new Uri("https://restalltests.com/renodx-game.addon64"),
+            mod.GetDownloadUrl("RenoDX-Game.addon64"));
+    }
+
+    [Fact]
+    public void GetDownloadUrl_OtherModsAddonFilename_ReturnsNull()
+    {
+        var mod = CreateMod("https://restalltests.com/renodx-game.addon64");
+
+        Assert.Null(mod.GetDownloadUrl("renodx-othergame.addon64"));
+    }
+
     private static RenoDXGameMod CreateMod(string? snapshotUrl = null, string? snapshotUrl32 = null) =>
         new("Test Game", RenoDXModStatus.Done, "Tester", snapshotUrl, snapshotUrl32,
             null, null, null, null);

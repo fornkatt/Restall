@@ -8,7 +8,7 @@ using System.Collections.Frozen;
 
 namespace Restall.Application.Tests.HelperTests;
 
-public class RenoDXAddonFileResolverTests
+public class RenoDXDownloadOptionsResolverTests
 {
     private const string AddonFilename = "renodx-game.addon64";
 
@@ -20,7 +20,7 @@ public class RenoDXAddonFileResolverTests
         var snapshot = CreateTag(7, RenoDX.Branch.Snapshot, AddonFilename);
         var nightly = CreateTag(6, RenoDX.Branch.Nightly, AddonFilename);
 
-        var actual = RenoDXAddonFileResolver.Resolve(AddonFilename, s_directUrl, snapshot,
+        var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, s_directUrl, snapshot,
             [nightly]);
 
         Assert.NotNull(actual);
@@ -38,7 +38,7 @@ public class RenoDXAddonFileResolverTests
         var nightlyWithoutFile = CreateTag(6, RenoDX.Branch.Nightly,
             "renodx-other.addon64");
 
-        var actual = RenoDXAddonFileResolver.Resolve(AddonFilename, null, null,
+        var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, null, null,
             [nightlyWithFile, nightlyWithoutFile]);
 
         Assert.NotNull(actual);
@@ -51,7 +51,7 @@ public class RenoDXAddonFileResolverTests
     {
         var snapshot = CreateTag(7, RenoDX.Branch.Snapshot, "renodx-other.addon64");
 
-        var actual = RenoDXAddonFileResolver.Resolve(AddonFilename, s_directUrl, snapshot, []);
+        var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, s_directUrl, snapshot, []);
 
         Assert.NotNull(actual);
         Assert.Null(actual.Snapshot);
@@ -63,7 +63,7 @@ public class RenoDXAddonFileResolverTests
     {
         var snapshotWithoutFileList = CreateTag(7, RenoDX.Branch.Snapshot);
 
-        var actual = RenoDXAddonFileResolver.Resolve(AddonFilename, null, snapshotWithoutFileList,
+        var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, null, snapshotWithoutFileList,
             []);
 
         Assert.NotNull(actual);
@@ -77,7 +77,7 @@ public class RenoDXAddonFileResolverTests
         var snapshot = CreateTag(7, RenoDX.Branch.Snapshot, "renodx-other.addon64");
         var nightly = CreateTag(6, RenoDX.Branch.Nightly, "renodx-other.addon64");
 
-        var actual = RenoDXAddonFileResolver.Resolve(AddonFilename, null, snapshot,
+        var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, null, snapshot,
             [nightly]);
 
         Assert.Null(actual);
