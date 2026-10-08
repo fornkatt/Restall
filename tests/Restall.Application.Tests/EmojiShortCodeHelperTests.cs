@@ -5,7 +5,7 @@ using Restall.Application.Helpers;
 
 namespace Restall.Application.Tests;
 
-//TODO: REMOVE THIS SCRIPT, IT IS SIMPLY HERE TO IMPLEMENT CI.YML
+
 public class EmojiShortCodeHelperTests
 {
     [Theory]
