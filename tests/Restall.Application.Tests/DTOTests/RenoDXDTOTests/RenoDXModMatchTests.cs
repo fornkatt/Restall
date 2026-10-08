@@ -41,8 +41,8 @@ public class RenoDXModMatchTests
     {
         var unrealGenericMod = new RenoDXUnrealGenericMod("Test Game", RenoDXModStatus.Done,
             RenoDXUnrealGenericMod.UnrealModMethod.Native, null, null);
-        var match = new RenoDXModMatch(null, unrealGenericMod, null, RenoDXModMatch.MatchKind.Exact,
-            []);
+        var match = new RenoDXModMatch(null, unrealGenericMod, null,
+            RenoDXModMatch.MatchKind.Exact, []);
 
         var actual = match.GetAddonFilename(Architecture.X64);
 
@@ -54,7 +54,8 @@ public class RenoDXModMatchTests
     {
         var unityGenericMod = new RenoDXUnityGenericMod("Test Game", RenoDXModStatus.Done, null,
             null);
-        var match = new RenoDXModMatch(null, null, unityGenericMod, RenoDXModMatch.MatchKind.Exact,
+        var match = new RenoDXModMatch(null, null, unityGenericMod,
+            RenoDXModMatch.MatchKind.Exact,
             []);
 
         var actual = match.GetAddonFilename(Architecture.X32);
@@ -66,5 +67,27 @@ public class RenoDXModMatchTests
     public void GetAddonFilename_NoMatch_ReturnsNull()
     {
         Assert.Null(RenoDXModMatch.None.GetAddonFilename(Architecture.X64));
+    }
+
+    [Fact]
+    public void ModName_UnityGenericMatch_ReturnsUnityGenericModName()
+    {
+        var unityGenericMod = new RenoDXUnityGenericMod("Unity Game", RenoDXModStatus.Done, null,
+            null);
+        var actual = new RenoDXModMatch(null, null, unityGenericMod,
+            RenoDXModMatch.MatchKind.Fuzzy, []);
+
+        Assert.Equal("Unity Game", actual.ModName);
+    }
+
+    [Fact]
+    public void ModStatus_UnrealGenericMatch_ReturnsUnrealGenericModStatus()
+    {
+        var unrealGenericMod = new RenoDXUnrealGenericMod("Unreal Game", RenoDXModStatus.Wip,
+            RenoDXUnrealGenericMod.UnrealModMethod.Upgrade, null, null);
+        var actual = new RenoDXModMatch(null, unrealGenericMod, null,
+            RenoDXModMatch.MatchKind.Exact, []);
+
+        Assert.Equal("Unreal Game", actual.ModName);
     }
 }

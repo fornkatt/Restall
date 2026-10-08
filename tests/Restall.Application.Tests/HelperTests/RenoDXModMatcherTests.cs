@@ -131,6 +131,17 @@ public class RenoDXModMatcherTests
         Assert.Same(RenoDXModMatch.None, actual);
     }
 
+    [Fact]
+    public void Match_GameWithSimilarName_ReturnsNoMatch()
+    {
+        var database = new RenoDXModDatabase([],
+            [CreateUnrealGenericMod("Assetto Corsa Rally")], []);
+
+        var actual = RenoDXModMatcher.Match("Assetto Corsa", database);
+
+        Assert.Same(RenoDXModMatch.None, actual);
+    }
+
     private static RenoDXGameMod CreateGameMod(string name) =>
         new(name, RenoDXModStatus.Done, null, null, null, null, null,
             null, null);

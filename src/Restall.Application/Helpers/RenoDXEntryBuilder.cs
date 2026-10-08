@@ -31,8 +31,8 @@ public static partial class RenoDXEntryBuilder
             BranchVersions: branchVersions,
             ListedName: match.ModName,
             StatusText: match.ModStatus is { } status ? RenoDXTexts.GetStatusText(status) : null,
-            match.GameMod?.Author ?? availability.GenericAddonInfo?.Author,
-            match.GameMod?.Notes ?? match.UnrealGenericMod?.Comments ?? match.UnityGenericMod?.Comments,
+            Author: match.GameMod?.Author ?? availability.GenericAddonInfo?.Author,
+            DatabaseNotes: match.GameMod?.Notes ?? match.UnrealGenericMod?.Comments ?? match.UnityGenericMod?.Comments,
             UnrealMethodText: match.UnrealGenericMod is { } unrealGenericMod
                 ? RenoDXTexts.GetUnrealMethodText(unrealGenericMod.Method)
                 : null,
