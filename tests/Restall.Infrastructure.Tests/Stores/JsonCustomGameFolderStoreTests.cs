@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Stores;
-using System.ComponentModel.Design.Serialization;
 
 namespace Restall.Infrastructure.Tests.Stores;
+
 public sealed class JsonCustomGameFolderStoreTests : IDisposable
 {
     private readonly string _tempDir = Directory.CreateTempSubdirectory("restall-tests-").FullName;
@@ -12,13 +12,13 @@ public sealed class JsonCustomGameFolderStoreTests : IDisposable
     public void Dispose() => Directory.Delete(_tempDir, recursive: true);
 
     [Fact]
-    public void AddFolder_IsRemembered_AfterRestart()
+    public void AddFolder_StoreIsReloaded_ReturnsSavedFolder()
     {
         // Arrange
-        var store = new JsonCustomGameFolderStore(FilePath);
+        var sut = new JsonCustomGameFolderStore(FilePath);
 
         // Act
-        store.AddFolder("/Games");
+        sut.AddFolder("/Games");
         var reloaded = new JsonCustomGameFolderStore(FilePath);
 
         // Assert
@@ -27,43 +27,43 @@ public sealed class JsonCustomGameFolderStoreTests : IDisposable
     }
 
     [Fact]
-    public void AddFolder_IgnoresDuplicates()
+    public void AddFolder_SameFolderIsAddedTwice_StoresItOnce()
     {
-        //Arrange
-        var store = new JsonCustomGameFolderStore(FilePath);
+        // Arrange
+        var sut = new JsonCustomGameFolderStore(FilePath);
 
-        //Act
-        store.AddFolder("/Games");
-        store.AddFolder("/Games");
+        // Act
+        sut.AddFolder("/Games");
+        sut.AddFolder("/Games");
 
-        //Assert
-        Assert.Single(store.GetFolders());
+        // Assert
+        Assert.Single(sut.GetFolders());
     }
 
     [Fact]
-    public void Constructor_StartsEmpty_WhenFileIsCorrupt()
+    public void Constructor_FileIsCorrupt_StartsWithNoFolders()
     {
-        //Arrange
+        // Arrange
         File.WriteAllText(FilePath, "this is not json");
 
-        //Act
-        var store = new JsonCustomGameFolderStore(FilePath);
+        // Act
+        var sut = new JsonCustomGameFolderStore(FilePath);
 
-        //Assert
-        Assert.Empty(store.GetFolders());
+        // Assert
+        Assert.Empty(sut.GetFolders());
     }
 
     [Fact]
-    public void AddFolder_CreatesDirectory_WhenItDoesNotExist()
+    public void AddFolder_DirectoryDoesNotExist_CreatesFile()
     {
-        //Arrange
+        // Arrange
         var filePath = Path.Combine(_tempDir, "NewFolder", "custom-game-folders.json");
-        var store = new JsonCustomGameFolderStore(filePath);
+        var sut = new JsonCustomGameFolderStore(filePath);
 
-        //Act
-        store.AddFolder("/Games");
+        // Act
+        sut.AddFolder("/Games");
 
-        //Assert
+        // Assert
         Assert.True(File.Exists(filePath));
     }
 }

@@ -17,7 +17,7 @@ public sealed class FolderPickerService : IFolderPickerService
         if (mainWindow is null) return null;
         var folders = await mainWindow.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Select the folder that contains your games",
+            Title = "Select the folder that contains your custom games",
             AllowMultiple = false
         });
         return folders.FirstOrDefault()?.TryGetLocalPath();

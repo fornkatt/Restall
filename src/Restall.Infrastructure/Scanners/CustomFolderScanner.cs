@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Microsoft.Extensions.Logging;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.DTOs.Results;
 using Restall.Domain.Entities;
@@ -11,31 +12,32 @@ namespace Restall.Infrastructure.Scanners;
 internal sealed partial class CustomFolderScanner : IPlatformScannerService
 {
     private readonly ICustomGameFolderProvider _folderProvider;
-    public CustomFolderScanner(ICustomGameFolderProvider folderProvider) => _folderProvider = folderProvider;
-
+    private readonly ILogger<CustomFolderScanner> _logger;
+    public CustomFolderScanner(ICustomGameFolderProvider folderProvider, ILogger<CustomFolderScanner> logger)
+    {
+        _folderProvider = folderProvider;
+        _logger = logger;
+    }
     public Game.Platform Platform => Game.Platform.Custom;
     public Task<GameScanResultDto> ScanAsync() => Task.Run(ScanCustomFolders);
 
     private GameScanResultDto ScanCustomFolders()
     {
         var games = new List<Game>();
-        var errors = new List<string>();
 
         foreach (var root in _folderProvider.GetFolders())
         {
             if (!Directory.Exists(root))
             {
-                errors.Add($"Custom game folder not found: {root}");
+                LogCustomGameFolderNotFound(root);
                 continue;
             }
 
-            // Only direct subfolders count as games. EngineDetectionService goes deeper for the exe later
             foreach (var sub in Directory.EnumerateDirectories(root))
             {
                 var name = Path.GetFileName(sub);
                 if (GameScanHelper.NonGame(name)) continue;
 
-                // PlatformId is left null so a Steam/Epic/etc. entry for the same folder is kept during deduplication.
                 games.Add(new Game
                 {
                     Name = name,
@@ -49,6 +51,6 @@ internal sealed partial class CustomFolderScanner : IPlatformScannerService
             Platform: Platform,
             Games: games,
             IsSuccess: games.Count > 0,
-            Message: errors.Count > 0 ? string.Join(", ", errors) : null);
+            Message: null);
     }
 }

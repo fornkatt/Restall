@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Restall.Domain.Entities;
 using Restall.Application.Interfaces.Driven;
 using Restall.Infrastructure.Scanners;
@@ -9,20 +10,19 @@ namespace Restall.Infrastructure.Tests.Scanners;
 
 public sealed class CustomFolderScannerTests : IDisposable
 {
-    // Each test gets a fresh temp folder (xUnit creates a new class instance per test) and deletes it afterwards.
     private readonly string _root = Directory.CreateTempSubdirectory("restall-tests-").FullName;
 
     public void Dispose() => Directory.Delete(_root, recursive: true);
 
     [Fact]
-    public async Task ScanAsync_ReturnsOneGamePerSubfolder()
+    public async Task ScanAsync_LookForGameInSubFolder_ReturnsExpectedResult()
     {
         // Arrange
         Directory.CreateDirectory(Path.Combine(_root, "Hades"));
-        var scanner = new CustomFolderScanner(new FakeFolderProvider(_root));
+        var sut = new CustomFolderScanner(new FakeFolderProvider(_root), NullLogger<CustomFolderScanner>.Instance);
 
         // Act
-        var result = await scanner.ScanAsync();
+        var result = await sut.ScanAsync();
 
         // Assert
         var game = Assert.Single(result.Games);
@@ -32,15 +32,15 @@ public sealed class CustomFolderScannerTests : IDisposable
     }
 
     [Fact]
-    public async Task ScanAsync_SkipsNonGameFolders()
+    public async Task ScanAsync_ScanCustomFolder_ReturnsGameFoldersAndSkipsNonGameFolders()
     {
         // Arrange
         Directory.CreateDirectory(Path.Combine(_root, "Hades"));
         Directory.CreateDirectory(Path.Combine(_root, "_CommonRedist"));
-        var scanner = new CustomFolderScanner(new FakeFolderProvider(_root));
+        var sut = new CustomFolderScanner(new FakeFolderProvider(_root), NullLogger<CustomFolderScanner>.Instance);
 
         // Act
-        var result = await scanner.ScanAsync();
+        var result = await sut.ScanAsync();
 
         // Assert
         var game = Assert.Single(result.Games);
@@ -48,38 +48,35 @@ public sealed class CustomFolderScannerTests : IDisposable
     }
 
     [Fact]
-    public async Task ScanAsync_ReturnsMessage_WhenFolderDoesNotExist()
+    public async Task ScanAsync_FolderDoesNotExist_ReturnsNoGames()
     {
         // Arrange
         var missingFolder = Path.Combine(_root, "DoesNotExist");
-        var scanner = new CustomFolderScanner(new FakeFolderProvider(missingFolder));
+        var sut = new CustomFolderScanner(new FakeFolderProvider(missingFolder), NullLogger<CustomFolderScanner>.Instance);
 
         // Act
-        var result = await scanner.ScanAsync();
+        var result = await sut.ScanAsync();
 
         // Assert
         Assert.Empty(result.Games);
-        Assert.NotNull(result.Message);
     }
 
     [Fact]
-    public async Task ScanAsync_StillReturnsGames_WhenOneFolderIsMissing()
+    public async Task ScanAsync_OneFolderIsMissing_ReturnsGamesFromOtherFolders()
     {
-        //Arrange
+        // Arrange
         Directory.CreateDirectory(Path.Combine(_root, "Hades"));
         var missingFolder = Path.Combine(_root, "MissingFolder");
-        var scanner = new CustomFolderScanner(new FakeFolderProvider(missingFolder, _root));
+        var sut = new CustomFolderScanner(new FakeFolderProvider(missingFolder, _root), NullLogger<CustomFolderScanner>.Instance);
 
-        //Act
-        var result = await scanner.ScanAsync();
+        // Act
+        var result = await sut.ScanAsync();
 
-        //Assert
+        // Assert
         var game = Assert.Single(result.Games);
         Assert.Equal("Hades", game.Name);
-        Assert.NotNull(result.Message);
     }
 
-    // Handwritten stand-in so each test controls exactly which root folders are scanned.
     private sealed class FakeFolderProvider(params string[] folders) : ICustomGameFolderProvider
     {
         public IReadOnlyCollection<string> GetFolders() => folders;

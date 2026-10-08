@@ -16,6 +16,7 @@ internal sealed class PathService : IPathService
 
     private const string IconFileName = "icon.png";
     private const string GameCoverFileName = "cover.png";
+
     private const string CustomGameFoldersFileName = "custom-game-folders.json";
 
 
