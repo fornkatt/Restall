@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.Common.Enums;
+using Restall.Domain.Common.Enums;
+using Restall.Domain.Entities;
 
 namespace Restall.Application.DTOs.RenoDXDTOs;
 
@@ -16,8 +18,8 @@ public sealed record RenoDXGameMod(
     string? DiscussionUrl,
     string? Notes)
 {
-    public string? AddonFilename => GetAddonFilename(SnapshotUrl, ".addon64");
-    public string? AddonFilename32 => GetAddonFilename(SnapshotUrl32, ".addon32");
+    public string? GetAddonFilename(Architecture architecture) =>
+        architecture == Architecture.X32 ? AddonFilename32 : AddonFilename;
 
     public Uri? GetDownloadUrl(string addonFilename)
     {
@@ -29,7 +31,10 @@ public sealed record RenoDXGameMod(
         return null;
     }
 
-    private static string? GetAddonFilename(string? url, string extension)
+    private string? AddonFilename => ExtractAddonFilename(SnapshotUrl, RenoDX.AddonExtension);
+    private string? AddonFilename32 => ExtractAddonFilename(SnapshotUrl32, RenoDX.AddonExtension32);
+
+    private static string? ExtractAddonFilename(string? url, string extension)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
             return null;

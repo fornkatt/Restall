@@ -3,7 +3,8 @@
 
 namespace Restall.Application.DTOs;
 
-public sealed record UpdateCheck(
+public sealed record UpdateAvailability(
     bool UpdateAvailable,
     string? InstalledVersion,
-    string? LatestVersion);
+    string? LatestVersion,
+    bool IsSupported = true);

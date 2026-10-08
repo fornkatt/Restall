@@ -22,7 +22,7 @@ public class RenoDXAvailabilityResolverTests
     private static readonly RenoDXTagInfo s_snapshotWithFile = CreateSnapshot(AddonFilename);
 
     [Fact]
-    public void Resolve_GameModOnSnapshot_ReturnsGameModFile()
+    public void Resolve_GameModWithSnapshot_ReturnsGameModFile()
     {
         var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
             Architecture.X64, CreateMatch(s_gameMod), true, s_snapshotWithFile, []);
@@ -65,10 +65,8 @@ public class RenoDXAvailabilityResolverTests
     [Fact]
     public void Resolve_GameModWithoutBuildForArchitecture_ReturnsNoBuildNotice()
     {
-        var gameMod = s_gameMod with { NexusUrl = NexusUrl };
-
         var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
-            Architecture.X32, CreateMatch(gameMod), true, s_snapshotWithFile, []);
+            Architecture.X32, CreateMatch(s_gameMod), true, s_snapshotWithFile, []);
 
         Assert.True(actual.IsSupported);
         Assert.Null(actual.DownloadOptions);
@@ -77,11 +75,13 @@ public class RenoDXAvailabilityResolverTests
     }
 
     [Fact]
-    public void Resolve_GameModWithOnlyModPage_ReturnsManualSource()
+    public void Resolve_GameModWithNexusAndDiscordModPage_ReturnsNexusManualSource()
     {
         var gameMod = s_gameMod with
         {
-            SnapshotUrl = null, NexusUrl = NexusUrl, DiscordUrl = "https://discord.com/channels/1/2"
+            SnapshotUrl = null,
+            NexusUrl = NexusUrl,
+            DiscordUrl = "https://discord.com/channels/1/2"
         };
 
         var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
@@ -89,6 +89,7 @@ public class RenoDXAvailabilityResolverTests
 
         Assert.Null(actual.DownloadOptions);
         Assert.NotNull(actual.ManualSource);
+        Assert.Equal("Nexus Mods", actual.ManualSource.Label);
         Assert.Empty(actual.Notices);
     }
 

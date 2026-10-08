@@ -8,6 +8,6 @@ namespace Restall.Application.Interfaces.Driven;
 
 public interface IUpdateCheckService
 {
-    UpdateCheck CheckReShadeUpdate(ReShade installed);
-    UpdateCheck CheckRenoDXUpdate(RenoDX installed);
+    UpdateAvailability CheckReShadeUpdate(ReShade installed);
+    UpdateAvailability CheckRenoDXUpdate(RenoDX installed);
 }

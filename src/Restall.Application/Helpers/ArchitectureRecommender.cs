@@ -22,21 +22,22 @@ public static partial class ArchitectureRecommender
     public static bool Mentions32Bit(string? text) =>
         text is not null && ThirtyTwoBitRegex().IsMatch(text);
 
-    private static Architecture? RecommendFromRenoDXMatch(RenoDXModMatch match) => match switch
-    {
-        { GameMod: { } gameMod } => RecommendFromRenoDXGameMod(gameMod),
-        { UnrealGenericMod: not null } => Architecture.X64,
-        { UnityGenericMod: { } unityGenericMod } => RecommendFromRenoDXUnityGenericMod(unityGenericMod),
-        _ => null
-    };
+    private static Architecture? RecommendFromRenoDXMatch(RenoDXModMatch match) =>
+        match.UnityGenericMod is { } unityGenericMod
+            ? RecommendFromRenoDXUnityGenericMod(unityGenericMod)
+            : GetOnlyBuiltArchitecture(match.GetAddonFilename(Architecture.X64),
+                match.GetAddonFilename(Architecture.X32));
 
-    private static Architecture RecommendFromRenoDXGameMod(RenoDXGameMod gameMod) =>
-        gameMod.AddonFilename is null && gameMod.AddonFilename32 is not null
-            ? Architecture.X32
-            : Architecture.X64;
+    private static Architecture? GetOnlyBuiltArchitecture(string? addonFilename, string? addonFilename32) =>
+        (addonFilename, addonFilename32) switch
+        {
+            (not null, null) => Architecture.X64,
+            (null, not null) => Architecture.X32,
+            _ => null
+        };
 
-    private static Architecture RecommendFromRenoDXUnityGenericMod(RenoDXUnityGenericMod unityGenericMod) =>
+    private static Architecture? RecommendFromRenoDXUnityGenericMod(RenoDXUnityGenericMod unityGenericMod) =>
         Mentions32Bit(unityGenericMod.Comments)
             ? Architecture.X32
-            : Architecture.X64;
+            : null;
 }

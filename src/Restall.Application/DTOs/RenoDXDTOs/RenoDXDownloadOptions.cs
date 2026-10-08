@@ -10,8 +10,11 @@ public sealed record RenoDXDownloadOptions(
     string Filename,
     Uri? DirectUrl,
     RenoDXTagInfo? Snapshot,
-    ImmutableArray<RenoDXTagInfo> Nightlies)
+    ImmutableArray<RenoDXTagInfo> Nightlies,
+    bool IsInstalledFile = false)
 {
+    public RenoDXTagInfo? LatestNightly => Nightlies.MaxBy(n => n.Date);
+
     public ImmutableArray<RenoDX.Branch> Branches
     {
         get

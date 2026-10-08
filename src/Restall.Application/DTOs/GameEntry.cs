@@ -11,4 +11,4 @@ public sealed record GameEntry(
     Game Game,
     Architecture RecommendedArchitecture,
     RenoDXEntry RenoDXEntry,
-    UpdateCheck? ReShadeUpdate);
+    UpdateAvailability? ReShadeUpdate);

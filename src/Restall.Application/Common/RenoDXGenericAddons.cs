@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.DTOs.RenoDXDTOs;
+using Restall.Domain.Common.Enums;
+using Restall.Domain.Entities;
 
 namespace Restall.Application.Common;
 
@@ -9,9 +11,15 @@ public static class RenoDXGenericAddons
 {
     private const string UnityAddonDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
 
-    public const string UnrealExtendedAddonFilename = "renodx-ue-extended.addon64";
-    public const string UnityAddonFilename = "renodx-unityengine.addon64";
-    public const string UnityAddonFilename32 = "renodx-unityengine.addon32";
+    private const string UnrealExtendedAddonFilename = "renodx-ue-extended" + RenoDX.AddonExtension;
+    private const string UnityAddonFilename = "renodx-unityengine" + RenoDX.AddonExtension;
+    private const string UnityAddonFilename32 = "renodx-unityengine" + RenoDX.AddonExtension32;
+
+    public static string? GetUnrealExtendedAddonFilename(Architecture architecture) =>
+        architecture == Architecture.X64 ? UnrealExtendedAddonFilename : null;
+
+    public static string GetUnityGenericAddonFilename(Architecture architecture) =>
+        architecture == Architecture.X32 ? UnityAddonFilename32 : UnityAddonFilename;
 
     public static Uri? GetGenericAddonDownloadUrl(string addonFilename) => addonFilename.ToLowerInvariant() switch
     {

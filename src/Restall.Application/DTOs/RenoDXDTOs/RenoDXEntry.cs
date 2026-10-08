@@ -12,7 +12,7 @@ public sealed record RenoDXEntry(
     // What the user can get
     RenoDXDownloadOptions? DownloadOptions,
     RenoDXModLink? ManualSource,
-    FrozenDictionary<RenoDX.Branch, UpdateCheck> BranchVersions,
+    FrozenDictionary<RenoDX.Branch, UpdateAvailability> BranchVersions,
     // Database information
     string? ListedName,
     string? StatusText,

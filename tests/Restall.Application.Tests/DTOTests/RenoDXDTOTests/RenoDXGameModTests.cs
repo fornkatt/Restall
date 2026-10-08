@@ -3,6 +3,7 @@
 
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.RenoDXDTOs;
+using Restall.Domain.Common.Enums;
 
 namespace Restall.Application.Tests.DTOTests.RenoDXDTOTests;
 
@@ -30,106 +31,130 @@ public class RenoDXGameModTests
 
     [Theory]
     [MemberData(nameof(ValidHttpsUrls), ".addon64")]
-    public void AddonFilename_ValidHttpsUrlsToAddon64_ReturnsFilename(string expectedFilename, string snapshotUrl)
+    public void GetAddonFilename_ValidHttpsUrls64_ReturnsFilename(string expectedFilename, string snapshotUrl)
     {
         var mod = CreateMod(snapshotUrl: snapshotUrl);
 
-        Assert.Equal(expectedFilename, mod.AddonFilename);
+        var actual = mod.GetAddonFilename(Architecture.X64);
+
+        Assert.Equal(expectedFilename, actual);
     }
 
     [Fact]
-    public void AddonFilename_Only32BitUrl_DoesNotFallBackTo32BitFile()
+    public void GetAddonFilename_OnlyUrl32_DoesNotFallBackTo32BitFile()
     {
         var mod = CreateMod(snapshotUrl32: "https://restalltest.com/renodx-game.addon32");
 
-        Assert.Null(mod.AddonFilename);
+        var actual = mod.GetAddonFilename(Architecture.X64);
+
+        Assert.Null(actual);
     }
 
     [Theory]
     [MemberData(nameof(UnusableUrls), ".addon64", ".addon32")]
-    public void AddonFilename_UnusableUrl_ReturnsNull(string snapshotUrl)
+    public void GetAddonFilename_UnusableUrls64_ReturnsNull(string snapshotUrl)
     {
         var mod = CreateMod(snapshotUrl: snapshotUrl);
 
-        Assert.Null(mod.AddonFilename);
+        var actual = mod.GetAddonFilename(Architecture.X64);
+
+        Assert.Null(actual);
     }
 
     [Fact]
-    public void AddonFilename_EscapedCharacters_ReturnsRealFilename()
+    public void GetAddonFilename_EscapedCharacters64_ReturnsRealFilename()
     {
         var mod = CreateMod(snapshotUrl: "https://restalltest.com/renodx%20game.addon64");
 
-        Assert.Equal("renodx game.addon64", mod.AddonFilename);
+        var actual = mod.GetAddonFilename(Architecture.X64);
+
+        Assert.Equal("renodx game.addon64", actual);
     }
 
     [Fact]
-    public void AddonFilename_AfterWithExpression_FollowsNewUri()
+    public void GetAddonFilename_AfterWithExpression64_FollowsNewUri()
     {
         var original = CreateMod(snapshotUrl: "https://restalltest.com/renodx-old.addon64");
         var copy = original with { SnapshotUrl = "https://restalltest.com/renodx-new.addon64" };
 
-        Assert.Equal("renodx-new.addon64", copy.AddonFilename);
+        var actual = copy.GetAddonFilename(Architecture.X64);
+
+        Assert.Equal("renodx-new.addon64", actual);
     }
 
     [Fact]
-    public void AddonFilename_IgnoresCase_ReturnsFilenameWithPreservedCase()
+    public void GetAddonFilename_IgnoresCase64_ReturnsFilenameWithPreservedCase()
     {
         var mod = CreateMod(snapshotUrl: "https://restalltest.com/Renodx-New.ADDoN64");
 
-        Assert.Equal("Renodx-New.ADDoN64", mod.AddonFilename);
+        var actual = mod.GetAddonFilename(Architecture.X64);
+
+        Assert.Equal("Renodx-New.ADDoN64", actual);
     }
 
     // 32-bit filename tests
 
     [Theory]
     [MemberData(nameof(ValidHttpsUrls), ".addon32")]
-    public void AddonFilename32_ValidHttpsUrlsToAddon32_ReturnsFilename(string expectedFilename, string snapshotUrl32)
+    public void GetAddonFilename_ValidHttpsUrls32_ReturnsFilename(string expectedFilename, string snapshotUrl32)
     {
         var mod = CreateMod(snapshotUrl32: snapshotUrl32);
 
-        Assert.Equal(expectedFilename, mod.AddonFilename32);
+        var actual = mod.GetAddonFilename(Architecture.X32);
+
+        Assert.Equal(expectedFilename, actual);
     }
 
     [Fact]
-    public void AddonFilename32_Only64BitUrl_DoesNotFallBackTo64BitFile()
+    public void GetAddonFilename_OnlyUrl64_DoesNotFallBackTo64BitFile()
     {
         var mod = CreateMod(snapshotUrl: "https://restalltest.com/renodx-game.addon64");
 
-        Assert.Null(mod.AddonFilename32);
+        var actual = mod.GetAddonFilename(Architecture.X32);
+
+        Assert.Null(actual);
     }
 
     [Theory]
     [MemberData(nameof(UnusableUrls), ".addon32", ".addon64")]
-    public void AddonFilename32_UnusableUrl_ReturnsNull(string snapshotUrl32)
+    public void GetAddonFilename_UnusableUrls32_ReturnsNull(string snapshotUrl32)
     {
         var mod = CreateMod(snapshotUrl32: snapshotUrl32);
 
-        Assert.Null(mod.AddonFilename32);
+        var actual = mod.GetAddonFilename(Architecture.X32);
+
+        Assert.Null(actual);
     }
 
     [Fact]
-    public void AddonFilename32_EscapedCharacters_ReturnsRealFilename()
+    public void GetAddonFilename_EscapedCharacters32_ReturnsRealFilename()
     {
         var mod = CreateMod(snapshotUrl32: "https://restalltest.com/renodx%20game.addon32");
 
-        Assert.Equal("renodx game.addon32", mod.AddonFilename32);
+        var actual = mod.GetAddonFilename(Architecture.X32);
+
+        Assert.Equal("renodx game.addon32", actual);
     }
 
     [Fact]
-    public void AddonFilename32_AfterWithExpression_FollowsNewUri()
+    public void GetAddonFilename_AfterWithExpression32_FollowsNewUri()
     {
         var original = CreateMod(snapshotUrl32: "https://restalltest.com/renodx-old.addon32");
         var copy = original with { SnapshotUrl32 = "https://restalltest.com/renodx-new.addon32" };
 
-        Assert.Equal("renodx-new.addon32", copy.AddonFilename32);
+        var actual = copy.GetAddonFilename(Architecture.X32);
+
+        Assert.Equal("renodx-new.addon32", actual);
     }
 
     [Fact]
-    public void AddonFilename32_IgnoresCase_ReturnsFilenameWithPreservedCase()
+    public void GetAddonFilename_IgnoresCase32_ReturnsFilenameWithPreservedCase()
     {
         var mod = CreateMod(snapshotUrl32: "https://restalltest.com/Renodx-New.ADDoN32");
 
-        Assert.Equal("Renodx-New.ADDoN32", mod.AddonFilename32);
+        var actual = mod.GetAddonFilename(Architecture.X32);
+
+        Assert.Equal("Renodx-New.ADDoN32", actual);
     }
 
     // Download URL tests

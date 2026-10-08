@@ -3,6 +3,7 @@
 
 using Restall.Domain.Entities;
 using System.Collections.Frozen;
+using System.Globalization;
 
 namespace Restall.Application.DTOs.RenoDXDTOs;
 
@@ -13,7 +14,9 @@ public record RenoDXTagInfo(
     FrozenSet<string> AddonFilenames,
     List<string>? CommitNotes = null)
 {
-    public string Version => $"{Date:yyyyMMdd}";
+    public string Version => Date.ToString(RenoDX.VersionFormat, CultureInfo.InvariantCulture);
+
+    public bool HasAddonFileList => AddonFilenames.Count > 0;
 
     public Uri GetDownloadUrl(string addonFilename) =>
         new(DownloadBaseUrl, Uri.EscapeDataString(addonFilename));

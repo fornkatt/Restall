@@ -14,5 +14,5 @@ public record GameInitResultDto(
     Game Game,
     RenoDXModInfoDto? CompatibleMod,
     RenoDXGenericModInfoDto? CompatibleGenericMod,
-    UpdateCheck? ReShadeUpdateResult = null,
-    UpdateCheck? RenoDXUpdateResult = null);
+    UpdateAvailability? ReShadeUpdateResult = null,
+    UpdateAvailability? RenoDXUpdateResult = null);

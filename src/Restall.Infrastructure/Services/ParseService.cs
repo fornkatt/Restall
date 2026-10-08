@@ -266,7 +266,7 @@ internal sealed partial class ParseService : IParseService
 
         var dateText = nightlyTag["nightly-".Length..];
 
-        if (!DateOnly.TryParseExact(dateText, "yyyyMMdd", CultureInfo.InvariantCulture,
+        if (!DateOnly.TryParseExact(dateText, RenoDX.VersionFormat, CultureInfo.InvariantCulture,
                 DateTimeStyles.None, out var date))
         {
             LogRenoDXNightlyTagDateParseFailure(nightlyTag, dateText);
@@ -343,8 +343,8 @@ internal sealed partial class ParseService : IParseService
             var href = HtmlEntity.DeEntitize(linkNode.GetAttributeValue("href", string.Empty));
             var filename = Uri.UnescapeDataString(href[downloadPath.Length..]);
 
-            if (filename.EndsWith(".addon64", StringComparison.OrdinalIgnoreCase) ||
-                filename.EndsWith(".addon32", StringComparison.OrdinalIgnoreCase))
+            if (filename.EndsWith(RenoDX.AddonExtension, StringComparison.OrdinalIgnoreCase) ||
+                filename.EndsWith(RenoDX.AddonExtension32, StringComparison.OrdinalIgnoreCase))
                 addonFilenames.Add(filename);
         }
 

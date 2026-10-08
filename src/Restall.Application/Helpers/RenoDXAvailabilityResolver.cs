@@ -27,7 +27,7 @@ public static class RenoDXAvailabilityResolver
             ? GetEngineFallbackAddonFilename(engine, architecture)
             : null;
         var addonFilename = installedAddonFilename
-                            ?? GetMatchAddonFilename(match, architecture)
+                            ?? match.GetAddonFilename(architecture)
                             ?? engineFallbackAddonFilename;
         var isSupported = installedRenoDX is not null || HasMod(match) || engineFallbackAddonFilename is not null;
 
@@ -44,9 +44,9 @@ public static class RenoDXAvailabilityResolver
         var downloadOptions = addonFilename is null
             ? null
             : RenoDXDownloadOptionsResolver.Resolve(addonFilename, GetDirectUrl(addonFilename, match.GameMod), snapshot,
-                nightlies);
+                nightlies, installedAddonFilename is not null);
 
-        if (downloadOptions?.Snapshot is { AddonFilenames.Count: 0 })
+        if (downloadOptions?.Snapshot is { HasAddonFileList: false })
             notices.Add(RenoDXAvailability.Notice.SnapshotFileUnconfirmed);
 
         var hasBuildForOtherArchitecture = addonFilename is null && HasBuildForOtherArchitecture(match, architecture);
@@ -69,43 +69,23 @@ public static class RenoDXAvailabilityResolver
             genericAddonInfo);
     }
 
-    private static string? GetMatchAddonFilename(RenoDXModMatch match, Architecture architecture) => match switch
-    {
-        { GameMod: { } gameMod } => architecture == Architecture.X32
-            ? gameMod.AddonFilename32
-            : gameMod.AddonFilename,
-        { UnrealGenericMod: not null } => GetUnrealExtendedAddonFilename(architecture),
-        { UnityGenericMod: not null } => GetUnityGenericAddonFilename(architecture),
-        _ => null
-    };
-
     private static string? GetEngineFallbackAddonFilename(Game.Engine engine, Architecture architecture) =>
         engine switch
         {
-            Game.Engine.Unreal => GetUnrealExtendedAddonFilename(architecture),
-            Game.Engine.Unity => GetUnityGenericAddonFilename(architecture),
+            Game.Engine.Unreal => RenoDXGenericAddons.GetUnrealExtendedAddonFilename(architecture),
+            Game.Engine.Unity => RenoDXGenericAddons.GetUnityGenericAddonFilename(architecture),
             _ => null
         };
-
-    private static string? GetUnrealExtendedAddonFilename(Architecture architecture) =>
-        architecture == Architecture.X64 ? RenoDXGenericAddons.UnrealExtendedAddonFilename : null;
-
-    private static string GetUnityGenericAddonFilename(Architecture architecture) =>
-        architecture == Architecture.X32
-            ? RenoDXGenericAddons.UnityAddonFilename32
-            : RenoDXGenericAddons.UnityAddonFilename;
 
     private static bool HasMod(RenoDXModMatch match) =>
         match.GameMod is not null || match.UnrealGenericMod is not null || match.UnityGenericMod is not null;
 
-    private static bool HasBuildForOtherArchitecture(RenoDXModMatch match, Architecture architecture) => match switch
+    private static bool HasBuildForOtherArchitecture(RenoDXModMatch match, Architecture architecture)
     {
-        { GameMod: { } gameMod } => architecture == Architecture.X32
-            ? gameMod.AddonFilename is not null
-            : gameMod.AddonFilename32 is not null,
-        { UnrealGenericMod: not null } => architecture == Architecture.X32,
-        _ => false
-    };
+        var otherArchitecture = architecture == Architecture.X32 ? Architecture.X64 : Architecture.X32;
+
+        return match.GetAddonFilename(otherArchitecture) is not null;
+    }
 
     private static Uri? GetDirectUrl(string addonFilename, RenoDXGameMod? gameMod) =>
         RenoDXGenericAddons.GetGenericAddonDownloadUrl(addonFilename) ?? gameMod?.GetDownloadUrl(addonFilename);

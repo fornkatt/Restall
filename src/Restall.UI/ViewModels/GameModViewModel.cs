@@ -35,10 +35,10 @@ public sealed partial class GameModViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    public partial UpdateCheck? ReShadeUpdateCheck { get; set; }
+    public partial UpdateAvailability? ReShadeUpdateCheck { get; set; }
 
     [ObservableProperty]
-    public partial UpdateCheck? RenoDXUpdateCheck { get; set; }
+    public partial UpdateAvailability? RenoDXUpdateCheck { get; set; }
     public string NormalizedName { get; }
     public string? Name => _game.Name;
     public Game.Platform PlatformName => _game.PlatformName;
