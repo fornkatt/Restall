@@ -41,7 +41,7 @@ public sealed class JsonCustomGameFolderStoreTests : IDisposable
     }
 
     [Fact]
-    public void Constructor_FileIsCorrupt_StartsWithNoFolders()
+    public void GetFolders_FileIsCorrupt_ReturnsNoFolders()
     {
         // Arrange
         File.WriteAllText(FilePath, "this is not json");
