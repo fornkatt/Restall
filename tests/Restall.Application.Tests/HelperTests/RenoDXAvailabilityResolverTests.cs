@@ -81,7 +81,9 @@ public class RenoDXAvailabilityResolverTests
     {
         var gameMod = s_gameMod with
         {
-            SnapshotUrl = null, NexusUrl = NexusUrl, DiscordUrl = "https://discord.com/channels/1/2"
+            SnapshotUrl = null,
+            NexusUrl = NexusUrl,
+            DiscordUrl = "https://discord.com/channels/1/2"
         };
 
         var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
