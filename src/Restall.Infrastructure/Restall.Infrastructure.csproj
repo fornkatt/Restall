@@ -71,6 +71,9 @@
       <Compile Update="Scanners\XboxScanner.Logging.cs">
         <DependentUpon>XboxScanner.cs</DependentUpon>
       </Compile>
+      <Compile Update="Scanners\CustomFolderScanner.Logging.cs">
+        <DependentUpon>CustomFolderScanner.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

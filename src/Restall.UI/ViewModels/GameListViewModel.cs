@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Application.Interfaces.Driven;
+using Restall.UI.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -21,16 +23,23 @@ public sealed partial class GameListViewModel : ViewModelBase
     private readonly ILogger<GameListViewModel> _logger;
     private readonly IFullLibraryRefreshUseCase _fullLibraryRefresh;
     private readonly IGameRefreshUseCase _gameRefresh;
+    private readonly IFolderPickerService _folderPicker;
+    private readonly ICustomGameFolderStore _customGameFolderStore;
 
     public GameListViewModel(
         ILogger<GameListViewModel> logger,
         IFullLibraryRefreshUseCase fullLibraryRefresh,
-        IGameRefreshUseCase gameRefresh
+        IGameRefreshUseCase gameRefresh,
+        IFolderPickerService folderPicker,
+        ICustomGameFolderStore customGameFolderStore
+
     )
     {
         _logger = logger;
         _fullLibraryRefresh = fullLibraryRefresh;
         _gameRefresh = gameRefresh;
+        _folderPicker = folderPicker;
+        _customGameFolderStore = customGameFolderStore;
     }
 
     private CancellationTokenSource _messageCts = new();
@@ -47,6 +56,7 @@ public sealed partial class GameListViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FullRefreshLibraryCommand))]
     [NotifyCanExecuteChangedFor(nameof(LightRefreshLibraryCommand))]
+    [NotifyCanExecuteChangedFor(nameof(AddCustomFolderCommand))]
     public partial bool IsRefreshing { get; set; }
 
     partial void OnSelectedGameChanged(GameModViewModel? value) =>
@@ -95,6 +105,15 @@ public sealed partial class GameListViewModel : ViewModelBase
         LogFullLibraryRefreshComplete();
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRefresh))]
+    private async Task AddCustomFolderAsync()
+    {
+        var folder = await _folderPicker.PickFolderAsync();
+        if (folder is null) return;
+        _customGameFolderStore.AddFolder(folder);
+        await FullRefreshLibraryAsync();
     }
 
     //TODO: MOVE OVER TO MODVIEWMODEL WHEN LIGHT REFRESH IS CHANGED
