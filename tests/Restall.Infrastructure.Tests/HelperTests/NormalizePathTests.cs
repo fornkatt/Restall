@@ -22,43 +22,38 @@ public class NormalizePathTests
         Assert.Null(expected);
     }
 
-    [Theory(Skip = "Windows pathing",
-        SkipUnless = nameof(Shared.IsWindows),
-        SkipType = typeof(Shared))]
+    [Theory]
     [InlineData("C:/Games/Heroic/Alan Wake", @"C:\Games\Heroic\Alan Wake")]
     public void NormalizePath_WindowsForwardSlashes_ReturnsBackSlashes(string input, string expected)
     {
-        // Arrange
-        var actual = GameScanHelper.NormalizePath(input);
+        // Act
+        var actual = GameScanHelper.NormalizePath(input, '\\', '/');
 
         //Assert
         Assert.Equal(expected, actual);
 
     }
 
-    [Theory(Skip = "Windows pathing",
-        SkipUnless = nameof(Shared.IsWindows),
-        SkipType = typeof(Shared))]
+    [Theory]
     [InlineData("C:\\Epic Games\\LEGOStarWarsTSS\\", @"C:\Epic Games\LEGOStarWarsTSS")]
     public void NormalizePath_WindowsTrailingSeparator_ReturnsUnchanged(string input, string expected)
     {
         // Act
-        var actual = GameScanHelper.NormalizePath(input);
+        var actual = GameScanHelper.NormalizePath(input, '\\', '/');
 
         //Assert
         Assert.Equal(expected, actual);
     }
 
-    [Fact(Skip = "Linux pathing",
-        SkipUnless = nameof(Shared.IsLinux),
-        SkipType = typeof(Shared))]
-    public void NormalizePath_LinuxTrailingSeparator_ReturnsUnchanged()
+    [Theory]
+    [InlineData("/home/user/Games/Heroic/Alan Wake 2/", "/home/user/Games/Heroic/Alan Wake 2")]
+    public void NormalizePath_LinuxTrailingSeparator_ReturnsUnchanged(string input, string expected)
     {
         // Act
-        var actual = GameScanHelper.NormalizePath("/home/user/Games/Heroic/Alan Wake 2/");
+        var actual = GameScanHelper.NormalizePath(input, '/', '/');
 
         //Assert
-        Assert.Equal("/home/user/Games/Heroic/Alan Wake 2", actual);
+        Assert.Equal(expected, actual);
     }
 
 
