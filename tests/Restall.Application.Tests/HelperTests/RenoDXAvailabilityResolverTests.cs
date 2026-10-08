@@ -46,6 +46,7 @@ public class RenoDXAvailabilityResolverTests
 
         Assert.NotNull(actual.DownloadOptions);
         Assert.Equal("renodx-userpicked.addon64", actual.DownloadOptions.Filename);
+        Assert.True(actual.DownloadOptions.IsInstalledFile);
         Assert.Empty(actual.Notices);
     }
 
@@ -59,6 +60,7 @@ public class RenoDXAvailabilityResolverTests
 
         Assert.NotNull(actual.DownloadOptions);
         Assert.Equal(AddonFilename, actual.DownloadOptions.Filename);
+        Assert.False(actual.DownloadOptions.IsInstalledFile);
         Assert.Equal([RenoDXAvailability.Notice.InstalledArchitectureMismatch], actual.Notices);
     }
 
@@ -79,9 +81,7 @@ public class RenoDXAvailabilityResolverTests
     {
         var gameMod = s_gameMod with
         {
-            SnapshotUrl = null,
-            NexusUrl = NexusUrl,
-            DiscordUrl = "https://discord.com/channels/1/2"
+            SnapshotUrl = null, NexusUrl = NexusUrl, DiscordUrl = "https://discord.com/channels/1/2"
         };
 
         var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,

@@ -57,6 +57,29 @@ public class RenoDXDownloadOptionsTests
         Assert.Empty(actual.Branches);
     }
 
+    [Fact]
+    public void LatestNightly_NightliesInMixedDateOrder_ResturnsNewestNightly()
+    {
+        var newestNightly = CreateNightly(new DateOnly(2026, 10, 7));
+        var olderNightly = CreateNightly(new DateOnly(2026, 10, 6));
+        var oldestNightly = CreateNightly(new DateOnly(2026, 10, 5));
+
+        var actual = CreateOptions(nightlies: [oldestNightly, newestNightly, olderNightly]);
+
+        Assert.Same(newestNightly, actual.LatestNightly);
+    }
+
+    [Fact]
+    public void LatestNightly_NoNightlies_ReturnsNothing()
+    {
+        var actual = CreateOptions(s_snapshot);
+
+        Assert.Null(actual.LatestNightly);
+    }
+
+    private static RenoDXTagInfo CreateNightly(DateOnly date) =>
+        new(date, RenoDX.Branch.Nightly, new Uri("https://restalltests.com/nightly/"), []);
+
     private static RenoDXDownloadOptions CreateOptions(RenoDXTagInfo? snapshot = null,
         ImmutableArray<RenoDXTagInfo>? nightlies = null, Uri? directUrl = null) =>
         new("renodx-game.addon64", directUrl, snapshot, nightlies ?? []);

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.Common;
+using Restall.Domain.Common.Enums;
 
 namespace Restall.Application.Tests.CommonTests;
 
@@ -14,7 +15,7 @@ public class RenoDXGenericAddonsTests
         "https://notvoosh.github.io/renodx-unity/renodx-unityengine.addon64")]
     [InlineData("renodx-unityengine.addon32",
         "https://notvoosh.github.io/renodx-unity/renodx-unityengine.addon32")]
-    public void GetDownloadUrl_GenericAddonFilename_ReturnsHostUrl(string addonFilename, string expectedUrl)
+    public void GetGenericAddonDownloadUrl_GenericAddonFilename_ReturnsHostUrl(string addonFilename, string expectedUrl)
     {
         var actual = RenoDXGenericAddons.GetGenericAddonDownloadUrl(addonFilename);
 
@@ -22,7 +23,7 @@ public class RenoDXGenericAddonsTests
     }
 
     [Fact]
-    public void GetDownloadUrl_GenericAddonFilenameWithOtherCasing_ReturnsHostUrl()
+    public void GetGenericAddonDownloadUrl_GenericAddonFilenameWithOtherCasing_ReturnsHostUrl()
     {
         var actual = RenoDXGenericAddons.GetGenericAddonDownloadUrl("RenoDX-UE-Extended.addon64");
 
@@ -30,7 +31,7 @@ public class RenoDXGenericAddonsTests
     }
 
     [Fact]
-    public void GetDownloadUrl_GameModAddonFilename_ReturnsNull()
+    public void GetGenericAddonDownloadUrl_GameModAddonFilename_ReturnsNull()
     {
         var actual = RenoDXGenericAddons.GetGenericAddonDownloadUrl("renodx-game.addon64");
 
@@ -38,7 +39,7 @@ public class RenoDXGenericAddonsTests
     }
 
     [Fact]
-    public void GetInfo_UnrealExtendedAddonFilename_ReturnsUnrealExtendedInfoWithEngineIni()
+    public void GetGenericAddonInfo_UnrealExtendedAddonFilename_ReturnsUnrealExtendedInfoWithEngineIni()
     {
         var actual = RenoDXGenericAddons.GetGenericAddonInfo("renodx-ue-extended.addon64");
 
@@ -50,7 +51,7 @@ public class RenoDXGenericAddonsTests
     [Theory]
     [InlineData("renodx-unityengine.addon64")]
     [InlineData("renodx-unityengine.addon32")]
-    public void GetInfo_UnityGenericAddonFilename_ReturnsUnityGenericInfoWithoutEngineIni(string addonFilename)
+    public void GetGenericAddonInfo_UnityGenericAddonFilename_ReturnsUnityGenericInfoWithoutEngineIni(string addonFilename)
     {
         var actual = RenoDXGenericAddons.GetGenericAddonInfo(addonFilename);
 
@@ -60,10 +61,37 @@ public class RenoDXGenericAddonsTests
     }
 
     [Fact]
-    public void GetInfo_GameModAddonFilename_ReturnsNull()
+    public void GetGenericAddonInfo_GameModAddonFilename_ReturnsNull()
     {
         var actual = RenoDXGenericAddons.GetGenericAddonInfo("renodx-game.addon64");
 
         Assert.Null(actual);
+    }
+
+    [Fact]
+    public void GetUnrealExtendedAddonFilename_64Bit_ReturnsUnrealExtendedFilename()
+    {
+        var actual = RenoDXGenericAddons.GetUnrealExtendedAddonFilename(Architecture.X64);
+
+        Assert.Equal("renodx-ue-extended.addon64", actual);
+    }
+
+    [Fact]
+    public void GetUnrealExtendedAddonFilename_32Bit_ReturnsNull()
+    {
+        var actual = RenoDXGenericAddons.GetUnrealExtendedAddonFilename(Architecture.X32);
+
+        Assert.Null(actual);
+    }
+
+    [Theory]
+    [InlineData(Architecture.X64, "renodx-unityengine.addon64")]
+    [InlineData(Architecture.X32, "renodx-unityengine.addon32")]
+    public void GetUnityGenericAddonFilename_Architecture_ReturnsUnityGenericFilename(Architecture architecture,
+        string expectedFilename)
+    {
+        var actual = RenoDXGenericAddons.GetUnityGenericAddonFilename(architecture);
+
+        Assert.Equal(expectedFilename, actual);
     }
 }
