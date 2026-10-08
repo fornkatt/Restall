@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Domain.Common.Enums;
 using System.Collections.Immutable;
 
@@ -16,6 +17,10 @@ public sealed record RenoDXModMatch(
 {
     public static readonly RenoDXModMatch None = new(null, null, null,
         MatchKind.None, []);
+
+    public string? ModName => GameMod?.Name ?? UnrealGenericMod?.Name ?? UnityGenericMod?.Name;
+
+    public RenoDXModStatus? ModStatus => GameMod?.Status ?? UnrealGenericMod?.Status ?? UnityGenericMod?.Status;
 
     public string? GetAddonFilename(Architecture architecture) => this switch
     {

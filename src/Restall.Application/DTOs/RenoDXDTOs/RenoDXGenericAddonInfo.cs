@@ -5,5 +5,6 @@ namespace Restall.Application.DTOs.RenoDXDTOs;
 
 public sealed record RenoDXGenericAddonInfo(
     string Name,
+    string Author,
     string Notes,
     string? EngineIni);
