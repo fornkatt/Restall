@@ -3,6 +3,7 @@
 
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.Interfaces.Driven;
+using Restall.Application.Stores;
 using Restall.Domain.Entities;
 using System.Collections.Immutable;
 
@@ -10,38 +11,20 @@ namespace Restall.Infrastructure.Stores;
 
 internal sealed class VersionCatalog : IVersionCatalog
 {
-    private readonly IParseService _parseService;
+    private readonly RenoDXCatalog _renoDXCatalog;
 
     private ImmutableDictionary<ReShade.Branch, ImmutableArray<string>> _reShadeVersions = [];
 
-    private ImmutableDictionary<RenoDX.Branch, ImmutableArray<RenoDXTagInfo>> _renoDXTags = [];
-
     public VersionCatalog(
-        IParseService parseService
+        RenoDXCatalog renoDXCatalog
     )
     {
-        _parseService = parseService;
+        _renoDXCatalog = renoDXCatalog;
     }
 
-    public async Task FetchVersionsAsync()
-    {
-        var reShadeVersionsTask = _parseService.FetchReShadeVersionsAsync();
-        var renoDXSnapshotTask = _parseService.FetchRenoDXSnapshotAsync();
-        var renoDXNightlyTask = _parseService.FetchRenoDXNightlyTagsAsync();
-
-        await Task.WhenAll(reShadeVersionsTask, renoDXSnapshotTask, renoDXNightlyTask);
-
+    public void LoadReShadeVersions(ImmutableArray<string> versions) =>
         _reShadeVersions = ImmutableDictionary<ReShade.Branch, ImmutableArray<string>>.Empty
-            .Add(ReShade.Branch.Stable, reShadeVersionsTask.Result);
-
-        var renoDXBuilder = ImmutableDictionary.CreateBuilder<RenoDX.Branch, ImmutableArray<RenoDXTagInfo>>();
-        if (renoDXSnapshotTask.Result is { IsSuccess: true, Value: { } snapshot })
-            renoDXBuilder[RenoDX.Branch.Snapshot] = [snapshot];
-
-        var nightliesResult = renoDXNightlyTask.Result;
-        renoDXBuilder[RenoDX.Branch.Nightly] = nightliesResult.IsSuccess ? nightliesResult.Value : [];
-        _renoDXTags = renoDXBuilder.ToImmutable();
-    }
+            .Add(ReShade.Branch.Stable, versions);
 
     public string? GetLatestReShadeVersion(ReShade.Branch branch)
     {
@@ -54,14 +37,13 @@ internal sealed class VersionCatalog : IVersionCatalog
     public ImmutableArray<string> GetAvailableReShadeVersions(ReShade.Branch branch) =>
         _reShadeVersions.TryGetValue(branch, out var versions) ? versions : [];
 
-    public RenoDXTagInfo? GetLatestRenoDXVersionByTag(RenoDX.Branch branch)
+    // TODO: delete all below later after everything is wired up
+    public RenoDXTagInfo? GetLatestRenoDXVersionByTag(RenoDX.Branch branch) => branch switch
     {
-        if (!_renoDXTags.TryGetValue(branch, out var versions) || versions.Length == 0)
-            return null;
+        RenoDX.Branch.Snapshot => _renoDXCatalog.Snapshot,
+        RenoDX.Branch.Nightly => _renoDXCatalog.Nightlies.MaxBy(n => n.Date),
+        _ => null
+    };
 
-        return versions[0];
-    }
-
-    public ImmutableArray<RenoDXTagInfo> GetAllRenoDXNightlies() =>
-        _renoDXTags.TryGetValue(RenoDX.Branch.Nightly, out var versions) ? versions : [];
+    public ImmutableArray<RenoDXTagInfo> GetAllRenoDXNightlies() => _renoDXCatalog.Nightlies;
 }

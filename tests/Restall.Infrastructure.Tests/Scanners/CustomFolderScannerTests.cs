@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging.Abstractions;
-using Restall.Domain.Entities;
 using Restall.Application.Interfaces.Driven;
+using Restall.Domain.Entities;
 using Restall.Infrastructure.Scanners;
 
 namespace Restall.Infrastructure.Tests.Scanners;

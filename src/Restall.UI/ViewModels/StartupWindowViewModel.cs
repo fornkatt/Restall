@@ -38,7 +38,7 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
         StatusMessage = "Scanning for games...";
 
-        var result = await _fullLibraryRefresh.ExecuteAsync(progress);
+        var result = await Task.Run(() => _fullLibraryRefresh.ExecuteAsync(progress));
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
 

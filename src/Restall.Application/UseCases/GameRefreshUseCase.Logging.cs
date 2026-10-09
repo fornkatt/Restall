@@ -8,16 +8,16 @@ namespace Restall.Application.UseCases;
 // Game Refresh Logging — EventId range: 1900 - 1949
 public sealed partial class GameRefreshUseCase
 {
-    [LoggerMessage(EventId = 1250, Level = LogLevel.Debug,
+    [LoggerMessage(EventId = 1900, Level = LogLevel.Debug,
         Message = "Found compatible RenoDX mod for \"{GameName}\" — Mod name: \"{ModName}\"")]
     private partial void LogRenoDXCompatibleGameFound(string gameName, string modName);
 
-    [LoggerMessage(EventId = 1251, Level = LogLevel.Debug,
+    [LoggerMessage(EventId = 1901, Level = LogLevel.Debug,
         Message = "Found compatible generic RenoDX mod for \"{GameName}\" — Mod name: \"{ModName}\"")]
     private partial void LogRenoDXCompatibleGenericGameFound(string gameName,
         string modName);
 
-    [LoggerMessage(EventId = 1252, Level = LogLevel.Debug,
+    [LoggerMessage(EventId = 1902, Level = LogLevel.Debug,
         Message = "No compatible RenoDX game found for \"{GameName}\"")]
     private partial void LogRenoDXCompatibleGameNotFound(string gameName);
 }

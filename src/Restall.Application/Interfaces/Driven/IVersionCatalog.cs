@@ -9,8 +9,7 @@ namespace Restall.Application.Interfaces.Driven;
 
 public interface IVersionCatalog
 {
-    Task FetchVersionsAsync();
-
+    void LoadReShadeVersions(ImmutableArray<string> versions);
     string? GetLatestReShadeVersion(ReShade.Branch branch);
     ImmutableArray<string> GetAvailableReShadeVersions(ReShade.Branch branch);
 

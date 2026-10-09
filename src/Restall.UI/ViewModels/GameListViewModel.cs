@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Restall.Application.Interfaces.Driven;
-using Restall.UI.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs.Results;
+using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
+using Restall.UI.Interfaces;
 using Restall.UI.Messages;
 using System;
 using System.Collections.ObjectModel;
@@ -88,7 +88,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _fullLibraryRefresh.ExecuteAsync();
+            var result = await Task.Run(() => _fullLibraryRefresh.ExecuteAsync());
             LoadGames(result);
 
             // TODO: this doesn't actually produce warnings, it stops the whole process. Redo and yield return messages?

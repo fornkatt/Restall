@@ -15,7 +15,6 @@ namespace Restall.Application.UseCases;
 public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
 {
     private readonly ILogger<GameRefreshUseCase> _logger;
-    private readonly IVersionCatalog _versionCatalog;
     private readonly IModCatalog _modCatalog;
     private readonly IUpdateCheckService _updateCheckService;
     private readonly IGameArtworkService _gameArtworkService;
@@ -23,7 +22,6 @@ public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
 
     public GameRefreshUseCase(
         ILogger<GameRefreshUseCase> logger,
-        IVersionCatalog versionCatalog,
         IModCatalog modCatalog,
         IUpdateCheckService updateCheckService,
         IGameArtworkService gameArtworkService,
@@ -31,7 +29,6 @@ public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
     )
     {
         _logger = logger;
-        _versionCatalog = versionCatalog;
         _modCatalog = modCatalog;
         _updateCheckService = updateCheckService;
         _gameArtworkService = gameArtworkService;
@@ -41,7 +38,7 @@ public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
     public async Task<RefreshLibraryResultDto> ExecuteAsync(IReadOnlyList<Game> existingGames,
         IProgress<GameScanProgressReportDto>? progress = null)
     {
-        await Task.WhenAll(_versionCatalog.FetchVersionsAsync(), _modCatalog.FetchModsAsync());
+        await _modCatalog.FetchModsAsync();
 
         return await BuildResultAsync(existingGames.OrderBy(g => g.Name), true, null);
     }
@@ -101,7 +98,7 @@ public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
 
         await Task.WhenAll(artworkTasks);
 
-        return new RefreshLibraryResultDto(results, success, errorMessage);
+        return new RefreshLibraryResultDto(results, success, [], errorMessage);
     }
 
     private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, ImmutableArray<RenoDXModInfoDto> mods)

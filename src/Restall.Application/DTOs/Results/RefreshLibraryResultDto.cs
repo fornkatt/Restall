@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Domain.Entities;
+using System.Collections.Immutable;
 
 namespace Restall.Application.DTOs.Results;
 
 public record RefreshLibraryResultDto(
     IReadOnlyList<GameInitResultDto> Games,
     bool IsSuccess,
+    ImmutableArray<string> Warnings,
     string? ErrorMessage = null);
 
 public record GameInitResultDto(
@@ -15,4 +17,5 @@ public record GameInitResultDto(
     RenoDXModInfoDto? CompatibleMod,
     RenoDXGenericModInfoDto? CompatibleGenericMod,
     UpdateAvailability? ReShadeUpdateResult = null,
-    UpdateAvailability? RenoDXUpdateResult = null);
+    UpdateAvailability? RenoDXUpdateResult = null,
+    GameEntry? Entry = null);
