@@ -306,10 +306,6 @@ internal sealed partial class DownloadService : IDownloadService
         {
             return Result.Error($"Failed to download {filename} from {url}", ErrorType.None, ex);
         }
-        finally
-        {
-            TryDeleteTempFile(destinationPath);
-        }
     }
 
     private void TryDeleteTempFile(string tempPath)
