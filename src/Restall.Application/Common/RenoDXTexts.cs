@@ -43,7 +43,7 @@ public static class RenoDXTexts
         RenoDXAvailability.Notice.NoDownloadListed =>
             "No download is listed for this mod yet.",
         RenoDXAvailability.Notice.SnapshotFileUnconfirmed =>
-            "Restall couldn't confirm that the Snapshot release page constains this game's mod file. " +
+            "Restall couldn't confirm that the Snapshot release page contains this game's mod file. " +
             "You can still try installing it but it is not guaranteed to work.",
         RenoDXAvailability.Notice.AmbiguousMatch =>
             "This game matches more than one entry on the RenoDX mod list, so Restall can't tell which one to use. " +
