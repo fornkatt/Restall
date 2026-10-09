@@ -7,7 +7,7 @@ namespace Restall.Domain.Entities;
 
 public sealed class Game
 {
-    public enum Platform { Unknown, Steam, Epic, GOG, Ubisoft, EA, Xbox }
+    public enum Platform { Unknown, Steam, Epic, GOG, Ubisoft, EA, Xbox, Custom }
     public enum Engine { Unknown, Unreal, Unity }
 
     // TODO: null Name, ExecutablePath and InstallFolder are malformed, consider skipping them and making non-nullable

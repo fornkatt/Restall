@@ -17,6 +17,9 @@ internal sealed class PathService : IPathService
     private const string IconFileName = "icon.png";
     private const string GameCoverFileName = "cover.png";
 
+    private const string CustomGameFoldersFileName = "custom-game-folders.json";
+
+
     private static readonly string s_baseDirectory =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppName);
 
@@ -100,4 +103,6 @@ internal sealed class PathService : IPathService
         Path.Combine(GetReShadeCachePath(reShade), reShade.OriginalFileName);
 
     public string GetDefaultLogPath() => _defaultLogPath;
+    public string GetCustomGameFoldersFilePath() => Path.Combine(s_baseDirectory, CustomGameFoldersFileName);
+
 }
