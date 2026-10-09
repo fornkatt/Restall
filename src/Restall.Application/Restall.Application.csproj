@@ -30,6 +30,9 @@
       <Compile Update="Services\RenoDXModDatabaseBuilder.Logging.cs">
         <DependentUpon>RenoDXModDatabaseBuilder.cs</DependentUpon>
       </Compile>
+      <Compile Update="Services\GameEntryAssembler.Logging.cs">
+        <DependentUpon>GameEntryAssembler.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

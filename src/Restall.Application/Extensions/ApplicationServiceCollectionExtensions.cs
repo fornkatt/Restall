@@ -22,5 +22,6 @@ public static class ApplicationServiceCollectionExtensions
             .AddSingleton<IGameRefreshUseCase, GameRefreshUseCase>()
             .AddSingleton<IFullLibraryRefreshUseCase, FullLibraryRefreshUseCase>()
             .AddSingleton<RenoDXModDatabaseBuilder>()
-            .AddSingleton<RenoDXCatalog>();
+            .AddSingleton<RenoDXCatalog>()
+            .AddSingleton<GameEntryAssembler>();
 }
