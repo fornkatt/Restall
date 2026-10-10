@@ -134,14 +134,18 @@ public sealed partial class ModViewModel : ViewModelBase
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "explorer.exe", Arguments = $"\"{folder}\"", UseShellExecute = false
+                FileName = "explorer.exe",
+                Arguments = $"\"{folder}\"",
+                UseShellExecute = false
             });
         }
         else
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "xdg-open", ArgumentList = { folder }, UseShellExecute = false
+                FileName = "xdg-open",
+                ArgumentList = { folder },
+                UseShellExecute = false
             });
         }
     }
@@ -547,11 +551,11 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private bool CanOpenNexusLink =>
         SelectedGame is
-            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
+        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
 
     private bool CanOpenDiscordLink =>
         SelectedGame is
-            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
+        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
 
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
     private async Task UpdateRenoDXAsync()
