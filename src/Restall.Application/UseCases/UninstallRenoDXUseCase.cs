@@ -40,13 +40,13 @@ public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
 
         var deleteResult = _fileService.TryDeleteFile(path, RenoDX.OriginalFilenameStart);
 
-        var wanAlreadyRemoved = deleteResult.ErrorType is ErrorType.FileNotFound;
+        var wasAlreadyRemoved = deleteResult.ErrorType is ErrorType.FileNotFound;
 
-        if (!deleteResult.IsSuccess && !wanAlreadyRemoved)
+        if (!deleteResult.IsSuccess && !wasAlreadyRemoved)
         {
             _logger.ModUninstallFailure("RenoDX", gameName, deleteResult.Message, deleteResult.Exception);
 
-            return new RenoDXUninstallResponse(false, game, _gameEntryAssembler.Assemble(game),
+            return new RenoDXUninstallResponse(false, game, null,
                 GetFailureMessage(deleteResult.ErrorType, gameName));
         }
 
@@ -55,7 +55,7 @@ public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
         _logger.ModUninstallationComplete("RenoDX", gameName);
 
         return new RenoDXUninstallResponse(true, game, _gameEntryAssembler.Assemble(game),
-            GetSuccessMessage(wanAlreadyRemoved));
+            GetSuccessMessage(wasAlreadyRemoved));
     }
 
     private static string GetFailureMessage(ErrorType errorType, string gameName) => errorType switch
@@ -67,7 +67,7 @@ public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
         _ => $"Failed to uninstall RenoDX from {gameName}. Check the logs for details."
     };
 
-    private static string GetSuccessMessage(bool wasAlreadyRemvoed) => wasAlreadyRemvoed switch
+    private static string GetSuccessMessage(bool wasAlreadyRemoved) => wasAlreadyRemoved switch
     {
         true => "RenoDX could not be found at the expected location so we cleared it from the game.\n" +
                 "If you believe this was an error, please perform a rescan.",

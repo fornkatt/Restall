@@ -8,5 +8,4 @@ namespace Restall.Application.DTOs.Requests;
 public record RenoDXInstallRequest(
     Game Game,
     RenoDX.Branch Branch,
-    string? NightlyVersion = null,
-    GameEntry? GameEntry = null);
+    string? NightlyVersion = null);

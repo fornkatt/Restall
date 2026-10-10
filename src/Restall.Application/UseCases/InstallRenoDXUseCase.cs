@@ -171,7 +171,8 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
     private static string GetReleaseUnavailableMessage(RenoDXInstallRequest request) => request.Branch switch
     {
         RenoDX.Branch.Nightly when request.NightlyVersion is { } nightlyVersion =>
-            $"Nightly {nightlyVersion} doesn't include this game's RenoDX mod file. Pick another Nightly and try again.",
+            $"Nightly {nightlyVersion} doesn't include this game's RenoDX mod file. " +
+            $"Pick another Nightly and try again.",
         _ => $"This game's RenoDX mod file is not available for branch {request.Branch}."
     };
 
@@ -181,7 +182,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             ErrorType.PermissionDenied => "Restall doesn't have permission to change files in that location. " +
                                           "Check your permissions and try again.",
             ErrorType.FileSystemError => "The disk may be full or the file may be in use (is the game running?).",
-            ErrorType.NetworkTimeout => "The connection timed out. Check your internet connection and try again",
+            ErrorType.NetworkTimeout => "The connection timed out. Check your internet connection and try again.",
             ErrorType.DownloadFailed => "The server may be unavailable or the file may no longer exist.",
             _ => "Check the log for details."
         };

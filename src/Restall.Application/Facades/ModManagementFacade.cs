@@ -99,13 +99,8 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         IProgress<DownloadProgressReport>? progress = null)
     {
         if (IsGamePathInvalid(request.Game))
-            return new RenoDXInstallResponse(false, request.Game, request.GameEntry,
+            return new RenoDXInstallResponse(false, request.Game, null,
                 "Game path could not be found.\n\n" +
-                "Please perform a rescan.");
-
-        if (HasStaleRenoDXRecord(request.Game))
-            return new RenoDXInstallResponse(false, request.Game, request.GameEntry,
-                "RenoDX with the recorded filename could not be found on disk.\n\n" +
                 "Please perform a rescan.");
 
         try
@@ -118,7 +113,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         {
             const string message = "Unexpected error occured while installing RenoDX.";
             LogError(message, ex);
-            return new RenoDXInstallResponse(false, request.Game, request.GameEntry,
+            return new RenoDXInstallResponse(false, request.Game, null,
                 message + " Check logs for more information.");
         }
     }
@@ -166,15 +161,6 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         }
 
         result = null!;
-        return false;
-    }
-
-    private static bool HasStaleRenoDXRecord(Game game)
-    {
-        if (game.RenoDX is { } renoDX &&
-            !File.Exists(Path.Combine(game.ExecutablePath!, renoDX.SelectedName!)))
-            return true;
-
         return false;
     }
 
