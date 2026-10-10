@@ -4,7 +4,6 @@
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Requests;
 using Restall.Application.DTOs.Responses;
-using Restall.Application.UseCases.Requests;
 
 namespace Restall.Application.Interfaces.Driving;
 
