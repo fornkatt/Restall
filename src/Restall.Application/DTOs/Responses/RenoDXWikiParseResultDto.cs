@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 
-namespace Restall.Application.DTOs.Results;
+namespace Restall.Application.DTOs.Responses;
 
 public record RenoDXWikiParseResultDto(
     ImmutableArray<RenoDXModInfoDto> WikiMods,

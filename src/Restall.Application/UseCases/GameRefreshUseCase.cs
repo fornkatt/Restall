@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
@@ -35,7 +35,7 @@ public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
         _modDetectionService = modDetectionService;
     }
 
-    public async Task<RefreshLibraryResultDto> ExecuteAsync(IReadOnlyList<Game> existingGames,
+    public async Task<RefreshLibraryResponse> ExecuteAsync(IReadOnlyList<Game> existingGames,
         IProgress<GameScanProgressReportDto>? progress = null)
     {
         await _modCatalog.FetchModsAsync();
@@ -43,7 +43,7 @@ public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
         return await BuildResultAsync(existingGames.OrderBy(g => g.Name), true, null);
     }
 
-    private async Task<RefreshLibraryResultDto> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success,
+    private async Task<RefreshLibraryResponse> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success,
         string? errorMessage)
     {
         HashSet<Task> artworkTasks = [];
@@ -98,7 +98,7 @@ public sealed partial class GameRefreshUseCase : IGameRefreshUseCase
 
         await Task.WhenAll(artworkTasks);
 
-        return new RefreshLibraryResultDto(results, success, [], errorMessage);
+        return new RefreshLibraryResponse(results, success, [], errorMessage);
     }
 
     private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, ImmutableArray<RenoDXModInfoDto> mods)

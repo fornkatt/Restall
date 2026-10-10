@@ -3,7 +3,7 @@
 
 using Restall.Application.Common;
 using Restall.Application.DTOs.RenoDXDTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using System.Collections.Immutable;
 
 namespace Restall.Application.Interfaces.Driven;

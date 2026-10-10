@@ -89,7 +89,7 @@ internal sealed partial class ModDetectionService : IModDetectionService
                 async (file, versionInfo) =>
                 {
                     if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
-                        versionInfo.OriginalFilename.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) &&
+                        versionInfo.OriginalFilename.StartsWith(RenoDX.OriginalFilenameStart, StringComparison.OrdinalIgnoreCase) &&
                         !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
                     {
                         var filename = Path.GetFileName(file);

@@ -43,8 +43,8 @@ public static class RenoDXAvailabilityResolver
 
         var downloadOptions = addonFilename is null
             ? null
-            : RenoDXDownloadOptionsResolver.Resolve(addonFilename, GetDirectUrl(addonFilename, match.GameMod), snapshot,
-                nightlies, installedAddonFilename is not null);
+            : RenoDXDownloadOptionsResolver.Resolve(addonFilename, GetDirectUrl(addonFilename, match.GameMod),
+                snapshot, nightlies, installedAddonFilename is not null);
 
         if (downloadOptions?.Snapshot is { HasAddonFileList: false })
             notices.Add(RenoDXAvailability.Notice.SnapshotFileUnconfirmed);

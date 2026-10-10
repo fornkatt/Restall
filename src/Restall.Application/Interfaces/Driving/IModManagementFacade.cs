@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Requests;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 
@@ -10,12 +11,11 @@ namespace Restall.Application.Interfaces.Driving;
 
 public interface IModManagementFacade
 {
-    Task<ModOperationResultDto> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
+    Task<ModOperationResponse> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
         IProgress<DownloadProgressReport>? progress = null);
+    Task<ModOperationResponse> UninstallReShadeAsync(Game game);
 
-    Task<ModOperationResultDto> InstallOrUpdateRenoDXAsync(InstallRenoDXRequest request,
+    Task<RenoDXInstallResponse> InstallOrUpdateRenoDXAsync(RenoDXInstallRequest request,
         IProgress<DownloadProgressReport>? progress = null);
-
-    Task<ModOperationResultDto> UninstallReShadeAsync(Game game);
-    Task<ModOperationResultDto> UninstallRenoDXAsync(Game game);
+    Task<RenoDXUninstallResponse> UninstallRenoDXAsync(Game game);
 }

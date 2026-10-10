@@ -13,6 +13,7 @@ public sealed class RenoDX
     public const string VersionFormat = "yyyyMMdd";
     public const string AddonExtension = ".addon64";
     public const string AddonExtension32 = ".addon32";
+    public const string OriginalFilenameStart = "renodx-";
 
     public string? SelectedName { get; set; }
     public string? OriginalName { get; set; }

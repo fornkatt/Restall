@@ -69,18 +69,6 @@ internal sealed class ModInstallService : IModInstallService
         return Result<Game>.Success(game);
     }
 
-    public Result<Game> UninstallRenoDX(Game game)
-    {
-        var expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.SelectedName!);
-        var deleted = _fileService.TryDeleteFile(expectedPath, verifyOriginalFilename: "renodx-");
-
-        if (!deleted.IsSuccess)
-            return Result<Game>.Error(deleted.Message, deleted.ErrorType, deleted.Exception);
-
-        game.RenoDX = null;
-        return Result<Game>.Success(game);
-    }
-
     // TODO: implement remove all functionality, implement log methods
     public async Task<Result<Game>> RemoveAllReShadeFilesAsync(Game game)
     {

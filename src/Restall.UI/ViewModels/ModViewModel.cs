@@ -4,7 +4,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Requests;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
@@ -131,25 +132,21 @@ public sealed partial class ModViewModel : ViewModelBase
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "explorer.exe",
-                Arguments = $"\"{folder}\"",
-                UseShellExecute = false
+                FileName = "explorer.exe", Arguments = $"\"{folder}\"", UseShellExecute = false
             });
         }
         else
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "xdg-open",
-                ArgumentList = { folder },
-                UseShellExecute = false
+                FileName = "xdg-open", ArgumentList = { folder }, UseShellExecute = false
             });
         }
     }
 
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
     private async Task ExecuteReShadeActionAsync(Func<Progress<DownloadProgressReport>,
-        Task<ModOperationResultDto>> work, int delayMs = 5000)
+        Task<ModOperationResponse>> work, int delayMs = 5000)
     {
         var game = SelectedGame!;
 
@@ -168,7 +165,7 @@ public sealed partial class ModViewModel : ViewModelBase
             game.IsShowingReShadeActionMessage = true;
         });
 
-        var result = await work(progress);
+        var result = await Task.Run(() => work(progress), cts.Token);
 
         game.ReShadeUpdateCheck = result.UpdateCheckResult;
         game.NotifyGameStateChanged();
@@ -259,41 +256,29 @@ public sealed partial class ModViewModel : ViewModelBase
     /* ---RENODX-------------------------------------------------------------------------------------------------------------- */
     private async Task InstallRenoDXAsync()
     {
-        string? targetVersion;
+        string? nightlyVersion = null;
 
-        switch (SelectedRenoDXBranch)
+        if (SelectedRenoDXBranch is RenoDX.Branch.Nightly)
         {
-            case RenoDX.Branch.Nightly:
-                {
-                    var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
-                    if (selectedTag is null) return;
+            var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync();
 
-                    targetVersion = selectedTag.Version;
-                    break;
-                }
-            case RenoDX.Branch.Snapshot:
-                targetVersion = RenoDXLatestVersionForBranch;
-                break;
-            default:
-                targetVersion = null;
-                break;
+            if (selectedTag is null)
+                return;
+
+            nightlyVersion = selectedTag.Version;
         }
 
-        var request = new InstallRenoDXRequest(
+        var request = new RenoDXInstallRequest(
             SelectedGame!.GetGame(),
-            SelectedGame.SelectedRenoDXInstallArch,
             SelectedRenoDXBranch,
-            ModInfo: SelectedGame.CompatibleRenoDXMod,
-            GenericModInfo: SelectedGame.CompatibleRenoDXGenericMod,
-            TargetVersion: targetVersion
-        );
+            nightlyVersion);
 
         await ExecuteRenoDXActionAsync(p =>
             _modManagementFacade.InstallOrUpdateRenoDXAsync(request, p));
     }
 
     private async Task ExecuteRenoDXActionAsync(
-        Func<Progress<DownloadProgressReport>, Task<ModOperationResultDto>> work,
+        Func<Progress<DownloadProgressReport>, Task<ModOperationResponse>> work,
         int delayMs = 5000)
     {
         var game = SelectedGame!;
@@ -313,9 +298,8 @@ public sealed partial class ModViewModel : ViewModelBase
             game.IsShowingRenoDXActionMessage = true;
         });
 
-        var result = await work(progress);
+        var result = await Task.Run(() => work(progress), cts.Token);
 
-        game.RenoDXUpdateCheck = result.UpdateCheckResult;
         game.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
         game.RenoDXModActionStatus = result.Message;
@@ -548,26 +532,18 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private bool CanOpenNexusLink =>
         SelectedGame is
-        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
+            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
 
     private bool CanOpenDiscordLink =>
         SelectedGame is
-        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
+            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
 
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
     private async Task UpdateRenoDXAsync()
     {
-        var targetVersion = RenoDXLatestVersionForBranch;
-        if (targetVersion is null) return;
-
-        var request = new InstallRenoDXRequest(
+        var request = new RenoDXInstallRequest(
             SelectedGame!.GetGame(),
-            SelectedGame.SelectedRenoDXInstallArch,
-            SelectedRenoDXBranch,
-            ModInfo: SelectedGame.CompatibleRenoDXMod,
-            GenericModInfo: SelectedGame.CompatibleRenoDXGenericMod,
-            TargetVersion: targetVersion
-        );
+            SelectedRenoDXBranch);
 
         await ExecuteRenoDXActionAsync(p => _modManagementFacade.InstallOrUpdateRenoDXAsync(request, p));
     }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.Logging;
@@ -40,7 +40,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         _fileService = fileService;
     }
 
-    public async Task<ModOperationResultDto> ExecuteAsync(InstallReShadeRequest request,
+    public async Task<ModOperationResponse> ExecuteAsync(InstallReShadeRequest request,
         IProgress<DownloadProgressReport>? progress = null)
     {
         _logger.ModInstallationStart("ReShade", request.SelectedFilename, request.Arch.ToString(),
@@ -82,7 +82,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 _logger.ModDownloadFailure("ReShade", _pathService.GetReShadeDownloadCacheDirectory(reShade.BranchName),
                     downloadResult.Message, downloadResult.Exception);
 
-                return new ModOperationResultDto(false, request.Game, userMessage);
+                return new ModOperationResponse(false, request.Game, userMessage);
             }
 
             var installerPath = _pathService.GetReShadeInstallerFilePath(reShade.BranchName, reShade.Version);
@@ -116,7 +116,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 _logger.ModExtractionFailure("ReShade", extractedCacheDir, extractionResult.Message,
                     extractionResult.Exception);
 
-                return new ModOperationResultDto(false, request.Game, userMessage);
+                return new ModOperationResponse(false, request.Game, userMessage);
             }
         }
 
@@ -145,7 +145,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
                 _logger.ExistingModFileDeletionFailure("ReShade", request.Game.Name ?? "Unknown",
                     deleteResult.Message, deleteResult.Exception);
 
-                return new ModOperationResultDto(false, request.Game, userMessage);
+                return new ModOperationResponse(false, request.Game, userMessage);
             }
         }
 
@@ -167,13 +167,13 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
             _logger.ModInstallationFailure("ReShade", request.Game.Name ?? "Unknown", result.Message,
                 result.Exception);
 
-            return new ModOperationResultDto(false, request.Game, userMessage);
+            return new ModOperationResponse(false, request.Game, userMessage);
         }
 
         _logger.ModInstallationComplete("ReShade", reShade.SelectedFilename, reShade.Arch.ToString(),
             request.Game.Name ?? "Unknown");
 
-        return new ModOperationResultDto(true, result.Value!,
+        return new ModOperationResponse(true, result.Value!,
             $"Successfully installed ReShade as {reShade.SelectedFilename}!");
     }
 

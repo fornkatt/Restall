@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 
 namespace Restall.Application.Interfaces.Driving;
 
 public interface IFullLibraryRefreshUseCase
 {
-    Task<RefreshLibraryResultDto> ExecuteAsync(IProgress<GameScanProgressReportDto>? progress = null);
+    Task<RefreshLibraryResponse> ExecuteAsync(IProgress<GameScanProgressReportDto>? progress = null);
 }

@@ -4,9 +4,9 @@
 using Restall.Domain.Entities;
 using System.Collections.Immutable;
 
-namespace Restall.Application.DTOs.Results;
+namespace Restall.Application.DTOs.Responses;
 
-public record RefreshLibraryResultDto(
+public record RefreshLibraryResponse(
     IReadOnlyList<GameInitResultDto> Games,
     bool IsSuccess,
     ImmutableArray<string> Warnings,

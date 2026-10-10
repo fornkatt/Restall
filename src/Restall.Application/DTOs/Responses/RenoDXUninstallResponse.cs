@@ -3,10 +3,10 @@
 
 using Restall.Domain.Entities;
 
-namespace Restall.Application.DTOs.Results;
+namespace Restall.Application.DTOs.Responses;
 
-public record GameScanResultDto(
-    Game.Platform Platform,
-    IReadOnlyList<Game> Games,
+public sealed record RenoDXUninstallResponse(
     bool IsSuccess,
+    Game Game,
+    GameEntry? GameEntry = null,
     string? Message = null);

@@ -3,7 +3,8 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Requests;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.UseCases.Requests;
@@ -38,11 +39,13 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         _updateCheckService = updateCheckService;
     }
 
-    public async Task<ModOperationResultDto> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
+    public async Task<ModOperationResponse> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
         IProgress<DownloadProgressReport>? progress = null)
     {
-        if (IsGamePathInvalid(request.Game, out var error))
-            return error;
+        if (IsGamePathInvalid(request.Game))
+            return new ModOperationResponse(false, request.Game,
+                "Game path could not be found.\n\n" +
+                "Please perform a rescan.");
 
         if (HasStaleReShadeRecord(request.Game, out var staleError))
             return staleError;
@@ -63,19 +66,21 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         {
             const string message = "Unexpected error occured while installing ReShade.";
             LogError(message, ex);
-            return new ModOperationResultDto(false, request.Game,
+            return new ModOperationResponse(false, request.Game,
                 message + " Check logs for more information.");
         }
     }
 
 
-    public async Task<ModOperationResultDto> UninstallReShadeAsync(Game game)
+    public async Task<ModOperationResponse> UninstallReShadeAsync(Game game)
     {
-        if (IsGamePathInvalid(game, out var error))
-            return error;
+        if (IsGamePathInvalid(game))
+            return new ModOperationResponse(false, game,
+                "Game path could not be found.\n\n" +
+                "Please perform a rescan.");
 
         if (game.ReShade is null)
-            return new ModOperationResultDto(false, game,
+            return new ModOperationResponse(false, game,
                 "No ReShade installation detected for this game. Please perform a full rescan.");
 
         try
@@ -86,28 +91,26 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         {
             const string message = "An unexpected error occured uninstalling ReShade.";
             LogError(message, ex);
-            return new ModOperationResultDto(false, game, message + " Check the logs for more details.");
+            return new ModOperationResponse(false, game, message + " Check the logs for more details.");
         }
     }
 
-    public async Task<ModOperationResultDto> InstallOrUpdateRenoDXAsync(InstallRenoDXRequest request,
+    public async Task<RenoDXInstallResponse> InstallOrUpdateRenoDXAsync(RenoDXInstallRequest request,
         IProgress<DownloadProgressReport>? progress = null)
     {
-        if (IsGamePathInvalid(request.Game, out var error))
-            return error;
+        if (IsGamePathInvalid(request.Game))
+            return new RenoDXInstallResponse(false, request.Game, request.GameEntry,
+                "Game path could not be found.\n\n" +
+                "Please perform a rescan.");
 
-        if (HasStaleRenoDXRecord(request.Game, out var staleError))
-            return staleError;
+        if (HasStaleRenoDXRecord(request.Game))
+            return new RenoDXInstallResponse(false, request.Game, request.GameEntry,
+                "RenoDX with the recorded filename could not be found on disk.\n\n" +
+                "Please perform a rescan.");
 
         try
         {
             var result = await _installRenoDXUseCase.ExecuteAsync(request, progress);
-
-            if (result.IsSuccess && result.UpdatedGame.RenoDX is not null)
-                return result with
-                {
-                    UpdateCheckResult = _updateCheckService.CheckRenoDXUpdate(result.UpdatedGame.RenoDX)
-                };
 
             return result;
         }
@@ -115,19 +118,21 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         {
             const string message = "Unexpected error occured while installing RenoDX.";
             LogError(message, ex);
-            return new ModOperationResultDto(false, request.Game,
+            return new RenoDXInstallResponse(false, request.Game, request.GameEntry,
                 message + " Check logs for more information.");
         }
     }
 
 
-    public async Task<ModOperationResultDto> UninstallRenoDXAsync(Game game)
+    public async Task<RenoDXUninstallResponse> UninstallRenoDXAsync(Game game)
     {
-        if (IsGamePathInvalid(game, out var error))
-            return error;
+        if (IsGamePathInvalid(game))
+            return new RenoDXUninstallResponse(false, game, null,
+                "Game path could not be found.\n\n" +
+                "Please perform a rescan.");
 
         if (game.RenoDX is null)
-            return new ModOperationResultDto(false, game,
+            return new RenoDXUninstallResponse(false, game, null,
                 "No RenoDX installation detected for this game. Please perform a full rescan.");
 
         try
@@ -138,16 +143,17 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         {
             const string message = "An unexpected error occured uninstalling RenoDX.";
             LogError(message, ex);
-            return new ModOperationResultDto(false, game, message + " Check the logs for more details.");
+            return new RenoDXUninstallResponse(false, game, null,
+                message + " Check the logs for more details.");
         }
     }
 
-    private static bool HasStaleReShadeRecord(Game game, out ModOperationResultDto result)
+    private static bool HasStaleReShadeRecord(Game game, out ModOperationResponse result)
     {
         if (game.ReShade is { } reShade &&
             !File.Exists(Path.Combine(game.ExecutablePath!, reShade.SelectedFilename)))
         {
-            result = new ModOperationResultDto(
+            result = new ModOperationResponse(
                 false,
                 game,
                 $"""
@@ -163,37 +169,22 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         return false;
     }
 
-    private static bool HasStaleRenoDXRecord(Game game, out ModOperationResultDto result)
+    private static bool HasStaleRenoDXRecord(Game game)
     {
         if (game.RenoDX is { } renoDX &&
             !File.Exists(Path.Combine(game.ExecutablePath!, renoDX.SelectedName!)))
-        {
-            result = new ModOperationResultDto(
-                false,
-                game,
-                $"""
-                 RenoDX was recorded as {renoDX.SelectedName} but that file no longer exists.
-                 It may have been moved or renamed. Please perform a full library rescan.
-                 """,
-                true
-            );
             return true;
-        }
 
-        result = null!;
         return false;
     }
 
-    private static bool IsGamePathInvalid(Game game, out ModOperationResultDto result)
+    private static bool IsGamePathInvalid(Game game)
     {
         if (!string.IsNullOrWhiteSpace(game.ExecutablePath) && Directory.Exists(game.ExecutablePath))
         {
-            result = null!;
             return false;
         }
 
-        result = new ModOperationResultDto(false, game,
-            "Game folder not found. Please rescan your library.");
         return true;
     }
 }

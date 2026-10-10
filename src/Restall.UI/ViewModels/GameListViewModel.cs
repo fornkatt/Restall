@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.UI.Interfaces;
@@ -64,7 +64,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     public void ApplySelectedGame(GameModViewModel? value) => SelectedGame = value;
 
-    public void LoadGames(RefreshLibraryResultDto result)
+    public void LoadGames(RefreshLibraryResponse result)
     {
         Games.Clear();
         foreach (var item in result.Games)
@@ -139,7 +139,7 @@ public sealed partial class GameListViewModel : ViewModelBase
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
     }
 
-    private void UpdateModCompatibility(RefreshLibraryResultDto result)
+    private void UpdateModCompatibility(RefreshLibraryResponse result)
     {
         var lookup = result.Games.ToDictionary(r => r.Game);
 

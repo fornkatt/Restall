@@ -32,6 +32,7 @@ public class GameEntryAssemblerTests
         updateCheckService.ReturnForReShade(reShadeUpdate);
         var sut = new GameEntryAssembler(NullLogger<GameEntryAssembler>.Instance, catalog, updateCheckService);
         var game = new Game { Name = "Test Game", ReShade = new ReShade { Arch = Architecture.X32 } };
+
         var actual = sut.Assemble(game);
 
         Assert.Same(game, actual.Game);

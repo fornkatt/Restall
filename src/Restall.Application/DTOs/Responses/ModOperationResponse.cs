@@ -3,15 +3,16 @@
 
 using Restall.Domain.Entities;
 
-namespace Restall.Application.DTOs.Results;
+namespace Restall.Application.DTOs.Responses;
 
 /// <summary>
 /// Not used yet. For a future implementation to prompt for a deep scan of mods under certain conditions.
 /// </summary>
 /// <param name="ShouldPromptForDeepScan"></param>
-public record ModOperationResultDto(
+public record ModOperationResponse(
     bool IsSuccess,
     Game UpdatedGame,
     string? Message = null,
     bool ShouldPromptForDeepScan = false,
-    UpdateAvailability? UpdateCheckResult = null);
+    UpdateAvailability? UpdateCheckResult = null,
+    GameEntry? GameEntry = null);

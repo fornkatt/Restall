@@ -36,19 +36,6 @@ public interface IModInstallService
     /// </summary>
     Result<Game> UninstallReShade(Game game);
 
-    /// <summary>
-    /// Uninstalls RenoDX from a Game entity.
-    /// <br/>
-    /// <para>
-    /// Possible ResultErrors:
-    /// <br/>
-    /// <see cref="ErrorType.PermissionDenied"/>
-    /// <br/>
-    /// <see cref="ErrorType.FileSystemError"/>
-    /// </para>
-    /// </summary>
-    Result<Game> UninstallRenoDX(Game game);
-
     Task<Result<Game>> RemoveAllReShadeFilesAsync(Game game);
     Task<Result<Game>> RemoveAllRenoDXFilesAsync(Game game);
 }

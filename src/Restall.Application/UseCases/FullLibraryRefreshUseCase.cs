@@ -6,7 +6,7 @@ using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.RenoDXDTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
@@ -62,7 +62,7 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
         _gameEntryAssembler = gameEntryAssembler;
     }
 
-    public async Task<RefreshLibraryResultDto> ExecuteAsync(
+    public async Task<RefreshLibraryResponse> ExecuteAsync(
         IProgress<GameScanProgressReportDto>? progress = null)
     {
         var gameTask = _gameDetectionService.FindGamesAsync(progress);
@@ -180,13 +180,13 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
             "Couldn't read the whole RenoDX mod list, so some mods may be missing.",
         WarningType.RenoDXSnapshotFileListUnavailable =>
             "Couldn't read the file list of the RenoDX Snapshot release, so it can't confirm which mods it " +
-            "contains",
+            "contains.",
         WarningType.RenoDXNightliesIncomplete =>
             "Couldn't load some RenoDX Nightly releases, so some Nightly versions may be missing.",
         _ => "Couldn't load everything during the refresh. Check the log for details."
     };
 
-    private async Task<RefreshLibraryResultDto> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success,
+    private async Task<RefreshLibraryResponse> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success,
         string? errorMessage, ImmutableArray<string> warnings)
     {
         HashSet<Task> artworkTasks = [];
@@ -231,7 +231,7 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
 
         await Task.WhenAll(artworkTasks);
 
-        return new RefreshLibraryResultDto(results, success, warnings, errorMessage);
+        return new RefreshLibraryResponse(results, success, warnings, errorMessage);
     }
 
     private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, ImmutableArray<RenoDXModInfoDto> mods)

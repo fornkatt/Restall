@@ -3,10 +3,11 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common.Enums;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.Logging;
+using Restall.Application.Services;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
@@ -14,47 +15,61 @@ namespace Restall.Application.UseCases;
 public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
 {
     private readonly ILogger<UninstallRenoDXUseCase> _logger;
-    private readonly IModInstallService _modInstallService;
+    private readonly IFileService _fileService;
+    private readonly GameEntryAssembler _gameEntryAssembler;
 
     public UninstallRenoDXUseCase(
         ILogger<UninstallRenoDXUseCase> logger,
-        IModInstallService modInstallService
+        IFileService fileService,
+        GameEntryAssembler gameEntryAssembler
     )
     {
         _logger = logger;
-        _modInstallService = modInstallService;
+        _fileService = fileService;
+        _gameEntryAssembler = gameEntryAssembler;
     }
 
-    public ModOperationResultDto Execute(Game game)
+    public RenoDXUninstallResponse Execute(Game game)
     {
-        _logger.ModUninstallationStart("RenoDX", game.Name ?? "Unknown", game.ExecutablePath ?? "Unknown");
+        var gameName = game.Name ?? "Unknown";
 
-        var result = _modInstallService.UninstallRenoDX(game);
+        _logger.ModUninstallationStart("RenoDX", gameName,
+            game.ExecutablePath ?? "Unknown");
 
-        if (!result.IsSuccess)
+        var path = Path.Combine(game.ExecutablePath!, game.RenoDX!.SelectedName!);
+
+        var deleteResult = _fileService.TryDeleteFile(path, RenoDX.OriginalFilenameStart);
+
+        var wasAlreadyRemoved = deleteResult.ErrorType is ErrorType.FileNotFound;
+
+        if (!deleteResult.IsSuccess && !wasAlreadyRemoved)
         {
-            var gameName = game.Name ?? "Unknown";
+            _logger.ModUninstallFailure("RenoDX", gameName, deleteResult.Message, deleteResult.Exception);
 
-            var userMessage = result.ErrorType switch
-            {
-                ErrorType.PermissionDenied =>
-                    $"Permission denied uninstalling RenoDX from {gameName}. Check you app permissions and try again.",
-                ErrorType.FileSystemError =>
-                    $"Failed to uninstall RenoDX from {gameName}." +
-                    $" The disk may be full or the file may be locked (game running?).",
-                ErrorType.FileNotFound =>
-                    "File not found at expected location." +
-                    " It might have been moved or deleted. Please perform a full rescan.",
-                _ => $"Failed to uninstall RenoDX from {gameName}. Check the log for details."
-            };
-
-            _logger.ModUninstallFailure("RenoDX", gameName, result.Message, result.Exception);
-
-            return new ModOperationResultDto(false, game, userMessage);
+            return new RenoDXUninstallResponse(false, game, _gameEntryAssembler.Assemble(game),
+                GetFailureMessage(deleteResult.ErrorType, gameName));
         }
 
-        _logger.ModUninstallationComplete("RenoDX", game.Name ?? "Unknown");
+        game.RenoDX = null;
 
-        return new ModOperationResultDto(true, result.Value!, "Successfully uninstalled RenoDX!");
+        _logger.ModUninstallationComplete("RenoDX", gameName);
+
+        return new RenoDXUninstallResponse(true, game, _gameEntryAssembler.Assemble(game),
+            GetSuccessMessage(wasAlreadyRemoved));
     }
+
+    private static string GetFailureMessage(ErrorType errorType, string gameName) => errorType switch
+    {
+        ErrorType.PermissionDenied =>
+            $"Permission denied uninstalling RenoDX from {gameName}. Check you app permissions and try again.",
+        ErrorType.FileSystemError => $"Failed to uninstall RenoDX from {gameName}." +
+                                     $" The disk may be full or the file may be locked (is the game running?)."
+    };
+
+    private static string GetSuccessMessage(bool wasAlreadyRemvoed) => wasAlreadyRemvoed switch
+    {
+        true => "RenoDX could not be found att the expected location so we cleared it from the game.\n" +
+                "If you believe this was and error, please perform a rescan.",
+        false => "Successfully uninstalled RenoDX!"
+    };
 }

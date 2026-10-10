@@ -7,7 +7,7 @@ using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.RenoDXDTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Common.Enums;

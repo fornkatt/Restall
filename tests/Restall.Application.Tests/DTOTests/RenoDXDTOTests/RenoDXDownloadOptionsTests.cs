@@ -77,6 +77,28 @@ public class RenoDXDownloadOptionsTests
         Assert.Null(actual.LatestNightly);
     }
 
+    [Fact]
+    public void GetNightly_VersionListed_ReturnsThatNightly()
+    {
+        var requestedNightly = CreateNightly(new DateOnly(2026, 10, 7));
+
+        var actual = CreateOptions(nightlies:
+        [
+            CreateNightly(new DateOnly(2026, 10, 8)),
+            requestedNightly, CreateNightly(new DateOnly(2026, 10, 5))
+        ]);
+
+        Assert.Same(requestedNightly, actual.GetNightly("20261007"));
+    }
+
+    [Fact]
+    public void GetNightly_VersionNotListed_ReturnsNothing()
+    {
+        var actual = CreateOptions(nightlies: [CreateNightly(new DateOnly(2026, 10, 7))]);
+
+        Assert.Null(actual.GetNightly("20261006"));
+    }
+
     private static RenoDXTagInfo CreateNightly(DateOnly date) =>
         new(date, RenoDX.Branch.Nightly, new Uri("https://restalltests.com/nightly/"), []);
 

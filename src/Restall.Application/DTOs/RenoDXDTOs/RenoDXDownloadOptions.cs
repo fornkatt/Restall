@@ -15,6 +15,8 @@ public sealed record RenoDXDownloadOptions(
 {
     public RenoDXTagInfo? LatestNightly => Nightlies.MaxBy(n => n.Date);
 
+    public RenoDXTagInfo? GetNightly(string version) => Nightlies.FirstOrDefault(n => n.Version == version);
+
     public ImmutableArray<RenoDX.Branch> Branches
     {
         get

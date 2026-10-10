@@ -26,15 +26,15 @@ public class RenoDXDatabaseBuilderTests
     {
         var sut = CreateBuilder();
 
-        var result = sut.Build([s_validGameMod], [s_validUnrealGenericMod],
+        var actual = sut.Build([s_validGameMod], [s_validUnrealGenericMod],
             [s_validUnityGenericMod]);
 
-        Assert.True(result.IsSuccess);
-        Assert.False(result.IsPartial);
-        Assert.NotNull(result.Value);
-        Assert.Equal(s_validGameMod, Assert.Single(result.Value.GameMods));
-        Assert.Equal(s_validUnrealGenericMod, Assert.Single(result.Value.UnrealGenericMods));
-        Assert.Equal(s_validUnityGenericMod, Assert.Single(result.Value.UnityGenericMods));
+        Assert.True(actual.IsSuccess);
+        Assert.False(actual.IsPartial);
+        Assert.NotNull(actual.Value);
+        Assert.Equal(s_validGameMod, Assert.Single(actual.Value.GameMods));
+        Assert.Equal(s_validUnrealGenericMod, Assert.Single(actual.Value.UnrealGenericMods));
+        Assert.Equal(s_validUnityGenericMod, Assert.Single(actual.Value.UnityGenericMods));
     }
 
     [Fact]
@@ -43,13 +43,13 @@ public class RenoDXDatabaseBuilderTests
         var sut = CreateBuilder();
         var unusableGameMod = s_validGameMod with { Name = " " };
 
-        var result = sut.Build([s_validGameMod, unusableGameMod], [s_validUnrealGenericMod],
+        var actual = sut.Build([s_validGameMod, unusableGameMod], [s_validUnrealGenericMod],
             [s_validUnityGenericMod]);
 
-        Assert.True(result.IsPartial);
-        Assert.Equal(WarningType.RenoDXModDatabaseIncomplete, result.WarningType);
-        Assert.NotNull(result.Value);
-        Assert.Equal(s_validGameMod, Assert.Single(result.Value.GameMods));
+        Assert.True(actual.IsPartial);
+        Assert.Equal(WarningType.RenoDXModDatabaseIncomplete, actual.WarningType);
+        Assert.NotNull(actual.Value);
+        Assert.Equal(s_validGameMod, Assert.Single(actual.Value.GameMods));
     }
 
     [Fact]
@@ -57,13 +57,13 @@ public class RenoDXDatabaseBuilderTests
     {
         var sut = CreateBuilder();
 
-        var result = sut.Build([], [s_validUnrealGenericMod],
+        var actual = sut.Build([], [s_validUnrealGenericMod],
             [s_validUnityGenericMod]);
 
-        Assert.True(result.IsPartial);
-        Assert.Equal(WarningType.RenoDXModDatabaseIncomplete, result.WarningType);
-        Assert.NotNull(result.Value);
-        Assert.False(result.Value.IsGameModListLoaded);
+        Assert.True(actual.IsPartial);
+        Assert.Equal(WarningType.RenoDXModDatabaseIncomplete, actual.WarningType);
+        Assert.NotNull(actual.Value);
+        Assert.False(actual.Value.IsGameModListLoaded);
     }
 
     [Fact]
@@ -71,10 +71,10 @@ public class RenoDXDatabaseBuilderTests
     {
         var sut = CreateBuilder();
 
-        var result = sut.Build([], [], []);
+        var actual = sut.Build([], [], []);
 
-        Assert.False(result.IsSuccess);
-        Assert.Equal(ErrorType.RenoDXModDatabaseUnavailable, result.ErrorType);
+        Assert.False(actual.IsSuccess);
+        Assert.Equal(ErrorType.RenoDXModDatabaseUnavailable, actual.ErrorType);
     }
 
     [Fact]
@@ -83,14 +83,14 @@ public class RenoDXDatabaseBuilderTests
         var entryWithOutOfRangeStatus = s_validGameMod with { Status = (RenoDXModStatus)99 };
         var sut = CreateBuilder();
 
-        var result = sut.Build([s_validGameMod, entryWithOutOfRangeStatus],
+        var actual = sut.Build([s_validGameMod, entryWithOutOfRangeStatus],
             [s_validUnrealGenericMod], [s_validUnityGenericMod]);
 
-        Assert.True(result.IsSuccess);
-        Assert.True(result.IsPartial);
-        Assert.Equal(WarningType.RenoDXModDatabaseIncomplete, result.WarningType);
-        Assert.NotNull(result.Value);
-        Assert.Equal(s_validGameMod, Assert.Single(result.Value.GameMods));
+        Assert.True(actual.IsSuccess);
+        Assert.True(actual.IsPartial);
+        Assert.Equal(WarningType.RenoDXModDatabaseIncomplete, actual.WarningType);
+        Assert.NotNull(actual.Value);
+        Assert.Equal(s_validGameMod, Assert.Single(actual.Value.GameMods));
     }
 
     private static RenoDXModDatabaseBuilder CreateBuilder() =>

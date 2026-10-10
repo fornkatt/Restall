@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging;
+using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
@@ -9,9 +10,8 @@ namespace Restall.Application.UseCases;
 public sealed partial class InstallRenoDXUseCase
 {
     [LoggerMessage(EventId = 1300, Level = LogLevel.Error,
-        Message =
-            "Could not resolve RenoDX addon filename for \"{GameName}\" (Engine: \"{Engine}\", Arch: \"{Arch}\")")]
-    private partial void LogRenoDXAddonFilenameResolutionFailure(string gameName, string engine, string arch);
+        Message = "Could not find a RenoDX download for \"{GameName}\" on the {Branch} branch")]
+    private partial void LogRenoDXDownloadNotFound(string gameName, RenoDX.Branch branch);
 
     [LoggerMessage(EventId = 1301, Level = LogLevel.Warning,
         Message =
@@ -19,9 +19,4 @@ public sealed partial class InstallRenoDXUseCase
             " — Service returned: \"{ErrorMessage}\"")]
     private partial void LogRenoDXVersionReadFailure(string filename, string gameName, string? errorMessage,
         Exception? ex);
-
-    [LoggerMessage(EventId = 1302, Level = LogLevel.Warning,
-        Message =
-            "Failed to delete stale RenoDX cache file at \"{CachedFile}\" — Service returned: \"{ErrorMessage}\"")]
-    private partial void LogRenoDXStaleCacheDeletionFailure(string cachedFile, string? errorMessage, Exception? ex);
 }
