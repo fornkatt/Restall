@@ -33,6 +33,8 @@ public sealed partial class ModViewModel : ViewModelBase
     private const string UpToDateTextColor = "#eb5a2f";
     private const string UpdateAvailableTextColor = "#1ab652";
 
+    private const int ActionMessageDurationMs = 5000;
+
     public ModViewModel(
         IModManagementFacade modManagementFacade,
         IModSelectionDialogService modSelectionDialogService,
@@ -150,7 +152,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
     private async Task ExecuteReShadeActionAsync(Func<Progress<DownloadProgressReport>,
-        Task<ModOperationResponse>> work, int delayMs = 5000)
+        Task<ModOperationResponse>> work)
     {
         var game = SelectedGame!;
 
@@ -183,7 +185,7 @@ public sealed partial class ModViewModel : ViewModelBase
         {
             try
             {
-                await Task.Delay(delayMs, cts.Token);
+                await Task.Delay(ActionMessageDurationMs, cts.Token);
             }
             catch (OperationCanceledException)
             {
@@ -260,6 +262,7 @@ public sealed partial class ModViewModel : ViewModelBase
     /* ---RENODX-------------------------------------------------------------------------------------------------------------- */
     private async Task InstallRenoDXAsync()
     {
+        var game = SelectedGame!;
         string? nightlyVersion = null;
 
         if (SelectedRenoDXBranch is RenoDX.Branch.Nightly)
@@ -272,26 +275,29 @@ public sealed partial class ModViewModel : ViewModelBase
             nightlyVersion = selectedTag.Version;
         }
 
-        var request = new RenoDXInstallRequest(
-            SelectedGame!.GetGame(),
-            SelectedRenoDXBranch,
-            nightlyVersion);
-
-        await ExecuteRenoDXActionAsync(p =>
-            _modManagementFacade.InstallOrUpdateRenoDXAsync(request, p));
+        await RunRenoDXInstallAsync(game,
+            new RenoDXInstallRequest(game.GetGame(), SelectedRenoDXBranch, nightlyVersion));
     }
 
-    private async Task ExecuteRenoDXActionAsync(
-        Func<Progress<DownloadProgressReport>, Task<ModOperationResponse>> work,
-        int delayMs = 5000)
+    private async Task RunRenoDXInstallAsync(GameModViewModel game, RenoDXInstallRequest request)
     {
-        var game = SelectedGame!;
+        var messageToken = BeginRenoDXAction(game);
+        var progress = CreateRenoDXDownloadProgress(game);
+        var response = await Task.Run(() => _modManagementFacade.InstallOrUpdateRenoDXAsync(request, progress));
 
+        ShowRenoDXResponse(game, response.Message, response.GameEntry, messageToken);
+    }
+
+    private static CancellationToken BeginRenoDXAction(GameModViewModel game)
+    {
         game._renoDXMessageCts?.Cancel();
-        var cts = new CancellationTokenSource();
-        game._renoDXMessageCts = cts;
+        game._renoDXMessageCts = new CancellationTokenSource();
 
-        var progress = new Progress<DownloadProgressReport>(report =>
+        return game._renoDXMessageCts.Token;
+    }
+
+    private static Progress<DownloadProgressReport> CreateRenoDXDownloadProgress(GameModViewModel game) =>
+        new(report =>
         {
             game.RenoDXModActionStatus = report.PercentComplete >= 0
                 ? $"""
@@ -299,32 +305,35 @@ public sealed partial class ModViewModel : ViewModelBase
                    {report.PercentComplete}%
                    """
                 : $"Downloading {report.Filename}";
-            game.IsShowingRenoDXActionMessage = true;
         });
 
-        var result = await Task.Run(() => work(progress));
+    private void ShowRenoDXResponse(GameModViewModel game, string? message, GameEntry? gameEntry,
+        CancellationToken messageToken)
+    {
+        // TODO: bind to GameEntry.RenoDXEntry.BranchVersions instead
+        if (gameEntry is not null)
+            game.RenoDXUpdateCheck = game.RenoDXBranchName is { } installedBranch
+                ? gameEntry.RenoDXEntry.BranchVersions.GetValueOrDefault(installedBranch)
+                : null;
 
         game.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
-        game.RenoDXModActionStatus = result.Message;
-        game.IsShowingRenoDXActionMessage = true;
+        game.RenoDXModActionStatus = message;
+        _ = DismissRenoDXActionMessageAsync(game, messageToken);
+    }
 
-        _ = DismissAsync();
-
-        async Task DismissAsync()
+    private static async Task DismissRenoDXActionMessageAsync(GameModViewModel game, CancellationToken messageToken)
+    {
+        try
         {
-            try
-            {
-                await Task.Delay(delayMs, cts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-
-            game.RenoDXModActionStatus = null;
-            game.IsShowingRenoDXActionMessage = false;
+            await Task.Delay(ActionMessageDurationMs, messageToken);
         }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        game.RenoDXModActionStatus = null;
     }
 
     public string SpecificRenoDXModAvailableWarning =>
@@ -545,18 +554,23 @@ public sealed partial class ModViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
     private async Task UpdateRenoDXAsync()
     {
-        var request = new RenoDXInstallRequest(
-            SelectedGame!.GetGame(),
-            SelectedRenoDXBranch);
+        var game = SelectedGame!;
 
-        await ExecuteRenoDXActionAsync(p => _modManagementFacade.InstallOrUpdateRenoDXAsync(request, p));
+        await RunRenoDXInstallAsync(game, new RenoDXInstallRequest(game.GetGame(), SelectedRenoDXBranch));
     }
 
     private bool CanUpdateRenoDX => CanShowRenoDXUpdate;
 
     [RelayCommand(CanExecute = nameof(CanUninstallRenoDX))]
-    private Task UninstallRenoDXAsync() =>
-        ExecuteRenoDXActionAsync(_ => _modManagementFacade.UninstallRenoDXAsync(SelectedGame!.GetGame()));
+    private async Task UninstallRenoDXAsync()
+    {
+        var game = SelectedGame!;
+        var gameModel = game.GetGame();
+        var messageToken = BeginRenoDXAction(game);
+        var response = await Task.Run(() => _modManagementFacade.UninstallRenoDXAsync(gameModel));
+
+        ShowRenoDXResponse(game, response.Message, response.GameEntry, messageToken);
+    }
 
     private bool CanUninstallRenoDX => SelectedGame?.HasRenoDX ?? false;
 

@@ -126,10 +126,10 @@ public sealed partial class GameModViewModel : ObservableObject
     internal CancellationTokenSource? _reShadeMessageCts;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsShowingRenoDXActionMessage))]
     public partial string? RenoDXModActionStatus { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsShowingRenoDXActionMessage { get; set; }
+    public bool IsShowingRenoDXActionMessage => RenoDXModActionStatus is not null;
 
     internal CancellationTokenSource? _renoDXMessageCts;
 
