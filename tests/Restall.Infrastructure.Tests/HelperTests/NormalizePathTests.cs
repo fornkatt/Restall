@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Infrastructure.Helpers;
-using Restall.Infrastructure.Tests.Common;
 
 namespace Restall.Infrastructure.Tests.HelperTests;
 
@@ -36,7 +35,7 @@ public class NormalizePathTests
 
     [Theory]
     [InlineData("C:\\Epic Games\\LEGOStarWarsTSS\\", @"C:\Epic Games\LEGOStarWarsTSS")]
-    public void NormalizePath_WindowsTrailingSeparator_ReturnsUnchanged(string input, string expected)
+    public void NormalizePath_WindowsTrailingSeparator_RemoveTrailingSeparator(string input, string expected)
     {
         // Act
         var actual = GameScanHelper.NormalizePath(input, '\\', '/');
@@ -47,7 +46,7 @@ public class NormalizePathTests
 
     [Theory]
     [InlineData("/home/user/Games/Heroic/Alan Wake 2/", "/home/user/Games/Heroic/Alan Wake 2")]
-    public void NormalizePath_LinuxTrailingSeparator_ReturnsUnchanged(string input, string expected)
+    public void NormalizePath_LinuxTrailingSeparator_RemoveTrailingSeparator(string input, string expected)
     {
         // Act
         var actual = GameScanHelper.NormalizePath(input, '/', '/');
