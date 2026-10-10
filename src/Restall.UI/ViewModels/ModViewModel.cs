@@ -165,7 +165,7 @@ public sealed partial class ModViewModel : ViewModelBase
             game.IsShowingReShadeActionMessage = true;
         });
 
-        var result = await Task.Run(() => work(progress), cts.Token);
+        var result = await Task.Run(() => work(progress));
 
         game.ReShadeUpdateCheck = result.UpdateCheckResult;
         game.NotifyGameStateChanged();
@@ -298,7 +298,7 @@ public sealed partial class ModViewModel : ViewModelBase
             game.IsShowingRenoDXActionMessage = true;
         });
 
-        var result = await Task.Run(() => work(progress), cts.Token);
+        var result = await Task.Run(() => work(progress));
 
         game.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
