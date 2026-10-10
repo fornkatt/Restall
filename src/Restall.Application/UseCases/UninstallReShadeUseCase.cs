@@ -7,6 +7,7 @@ using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.Logging;
+using Restall.Application.Services;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
@@ -15,14 +16,17 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 {
     private readonly ILogger<UninstallReShadeUseCase> _logger;
     private readonly IModInstallService _modInstallService;
+    private readonly GameEntryAssembler _gameEntryAssembler;
 
     public UninstallReShadeUseCase(
         ILogger<UninstallReShadeUseCase> logger,
-        IModInstallService modInstallService
+        IModInstallService modInstallService,
+        GameEntryAssembler gameEntryAssembler
     )
     {
         _logger = logger;
         _modInstallService = modInstallService;
+        _gameEntryAssembler = gameEntryAssembler;
     }
 
     public ModOperationResponse Execute(Game game)
@@ -56,6 +60,7 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 
         _logger.ModUninstallationComplete("ReShade", game.Name ?? "Unknown");
 
-        return new ModOperationResponse(true, result.Value!, "Successfully uninstalled ReShade!");
+        return new ModOperationResponse(true, result.Value!, "Successfully uninstalled ReShade!",
+            GameEntry: _gameEntryAssembler.Assemble(result.Value!));
     }
 }

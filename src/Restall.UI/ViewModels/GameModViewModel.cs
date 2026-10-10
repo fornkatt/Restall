@@ -35,6 +35,9 @@ public sealed partial class GameModViewModel : ObservableObject
     }
 
     [ObservableProperty]
+    public partial GameEntry? GameEntry { get; set; }
+
+    [ObservableProperty]
     public partial UpdateAvailability? ReShadeUpdateCheck { get; set; }
 
     [ObservableProperty]

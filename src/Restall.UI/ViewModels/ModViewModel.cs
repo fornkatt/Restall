@@ -134,18 +134,14 @@ public sealed partial class ModViewModel : ViewModelBase
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "explorer.exe",
-                Arguments = $"\"{folder}\"",
-                UseShellExecute = false
+                FileName = "explorer.exe", Arguments = $"\"{folder}\"", UseShellExecute = false
             });
         }
         else
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "xdg-open",
-                ArgumentList = { folder },
-                UseShellExecute = false
+                FileName = "xdg-open", ArgumentList = { folder }, UseShellExecute = false
             });
         }
     }
@@ -172,6 +168,9 @@ public sealed partial class ModViewModel : ViewModelBase
         });
 
         var result = await Task.Run(() => work(progress));
+
+        if (result.GameEntry is not null)
+            game.GameEntry = result.GameEntry;
 
         game.ReShadeUpdateCheck = result.UpdateCheckResult;
         game.NotifyGameStateChanged();
@@ -310,11 +309,14 @@ public sealed partial class ModViewModel : ViewModelBase
     private void ShowRenoDXResponse(GameModViewModel game, string? message, GameEntry? gameEntry,
         CancellationToken messageToken)
     {
-        // TODO: bind to GameEntry.RenoDXEntry.BranchVersions instead
         if (gameEntry is not null)
+        {
+            game.GameEntry = gameEntry;
+            // TODO: bind to GameEntry.RenoDXEntry.BranchVersions instead
             game.RenoDXUpdateCheck = game.RenoDXBranchName is { } installedBranch
                 ? gameEntry.RenoDXEntry.BranchVersions.GetValueOrDefault(installedBranch)
                 : null;
+        }
 
         game.NotifyGameStateChanged();
         NotifyAllCommandsChanged();
@@ -545,11 +547,11 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private bool CanOpenNexusLink =>
         SelectedGame is
-        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
+            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasNexusLink: true };
 
     private bool CanOpenDiscordLink =>
         SelectedGame is
-        { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
+            { HasRenoDX: false, HasReShade: true, CompatibleRenoDXMod.HasWikiFilename: false, HasDiscordLink: true };
 
     [RelayCommand(CanExecute = nameof(CanUpdateRenoDX))]
     private async Task UpdateRenoDXAsync()

@@ -9,6 +9,7 @@ using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.Logging;
+using Restall.Application.Services;
 using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;
 
@@ -22,6 +23,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
     private readonly IFileExtractionService _fileExtractionService;
     private readonly IModInstallService _modInstallService;
     private readonly IFileService _fileService;
+    private readonly GameEntryAssembler _gameEntryAssembler;
 
     public InstallReShadeUseCase(
         ILogger<InstallReShadeUseCase> logger,
@@ -29,7 +31,8 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         IDownloadService downloadService,
         IFileExtractionService fileExtractionService,
         IModInstallService modInstallService,
-        IFileService fileService
+        IFileService fileService,
+        GameEntryAssembler gameEntryAssembler
     )
     {
         _logger = logger;
@@ -38,6 +41,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
         _fileExtractionService = fileExtractionService;
         _modInstallService = modInstallService;
         _fileService = fileService;
+        _gameEntryAssembler = gameEntryAssembler;
     }
 
     public async Task<ModOperationResponse> ExecuteAsync(InstallReShadeRequest request,
@@ -174,7 +178,8 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
             request.Game.Name ?? "Unknown");
 
         return new ModOperationResponse(true, result.Value!,
-            $"Successfully installed ReShade as {reShade.SelectedFilename}!");
+            $"Successfully installed ReShade as {reShade.SelectedFilename}!",
+            GameEntry: _gameEntryAssembler.Assemble(result.Value!));
     }
 
     private async Task<Result> EnsureDownloadedAsync(ReShade reShade, IProgress<DownloadProgressReport>? progress)

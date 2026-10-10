@@ -71,6 +71,7 @@ public sealed partial class GameListViewModel : ViewModelBase
         {
             Games.Add(new GameModViewModel(item.Game)
             {
+                GameEntry = item.GameEntry,
                 CompatibleRenoDXMod = item.CompatibleMod,
                 CompatibleRenoDXGenericMod = item.CompatibleGenericMod,
                 ReShadeUpdateCheck = item.ReShadeUpdateResult,
