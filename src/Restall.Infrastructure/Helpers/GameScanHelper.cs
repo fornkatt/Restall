@@ -15,10 +15,12 @@ internal static class GameScanHelper
     private const string Wow64RegistryPath = @"SOFTWARE\Wow6432Node\";
 
     internal static string? NormalizePath(string? path)
+    => NormalizePath(path, Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+    internal static string? NormalizePath(string? path, char separator, char altSeparator)
     {
         if (string.IsNullOrEmpty(path)) return null;
-        var normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-        return normalized.Trim().TrimEnd(Path.DirectorySeparatorChar);
+        return path.Replace(altSeparator, separator).Trim().TrimEnd(separator);
     }
 
     internal static string? ExtractVdfValue(string vdfContent, string key)
