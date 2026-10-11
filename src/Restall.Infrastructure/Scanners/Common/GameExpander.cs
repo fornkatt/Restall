@@ -4,7 +4,7 @@
 using Restall.Application.Helpers;
 using Restall.Domain.Entities;
 
-namespace Restall.Infrastructure.Scanners;
+namespace Restall.Infrastructure.Scanners.Common;
 
 internal static class GameExpander
 {

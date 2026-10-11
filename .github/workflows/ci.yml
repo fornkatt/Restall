@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - beta
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Verify formatting
+        run: docker buildx build --target format --progress=plain .
+
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Build
+        run: docker buildx build --target build --progress=plain .
+      - name: Test
+        run: docker buildx build --target test --progress=plain .
+
+  test-windows:
+    name: Build and test (Windows)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Restore
+        run: dotnet restore Restall.slnx
+      - name: Build
+        run: dotnet build Restall.slnx -c Release --no-restore
+      - name: Test
+        run: dotnet test --solution Restall.slnx -c Release --no-build
