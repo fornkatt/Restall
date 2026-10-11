@@ -118,14 +118,18 @@ public sealed partial class ModViewModel : ViewModelBase
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "explorer.exe", Arguments = $"\"{folder}\"", UseShellExecute = false
+                FileName = "explorer.exe",
+                Arguments = $"\"{folder}\"",
+                UseShellExecute = false
             });
         }
         else
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "xdg-open", ArgumentList = { folder }, UseShellExecute = false
+                FileName = "xdg-open",
+                ArgumentList = { folder },
+                UseShellExecute = false
             });
         }
     }
@@ -392,12 +396,12 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private static RenoDX.Branch? GetRenoDXBranchToSelect(GameModViewModel? game,
         IReadOnlyList<RenoDX.Branch> branches) => game switch
-    {
-        { LastSelectedRenoDXBranch: { } lastSelected } when branches.Contains(lastSelected) => lastSelected,
-        { RenoDXBranchName: { } installedBranch } when branches.Contains(installedBranch) => installedBranch,
-        _ when branches.Count > 0 => branches[0],
-        _ => null
-    };
+        {
+            { LastSelectedRenoDXBranch: { } lastSelected } when branches.Contains(lastSelected) => lastSelected,
+            { RenoDXBranchName: { } installedBranch } when branches.Contains(installedBranch) => installedBranch,
+            _ when branches.Count > 0 => branches[0],
+            _ => null
+        };
 
     public string? RenoDXVersionTextColor =>
         SelectedGame?.HasRenoDX == true
