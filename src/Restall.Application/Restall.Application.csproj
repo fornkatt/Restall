@@ -24,9 +24,6 @@
       <Compile Update="Facades\ModManagementFacade.Logging.cs">
         <DependentUpon>ModManagementFacade.cs</DependentUpon>
       </Compile>
-      <Compile Update="UseCases\GameRefreshUseCase.Logging.cs">
-        <DependentUpon>GameRefreshUseCase.cs</DependentUpon>
-      </Compile>
       <Compile Update="Services\RenoDXModDatabaseBuilder.Logging.cs">
         <DependentUpon>RenoDXModDatabaseBuilder.cs</DependentUpon>
       </Compile>

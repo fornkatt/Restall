@@ -14,7 +14,4 @@ public sealed class FakeUpdateCheckService : IUpdateCheckService
     public void ReturnForReShade(UpdateAvailability reShadeUpdate) => _reShadeUpdate = reShadeUpdate;
 
     public UpdateAvailability CheckReShadeUpdate(ReShade installed) => _reShadeUpdate;
-
-    public UpdateAvailability CheckRenoDXUpdate(RenoDX installed) =>
-        throw new NotSupportedException("RenoDX updates come from RenoDXEntry.BranchVersions");
 }

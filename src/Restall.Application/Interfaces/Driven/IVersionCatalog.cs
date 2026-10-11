@@ -12,7 +12,4 @@ public interface IVersionCatalog
     void LoadReShadeVersions(ImmutableArray<string> versions);
     string? GetLatestReShadeVersion(ReShade.Branch branch);
     ImmutableArray<string> GetAvailableReShadeVersions(ReShade.Branch branch);
-
-    RenoDXTagInfo? GetLatestRenoDXVersionByTag(RenoDX.Branch branch);
-    ImmutableArray<RenoDXTagInfo> GetAllRenoDXNightlies();
 }

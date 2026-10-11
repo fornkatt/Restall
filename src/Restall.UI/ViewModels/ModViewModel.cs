@@ -160,7 +160,6 @@ public sealed partial class ModViewModel : ViewModelBase
         if (result.GameEntry is not null)
             game.GameEntry = result.GameEntry;
 
-        game.ReShadeUpdateCheck = result.UpdateCheckResult;
         game.NotifyGameStateChanged();
         RefreshAvailableRenoDXBranches(SelectedGame);
         NotifyAllCommandsChanged();
@@ -265,7 +264,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
         if (branch is RenoDX.Branch.Nightly)
         {
-            var nightlies = game.RenoDXEntry?.DownloadOptions?.Nightlies ?? [];
+            var nightlies = game.RenoDXEntry.DownloadOptions?.Nightlies ?? [];
 
             var selectedTag = await _modSelectionDialogService.ShowRenoDXInstallDialogAsync(nightlies);
 
@@ -338,7 +337,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private UpdateAvailability? SelectedRenoDXBranchVersion =>
         SelectedRenoDXBranch is { } branch
-            ? SelectedGame?.RenoDXEntry?.BranchVersions.GetValueOrDefault(branch)
+            ? SelectedGame?.RenoDXEntry.BranchVersions.GetValueOrDefault(branch)
             : null;
 
     [ObservableProperty]
@@ -371,22 +370,11 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public bool CanShowRenoDXBranchSelector => AvailableRenoDXBranches.Count > 1;
 
-    public static string RenoDXBranchHelpText =>
-        """
-        Select the branch to use for RenoDX downloads.
-
-        Snapshot: Default. Prefer using this branch.
-
-        Nightly: Select this branch to rollback if latest Snapshot is causing issues.
-
-        Wiki: Select this branch if Snapshot or Nightly fails to download or if it's otherwise preferable.
-        """;
-
     private void RefreshAvailableRenoDXBranches(GameModViewModel? game)
     {
         _isAdjustingRenoDXBranchSelection = true;
 
-        AvailableRenoDXBranches = game?.RenoDXEntry?.DownloadOptions?.Branches ?? [];
+        AvailableRenoDXBranches = game?.RenoDXEntry.DownloadOptions?.Branches ?? [];
         SelectedRenoDXBranch = GetRenoDXBranchToSelect(game, AvailableRenoDXBranches);
 
         OnPropertyChanged(nameof(SelectedRenoDXBranch));

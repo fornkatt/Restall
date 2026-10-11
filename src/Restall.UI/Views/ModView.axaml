@@ -358,8 +358,26 @@
                                           Foreground="{DynamicResource GameCardText}"
                                           Margin="0"
                                           Padding="10, 5, 5, 5"
-                                          CornerRadius="6"
-                                          ToolTip.Tip="{Binding RenoDXBranchHelpText}" />
+                                          CornerRadius="6">
+                                    <ToolTip.Tip>
+                                        <StackPanel MaxWidth="320" Spacing="8">
+                                            <TextBlock TextWrapping="Wrap"
+                                                       Text="Select the branch to use for RenoDX downloads."
+                                                       FontWeight="ExtraBold"/>
+                                            <TextBlock TextWrapping="Wrap">
+                                                <Bold>Snapshot:</Bold> Default. Prefer using this branch.
+                                            </TextBlock>
+                                            <TextBlock TextWrapping="Wrap">
+                                                <Bold>Nightly:</Bold> Select this branch to rollback if latest Snapshot
+                                                is causing issues.
+                                            </TextBlock>
+                                            <TextBlock TextWrapping="Wrap">
+                                                <Bold>Direct:</Bold> Downloads the file from the mod's own download
+                                                link, usually the mod author's GitHub page.
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </ToolTip.Tip>
+                                </ComboBox>
                                 <TextBlock Grid.Column="1"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
@@ -523,8 +541,7 @@
                                                    FontSize="30"
                                                    Text="&#xE948;"
                                                    Foreground="#eb5a2f"
-                                                   IsVisible=
-                                                   "{Binding SelectedGame.IsRenoDXStatusWorkInProgress}" />
+                                                   IsVisible="{Binding SelectedGame.IsRenoDXStatusWorkInProgress}" />
                                     </Panel>
                                 </StackPanel>
                                 <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Links}">

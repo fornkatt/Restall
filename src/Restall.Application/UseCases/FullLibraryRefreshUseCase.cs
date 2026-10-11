@@ -7,7 +7,6 @@ using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.DTOs.Responses;
-using Restall.Application.Helpers;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.Services;
@@ -23,7 +22,6 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
     private readonly IGameDetectionService _gameDetectionService;
     private readonly IGameArtworkService _gameArtworkService;
     private readonly IModDetectionService _modDetectionService;
-    private readonly IUpdateCheckService _updateCheckService;
     private readonly IVersionCatalog _versionCatalog;
     private readonly IModCatalog _modCatalog;
     private readonly IParseService _parseService;
@@ -38,7 +36,6 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
         IGameDetectionService gameDetectionService,
         IGameArtworkService gameArtworkService,
         IModDetectionService modDetectionService,
-        IUpdateCheckService updateCheckService,
         IVersionCatalog versionCatalog,
         IModCatalog modCatalog,
         IParseService parseService,
@@ -52,7 +49,6 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
         _gameDetectionService = gameDetectionService;
         _gameArtworkService = gameArtworkService;
         _modDetectionService = modDetectionService;
-        _updateCheckService = updateCheckService;
         _versionCatalog = versionCatalog;
         _modCatalog = modCatalog;
         _parseService = parseService;
@@ -190,7 +186,7 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
         string? errorMessage, ImmutableArray<string> warnings)
     {
         HashSet<Task> artworkTasks = [];
-        List<GameInitResultDto> results = [];
+        List<GameEntry> gameEntries = [];
 
         foreach (var game in sortedGames)
         {
@@ -204,64 +200,13 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
             game.ReShade = reShade.Value?.FirstOrDefault();
             game.RenoDX = renoDx.Value?.FirstOrDefault();
 
-            var renoDxUpdateResult = game.RenoDX is not null
-                ? _updateCheckService.CheckRenoDXUpdate(game.RenoDX)
-                : null;
-
-            var compatibleMod = FindCompatibleMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
-                _modCatalog.GetRenoDXWikiMods());
-            var compatibleGenericMod = compatibleMod is null
-                ? FindGenericMod(GameNameHelper.StripCollectionPartSuffix(game.Name),
-                    _modCatalog.GetRenoDXGenericWikiMods())
-                : null;
-
             artworkTasks.Add(_gameArtworkService.EnrichGameArtworkAsync(game));
 
-            var gameEntry = _gameEntryAssembler.Assemble(game);
-
-            results.Add(new GameInitResultDto(
-                game,
-                compatibleMod,
-                compatibleGenericMod,
-                gameEntry.ReShadeUpdate,
-                renoDxUpdateResult,
-                gameEntry
-            ));
+            gameEntries.Add(_gameEntryAssembler.Assemble(game));
         }
 
         await Task.WhenAll(artworkTasks);
 
-        return new RefreshLibraryResponse(results, success, warnings, errorMessage);
-    }
-
-    private static RenoDXModInfoDto? FindCompatibleMod(string? gameName, ImmutableArray<RenoDXModInfoDto> mods)
-    {
-        if (string.IsNullOrWhiteSpace(gameName))
-            return null;
-
-        var candidates = mods.Where(m =>
-            GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
-
-        var normalizedGameName = GameNameHelper.NormalizeName(gameName);
-
-        return candidates.FirstOrDefault(m =>
-                   GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
-               candidates.FirstOrDefault();
-    }
-
-    private static RenoDXGenericModInfoDto? FindGenericMod(string? gameName,
-        ImmutableArray<RenoDXGenericModInfoDto> mods)
-    {
-        if (string.IsNullOrWhiteSpace(gameName))
-            return null;
-
-        var candidates = mods.Where(m =>
-            GameNameHelper.IsLikelySameGame(gameName, m.Name)).ToList();
-
-        var normalizedGameName = GameNameHelper.NormalizeName(gameName);
-
-        return candidates.FirstOrDefault(m =>
-                   GameNameHelper.NormalizeName(m.Name) == normalizedGameName) ??
-               candidates.FirstOrDefault();
+        return new RefreshLibraryResponse([.. gameEntries], success, warnings, errorMessage);
     }
 }

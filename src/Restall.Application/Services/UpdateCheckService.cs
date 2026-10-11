@@ -11,8 +11,6 @@ public sealed class UpdateCheckService : IUpdateCheckService
 {
     private readonly IVersionCatalog _versionCatalog;
 
-    private const string DateFormat = "yyyyMMdd";
-
     public UpdateCheckService(
         IVersionCatalog versionCatalog
     )
@@ -45,45 +43,6 @@ public sealed class UpdateCheckService : IUpdateCheckService
             latestSemVer > installedSemVer,
             installedVersion,
             latestVersion
-        );
-    }
-
-    public UpdateAvailability CheckRenoDXUpdate(RenoDX installed)
-    {
-        if (!installed.IsUpdateCheckSupported)
-            return new UpdateAvailability(false, installed.Version, null);
-
-        var branch = installed.BranchName == RenoDX.Branch.Unknown
-            ? RenoDX.Branch.Snapshot
-            : installed.BranchName;
-
-        var installedVersionString = installed.Version;
-
-        if (string.IsNullOrWhiteSpace(installedVersionString))
-            return new UpdateAvailability(false, null, null);
-
-        var effectiveBranch = branch == RenoDX.Branch.Direct
-            ? RenoDX.Branch.Snapshot
-            : branch;
-
-        if (effectiveBranch is not (RenoDX.Branch.Snapshot or RenoDX.Branch.Nightly))
-            return new UpdateAvailability(false, installedVersionString, null);
-
-        var latestTag = _versionCatalog.GetLatestRenoDXVersionByTag(effectiveBranch);
-        if (latestTag is null)
-            return new UpdateAvailability(false, installedVersionString, null);
-
-        if (!DateOnly.TryParseExact(installedVersionString, DateFormat, null,
-                System.Globalization.DateTimeStyles.None, out var installedDate))
-            return new UpdateAvailability(
-                false,
-                installedVersionString,
-                latestTag.Version);
-
-        return new UpdateAvailability(
-            latestTag.Date > installedDate,
-            installedVersionString,
-            latestTag.Version
         );
     }
 }

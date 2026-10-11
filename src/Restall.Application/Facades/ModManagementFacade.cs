@@ -20,15 +20,13 @@ public sealed partial class ModManagementFacade : IModManagementFacade
     private readonly IUninstallReShadeUseCase _uninstallReShadeUseCase;
     private readonly IInstallRenoDXUseCase _installRenoDXUseCase;
     private readonly IUninstallRenoDXUseCase _uninstallRenoDXUseCase;
-    private readonly IUpdateCheckService _updateCheckService;
 
     public ModManagementFacade(
         ILogger<ModManagementFacade> logger,
         IInstallReShadeUseCase installReShadeUseCase,
         IUninstallReShadeUseCase uninstallReShadeUseCase,
         IInstallRenoDXUseCase installRenoDXUseCase,
-        IUninstallRenoDXUseCase uninstallRenoDXUseCase,
-        IUpdateCheckService updateCheckService
+        IUninstallRenoDXUseCase uninstallRenoDXUseCase
     )
     {
         _logger = logger;
@@ -36,7 +34,6 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         _uninstallReShadeUseCase = uninstallReShadeUseCase;
         _installRenoDXUseCase = installRenoDXUseCase;
         _uninstallRenoDXUseCase = uninstallRenoDXUseCase;
-        _updateCheckService = updateCheckService;
     }
 
     public async Task<ModOperationResponse> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
@@ -52,15 +49,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
 
         try
         {
-            var result = await _installReShadeUseCase.ExecuteAsync(request, progress);
-
-            if (result.IsSuccess && result.UpdatedGame.ReShade is not null)
-                return result with
-                {
-                    UpdateCheckResult = _updateCheckService.CheckReShadeUpdate(result.UpdatedGame.ReShade)
-                };
-
-            return result;
+            return await _installReShadeUseCase.ExecuteAsync(request, progress);
         }
         catch (Exception ex)
         {
@@ -154,8 +143,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
                 $"""
                  ReShade was recorded as {reShade.SelectedFilename} but that file no longer exists.
                  It may have been moved or renamed. Please perform a full library rescan.
-                 """,
-                true
+                 """
             );
             return true;
         }

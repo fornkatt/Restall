@@ -29,12 +29,13 @@ public sealed partial class GameModViewModel : ObservableObject
 
     private ImmutableArray<string> _seenRenoDXNotices = [];
 
-    public GameModViewModel(Game game)
+    public GameModViewModel(GameEntry gameEntry)
     {
-        _game = game;
+        _game = gameEntry.Game;
+        GameEntry = gameEntry;
 
-        CoverPathString = game.GameCoverPathString;
-        ThumbnailPathString = game.ThumbnailPathString;
+        CoverPathString = _game.GameCoverPathString;
+        ThumbnailPathString = _game.ThumbnailPathString;
     }
 
     [ObservableProperty]
@@ -48,7 +49,8 @@ public sealed partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasRenoDXGenericAddonInfo))]
     [NotifyPropertyChangedFor(nameof(IsRenoDXStatusDone))]
     [NotifyPropertyChangedFor(nameof(IsRenoDXStatusWorkInProgress))]
-    public partial GameEntry? GameEntry { get; set; }
+    [NotifyPropertyChangedFor(nameof(ReShadeUpdateCheck))]
+    public partial GameEntry GameEntry { get; set; }
 
     [ObservableProperty] public partial UpdateAvailability? ReShadeUpdateCheck { get; set; }
 
@@ -98,22 +100,21 @@ public sealed partial class GameModViewModel : ObservableObject
 
     // RenoDX --------------------------------------------------------------------------------
 
-    public RenoDXEntry? RenoDXEntry => GameEntry?.RenoDXEntry;
+    public RenoDXEntry RenoDXEntry => GameEntry.RenoDXEntry;
 
-    public bool IsRenoDXSupported => RenoDXEntry?.IsSupported ?? false;
+    public bool IsRenoDXSupported => RenoDXEntry.IsSupported;
 
     public bool CanUseRenoDXInstallButton =>
         HasReShade && RenoDXEntry is { DownloadOptions: not null } or { ManualSource: not null };
 
-    public bool HasRenoDXGenericAddonInfo => RenoDXEntry?.GenericAddonInfo is not null;
-    public bool IsRenoDXStatusDone => RenoDXEntry is { IsDone: true };
-    public bool IsRenoDXStatusWorkInProgress => RenoDXEntry is { IsWorkInProgress: true };
+    public bool HasRenoDXGenericAddonInfo => RenoDXEntry.GenericAddonInfo is not null;
+    public bool IsRenoDXStatusDone => RenoDXEntry.IsDone;
+    public bool IsRenoDXStatusWorkInProgress => RenoDXEntry.IsWorkInProgress;
     public RenoDX.Branch? LastSelectedRenoDXBranch { get; set; }
-    public bool HasRenoDXNotices => RenoDXEntry is { Notices.IsEmpty: false };
-    public int RenoDXNoticeCount => RenoDXEntry?.Notices.Length ?? 0;
+    public bool HasRenoDXNotices => !RenoDXEntry.Notices.IsEmpty;
+    public int RenoDXNoticeCount => RenoDXEntry.Notices.Length;
 
-    public bool HasUnseenRenoDXNotices =>
-        RenoDXEntry is { } renoDXEntry && renoDXEntry.Notices.Except(_seenRenoDXNotices).Any();
+    public bool HasUnseenRenoDXNotices => RenoDXEntry.Notices.Except(_seenRenoDXNotices).Any();
 
     public bool HasRenoDX => _game.HasRenoDX;
     public string? RenoDXName => _game.RenoDX?.SelectedName;
@@ -136,17 +137,17 @@ public sealed partial class GameModViewModel : ObservableObject
 
     public string UninstallRenoDXButtonText => "Uninstall";
 
-    private string GetBitnessText() => GameEntry?.RecommendedArchitecture switch
+    private string GetBitnessText() => GameEntry.RecommendedArchitecture switch
     {
         Architecture.X64 => "64-bit",
         Architecture.X32 => "32-bit",
-        _ => throw new UnreachableException($"No text for bitness \"{GameEntry?.RecommendedArchitecture}\"")
+        _ => throw new UnreachableException($"No text for bitness \"{GameEntry.RecommendedArchitecture}\"")
     };
 
     [RelayCommand]
     private void MarkRenoDXNoticesSeen()
     {
-        _seenRenoDXNotices = RenoDXEntry?.Notices ?? [];
+        _seenRenoDXNotices = RenoDXEntry.Notices;
         OnPropertyChanged(nameof(HasUnseenRenoDXNotices));
     }
 

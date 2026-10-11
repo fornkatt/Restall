@@ -74,13 +74,9 @@ public sealed partial class GameListViewModel : ViewModelBase
     public void LoadGames(RefreshLibraryResponse result)
     {
         Games.Clear();
-        foreach (var item in result.Games)
+        foreach (var gameEntry in result.GameEntries)
         {
-            Games.Add(new GameModViewModel(item.Game)
-            {
-                GameEntry = item.GameEntry,
-                ReShadeUpdateCheck = item.ReShadeUpdateResult
-            });
+            Games.Add(new GameModViewModel(gameEntry));
         }
 
         SelectedGame = Games.FirstOrDefault();
@@ -148,17 +144,15 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     private void UpdateModCompatibility(RefreshLibraryResponse result)
     {
-        var lookup = result.Games.ToDictionary(r => r.Game);
+        var lookup = result.GameEntries.ToDictionary(r => r.Game);
 
         foreach (var gameVm in Games)
         {
-            if (!lookup.TryGetValue(gameVm.GetGame(), out var item))
+            if (!lookup.TryGetValue(gameVm.GetGame(), out var gameEntry))
                 continue;
 
-            if (item.GameEntry is not null)
-                gameVm.GameEntry = item.GameEntry;
+            gameVm.GameEntry = gameEntry;
 
-            gameVm.ReShadeUpdateCheck = item.ReShadeUpdateResult;
             gameVm.NotifyGameStateChanged();
         }
 
