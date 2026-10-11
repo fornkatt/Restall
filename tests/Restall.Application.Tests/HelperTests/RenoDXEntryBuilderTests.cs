@@ -33,7 +33,7 @@ public class RenoDXEntryBuilderTests
 
         var actual = BuildRenoDXEntry(null, Game.Engine.Unknown, match);
 
-        Assert.Equal("Test Game", actual.ListedName);
+        Assert.Equal("Listed as Test Game", actual.HeadingText);
         Assert.Equal("Test Author", actual.Author);
         Assert.Equal("Test notes", actual.DatabaseNotes);
         Assert.Equal(RenoDXTexts.GetStatusText(RenoDXModStatus.Done), actual.StatusText);
@@ -63,6 +63,16 @@ public class RenoDXEntryBuilderTests
         var actual = BuildRenoDXEntry(null, Game.Engine.Unreal, RenoDXModMatch.None);
 
         Assert.Equal([RenoDXTexts.GetNoticeText(RenoDXAvailability.Notice.EngineFallback)], actual.Notices);
+    }
+
+    [Theory]
+    [InlineData(Game.Engine.Unreal, "Unreal Engine generic mod")]
+    [InlineData(Game.Engine.Unity, "Unity generic mod")]
+    public void Build_GenericGameWithoutMatch_ReturnsGenericAddonHeadingText(Game.Engine engine, string expectedHeadingText)
+    {
+        var actual = BuildRenoDXEntry(null, engine, RenoDXModMatch.None);
+
+        Assert.Equal(expectedHeadingText, actual.HeadingText);
     }
 
     [Fact]

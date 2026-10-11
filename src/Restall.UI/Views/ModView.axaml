@@ -107,7 +107,8 @@
         <!-- MOD CARD -->
         <Border Grid.Row="1" Margin="5" CornerRadius="20" Background="{DynamicResource GameCardBackground}">
             <Grid RowDefinitions="Auto, Auto"
-                  ColumnDefinitions="0.5*, 0.5*">
+                  ColumnDefinitions="0.5*, 0.5*"
+                  Grid.IsSharedSizeScope="True">
 
                 <!-- RESHADE -->
                 <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
@@ -118,14 +119,21 @@
                           ColumnDefinitions="0.75*, 0.25*">
                         <Grid Grid.Column="0"
                               Grid.ColumnSpan="2"
-                              ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto">
+                              RowDefinitions="Auto, Auto, Auto, Auto">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="ModTitle" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="ReShade" FontWeight="Bold" FontSize="28"
                                        Foreground="{DynamicResource GameCardText}" />
                             <TextBlock Grid.Row="0" Grid.Column="1"
-                                       Text="Not installed" FontSize="16"
+                                       Text="Not installed"
+                                       FontSize="16"
+                                       TextTrimming="CharacterEllipsis"
                                        FontWeight="SemiBold"
-                                       HorizontalAlignment="Center"
+                                       HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
+                                       Margin="5, 0"
                                        Foreground="{DynamicResource GameCardText}"
                                        IsVisible="{Binding !SelectedGame.HasReShade}" />
                             <StackPanel Grid.Row="0" Grid.Column="1"
@@ -229,15 +237,22 @@
                           ColumnDefinitions="0.75*, 0.25*">
                         <Grid Grid.Column="0"
                               Grid.ColumnSpan="2"
-                              ColumnDefinitions="Auto, *, 48, 32" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+                              RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="ModTitle" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="RenoDX" FontWeight="Bold" FontSize="28"
                                        Foreground="{DynamicResource GameCardText}" />
                             <TextBlock Grid.Row="0" Grid.Column="1"
-                                       Text="Not installed" FontSize="16"
+                                       Text="Not installed"
+                                       FontSize="16"
                                        TextTrimming="CharacterEllipsis"
                                        FontWeight="SemiBold"
-                                       HorizontalAlignment="Center"
+                                       HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
+                                       Margin="5, 0"
                                        Foreground="{DynamicResource GameCardText}"
                                        IsVisible="{Binding !SelectedGame.HasRenoDX}" />
                             <StackPanel Grid.Row="0" Grid.Column="1"
@@ -266,6 +281,7 @@
                                     Command="{Binding SelectedGame.MarkRenoDXNoticesSeenCommand}"
                                     CornerRadius="6"
                                     Padding="6, 2"
+                                    Margin="0, 5, 5, 5"
                                     ToolTip.Tip="Notices">
                                 <Button.Flyout>
                                     <Flyout>
@@ -282,7 +298,7 @@
                                         </ItemsControl>
                                     </Flyout>
                                 </Button.Flyout>
-                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                <StackPanel Orientation="Horizontal">
                                     <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
                                                FontSize="16"
                                                Text="&#xE4E0;"
@@ -293,47 +309,6 @@
                                                VerticalAlignment="Center"
                                                IsVisible="{Binding SelectedGame.HasUnseenRenoDXNotices}" />
                                 </StackPanel>
-                            </Button>
-                            <Button Grid.Row="0" Grid.Column="3" Classes="game-card-btn"
-                                    IsVisible="{Binding SelectedGame.HasRenoDXGenericAddonInfo}"
-                                    CornerRadius="6"
-                                    Padding="6, 2"
-                                    ToolTip.Tip="About this generic mod">
-                                <Button.Flyout>
-                                    <Flyout>
-                                        <StackPanel MaxWidth="420" Spacing="6">
-                                            <TextBlock
-                                                Text="{Binding SelectedGame.RenoDXEntry.GenericAddonInfo.Name}"
-                                                FontWeight="Bold"
-                                                FontSize="14" />
-                                            <TextBlock
-                                                Text="{Binding SelectedGame.RenoDXEntry.GenericAddonInfo.Author,
-                                                     StringFormat='by {0}'}"
-                                                FontSize="12"
-                                                Opacity="0.7" />
-                                            <TextBlock
-                                                Text="{Binding SelectedGame.RenoDXEntry.GenericAddonInfo.Notes}"
-                                                TextWrapping="Wrap"
-                                                FontSize="12" />
-                                            <Border
-                                                IsVisible="{Binding SelectedGame.RenoDXEntry.GenericAddonInfo.EngineIni,
-                                                     Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                                Background="{DynamicResource AppBackground}"
-                                                CornerRadius="4"
-                                                Padding="6">
-                                                <SelectableTextBlock
-                                                    Text="{Binding SelectedGame.RenoDXEntry.GenericAddonInfo.EngineIni}"
-                                                    FontFamily="Cascadia Code,Consolas,monospace"
-                                                    FontSize="11"
-                                                    TextWrapping="Wrap" />
-                                            </Border>
-                                        </StackPanel>
-                                    </Flyout>
-                                </Button.Flyout>
-                                <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
-                                           FontSize="16"
-                                           Text="&#xE3E8;"
-                                           VerticalAlignment="Center" />
                             </Button>
 
                             <Button Classes="mod-card-btn"
@@ -410,27 +385,130 @@
                         MaxHeight="150"
                         IsVisible="{Binding SelectedGame.IsRenoDXSupported}">
                     <Grid>
-                        <ScrollViewer HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Top"
-                                      IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
-                            <StackPanel Margin="10" Spacing="6">
-                                <TextBlock
-                                    Text="{Binding SelectedGame.RenoDXEntry.ListedName, StringFormat='Listed as {0}'}"
-                                    IsVisible="{Binding SelectedGame.RenoDXEntry.ListedName,
+                        <Grid ColumnDefinitions="*, Auto"
+                              IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
+                            <Grid Grid.Column="0" RowDefinitions="Auto, *">
+                                <StackPanel Grid.Row="0" Margin="10" Spacing="6">
+                                    <Grid ColumnDefinitions="*, Auto"
+                                          HorizontalAlignment="Left">
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="{Binding SelectedGame.RenoDXEntry.HeadingText}"
+                                            ToolTip.Tip="{Binding SelectedGame.RenoDXEntry.HeadingText}"
+                                            IsVisible="{Binding SelectedGame.RenoDXEntry.HeadingText,
                                             Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                    TextWrapping="Wrap"
-                                    FontSize="11"
-                                    Opacity="0.6"
-                                    Foreground="{DynamicResource GameCardText}" />
-                                <TextBlock
-                                    Text="{Binding SelectedGame.RenoDXEntry.Author, StringFormat='by {0}'}"
-                                    IsVisible="{Binding SelectedGame.RenoDXEntry.Author,
+                                            TextWrapping="Wrap"
+                                            MaxLines="2"
+                                            TextTrimming="CharacterEllipsis"
+                                            FontSize="11"
+                                            Opacity="0.6"
+                                            Foreground="{DynamicResource GameCardText}"
+                                            VerticalAlignment="Center" />
+                                        <Button
+                                            Grid.Column="1"
+                                            Classes="game-card-btn"
+                                            IsVisible="{Binding SelectedGame.HasRenoDXGenericAddonInfo}"
+                                            CornerRadius="6"
+                                            Margin="4, 0, 0, 0"
+                                            Padding="6, 2"
+                                            ToolTip.Tip="About this generic mod"
+                                            VerticalAlignment="Center">
+                                            <Button.Flyout>
+                                                <Flyout>
+                                                    <StackPanel
+                                                        MaxWidth="420"
+                                                        Spacing="6"
+                                                        DataContext="{Binding SelectedGame.RenoDXEntry.GenericAddonInfo}">
+                                                        <TextBlock
+                                                            Text="{Binding Name}"
+                                                            FontWeight="Bold"
+                                                            FontSize="14" />
+                                                        <TextBlock
+                                                            Text="{Binding Author,
+                                                     StringFormat='by {0}'}"
+                                                            FontSize="12"
+                                                            Opacity="0.7" />
+                                                        <TextBlock
+                                                            Text="{Binding Notes}"
+                                                            TextWrapping="Wrap"
+                                                            FontSize="12" />
+                                                        <Border
+                                                            IsVisible="{Binding EngineIni,
+                                                     Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                            Background="{DynamicResource AppBackground}"
+                                                            CornerRadius="4"
+                                                            Padding="6">
+                                                            <SelectableTextBlock
+                                                                Text="{Binding EngineIni}"
+                                                                FontFamily="Cascadia Code,Consolas,monospace"
+                                                                FontSize="11"
+                                                                TextWrapping="Wrap" />
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Flyout>
+                                            </Button.Flyout>
+                                            <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
+                                                       FontSize="16"
+                                                       Text="&#xE3E8;"
+                                                       VerticalAlignment="Center" />
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock
+                                        Text="{Binding SelectedGame.RenoDXEntry.Author, StringFormat='by {0}'}"
+                                        IsVisible="{Binding SelectedGame.RenoDXEntry.Author,
                                      Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                    TextWrapping="Wrap"
-                                    FontSize="12"
-                                    Foreground="{DynamicResource GameCardText}" />
-                                <Grid ColumnDefinitions="Auto, *">
-                                    <Panel Grid.Column="0"
+                                        TextWrapping="Wrap"
+                                        FontSize="12"
+                                        Foreground="{DynamicResource GameCardText}" />
+                                </StackPanel>
+                                <ScrollViewer Grid.Row="1"
+                                              Margin="10"
+                                              VerticalAlignment="Top">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock
+                                            Text="{Binding SelectedGame.RenoDXEntry.DatabaseNotes}"
+                                            IsVisible="{Binding SelectedGame.RenoDXEntry.DatabaseNotes,
+                                     Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                            TextWrapping="Wrap"
+                                            FontSize="12"
+                                            Foreground="{DynamicResource GameCardText}" />
+                                        <TextBlock
+                                            Text="{Binding SelectedGame.RenoDXEntry.UnrealMethodText}"
+                                            IsVisible="{Binding SelectedGame.RenoDXEntry.UnrealMethodText,
+                                     Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                            TextWrapping="Wrap"
+                                            FontSize="12"
+                                            Foreground="{DynamicResource GameCardText}" />
+                                        <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Upgrades}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="sys:String">
+                                                    <Border Background="{DynamicResource AppBackground}"
+                                                            CornerRadius="4"
+                                                            Padding="6, 2"
+                                                            Margin="0, 0, 4, 4">
+                                                        <SelectableTextBlock Text="{Binding}"
+                                                                             FontFamily="Cascadia Code,Consolas,monospace"
+                                                                             FontSize="11"
+                                                                             Foreground="{DynamicResource GameCardText}" />
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Grid>
+                            <StackPanel Grid.Column="1"
+                                        Margin="5"
+                                        Spacing="6">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Right"
+                                            Spacing="6">
+                                    <Panel Width="30"
                                            Margin="0, 0, 6, 0"
                                            VerticalAlignment="Center"
                                            Background="Transparent"
@@ -446,41 +524,7 @@
                                                    Foreground="#eb5a2f"
                                                    IsVisible="{Binding SelectedGame.IsRenoDXStatusWorkInProgress}" />
                                     </Panel>
-                                </Grid>
-                                <TextBlock
-                                    Text="{Binding SelectedGame.RenoDXEntry.DatabaseNotes}"
-                                    IsVisible="{Binding SelectedGame.RenoDXEntry.DatabaseNotes,
-                                     Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                    TextWrapping="Wrap"
-                                    FontSize="12"
-                                    Foreground="{DynamicResource GameCardText}" />
-                                <TextBlock
-                                    Text="{Binding SelectedGame.RenoDXEntry.UnrealMethodText}"
-                                    IsVisible="{Binding SelectedGame.RenoDXEntry.UnrealMethodText,
-                                     Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                    TextWrapping="Wrap"
-                                    FontSize="12"
-                                    Foreground="{DynamicResource GameCardText}" />
-                                <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Upgrades}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="sys:String">
-                                            <Border Background="{DynamicResource AppBackground}"
-                                                    CornerRadius="4"
-                                                    Padding="6, 2"
-                                                    Margin="0, 0, 4, 4">
-                                                <SelectableTextBlock Text="{Binding}"
-                                                                     FontFamily="Cascadia Code,Consolas,monospace"
-                                                                     FontSize="11"
-                                                                     Foreground="{DynamicResource GameCardText}" />
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                </StackPanel>
                                 <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Links}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="renodx:RenoDXModLink">
@@ -494,7 +538,7 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
-                        </ScrollViewer>
+                        </Grid>
 
                         <TextBlock TextWrapping="Wrap"
                                    FontSize="12"

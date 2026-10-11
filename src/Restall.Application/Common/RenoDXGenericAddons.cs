@@ -47,10 +47,11 @@ public static class RenoDXGenericAddons
         new($"{UnityAddonDownloadBaseUrl}{UnityAddonFilename32}");
 
     private static readonly RenoDXGenericAddonInfo s_unrealExtendedInfo =
-        new("UE Extended", "Marat", UnrealExtendedNotes, UnrealExtendedEngineIni);
+        new("UE Extended", "Unreal Engine generic mod", "Marat", UnrealExtendedNotes,
+            UnrealExtendedEngineIni);
 
     private static readonly RenoDXGenericAddonInfo s_unityGenericInfo =
-        new("Unity Generic", "Voosh", UnityNotes, null);
+        new("Unity Generic", "Unity generic mod", "Voosh", UnityNotes, null);
 
     private const string UnrealExtendedNotes =
         """

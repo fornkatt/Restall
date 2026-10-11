@@ -14,7 +14,7 @@ public sealed record RenoDXEntry(
     RenoDXModLink? ManualSource,
     FrozenDictionary<RenoDX.Branch, UpdateAvailability> BranchVersions,
     // Database information
-    string? ListedName,
+    string? HeadingText,
     string? StatusText,
     bool IsDone,
     bool IsWorkInProgress,

@@ -30,7 +30,7 @@ public static partial class RenoDXEntryBuilder
             DownloadOptions: availability.DownloadOptions,
             ManualSource: availability.ManualSource,
             BranchVersions: branchVersions,
-            ListedName: match.ModName,
+            HeadingText: GetHeadingText(match.ModName, availability.GenericAddonInfo?.HeadingText),
             StatusText: match.ModStatus is { } status ? RenoDXTexts.GetStatusText(status) : null,
             IsDone: match.ModStatus is RenoDXModStatus.Done,
             IsWorkInProgress: match.ModStatus is RenoDXModStatus.Wip,
@@ -44,6 +44,9 @@ public static partial class RenoDXEntryBuilder
             Notices: [.. availability.Notices.Select(RenoDXTexts.GetNoticeText)],
             GenericAddonInfo: availability.GenericAddonInfo);
     }
+
+    private static string? GetHeadingText(string? listedName, string? genericHeadingText) =>
+        listedName is not null ? $"Listed as {listedName}" : genericHeadingText;
 
     private static ImmutableArray<string> SplitUpgradeTokens(string? upgrades)
     {

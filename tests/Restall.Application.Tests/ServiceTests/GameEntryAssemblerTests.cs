@@ -37,7 +37,7 @@ public class GameEntryAssemblerTests
 
         Assert.Same(game, actual.Game);
         Assert.Equal(Architecture.X32, actual.RecommendedArchitecture);
-        Assert.Equal("Test Game", actual.RenoDXEntry.ListedName);
+        Assert.Equal("Listed as Test Game", actual.RenoDXEntry.HeadingText);
         Assert.Same(reShadeUpdate, actual.ReShadeUpdate);
     }
 }

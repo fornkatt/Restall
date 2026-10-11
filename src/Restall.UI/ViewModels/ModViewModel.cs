@@ -140,9 +140,9 @@ public sealed partial class ModViewModel : ViewModelBase
     {
         var game = SelectedGame!;
 
-        game._reShadeMessageCts?.Cancel();
+        game.ReShadeMessageCts?.Cancel();
         var cts = new CancellationTokenSource();
-        game._reShadeMessageCts = cts;
+        game.ReShadeMessageCts = cts;
 
         var progress = new Progress<DownloadProgressReport>(report =>
         {
@@ -290,10 +290,10 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private static CancellationToken BeginRenoDXAction(GameModViewModel game)
     {
-        game._renoDXMessageCts?.Cancel();
-        game._renoDXMessageCts = new CancellationTokenSource();
+        game.RenoDXMessageCts?.Cancel();
+        game.RenoDXMessageCts = new CancellationTokenSource();
 
-        return game._renoDXMessageCts.Token;
+        return game.RenoDXMessageCts.Token;
     }
 
     private static Progress<DownloadProgressReport> CreateRenoDXDownloadProgress(GameModViewModel game) =>
