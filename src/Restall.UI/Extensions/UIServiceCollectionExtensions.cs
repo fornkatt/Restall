@@ -19,7 +19,9 @@ public static class UIServiceCollectionExtensions
 
         services
             .AddSingleton<IModSelectionDialogService, ModSelectionDialogService>()
-            .AddSingleton<IFolderPickerService, FolderPickerService>();
+            .AddSingleton<IFolderPickerService, FolderPickerService>()
+            .AddSingleton<IFileExplorerService, FileExplorerService>();
+
 
 
         services

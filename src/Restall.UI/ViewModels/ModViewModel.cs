@@ -26,6 +26,7 @@ public sealed partial class ModViewModel : ViewModelBase
 {
     private readonly IModManagementFacade _modManagementFacade;
     private readonly IModSelectionDialogService _modSelectionDialogService;
+    private readonly IFileExplorerService _fileExplorerService;
     private readonly IVersionCatalog _versionCatalog;
     private readonly IModCatalog _modCatalog;
 
@@ -35,12 +36,14 @@ public sealed partial class ModViewModel : ViewModelBase
     public ModViewModel(
         IModManagementFacade modManagementFacade,
         IModSelectionDialogService modSelectionDialogService,
+        IFileExplorerService fileExplorerService,
         IVersionCatalog versionCatalog,
         IModCatalog modCatalog
     )
     {
         _modManagementFacade = modManagementFacade;
         _modSelectionDialogService = modSelectionDialogService;
+        _fileExplorerService = fileExplorerService;
         _versionCatalog = versionCatalog;
         _modCatalog = modCatalog;
     }
@@ -123,28 +126,10 @@ public sealed partial class ModViewModel : ViewModelBase
 
     /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
     [RelayCommand]
-    private void OpenInExplorer(string? folder)
+    private async Task OpenInExplorer(string? folder)
     {
         if (!Directory.Exists(folder)) return;
-
-        if (OperatingSystem.IsWindows())
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "explorer.exe",
-                Arguments = $"\"{folder}\"",
-                UseShellExecute = false
-            });
-        }
-        else
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "xdg-open",
-                ArgumentList = { folder },
-                UseShellExecute = false
-            });
-        }
+        await _fileExplorerService.OpenFolderAsync(folder);
     }
 
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
