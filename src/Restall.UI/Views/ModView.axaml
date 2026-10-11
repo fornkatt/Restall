@@ -491,10 +491,11 @@
                                                             CornerRadius="4"
                                                             Padding="6, 2"
                                                             Margin="0, 0, 4, 4">
-                                                        <SelectableTextBlock Text="{Binding}"
-                                                                             FontFamily="Cascadia Code,Consolas,monospace"
-                                                                             FontSize="11"
-                                                                             Foreground="{DynamicResource GameCardText}" />
+                                                        <SelectableTextBlock
+                                                            Text="{Binding}"
+                                                            FontFamily="Cascadia Code,Consolas,monospace"
+                                                            FontSize="11"
+                                                            Foreground="{DynamicResource GameCardText}" />
                                                     </Border>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
@@ -522,7 +523,8 @@
                                                    FontSize="30"
                                                    Text="&#xE948;"
                                                    Foreground="#eb5a2f"
-                                                   IsVisible="{Binding SelectedGame.IsRenoDXStatusWorkInProgress}" />
+                                                   IsVisible=
+                                                   "{Binding SelectedGame.IsRenoDXStatusWorkInProgress}" />
                                     </Panel>
                                 </StackPanel>
                                 <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Links}">
