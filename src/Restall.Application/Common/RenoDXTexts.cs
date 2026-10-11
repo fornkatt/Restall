@@ -11,8 +11,8 @@ public static class RenoDXTexts
 {
     public static string GetStatusText(RenoDXModStatus status) => status switch
     {
-        RenoDXModStatus.Done => "✅ Working.",
-        RenoDXModStatus.Wip => "🚧 WIP, may lack testing or have deal-breaking issues.",
+        RenoDXModStatus.Done => "Working",
+        RenoDXModStatus.Wip => "WIP, may lack testing or have deal-breaking issues",
         _ => throw new UnreachableException($"No text for RenoDX mod status \"{status}\"")
     };
 

@@ -16,6 +16,8 @@ public sealed record RenoDXEntry(
     // Database information
     string? ListedName,
     string? StatusText,
+    bool IsDone,
+    bool IsWorkInProgress,
     string? Author,
     string? DatabaseNotes,
     string? UnrealMethodText,

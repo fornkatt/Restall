@@ -81,9 +81,7 @@ public class RenoDXAvailabilityResolverTests
     {
         var gameMod = s_gameMod with
         {
-            SnapshotUrl = null,
-            NexusUrl = NexusUrl,
-            DiscordUrl = "https://discord.com/channels/1/2"
+            SnapshotUrl = null, NexusUrl = NexusUrl, DiscordUrl = "https://discord.com/channels/1/2"
         };
 
         var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
@@ -168,6 +166,22 @@ public class RenoDXAvailabilityResolverTests
 
         Assert.NotNull(actual.DownloadOptions);
         Assert.Equal([RenoDXAvailability.Notice.SnapshotFileUnconfirmed], actual.Notices);
+    }
+
+    [Fact]
+    public void Resolve_GameModOffersGenericAddon_ReturnsNoGameSpecificModNoticeAndGenericAddonInfo()
+    {
+        var gameModWithGenericAddon = s_gameMod with
+        {
+            SnapshotUrl = "https://restalltests.com/releases/renodx-ue-extended.addon64"
+        };
+
+        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unreal,
+            Architecture.X64, CreateMatch(gameModWithGenericAddon), true,
+            s_snapshotWithFile, []);
+
+        Assert.Null(actual.GenericAddonInfo);
+        Assert.Empty(actual.Notices);
     }
 
     private static RenoDXModMatch CreateMatch(RenoDXGameMod gameMod) =>

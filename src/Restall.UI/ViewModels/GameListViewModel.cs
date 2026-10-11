@@ -11,6 +11,7 @@ using Restall.Application.Interfaces.Driving;
 using Restall.UI.Interfaces;
 using Restall.UI.Messages;
 using System;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -32,7 +33,6 @@ public sealed partial class GameListViewModel : ViewModelBase
         IGameRefreshUseCase gameRefresh,
         IFolderPickerService folderPicker,
         ICustomGameFolderStore customGameFolderStore
-
     )
     {
         _logger = logger;
@@ -44,14 +44,21 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     private CancellationTokenSource _messageCts = new();
 
-    [ObservableProperty]
-    public partial ObservableCollection<GameModViewModel> Games { get; set; } = [];
+    [ObservableProperty] public partial ObservableCollection<GameModViewModel> Games { get; set; } = [];
 
-    [ObservableProperty]
-    public partial GameModViewModel? SelectedGame { get; set; }
+    [ObservableProperty] public partial GameModViewModel? SelectedGame { get; set; }
 
-    [ObservableProperty]
-    public partial string? ScanMessage { get; set; }
+    [ObservableProperty] public partial string? ScanMessage { get; set; }
+
+    [ObservableProperty] public partial ImmutableArray<string> RefreshWarnings { get; set; } = [];
+
+    [ObservableProperty] public partial bool HasUnseenRefreshWarnings { get; set; }
+
+    public bool HasRefreshWarnings => !RefreshWarnings.IsEmpty;
+    public int RefreshWarningCount => RefreshWarnings.Length;
+
+    [RelayCommand]
+    private void MarkRefreshWarningsSeen() => HasUnseenRefreshWarnings = false;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FullRefreshLibraryCommand))]
@@ -72,14 +79,13 @@ public sealed partial class GameListViewModel : ViewModelBase
             Games.Add(new GameModViewModel(item.Game)
             {
                 GameEntry = item.GameEntry,
-                CompatibleRenoDXMod = item.CompatibleMod,
-                CompatibleRenoDXGenericMod = item.CompatibleGenericMod,
-                ReShadeUpdateCheck = item.ReShadeUpdateResult,
-                RenoDXUpdateCheck = item.RenoDXUpdateResult
+                ReShadeUpdateCheck = item.ReShadeUpdateResult
             });
         }
 
         SelectedGame = Games.FirstOrDefault();
+        RefreshWarnings = result.Warnings;
+        HasUnseenRefreshWarnings = !result.Warnings.IsEmpty;
     }
 
     [RelayCommand(CanExecute = nameof(CanRefresh))]
@@ -146,12 +152,13 @@ public sealed partial class GameListViewModel : ViewModelBase
 
         foreach (var gameVm in Games)
         {
-            if (!lookup.TryGetValue(gameVm.GetGame(), out var item)) continue;
+            if (!lookup.TryGetValue(gameVm.GetGame(), out var item))
+                continue;
 
-            gameVm.CompatibleRenoDXMod = item.CompatibleMod;
-            gameVm.CompatibleRenoDXGenericMod = item.CompatibleGenericMod;
+            if (item.GameEntry is not null)
+                gameVm.GameEntry = item.GameEntry;
+
             gameVm.ReShadeUpdateCheck = item.ReShadeUpdateResult;
-            gameVm.RenoDXUpdateCheck = item.RenoDXUpdateResult;
             gameVm.NotifyGameStateChanged();
         }
 

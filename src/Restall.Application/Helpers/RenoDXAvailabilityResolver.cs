@@ -36,9 +36,13 @@ public static class RenoDXAvailabilityResolver
         if (installedAddonFilename is null && engineFallbackAddonFilename is not null)
             notices.Add(RenoDXAvailability.Notice.EngineFallback);
 
-        var genericAddonInfo = addonFilename is null ? null : RenoDXGenericAddons.GetGenericAddonInfo(addonFilename);
+        var gameModAddonFilename = match.GameMod?.GetAddonFilename(architecture);
+        var isGameModFile = gameModAddonFilename?.Equals(addonFilename, StringComparison.OrdinalIgnoreCase) == true;
+        var genericAddonInfo = addonFilename is null || isGameModFile
+            ? null
+            : RenoDXGenericAddons.GetGenericAddonInfo(addonFilename);
 
-        if (genericAddonInfo is not null && match.GameMod is not null)
+        if (genericAddonInfo is not null && gameModAddonFilename is not null)
             notices.Add(RenoDXAvailability.Notice.GameSpecificModAvailable);
 
         var downloadOptions = addonFilename is null

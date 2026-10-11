@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
@@ -31,6 +32,8 @@ public static partial class RenoDXEntryBuilder
             BranchVersions: branchVersions,
             ListedName: match.ModName,
             StatusText: match.ModStatus is { } status ? RenoDXTexts.GetStatusText(status) : null,
+            IsDone: match.ModStatus is RenoDXModStatus.Done,
+            IsWorkInProgress: match.ModStatus is RenoDXModStatus.Wip,
             Author: match.GameMod?.Author ?? availability.GenericAddonInfo?.Author,
             DatabaseNotes: match.GameMod?.Notes ?? match.UnrealGenericMod?.Comments ?? match.UnityGenericMod?.Comments,
             UnrealMethodText: match.UnrealGenericMod is { } unrealGenericMod

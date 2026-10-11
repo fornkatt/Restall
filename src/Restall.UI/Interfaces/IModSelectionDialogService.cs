@@ -3,6 +3,7 @@
 
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.UI.DTOs;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Restall.UI.Interfaces;
@@ -10,5 +11,5 @@ namespace Restall.UI.Interfaces;
 public interface IModSelectionDialogService
 {
     Task<ReShadeInstallSelectionDto?> ShowReShadeInstallDialogAsync();
-    Task<RenoDXTagInfo?> ShowRenoDXInstallDialogAsync();
+    Task<RenoDXTagInfo?> ShowRenoDXInstallDialogAsync(IReadOnlyList<RenoDXTagInfo> nightlies);
 }

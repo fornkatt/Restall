@@ -65,6 +65,28 @@ public class RenoDXEntryBuilderTests
         Assert.Equal([RenoDXTexts.GetNoticeText(RenoDXAvailability.Notice.EngineFallback)], actual.Notices);
     }
 
+    [Fact]
+    public void Build_WipGameModMatch_ReturnsWorkInProgress()
+    {
+        var match = new RenoDXModMatch(s_gameMod with { Status = RenoDXModStatus.Wip }, null,
+            null, RenoDXModMatch.MatchKind.Exact, []);
+
+        var actual = BuildRenoDXEntry(null, Game.Engine.Unreal, match);
+
+        Assert.True(actual.IsWorkInProgress);
+    }
+
+    [Fact]
+    public void Build_DoneGameModMatch_ReturnsIsDone()
+    {
+        var match = new RenoDXModMatch(s_gameMod with { Status = RenoDXModStatus.Done }, null,
+            null, RenoDXModMatch.MatchKind.Exact, []);
+
+        var actual = BuildRenoDXEntry(null, Game.Engine.Unreal, match);
+
+        Assert.True(actual.IsDone);
+    }
+
     private static RenoDXEntry BuildRenoDXEntry(RenoDX? installedRenoDX, Game.Engine engine, RenoDXModMatch match) =>
         RenoDXEntryBuilder.Build(installedRenoDX, engine, Architecture.X64, match, true,
             s_snapshot, []);
