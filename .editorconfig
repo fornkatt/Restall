@@ -11,9 +11,6 @@ insert_final_newline = true
 [*.cs]
 file_header_template = SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic\nSPDX-License-Identifier: GPL-3.0-or-later
 
-[*.{yml,yaml}]
-indent_size = 2
-
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_using_directive_placement = outside_namespace:warning
 
@@ -72,3 +69,6 @@ dotnet_diagnostic.IDE1006.severity = warning
 dotnet_diagnostic.IDE0073.severity = warning
 # noinspection EditorConfigKeyCorrectness
 dotnet_diagnostic.IDE0005.severity = warning
+
+[*.{yml,yaml}]
+indent_size = 2
