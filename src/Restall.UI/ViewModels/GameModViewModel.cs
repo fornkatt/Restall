@@ -52,7 +52,7 @@ public sealed partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(ReShadeUpdateCheck))]
     public partial GameEntry GameEntry { get; set; }
 
-    [ObservableProperty] public partial UpdateAvailability? ReShadeUpdateCheck { get; set; }
+    public UpdateAvailability? ReShadeUpdateCheck => GameEntry.ReShadeUpdate;
 
     public string? Name => _game.Name;
     internal Game GetGame() => _game;
@@ -155,14 +155,15 @@ public sealed partial class GameModViewModel : ObservableObject
 
     [ObservableProperty] public partial string? ReShadeModActionStatus { get; set; }
     [ObservableProperty] public partial bool IsShowingReShadeActionMessage { get; set; }
-    internal CancellationTokenSource? ReShadeMessageCts;
+    internal CancellationTokenSource? ReShadeMessageCts { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsShowingRenoDXActionMessage))]
     public partial string? RenoDXModActionStatus { get; set; }
 
     public bool IsShowingRenoDXActionMessage => RenoDXModActionStatus is not null;
-    internal CancellationTokenSource? RenoDXMessageCts;
+
+    internal CancellationTokenSource? RenoDXMessageCts { get; set; }
 
     // Bitmaps -------------------------------------------------------------------------------
 

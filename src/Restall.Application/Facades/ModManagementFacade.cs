@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Requests;
 using Restall.Application.DTOs.Responses;
-using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.UseCases.Requests;
 using Restall.Domain.Entities;

@@ -23,7 +23,6 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
     private readonly IGameArtworkService _gameArtworkService;
     private readonly IModDetectionService _modDetectionService;
     private readonly IVersionCatalog _versionCatalog;
-    private readonly IModCatalog _modCatalog;
     private readonly IParseService _parseService;
     private readonly IRenoDXModSourceService _renoDXModSourceService;
     private readonly RenoDXModDatabaseBuilder _renoDXModDatabaseBuilder;
@@ -37,7 +36,6 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
         IGameArtworkService gameArtworkService,
         IModDetectionService modDetectionService,
         IVersionCatalog versionCatalog,
-        IModCatalog modCatalog,
         IParseService parseService,
         IRenoDXModSourceService renoDXModSourceService,
         RenoDXModDatabaseBuilder renoDXModDatabaseBuilder,
@@ -50,7 +48,6 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
         _gameArtworkService = gameArtworkService;
         _modDetectionService = modDetectionService;
         _versionCatalog = versionCatalog;
-        _modCatalog = modCatalog;
         _parseService = parseService;
         _renoDXModSourceService = renoDXModSourceService;
         _renoDXModDatabaseBuilder = renoDXModDatabaseBuilder;
@@ -69,11 +66,9 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
         var renoDXSnapshotTask = _parseService.FetchRenoDXSnapshotAsync();
         var renoDXNightliesTask = _parseService.FetchRenoDXNightlyTagsAsync();
 
-        // TODO: remove later
-        var wikiTask = _modCatalog.FetchModsAsync();
 
         await Task.WhenAll(gameTask, reShadeVersionsTask, renoDXGameModsTask, renoDXUnrealGenericModsTask,
-            renoDXUnityGenericModsTask, renoDXSnapshotTask, renoDXNightliesTask, wikiTask);
+            renoDXUnityGenericModsTask, renoDXSnapshotTask, renoDXNightliesTask);
 
         string?[] warnings =
         [

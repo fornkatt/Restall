@@ -35,7 +35,4 @@ public interface IModInstallService
     /// </para>
     /// </summary>
     Result<Game> UninstallReShade(Game game);
-
-    Task<Result<Game>> RemoveAllReShadeFilesAsync(Game game);
-    Task<Result<Game>> RemoveAllRenoDXFilesAsync(Game game);
 }

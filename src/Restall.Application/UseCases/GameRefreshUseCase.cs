@@ -5,26 +5,23 @@ using Restall.Application.DTOs;
 using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
-using Restall.Domain.Entities;
 using Restall.Application.Services;
+using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
 
 public sealed class GameRefreshUseCase : IGameRefreshUseCase
 {
-    private readonly IModCatalog _modCatalog;
     private readonly IGameArtworkService _gameArtworkService;
     private readonly IModDetectionService _modDetectionService;
     private readonly GameEntryAssembler _gameEntryAssembler;
 
     public GameRefreshUseCase(
-        IModCatalog modCatalog,
         IGameArtworkService gameArtworkService,
         IModDetectionService modDetectionService,
         GameEntryAssembler gameEntryAssembler
     )
     {
-        _modCatalog = modCatalog;
         _gameArtworkService = gameArtworkService;
         _modDetectionService = modDetectionService;
         _gameEntryAssembler = gameEntryAssembler;

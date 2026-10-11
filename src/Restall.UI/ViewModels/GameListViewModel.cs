@@ -144,7 +144,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     private void UpdateModCompatibility(RefreshLibraryResponse result)
     {
-        var lookup = result.GameEntries.ToDictionary(r => r.Game);
+        var lookup = result.GameEntries.ToDictionary(ge => ge.Game);
 
         foreach (var gameVm in Games)
         {
