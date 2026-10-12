@@ -122,12 +122,12 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 
 ## Acknowledgements
 
-* The RenoDX mod information used by the app comes from [RankFTW/rhi-repo](https://github.com/RankFTW/rhi-repo)
+* [RankFTW/rhi-repo](https://github.com/RankFTW/rhi-repo) where the app gets RenoDX mod information from,
 maintained by [RankFTW](https://github.com/RankFTW) and Scrungus. Thank you for letting Restall use it!
 * [RenoDX](https://github.com/clshortfuse/renodx) by [clshortfuse](https://github.com/clshortfuse).
   * [UE Extended](https://github.com/marat569/renodx), the generic Unreal Engine mod by
   [Marat](https://github.com/marat569).
-  * The [Unity generic mod](https://github.com/notvoosh/renodx-unity) by [Voosh](https://github.com/notvoosh).
+  * [The Unity generic mod](https://github.com/notvoosh/renodx-unity) by [Voosh](https://github.com/notvoosh).
 * [ReShade](https://github.com/crosire/reshade) by [crosire](https://github.com/crosire).
-* Icons by [Phosphor Icons](https://github.com/phosphor-icons) used under the MIT license.
+* [Phosphor Icons](https://github.com/phosphor-icons) used for icons in the UI, licensed under the MIT license.
 See [THIRD-PARTY-NOTCES.md](THIRD-PARTY-NOTICES.md).
