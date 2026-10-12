@@ -130,4 +130,4 @@ maintained by [RankFTW](https://github.com/RankFTW) and Scrungus. Thank you for 
   * [The Unity generic mod](https://github.com/notvoosh/renodx-unity) by [Voosh](https://github.com/notvoosh).
 * [ReShade](https://github.com/crosire/reshade) by [crosire](https://github.com/crosire).
 * [Phosphor Icons](https://github.com/phosphor-icons) used for icons in the UI, licensed under the MIT license.
-See [THIRD-PARTY-NOTCES.md](THIRD-PARTY-NOTICES.md).
+See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

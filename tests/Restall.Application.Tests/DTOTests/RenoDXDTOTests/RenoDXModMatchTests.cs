@@ -89,5 +89,6 @@ public class RenoDXModMatchTests
             RenoDXModMatch.MatchKind.Exact, []);
 
         Assert.Equal("Unreal Game", actual.ModName);
+        Assert.Equal(RenoDXModStatus.Wip, actual.ModStatus);
     }
 }

@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Restall.Application.Common.Enums;
+using Restall.Application.DTOs;
 using Restall.Infrastructure.Services;
 using Restall.Infrastructure.Tests.Fakes;
 using System.IO.Pipelines;
@@ -104,6 +105,21 @@ public class DownloadServiceTests : IDisposable
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
             sut.DownloadAsync(new Uri(AddonUrl), _destinationPath, cancellationToken: cancellation.Token));
         Assert.Empty(Directory.GetFiles(_tempDirectory, "*.part"));
+    }
+
+    [Fact]
+    public async Task DownloadAsync_FileSizeUnknown_ReportsProgressWithoutPercentage()
+    {
+        var handler = new FakeHttpMessageHandler();
+        var response = FileResponse(s_addonBytes);
+        response.Content.Headers.ContentLength = null;
+        handler.RespondWith(AddonUrl, response);
+        var progress = new FakeDownloadProgress();
+        var sut = CreateService(handler);
+
+        await sut.DownloadAsync(new Uri(AddonUrl), _destinationPath, progress, TestContext.Current.CancellationToken);
+
+        Assert.Equal([new DownloadProgressReport("renodx-game.addon64", -1)], progress.Reports);
     }
 
     private static DownloadService CreateService(FakeHttpMessageHandler handler, TimeSpan? stallTimeout = null) =>

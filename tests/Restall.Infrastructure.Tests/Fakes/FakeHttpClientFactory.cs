@@ -3,7 +3,7 @@
 
 namespace Restall.Infrastructure.Tests.Fakes;
 
-public class FakeHttpClientFactory : IHttpClientFactory
+public sealed class FakeHttpClientFactory : IHttpClientFactory
 {
     private readonly HttpMessageHandler _handler;
 

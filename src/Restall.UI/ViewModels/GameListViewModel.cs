@@ -50,7 +50,10 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     [ObservableProperty] public partial string? ScanMessage { get; set; }
 
-    [ObservableProperty] public partial ImmutableArray<string> RefreshWarnings { get; set; } = [];
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasRefreshWarnings))]
+    [NotifyPropertyChangedFor(nameof(RefreshWarningCount))]
+    public partial ImmutableArray<string> RefreshWarnings { get; set; } = [];
 
     [ObservableProperty] public partial bool HasUnseenRefreshWarnings { get; set; }
 

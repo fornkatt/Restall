@@ -119,7 +119,7 @@ internal sealed partial class DownloadService : IDownloadService
             bufferSize, useAsync: true);
 
         var buffer = new byte[bufferSize];
-        var lastReportedPercent = -1;
+        var lastReportedPercent = int.MinValue;
         long bytesReceived = 0;
         int bytesRead;
 

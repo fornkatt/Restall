@@ -27,13 +27,13 @@ public static class RenoDXReleaseNotesResolver
 
     private static ImmutableArray<RenoDXReleaseNotes> GetReleaseNotes(RenoDX.Branch branch, RenoDX? installedRenoDX,
         RenoDXDownloadOptions downloadOptions) => branch switch
-    {
-        RenoDX.Branch.Snapshot =>
-            [CreateReleaseNotes(downloadOptions.Snapshot!, installedRenoDX, downloadOptions.Snapshot!.Date)],
-        RenoDX.Branch.Nightly => GetNightlyReleaseNotes(installedRenoDX, downloadOptions.Nightlies),
-        RenoDX.Branch.Direct => [],
-        _ => throw new UnreachableException($"No release notes source for branch \"{branch}\"")
-    };
+        {
+            RenoDX.Branch.Snapshot =>
+                [CreateReleaseNotes(downloadOptions.Snapshot!, installedRenoDX, downloadOptions.Snapshot!.Date)],
+            RenoDX.Branch.Nightly => GetNightlyReleaseNotes(installedRenoDX, downloadOptions.Nightlies),
+            RenoDX.Branch.Direct => [],
+            _ => throw new UnreachableException($"No release notes source for branch \"{branch}\"")
+        };
 
     private static ImmutableArray<RenoDXReleaseNotes> GetNightlyReleaseNotes(RenoDX? installedRenoDX,
         ImmutableArray<RenoDXTagInfo> nightlies)
