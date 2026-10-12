@@ -18,20 +18,7 @@ internal sealed partial class DownloadService : IDownloadService
     private const string ReShadeStartUrl = "https://reshade.me/downloads/ReShade_Setup_";
     private const string ReShadeEndUrl = "_Addon.exe";
 
-    private const string RenoDXSnapshotDownloadBaseUrl =
-        "https://github.com/clshortfuse/renodx/releases/download/snapshot/";
-
-    private const string RenoDXNightlyDownloadBaseUrl = "https://github.com/clshortfuse/renodx/releases/download/";
-    private const string RenoDXUnityDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
-    private const string RenoDXUEExtendedDownloadBaseUrl = "https://marat569.github.io/renodx/";
-
-    private readonly Dictionary<RenoDXWikiModType, string> _externalHostBaseUrls = new()
-    {
-        [RenoDXWikiModType.Unity] = RenoDXUnityDownloadBaseUrl,
-        [RenoDXWikiModType.UnrealExtended] = RenoDXUEExtendedDownloadBaseUrl
-    };
-
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> s_downloadLocks = new();
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _downloadLocks = new();
     private readonly IHttpClientFactory _clientFactory;
     private readonly ILogger<DownloadService> _logger;
     private readonly IPathService _pathService;
@@ -102,55 +89,6 @@ internal sealed partial class DownloadService : IDownloadService
         return Result.Success();
     }
 
-    // TODO: rename methods in this class
-    public async Task<Result> DownloadRenoDXAsync(RenoDX.Branch branch, string? addonFileName = null,
-        string? version = null, string? wikiSnapshotUrl = null, IProgress<DownloadProgressReport>? progress = null)
-    {
-        string downloadUrl;
-        string fileName;
-
-        switch (branch)
-        {
-            case RenoDX.Branch.Direct:
-                if (string.IsNullOrWhiteSpace(wikiSnapshotUrl))
-                    return Result.Error("RenoDX wiki branch requires a wiki snapshot URL.");
-
-                downloadUrl = wikiSnapshotUrl;
-                fileName = Path.GetFileName(new Uri(wikiSnapshotUrl).AbsolutePath);
-                break;
-            case RenoDX.Branch.Snapshot:
-                if (string.IsNullOrWhiteSpace(addonFileName))
-                    return Result.Error("RenoDX snapshot branch requires a filename to download.");
-
-                downloadUrl = $"{RenoDXSnapshotDownloadBaseUrl}{addonFileName}";
-                fileName = addonFileName;
-                break;
-            case RenoDX.Branch.Nightly:
-                if (string.IsNullOrWhiteSpace(addonFileName) || string.IsNullOrWhiteSpace(version))
-                    return Result.Error("RenoDX nightly branch requires both addon filename and version.");
-
-                downloadUrl = $"{RenoDXNightlyDownloadBaseUrl}nightly-{version}/{addonFileName}";
-                fileName = addonFileName;
-                break;
-            default:
-                return Result.Error($"Branch {branch} does not support automated downloads.");
-        }
-
-        var cacheDir = _pathService.GetRenoDXDownloadCacheDirectory(branch);
-        return await DownloadFileAsync(downloadUrl, cacheDir, fileName, progress);
-    }
-
-    public async Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName,
-        IProgress<DownloadProgressReport>? progress = null)
-    {
-        if (!_externalHostBaseUrls.TryGetValue(renoDxWikiModType, out var baseUrl))
-            return Result.Error($"{renoDxWikiModType} does not have and externally hosted RenoDX download configured.");
-
-        var downloadUrl = baseUrl + addonFileName;
-        var cacheDir = _pathService.GetRenoDXDownloadCacheDirectory(RenoDX.Branch.Direct);
-        return await DownloadFileAsync(downloadUrl, cacheDir, addonFileName, progress);
-    }
-
     public async Task<Result> DownloadReShadeAsync(ReShade.Branch branch, string version,
         IProgress<DownloadProgressReport>? progress = null)
     {
@@ -183,7 +121,7 @@ internal sealed partial class DownloadService : IDownloadService
         var buffer = new byte[bufferSize];
         var lastReportedPercent = -1;
         long bytesReceived = 0;
-        var bytesRead = 0;
+        int bytesRead;
 
         while ((bytesRead = await contentStream.ReadAsync(buffer, stallTimeout.Token)) > 0)
         {
@@ -221,7 +159,7 @@ internal sealed partial class DownloadService : IDownloadService
         }
 
         var destinationPath = Path.Combine(destinationDirectory, filename);
-        var fileLock = s_downloadLocks.GetOrAdd(destinationPath, _ =>
+        var fileLock = _downloadLocks.GetOrAdd(destinationPath, _ =>
             new SemaphoreSlim(1, 1));
 
         await fileLock.WaitAsync();
@@ -239,7 +177,7 @@ internal sealed partial class DownloadService : IDownloadService
         finally
         {
             fileLock.Release();
-            if (fileLock.CurrentCount == 1 && s_downloadLocks.TryRemove(destinationPath, out var removed))
+            if (fileLock.CurrentCount == 1 && _downloadLocks.TryRemove(destinationPath, out var removed))
                 removed.Dispose();
         }
     }

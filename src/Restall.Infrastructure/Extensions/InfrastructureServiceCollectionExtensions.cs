@@ -25,8 +25,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
 
         services
-            .AddSingleton<IVersionCatalog, VersionCatalog>()
-            .AddSingleton<IModCatalog, ModCatalog>();
+            .AddSingleton<IVersionCatalog, VersionCatalog>();
 
         services
             .AddPlatformScanners()

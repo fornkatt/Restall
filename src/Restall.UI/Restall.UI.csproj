@@ -45,5 +45,6 @@
 
     <ItemGroup>
         <Content Include="..\..\LICENSE" CopyToOutputDirectory="PreserveNewest" Link="LICENSE" />
+        <Content Include="..\..\THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" Link="THIRD-PARTY-NOTICES.md" />
     </ItemGroup>
 </Project>

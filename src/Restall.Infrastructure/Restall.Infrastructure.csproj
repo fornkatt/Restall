@@ -29,9 +29,6 @@
       <Compile Update="Services\GameIconService.Logging.cs">
         <DependentUpon>GameIconService.cs</DependentUpon>
       </Compile>
-      <Compile Update="Services\Log.GameIconService.cs">
-        <DependentUpon>GameIconService.cs</DependentUpon>
-      </Compile>
       <Compile Update="Services\ModDetectionService.Logging.cs">
         <DependentUpon>ModDetectionService.cs</DependentUpon>
       </Compile>
@@ -70,9 +67,6 @@
       </Compile>
       <Compile Update="Scanners\XboxScanner.Logging.cs">
         <DependentUpon>XboxScanner.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Services\RenoDXModSource.Logging.cs">
-        <DependentUpon>RenoDXModSourceService.cs</DependentUpon>
       </Compile>
       <Compile Update="Services\RenoDXModSourceService.Logging.cs">
         <DependentUpon>RenoDXModSourceService.cs</DependentUpon>

@@ -10,13 +10,14 @@
     * [Cloning the Repository](#cloning-the-repository)
 * [Upcoming Features](#upcoming-features)
 * [Technical Aspects](#technical-aspects)
+* [Acknowledgements](#acknowledgements)
 
 ---
 
 ## What is Restall?
-**Restall** is a desktop application for Windows and Linux for managing [ReShade](https://reshade.me/) and [RenoDX](https://github.com/clshortfuse/renodx/) modifications. 
+**Restall** is a desktop application for Windows and Linux for managing [ReShade](https://reshade.me/) and [RenoDX](https://github.com/clshortfuse/renodx/) modifications.
 
-> Think of it as a mod-manager for those two with the "Plug'n'Play" mentality, no more manual file hunting across game directories. 
+> Think of it as a mod-manager for those two with the "Plug'n'Play" mentality, no more manual file hunting across game directories.
 
 It automates the detection of game installations across multiple launchers and simplifies the mod management, **_Install, Update and Delete_**, of post-processing and HDR enhancement tools.
 
@@ -57,7 +58,7 @@ It automates the detection of game installations across multiple launchers and s
 ## Building the Project
 
 ### Prerequisites
-* [Docker Desktop](https://www.docker.com/get-started/) for Windows 10/11 
+* [Docker Desktop](https://www.docker.com/get-started/) for Windows 10/11
 * the `docker` package for Linux.
 
 ### Cloning the Repository
@@ -83,9 +84,8 @@ It automates the detection of game installations across multiple launchers and s
 * [ReLimiter](https://github.com/RankFTW/ReLimiter) support.
 * Remember choices in app like branch, overrides etc per game.
 * Architecture override on game card.
-* Wiki name matching override support.
+* Game name matching override support.
 * Install/Exec folder override.
-* Add support for adding custom games.
 * Add ability to symlink ReShade from a centralized folder and include/remove individual games from symlinking.
 * In-app editor for reshade.ini
 * Settings for preferred nit, paperwhite and ui brightness values for RenoDX and disable tutorial by default in reshade.ini on install.
@@ -93,8 +93,9 @@ It automates the detection of game installations across multiple launchers and s
 * Generate .desktop file for Linux users after building.
 * Faugus support.
 * Implement manifest.
-* Add separation logic for game collections. 
-* ~Original Snapshot branch support for RenoDX (fetched from dev GH instead of RenoDX GH. The links on the main wiki's mods page).~
+* ~~Add separation logic for game collections.~~
+* ~~Add support for adding custom games.~~
+* ~~Direct branch support for RenoDX (fetched from dev GH instead of RenoDX GH.).~~
 
 ---
 
@@ -114,5 +115,19 @@ Restall is built with **C#** and **.NET 10** and we are using **Avalonia UI** fo
 | :--- | :--- |
 | CommunityToolkit.Mvvm | MVVM pattern & source generators |
 | PeNet | PE file parsing for mod compatibility checks |
-| HtmlAgilityPack | Web scraping for mod metadata |
+| HtmlAgilityPack | Reading the ReShade and RenoDX release pages |
 | Docker | Cross-platform build environment |
+
+---
+
+## Acknowledgements
+
+* The RenoDX mod information used by the app comes from [RankFTW/rhi-repo](https://github.com/RankFTW/rhi-repo)
+maintained by [RankFTW](https://github.com/RankFTW) and Scrungus. Thank you for letting Restall use it!
+* [RenoDX](https://github.com/clshortfuse/renodx) by [clshortfuse](https://github.com/clshortfuse).
+  * [UE Extended](https://github.com/marat569/renodx), the generic Unreal Engine mod by
+  [Marat](https://github.com/marat569).
+  * The [Unity generic mod](https://github.com/notvoosh/renodx-unity) by [Voosh](https://github.com/notvoosh).
+* [ReShade](https://github.com/crosire/reshade) by [crosire](https://github.com/crosire).
+* Icons by [Phosphor Icons](https://github.com/phosphor-icons) used under the MIT license.
+See [THIRD-PARTY-NOTCES.md](THIRD-PARTY-NOTICES.md).

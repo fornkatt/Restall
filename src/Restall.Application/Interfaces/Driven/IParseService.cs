@@ -3,7 +3,6 @@
 
 using Restall.Application.Common;
 using Restall.Application.DTOs.RenoDXDTOs;
-using Restall.Application.DTOs.Responses;
 using System.Collections.Immutable;
 
 namespace Restall.Application.Interfaces.Driven;
@@ -12,9 +11,7 @@ public interface IParseService
 {
     Task<ImmutableArray<string>> FetchReShadeVersionsAsync();
 
-    Task<RenoDXWikiParseResultDto> FetchRenoDXWikiModsAsync();
     Task<Result<RenoDXTagInfo>> FetchRenoDXSnapshotAsync(CancellationToken cancellationToken = default);
-
     Task<Result<ImmutableArray<RenoDXTagInfo>>> FetchRenoDXNightlyTagsAsync(
         CancellationToken cancellationToken = default);
 }

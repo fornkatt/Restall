@@ -8,8 +8,6 @@ namespace Restall.Application.Interfaces.Driven;
 public interface IPathService
 {
     string GetReShadeCachePath(ReShade reShade);
-    string GetRenoDXCachePath(RenoDX renoDx);
-    string GetRenoDXDownloadCacheDirectory(RenoDX.Branch branch);
     string GetRenoDXSnapshotDownloadPath(string snapshotVersion, string addonFilename);
     string GetRenoDXNightlyDownloadPath(string nightlyVersion, string addonFilename);
     string GetRenoDXDirectDownloadPath(string addonFilename);

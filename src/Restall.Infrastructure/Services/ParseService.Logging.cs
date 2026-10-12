@@ -67,26 +67,6 @@ internal sealed partial class ParseService
     private partial void LogRenoDXNightliesFetchComplete(int nightlyCount, int totalNightlyCount,
         string? latestVersion);
 
-    [LoggerMessage(EventId = 1112, Level = LogLevel.Information,
-        Message = "Fetching available RenoDX mods from main wiki page: \"{Url}\"")]
-    private partial void LogRenoDXWikiModsFetchStart(string url);
-
-    [LoggerMessage(EventId = 1113, Level = LogLevel.Warning,
-        Message = "Skipping malformed RenoDX wiki mod row. " +
-                  "Expected cell count: \"{ExpectedCount}\" || Was: {ActualCount}\n" +
-                  "Raw line: \"{Line}\"")]
-    private partial void LogRenoDXMalformedWikiModRowSkipped(string expectedCount, int actualCount, string line);
-
-    [LoggerMessage(EventId = 1114, Level = LogLevel.Warning,
-        Message = "Skipping malformed RenoDX row. No mod name available.\n" +
-                  "Raw line: \"{Line}\"")]
-    private partial void LogRenoDXModNameUnavailable(string line);
-
-    [LoggerMessage(EventId = 1115, Level = LogLevel.Information,
-        Message = "Successfully fetched {RenoDXModCount} RenoDX mods and {RenoDXGenericModCount} generic RenoDX mods." +
-                  " Skipped due to malformed rows: {SkippedCount}")]
-    private partial void LogRenoDXModsFetchComplete(int renoDXModCount, int renoDXGenericModCount, int skippedCount);
-
     [LoggerMessage(EventId = 1116, Level = LogLevel.Information,
         Message = "Successfully fetched latest ReShade version from \"{ReShadeSiteUrl}\"")]
     private partial void LogReShadeSiteVersionFetchSuccess(string reShadeSiteUrl);

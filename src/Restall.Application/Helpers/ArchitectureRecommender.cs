@@ -19,16 +19,13 @@ public static partial class ArchitectureRecommender
         ?? RecommendFromRenoDXMatch(match)
         ?? Architecture.X64;
 
-    public static bool Mentions32Bit(string? text) =>
-        text is not null && ThirtyTwoBitRegex().IsMatch(text);
-
     private static Architecture? RecommendFromRenoDXMatch(RenoDXModMatch match) =>
         match.UnityGenericMod is { } unityGenericMod
             ? RecommendFromRenoDXUnityGenericMod(unityGenericMod)
-            : GetOnlyBuiltArchitecture(match.GetAddonFilename(Architecture.X64),
+            : GetArchitectureFromRenoDXBuild(match.GetAddonFilename(Architecture.X64),
                 match.GetAddonFilename(Architecture.X32));
 
-    private static Architecture? GetOnlyBuiltArchitecture(string? addonFilename, string? addonFilename32) =>
+    private static Architecture? GetArchitectureFromRenoDXBuild(string? addonFilename, string? addonFilename32) =>
         (addonFilename, addonFilename32) switch
         {
             (not null, null) => Architecture.X64,
@@ -40,4 +37,7 @@ public static partial class ArchitectureRecommender
         Mentions32Bit(unityGenericMod.Comments)
             ? Architecture.X32
             : null;
+
+    private static bool Mentions32Bit(string? text) =>
+        text is not null && ThirtyTwoBitRegex().IsMatch(text);
 }

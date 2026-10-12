@@ -156,7 +156,7 @@ public sealed partial class GameListViewModel : ViewModelBase
             gameVm.NotifyGameStateChanged();
         }
 
-        Messenger.Send(new WikiRefreshedMessage());
+        Messenger.Send(new GameEntriesRefreshedMessage());
     }
 
     private async Task ExecuteWithDelayedMessageAsync(Func<Task<bool>> work)

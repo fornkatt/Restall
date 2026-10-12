@@ -48,41 +48,4 @@ public interface IDownloadService
     /// </summary>
     Task<Result> DownloadReShadeAsync(ReShade.Branch branch, string version,
         IProgress<DownloadProgressReport>? progress = null);
-
-    /// <summary>
-    /// Downloads a specified RenoDX version from a specific branch.
-    /// <br/>
-    /// <para>
-    /// Possible ResultErrors:
-    /// <br/>
-    /// <see cref="ErrorType.PermissionDenied"/>
-    /// <br/>
-    /// <see cref="ErrorType.FileSystemError"/>
-    /// <br/>
-    /// <see cref="ErrorType.NetworkTimeout"/>
-    /// <br/>
-    /// <see cref="ErrorType.DownloadFailed"/>
-    /// </para>
-    /// </summary>
-    Task<Result> DownloadRenoDXAsync(RenoDX.Branch branch, string? addonFileName = null, string? version = null,
-        string? wikiSnapshotUrl = null, IProgress<DownloadProgressReport>? progress = null);
-
-    /// <summary>
-    /// Downloads a RenoDX mod variant hosted on a separate GitHub from the main RenoDX repo.
-    /// Does not support branch selection.
-    /// <br/>
-    /// <para>
-    /// Possible ResultErrors:
-    /// <br/>
-    /// <see cref="ErrorType.PermissionDenied"/>
-    /// <br/>
-    /// <see cref="ErrorType.FileSystemError"/>
-    /// <br/>
-    /// <see cref="ErrorType.NetworkTimeout"/>
-    /// <br/>
-    /// <see cref="ErrorType.DownloadFailed"/>
-    /// </para>
-    /// </summary>
-    Task<Result> DownloadExternalRenoDXAsync(RenoDXWikiModType renoDxWikiModType, string addonFileName,
-        IProgress<DownloadProgressReport>? progress = null);
 }

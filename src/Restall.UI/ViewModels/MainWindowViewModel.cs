@@ -9,7 +9,7 @@ namespace Restall.UI.ViewModels;
 
 public sealed partial class MainWindowViewModel : ViewModelBase,
     IRecipient<SelectedGameChangedMessage>,
-    IRecipient<WikiRefreshedMessage>
+    IRecipient<GameEntriesRefreshedMessage>
 {
     public GameListViewModel GameListViewModel { get; }
     public ModViewModel ModViewModel { get; }
@@ -41,5 +41,5 @@ public sealed partial class MainWindowViewModel : ViewModelBase,
 
     public void Receive(SelectedGameChangedMessage message) => SelectedGame = message.Value;
 
-    public void Receive(WikiRefreshedMessage message) => ModViewModel.ApplyWikiRefresh();
+    public void Receive(GameEntriesRefreshedMessage message) => ModViewModel.ApplyGameEntriesRefresh();
 }

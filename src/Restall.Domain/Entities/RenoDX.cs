@@ -8,7 +8,7 @@ namespace Restall.Domain.Entities;
 
 public sealed class RenoDX
 {
-    public enum Branch { Unknown, Direct, Snapshot, Nightly, Discord, Nexus }
+    public enum Branch { Unknown, Direct, Snapshot, Nightly }
 
     public const string VersionFormat = "yyyyMMdd";
     public const string AddonExtension = ".addon64";
@@ -26,9 +26,4 @@ public sealed class RenoDX
             out var buildDate)
             ? buildDate
             : null;
-
-    public bool IsUpdateCheckSupported =>
-        OriginalName is null ||
-        (!OriginalName.StartsWith("renodx-unityengine", StringComparison.OrdinalIgnoreCase) &&
-         !OriginalName.StartsWith("renodx-ue-extended", StringComparison.OrdinalIgnoreCase));
 }

@@ -73,7 +73,7 @@ public sealed partial class ModViewModel : ViewModelBase
         NotifyAllCommandsChanged();
     }
 
-    public void ApplyWikiRefresh()
+    public void ApplyGameEntriesRefresh()
     {
         RefreshAvailableRenoDXBranches(SelectedGame);
         NotifyAllCommandsChanged();
