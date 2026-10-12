@@ -4,6 +4,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
+using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.DTOs.Requests;
 using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
@@ -13,6 +14,7 @@ using Restall.Domain.Entities;
 using Restall.UI.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -27,8 +29,8 @@ public sealed partial class ModViewModel : ViewModelBase
     private readonly IModSelectionDialogService _modSelectionDialogService;
     private readonly IVersionCatalog _versionCatalog;
 
-    private const string UpToDateTextColor = "#eb5a2f";
-    private const string UpdateAvailableTextColor = "#1ab652";
+    private const string OutdatedTextColor = "#eb5a2f";
+    private const string LatestUpdateTextColor = "#1ab652";
 
     private const int ActionMessageDurationMs = 5000;
 
@@ -55,17 +57,9 @@ public sealed partial class ModViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
     [NotifyPropertyChangedFor(nameof(IsRenoDXUpdateCheckUnavailable))]
+    [NotifyPropertyChangedFor(nameof(SelectedRenoDXReleaseNotes))]
+    [NotifyPropertyChangedFor(nameof(HasSelectedRenoDXReleaseNotes))]
     public partial GameModViewModel? SelectedGame { get; set; }
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ReShadeLatestVersionForBranch))]
-    [NotifyPropertyChangedFor(nameof(ReShadeVersionTextColor))]
-    [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
-    [NotifyCanExecuteChangedFor(nameof(UpdateReShadeCommand))]
-    public partial ReShade.Branch SelectedReShadeBranch { get; set; } = ReShade.Branch.Stable;
-
-    public string? ReShadeLatestVersionForBranch =>
-        _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
@@ -101,6 +95,8 @@ public sealed partial class ModViewModel : ViewModelBase
         OnPropertyChanged(nameof(RenoDXLatestVersionForBranch));
         OnPropertyChanged(nameof(IsRenoDXUpdateCheckUnavailable));
         OnPropertyChanged(nameof(RenoDXUpdateArrowText));
+        OnPropertyChanged(nameof(SelectedRenoDXReleaseNotes));
+        OnPropertyChanged(nameof(HasSelectedRenoDXReleaseNotes));
     }
 
     private void OpenUrl(string url)
@@ -118,18 +114,14 @@ public sealed partial class ModViewModel : ViewModelBase
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "explorer.exe",
-                Arguments = $"\"{folder}\"",
-                UseShellExecute = false
+                FileName = "explorer.exe", Arguments = $"\"{folder}\"", UseShellExecute = false
             });
         }
         else
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "xdg-open",
-                ArgumentList = { folder },
-                UseShellExecute = false
+                FileName = "xdg-open", ArgumentList = { folder }, UseShellExecute = false
             });
         }
     }
@@ -183,9 +175,19 @@ public sealed partial class ModViewModel : ViewModelBase
         }
     }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ReShadeLatestVersionForBranch))]
+    [NotifyPropertyChangedFor(nameof(ReShadeVersionTextColor))]
+    [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateReShadeCommand))]
+    public partial ReShade.Branch SelectedReShadeBranch { get; set; } = ReShade.Branch.Stable;
+
+    public string? ReShadeLatestVersionForBranch =>
+        _versionCatalog.GetLatestReShadeVersion(SelectedReShadeBranch);
+
     public string? ReShadeVersionTextColor =>
         SelectedGame?.HasReShade == true
-            ? (CanShowReShadeUpdate ? UpToDateTextColor : UpdateAvailableTextColor)
+            ? CanShowReShadeUpdate ? OutdatedTextColor : LatestUpdateTextColor
             : null;
 
     public string InstallReShadeButtonText =>
@@ -340,12 +342,21 @@ public sealed partial class ModViewModel : ViewModelBase
             ? SelectedGame?.RenoDXEntry.BranchVersions.GetValueOrDefault(branch)
             : null;
 
+    public ImmutableArray<RenoDXReleaseNotes> SelectedRenoDXReleaseNotes =>
+        SelectedRenoDXBranch is { } branch && SelectedGame is { } game
+            ? game.RenoDXEntry.BranchReleaseNotes.GetValueOrDefault(branch, [])
+            : [];
+
+    public bool HasSelectedRenoDXReleaseNotes => !SelectedRenoDXReleaseNotes.IsEmpty;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
     [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
     [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
     [NotifyPropertyChangedFor(nameof(IsRenoDXUpdateCheckUnavailable))]
     [NotifyPropertyChangedFor(nameof(RenoDXUpdateArrowText))]
+    [NotifyPropertyChangedFor(nameof(SelectedRenoDXReleaseNotes))]
+    [NotifyPropertyChangedFor(nameof(HasSelectedRenoDXReleaseNotes))]
     [NotifyCanExecuteChangedFor(nameof(UpdateRenoDXCommand))]
     public partial RenoDX.Branch? SelectedRenoDXBranch { get; set; }
 
@@ -384,16 +395,16 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private static RenoDX.Branch? GetRenoDXBranchToSelect(GameModViewModel? game,
         IReadOnlyList<RenoDX.Branch> branches) => game switch
-        {
-            { LastSelectedRenoDXBranch: { } lastSelected } when branches.Contains(lastSelected) => lastSelected,
-            { RenoDXBranchName: { } installedBranch } when branches.Contains(installedBranch) => installedBranch,
-            _ when branches.Count > 0 => branches[0],
-            _ => null
-        };
+    {
+        { LastSelectedRenoDXBranch: { } lastSelected } when branches.Contains(lastSelected) => lastSelected,
+        { RenoDXBranchName: { } installedBranch } when branches.Contains(installedBranch) => installedBranch,
+        _ when branches.Count > 0 => branches[0],
+        _ => null
+    };
 
     public string? RenoDXVersionTextColor =>
         SelectedGame?.HasRenoDX == true
-            ? (CanShowRenoDXUpdate ? UpToDateTextColor : UpdateAvailableTextColor)
+            ? (CanShowRenoDXUpdate ? OutdatedTextColor : LatestUpdateTextColor)
             : null;
 
     [RelayCommand(CanExecute = nameof(CanClickRenoDXInstallButton))]

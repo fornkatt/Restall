@@ -85,5 +85,5 @@ public class RenoDXDownloadOptionsResolverTests
 
     private static RenoDXTagInfo CreateTag(int day, RenoDX.Branch branch, params string[] addonFilenames) =>
         new(new DateOnly(2026, 10, day), branch, new Uri("https://restalltests.com/releases/"),
-            addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase));
+            addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 }

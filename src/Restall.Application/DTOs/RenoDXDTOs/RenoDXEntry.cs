@@ -13,6 +13,7 @@ public sealed record RenoDXEntry(
     RenoDXDownloadOptions? DownloadOptions,
     RenoDXModLink? ManualSource,
     FrozenDictionary<RenoDX.Branch, UpdateAvailability> BranchVersions,
+    FrozenDictionary<RenoDX.Branch, ImmutableArray<RenoDXReleaseNotes>> BranchReleaseNotes,
     // Database information
     string? HeadingText,
     string? StatusText,

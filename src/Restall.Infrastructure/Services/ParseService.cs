@@ -101,7 +101,7 @@ internal sealed partial class ParseService : IParseService
 
         if (addonFilenames.Count == 0)
             return Result<RenoDXTagInfo>.Partial(new RenoDXTagInfo(date, RenoDX.Branch.Snapshot, downloadBaseUrl,
-                    [], commitNotes),
+                    [], [.. commitNotes]),
                 "Could not fetch addon filenames for latest 'RenoDX' snapshot",
                 WarningType.RenoDXSnapshotFileListUnavailable);
 
@@ -111,7 +111,7 @@ internal sealed partial class ParseService : IParseService
         LogRenoDXSnapshotFetchSuccess(date, addonFilenames.Count);
 
         return Result<RenoDXTagInfo>.Success(new RenoDXTagInfo(date, RenoDX.Branch.Snapshot, downloadBaseUrl,
-            addonFilenames, commitNotes));
+            addonFilenames, [.. commitNotes]));
     }
 
     public async Task<Result<ImmutableArray<RenoDXTagInfo>>> FetchRenoDXNightlyTagsAsync(
@@ -275,7 +275,7 @@ internal sealed partial class ParseService : IParseService
             LogRenoDXNightlyTagParseComplete(nightlyTag, string.Join(Environment.NewLine, commitNotes));
 
         return new RenoDXTagInfo(date, RenoDX.Branch.Nightly, new Uri(RenoDXDownloadUrl + nightlyTag + "/"),
-            addonFilenames, commitNotes);
+            addonFilenames, [.. commitNotes]);
     }
 
     private async Task<FrozenSet<string>> FetchRenoDXAddonFilenamesAsync(string tag,

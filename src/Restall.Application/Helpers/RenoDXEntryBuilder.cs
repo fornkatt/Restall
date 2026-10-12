@@ -24,12 +24,15 @@ public static partial class RenoDXEntryBuilder
             isGameModListLoaded, snapshot, nightlies);
         var branchVersions = RenoDXBranchVersionsResolver.Resolve(installedRenoDX,
             availability.DownloadOptions);
+        var branchReleaseNotes = RenoDXReleaseNotesResolver.Resolve(installedRenoDX,
+            availability.DownloadOptions);
 
         return new RenoDXEntry(
             IsSupported: availability.IsSupported,
             DownloadOptions: availability.DownloadOptions,
             ManualSource: availability.ManualSource,
             BranchVersions: branchVersions,
+            BranchReleaseNotes: branchReleaseNotes,
             HeadingText: GetHeadingText(match.ModName, availability.GenericAddonInfo?.HeadingText),
             StatusText: match.ModStatus is { } status ? RenoDXTexts.GetStatusText(status) : null,
             IsDone: match.ModStatus is RenoDXModStatus.Done,

@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs.RenoDXDTOs;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Restall.UI.ViewModels.Dialogs;
@@ -31,8 +32,8 @@ public sealed partial class RenoDXInstallDialogViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(ConfirmCommand))]
     private RenoDXTagInfo? _selectedVersion;
 
-    public List<string>? CommitNotes => SelectedVersion?.CommitNotes;
-    public bool HasCommitNotes => CommitNotes?.Count > 0;
+    public ImmutableArray<string> CommitNotes => SelectedVersion?.CommitNotes ?? [];
+    public bool HasCommitNotes => CommitNotes.Length > 0;
 
     public bool CanConfirm => SelectedVersion is not null;
     public bool WasConfirmed { get; private set; }

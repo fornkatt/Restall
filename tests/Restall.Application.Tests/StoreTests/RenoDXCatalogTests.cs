@@ -32,7 +32,7 @@ public class RenoDXCatalogTests
             ]
         };
         var snapshot = new RenoDXTagInfo(new DateOnly(2026, 10, 5), RenoDX.Branch.Snapshot,
-            new Uri("https://restalltests.com/snapshot/"), []);
+            new Uri("https://restalltests.com/snapshot/"), [], []);
         var sut = new RenoDXCatalog();
 
         sut.LoadSnapshot(snapshot);

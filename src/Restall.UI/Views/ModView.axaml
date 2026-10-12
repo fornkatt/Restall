@@ -346,7 +346,7 @@
                                     Margin="0, 5, 5, 5" />
                             <Grid Grid.Column="0" Grid.Row="4"
                                   Grid.ColumnSpan="3"
-                                  ColumnDefinitions="0.5*, 0.5*"
+                                  ColumnDefinitions="0.5*, Auto, *"
                                   Margin="5">
                                 <ComboBox Grid.Column="0"
                                           IsVisible="{Binding CanShowRenoDXBranchSelector}"
@@ -363,7 +363,7 @@
                                         <StackPanel MaxWidth="320" Spacing="8">
                                             <TextBlock TextWrapping="Wrap"
                                                        Text="Select the branch to use for RenoDX downloads."
-                                                       FontWeight="ExtraBold"/>
+                                                       FontWeight="ExtraBold" />
                                             <TextBlock TextWrapping="Wrap">
                                                 <Bold>Snapshot:</Bold> Default. Prefer using this branch.
                                             </TextBlock>
@@ -378,7 +378,60 @@
                                         </StackPanel>
                                     </ToolTip.Tip>
                                 </ComboBox>
-                                <TextBlock Grid.Column="1"
+                                <Button Grid.Column="1"
+                                        Classes="game-card-btn"
+                                        Margin="5, 0, 0, 0"
+                                        VerticalAlignment="Center"
+                                        CornerRadius="6"
+                                        Padding="6, 2"
+                                        IsVisible="{Binding HasSelectedRenoDXReleaseNotes}"
+                                        ToolTip.Tip="Release notes">
+                                    <Button.Flyout>
+                                        <Flyout>
+                                            <ScrollViewer MaxWidth="400" MaxHeight="300">
+                                                <ItemsControl ItemsSource="{Binding SelectedRenoDXReleaseNotes}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="renodx:RenoDXReleaseNotes">
+                                                            <StackPanel Margin="0, 0, 0, 10" Spacing="2">
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <TextBlock Text="{Binding Version}"
+                                                                               FontSize="12"
+                                                                               FontWeight="Bold" />
+                                                                    <TextBlock Text="Latest"
+                                                                               FontSize="11"
+                                                                               Opacity="0.7"
+                                                                               IsVisible="{Binding IsLatest}" />
+                                                                    <TextBlock Text="Installed"
+                                                                               FontSize="11"
+                                                                               Foreground="#1ab652"
+                                                                               IsVisible="{Binding IsInstalled}" />
+                                                                </StackPanel>
+                                                                <TextBlock Text="No notes for this release."
+                                                                           FontSize="11"
+                                                                           Opacity="0.7"
+                                                                           IsVisible="{Binding Lines.IsEmpty}" />
+                                                                <ItemsControl ItemsSource="{Binding Lines}">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate x:DataType="sys:String">
+                                                                            <TextBlock Text="{Binding}"
+                                                                                    FontSize="11"
+                                                                                    TextWrapping="Wrap" />
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                    <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
+                                               FontSize="16"
+                                               Text="&#xE63E;"
+                                               VerticalAlignment="Center"/>
+                                </Button>
+                                <TextBlock Grid.Column="2"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            TextWrapping="Wrap"

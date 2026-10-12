@@ -192,5 +192,5 @@ public class RenoDXAvailabilityResolverTests
     private static RenoDXTagInfo CreateSnapshot(params string[] addonFilenames) =>
         new(new DateOnly(2026, 10, 7), RenoDX.Branch.Snapshot,
             new Uri("https://restalltests.com/releases/"),
-            addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase));
+            addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 }

@@ -3,6 +3,7 @@
 
 using Restall.Domain.Entities;
 using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Globalization;
 
 namespace Restall.Application.DTOs.RenoDXDTOs;
@@ -12,7 +13,7 @@ public record RenoDXTagInfo(
     RenoDX.Branch Branch,
     Uri DownloadBaseUrl,
     FrozenSet<string> AddonFilenames,
-    List<string>? CommitNotes = null)
+    ImmutableArray<string> CommitNotes)
 {
     public string Version => Date.ToString(RenoDX.VersionFormat, CultureInfo.InvariantCulture);
 

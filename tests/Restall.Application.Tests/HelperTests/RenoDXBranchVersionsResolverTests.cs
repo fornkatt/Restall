@@ -98,5 +98,5 @@ public class RenoDXBranchVersionsResolverTests
             ], isInstalledFile);
 
     private static RenoDXTagInfo CreateTag(DateOnly date, RenoDX.Branch branch) =>
-        new(date, branch, new Uri("https://restalltests.com/releases/"), [AddonFilename]);
+        new(date, branch, new Uri("https://restalltests.com/releases/"), [AddonFilename], []);
 }

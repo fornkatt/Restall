@@ -23,7 +23,7 @@ public class RenoDXEntryBuilderTests
 
     private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 10, 7),
         RenoDX.Branch.Snapshot, new Uri("https://restalltests.com/releases/"),
-        new[] { AddonFilename }.ToFrozenSet(StringComparer.OrdinalIgnoreCase));
+        new[] { AddonFilename }.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 
     [Fact]
     public void Build_GameModMatch_ReturnsGameModInformationAndLinksInOrder()
