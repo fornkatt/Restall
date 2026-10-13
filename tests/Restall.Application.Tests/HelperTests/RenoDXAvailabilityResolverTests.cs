@@ -91,7 +91,7 @@ public class RenoDXAvailabilityResolverTests
 
         Assert.Null(actual.DownloadOptions);
         Assert.NotNull(actual.ManualSource);
-        Assert.Equal("Nexus Mods", actual.ManualSource.Label);
+        Assert.Equal(new Uri(NexusUrl), actual.ManualSource.Url);
         Assert.Empty(actual.Notices);
     }
 

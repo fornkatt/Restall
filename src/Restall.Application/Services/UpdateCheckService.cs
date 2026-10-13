@@ -28,21 +28,14 @@ public sealed class UpdateCheckService : IUpdateCheckService
         var latestVersion = _versionCatalog.GetLatestReShadeVersion(branch);
 
         if (string.IsNullOrWhiteSpace(installedVersion) || string.IsNullOrWhiteSpace(latestVersion))
-            return new UpdateAvailability(false, installedVersion, latestVersion);
+            return new UpdateAvailability(false, latestVersion);
 
         if (!Version.TryParse(installedVersion, out var installedSemVer) ||
             !Version.TryParse(latestVersion, out var latestSemVer))
         {
-            return new UpdateAvailability(
-                false,
-                installedVersion,
-                latestVersion);
+            return new UpdateAvailability(false, latestVersion);
         }
 
-        return new UpdateAvailability(
-            latestSemVer > installedSemVer,
-            installedVersion,
-            latestVersion
-        );
+        return new UpdateAvailability(latestSemVer > installedSemVer, latestVersion);
     }
 }

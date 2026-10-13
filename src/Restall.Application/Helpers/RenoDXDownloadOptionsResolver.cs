@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Application.Common;
 using Restall.Application.DTOs.RenoDXDTOs;
 using System.Collections.Immutable;
 
@@ -24,7 +25,7 @@ public static class RenoDXDownloadOptionsResolver
     private static RenoDXTagInfo? FindSnapshot(string addonFilename, RenoDXTagInfo? snapshot) => snapshot switch
     {
         null => null,
-        { HasAddonFileList: false } => snapshot,
+        { HasAddonFileList: false } when !RenoDXGenericAddons.IsGenericAddonFilename(addonFilename) => snapshot,
         _ when snapshot.AddonFilenames.Contains(addonFilename) => snapshot,
         _ => null
     };

@@ -13,7 +13,9 @@ public sealed record RenoDXDownloadOptions(
     ImmutableArray<RenoDXTagInfo> Nightlies,
     bool IsInstalledFile = false)
 {
-    public RenoDXTagInfo? LatestNightly => Nightlies.MaxBy(n => n.Date);
+    public ImmutableArray<RenoDXTagInfo> Nightlies { get; } = [.. Nightlies.OrderByDescending(n => n.Date)];
+
+    public RenoDXTagInfo? LatestNightly => Nightlies.FirstOrDefault();
 
     public RenoDXTagInfo? GetNightly(string version) => Nightlies.FirstOrDefault(n => n.Version == version);
 

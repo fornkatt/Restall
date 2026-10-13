@@ -379,7 +379,7 @@ public sealed partial class ModViewModel : ViewModelBase
     public string? RenoDXUpdateArrowText => CanShowRenoDXUpdate ? $"-> {RenoDXLatestVersionForBranch}" : null;
 
     public bool IsRenoDXUpdateCheckUnavailable =>
-        SelectedGame?.HasRenoDX == true && SelectedRenoDXBranchVersion is { IsSupported: false };
+        SelectedGame?.HasRenoDX == true && SelectedRenoDXBranchVersion is { IsUpdateCheckAvailable: false };
 
     public string RenoDXUpdateCheckUnavailableText => "Update checks are not available for this branch.";
 

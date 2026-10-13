@@ -16,7 +16,7 @@ public class RenoDXReleaseNotesResolverTests
     {
         var installedRenoDX = new RenoDX { OriginalName = AddonFilename, Version = "20261007" };
 
-        var actual = RenoDXReleaseNotesResolver.Resolve(installedRenoDX, CreateOptions(true));
+        var actual = RenoDXReleaseNotesResolver.Resolve(installedRenoDX, CreateOptions());
 
         var snapshotNotes = Assert.Single(actual[RenoDX.Branch.Snapshot]);
         Assert.Equal("20261007", snapshotNotes.Version);
@@ -30,7 +30,7 @@ public class RenoDXReleaseNotesResolverTests
     {
         var installedRenoDX = new RenoDX { OriginalName = AddonFilename, Version = "20261005" };
 
-        var actual = RenoDXReleaseNotesResolver.Resolve(installedRenoDX, CreateOptions(true));
+        var actual = RenoDXReleaseNotesResolver.Resolve(installedRenoDX, CreateOptions());
         var nightlyNotes = actual[RenoDX.Branch.Nightly];
 
         Assert.Equal(["20261006", "20261005"], nightlyNotes.Select(n => n.Version));
@@ -43,19 +43,7 @@ public class RenoDXReleaseNotesResolverTests
     [Fact]
     public void Resolve_NothingInstalled_ReturnsLatestNightlyOnly()
     {
-        var actual = RenoDXReleaseNotesResolver.Resolve(null, CreateOptions(false));
-        var nightlyNotes = Assert.Single(actual[RenoDX.Branch.Nightly]);
-
-        Assert.Equal("20261006", nightlyNotes.Version);
-        Assert.False(nightlyNotes.IsInstalled);
-    }
-
-    [Fact]
-    public void Resolve_OptionsForOtherFileThanInstalled_ReturnsLatestNightlyNotInstalled()
-    {
-        var installedRenoDX = new RenoDX { OriginalName = "renodx-game.addon32", Version = "20261005" };
-
-        var actual = RenoDXReleaseNotesResolver.Resolve(installedRenoDX, CreateOptions(false));
+        var actual = RenoDXReleaseNotesResolver.Resolve(null, CreateOptions());
         var nightlyNotes = Assert.Single(actual[RenoDX.Branch.Nightly]);
 
         Assert.Equal("20261006", nightlyNotes.Version);
@@ -65,7 +53,7 @@ public class RenoDXReleaseNotesResolverTests
     [Fact]
     public void Resolve_DirectBranch_ReturnsNothing()
     {
-        var actual = RenoDXReleaseNotesResolver.Resolve(null, CreateOptions(false));
+        var actual = RenoDXReleaseNotesResolver.Resolve(null, CreateOptions());
 
         Assert.Empty(actual[RenoDX.Branch.Direct]);
     }
@@ -75,21 +63,21 @@ public class RenoDXReleaseNotesResolverTests
     {
         var installedRenoDX = new RenoDX { OriginalName = AddonFilename, Version = "20261007" };
 
-        var actual = RenoDXReleaseNotesResolver.Resolve(installedRenoDX, CreateOptions(true));
+        var actual = RenoDXReleaseNotesResolver.Resolve(installedRenoDX, CreateOptions());
         var nightlyNotes = Assert.Single(actual[RenoDX.Branch.Nightly]);
 
         Assert.Equal("20261006", nightlyNotes.Version);
         Assert.False(nightlyNotes.IsInstalled);
     }
 
-    private static RenoDXDownloadOptions CreateOptions(bool isInstalledFile) =>
+    private static RenoDXDownloadOptions CreateOptions() =>
         new(AddonFilename, new Uri("https://restalltests.com/releases/renodx-game.addon64"),
             CreateTag(new DateOnly(2026, 10, 7), RenoDX.Branch.Snapshot, "Snapshot change"),
             [
                 CreateTag(new DateOnly(2026, 10, 5), RenoDX.Branch.Nightly, "Older nightly change"),
                 CreateTag(new DateOnly(2026, 10, 6), RenoDX.Branch.Nightly, "Latest nightly change"),
                 CreateTag(new DateOnly(2026, 10, 4), RenoDX.Branch.Nightly, "Oldest nightly change")
-            ], isInstalledFile);
+            ]);
 
     private static RenoDXTagInfo CreateTag(DateOnly date, RenoDX.Branch branch, string commitNote) =>
         new(date, branch, new Uri("https://restalltests.com/releases/"), [AddonFilename], [commitNote]);

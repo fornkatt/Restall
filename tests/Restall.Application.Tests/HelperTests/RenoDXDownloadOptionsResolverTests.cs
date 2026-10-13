@@ -83,6 +83,20 @@ public class RenoDXDownloadOptionsResolverTests
         Assert.Null(actual);
     }
 
+    [Fact]
+    public void Resolve_GenericAddonWithSnapshotFileListUnavailable_ReturnsNoSnapshot()
+    {
+        const string genericAddonFilename = "renodx-ue-extended.addon64";
+        var snapshotWithoutFileList = CreateTag(7, RenoDX.Branch.Snapshot);
+
+        var actual = RenoDXDownloadOptionsResolver.Resolve(genericAddonFilename, s_directUrl,
+            snapshotWithoutFileList, []);
+
+        Assert.NotNull(actual);
+        Assert.Null(actual.Snapshot);
+        Assert.Equal([RenoDX.Branch.Direct], actual.Branches);
+    }
+
     private static RenoDXTagInfo CreateTag(int day, RenoDX.Branch branch, params string[] addonFilenames) =>
         new(new DateOnly(2026, 10, day), branch, new Uri("https://restalltests.com/releases/"),
             addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);

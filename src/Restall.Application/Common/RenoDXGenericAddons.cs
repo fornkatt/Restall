@@ -21,6 +21,8 @@ public static class RenoDXGenericAddons
     public static string GetUnityGenericAddonFilename(Architecture architecture) =>
         architecture == Architecture.X32 ? UnityAddonFilename32 : UnityAddonFilename;
 
+    public static bool IsGenericAddonFilename(string addonFilename) => GetGenericAddonInfo(addonFilename) is not null;
+
     public static Uri? GetGenericAddonDownloadUrl(string addonFilename) => addonFilename.ToLowerInvariant() switch
     {
         UnrealExtendedAddonFilename => s_unrealExtendedDownloadUrl,

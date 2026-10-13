@@ -29,4 +29,10 @@ public class RenoDXTextsTest
         Assert.All(Enum.GetValues<RenoDXAvailability.Notice>(),
             notice => Assert.False(string.IsNullOrWhiteSpace(RenoDXTexts.GetNoticeText(notice))));
     }
+
+    [Fact]
+    public void GetListedAsText_ModName_ReturnsTextWithModName()
+    {
+        Assert.Equal("Listed as Test Game", RenoDXTexts.GetListedAsText("Test Game"));
+    }
 }

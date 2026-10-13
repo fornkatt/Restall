@@ -5,6 +5,5 @@ namespace Restall.Application.DTOs;
 
 public sealed record UpdateAvailability(
     bool UpdateAvailable,
-    string? InstalledVersion,
     string? LatestVersion,
-    bool IsSupported = true);
+    bool IsUpdateCheckAvailable = true);

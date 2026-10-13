@@ -18,6 +18,8 @@ public sealed record RenoDXModMatch(
     public static readonly RenoDXModMatch None = new(null, null, null,
         MatchKind.None, []);
 
+    public bool HasMod => GameMod is not null || UnrealGenericMod is not null || UnityGenericMod is not null;
+
     public string? ModName => GameMod?.Name ?? UnrealGenericMod?.Name ?? UnityGenericMod?.Name;
 
     public RenoDXModStatus? ModStatus => GameMod?.Status ?? UnrealGenericMod?.Status ?? UnityGenericMod?.Status;
@@ -30,5 +32,11 @@ public sealed record RenoDXModMatch(
         _ => null
     };
 
-    public enum MatchKind { None, Exact, Fuzzy, Tie }
+    public enum MatchKind
+    {
+        None,
+        Exact,
+        Fuzzy,
+        Tie
+    }
 }

@@ -91,4 +91,24 @@ public class RenoDXModMatchTests
         Assert.Equal("Unreal Game", actual.ModName);
         Assert.Equal(RenoDXModStatus.Wip, actual.ModStatus);
     }
+
+    [Fact]
+    public void HasMod_UnityGenericMatch_ReturnsTrue()
+    {
+        var unityGenericMod = new RenoDXUnityGenericMod("Unity Game", RenoDXModStatus.Done, null, null);
+
+        var actual = new RenoDXModMatch(null, null, unityGenericMod,
+            RenoDXModMatch.MatchKind.Fuzzy, []);
+
+        Assert.True(actual.HasMod);
+    }
+
+    [Fact]
+    public void HasMod_TieMatch_ReturnsFalse()
+    {
+        var actual = new RenoDXModMatch(null, null, null,
+            RenoDXModMatch.MatchKind.Tie, ["Game A", "Game B"]);
+
+        Assert.False(actual.HasMod);
+    }
 }

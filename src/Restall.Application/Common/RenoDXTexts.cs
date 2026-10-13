@@ -9,6 +9,8 @@ namespace Restall.Application.Common;
 
 public static class RenoDXTexts
 {
+    public static string GetListedAsText(string modName) => $"Listed as {modName}";
+
     public static string GetStatusText(RenoDXModStatus status) => status switch
     {
         RenoDXModStatus.Done => "Done",

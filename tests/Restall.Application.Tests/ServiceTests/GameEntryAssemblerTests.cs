@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.RenoDXDTOs;
@@ -27,17 +28,34 @@ public class GameEntryAssemblerTests
                     null, null, null, null, null)
             ]
         });
-        var reShadeUpdate = new UpdateAvailability(true, "6.3.0", "6.4.1");
+        var reShadeUpdate = new UpdateAvailability(true, "6.4.1");
         var updateCheckService = new FakeUpdateCheckService();
         updateCheckService.ReturnForReShade(reShadeUpdate);
-        var sut = new GameEntryAssembler(NullLogger<GameEntryAssembler>.Instance, catalog, updateCheckService);
+        var sut = CreateAssembler(catalog, updateCheckService);
         var game = new Game { Name = "Test Game", ReShade = new ReShade { Arch = Architecture.X32 } };
 
         var actual = sut.Assemble(game);
 
         Assert.Same(game, actual.Game);
         Assert.Equal(Architecture.X32, actual.RecommendedArchitecture);
-        Assert.Equal("Listed as Test Game", actual.RenoDXEntry.HeadingText);
+        Assert.Equal(RenoDXTexts.GetListedAsText("Test Game"), actual.RenoDXEntry.HeadingText);
         Assert.Same(reShadeUpdate, actual.ReShadeUpdate);
     }
+
+    [Fact]
+    public void Assemble_GameWithoutReShade_ReturnsNoReShadeUpdate()
+    {
+        var updateCheckService = new FakeUpdateCheckService();
+        updateCheckService.ReturnForReShade(new UpdateAvailability(true, "6.4.1"));
+        var sut = CreateAssembler(new RenoDXCatalog(), updateCheckService);
+        var game = new Game { Name = "Test Game" };
+
+        var actual = sut.Assemble(game);
+
+        Assert.Null(actual.ReShadeUpdate);
+    }
+
+    private static GameEntryAssembler
+        CreateAssembler(RenoDXCatalog catalog, FakeUpdateCheckService updateCheckService) =>
+        new(NullLogger<GameEntryAssembler>.Instance, catalog, updateCheckService);
 }

@@ -9,7 +9,7 @@ namespace Restall.Application.Tests.Fakes;
 
 public sealed class FakeUpdateCheckService : IUpdateCheckService
 {
-    private UpdateAvailability _reShadeUpdate = new(false, null, null);
+    private UpdateAvailability _reShadeUpdate = new(false, null);
 
     public void ReturnForReShade(UpdateAvailability reShadeUpdate) => _reShadeUpdate = reShadeUpdate;
 

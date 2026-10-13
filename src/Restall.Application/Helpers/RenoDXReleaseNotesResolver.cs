@@ -19,10 +19,8 @@ public static class RenoDXReleaseNotesResolver
         if (downloadOptions is null)
             return FrozenDictionary<RenoDX.Branch, ImmutableArray<RenoDXReleaseNotes>>.Empty;
 
-        var installedFile = downloadOptions.IsInstalledFile ? installedRenoDX : null;
-
         return downloadOptions.Branches.ToFrozenDictionary(b => b,
-            b => GetReleaseNotes(b, installedFile, downloadOptions));
+            b => GetReleaseNotes(b, installedRenoDX, downloadOptions));
     }
 
     private static ImmutableArray<RenoDXReleaseNotes> GetReleaseNotes(RenoDX.Branch branch, RenoDX? installedRenoDX,
@@ -30,19 +28,18 @@ public static class RenoDXReleaseNotesResolver
         {
             RenoDX.Branch.Snapshot =>
                 [CreateReleaseNotes(downloadOptions.Snapshot!, installedRenoDX, downloadOptions.Snapshot!.Date)],
-            RenoDX.Branch.Nightly => GetNightlyReleaseNotes(installedRenoDX, downloadOptions.Nightlies),
+            RenoDX.Branch.Nightly => GetNightlyReleaseNotes(installedRenoDX, downloadOptions),
             RenoDX.Branch.Direct => [],
             _ => throw new UnreachableException($"No release notes source for branch \"{branch}\"")
         };
 
     private static ImmutableArray<RenoDXReleaseNotes> GetNightlyReleaseNotes(RenoDX? installedRenoDX,
-        ImmutableArray<RenoDXTagInfo> nightlies)
+        RenoDXDownloadOptions downloadOptions)
     {
-        var newestFirst = nightlies.OrderByDescending(n => n.Date).ToList();
-        var latestDate = newestFirst[0].Date;
+        var latestDate = downloadOptions.LatestNightly!.Date;
         var releases = installedRenoDX?.BuildDate is { } installedDate && installedDate <= latestDate
-            ? newestFirst.TakeWhile(n => n.Date >= installedDate)
-            : newestFirst.Take(1);
+            ? downloadOptions.Nightlies.TakeWhile(n => n.Date >= installedDate)
+            : downloadOptions.Nightlies.Take(1);
 
         return
         [

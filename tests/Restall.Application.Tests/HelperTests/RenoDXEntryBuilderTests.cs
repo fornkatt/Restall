@@ -33,11 +33,12 @@ public class RenoDXEntryBuilderTests
 
         var actual = BuildRenoDXEntry(null, Game.Engine.Unknown, match);
 
-        Assert.Equal("Listed as Test Game", actual.HeadingText);
+        Assert.Equal(RenoDXTexts.GetListedAsText("Test Game"), actual.HeadingText);
         Assert.Equal("Test Author", actual.Author);
         Assert.Equal("Test notes", actual.DatabaseNotes);
         Assert.Equal(RenoDXTexts.GetStatusText(RenoDXModStatus.Done), actual.StatusText);
-        Assert.Equal(["Nexus Mods", "Discord", "GitHub discussion"], actual.Links.Select(l => l.Label));
+        Assert.Equal([new Uri(s_gameMod.NexusUrl!), new Uri(s_gameMod.DiscordUrl!), new Uri(s_gameMod.DiscussionUrl!)],
+            actual.Links.Select(l => l.Url));
     }
 
     [Fact]
@@ -50,11 +51,12 @@ public class RenoDXEntryBuilderTests
             RenoDXModMatch.MatchKind.Exact, []);
         var actual = BuildRenoDXEntry(null, Game.Engine.Unreal, match);
 
+        Assert.NotNull(actual.GenericAddonInfo);
         Assert.Equal(RenoDXTexts.GetUnrealMethodText(RenoDXUnrealGenericMod.UnrealModMethod.Upgrade),
             actual.UnrealMethodText);
         Assert.Equal(["B8G8R8A8_TYPELESS", "Output Size"], actual.Upgrades);
         Assert.Equal("Test comments", actual.DatabaseNotes);
-        Assert.Equal("Marat", actual.Author);
+        Assert.Equal(actual.GenericAddonInfo.Author, actual.Author);
     }
 
     [Fact]
@@ -66,13 +68,14 @@ public class RenoDXEntryBuilderTests
     }
 
     [Theory]
-    [InlineData(Game.Engine.Unreal, "Unreal Engine generic mod")]
-    [InlineData(Game.Engine.Unity, "Unity generic mod")]
-    public void Build_GenericGameWithoutMatch_ReturnsGenericAddonHeadingText(Game.Engine engine, string expectedHeadingText)
+    [InlineData(Game.Engine.Unreal)]
+    [InlineData(Game.Engine.Unity)]
+    public void Build_GenericGameWithoutMatch_ReturnsGenericAddonHeadingText(Game.Engine engine)
     {
         var actual = BuildRenoDXEntry(null, engine, RenoDXModMatch.None);
 
-        Assert.Equal(expectedHeadingText, actual.HeadingText);
+        Assert.NotNull(actual.GenericAddonInfo);
+        Assert.Equal(actual.GenericAddonInfo.HeadingText, actual.HeadingText);
     }
 
     [Fact]
@@ -95,6 +98,28 @@ public class RenoDXEntryBuilderTests
         var actual = BuildRenoDXEntry(null, Game.Engine.Unreal, match);
 
         Assert.True(actual.IsDone);
+    }
+
+    [Fact]
+    public void Build_InstalledRenoDXOfOtherBitness_ReturnsBranchDataForNothingInstalled()
+    {
+        var installedRenoDX = new RenoDX
+        {
+            OriginalName = "renodx-game.addon64",
+            Arch = Architecture.X32,
+            Version = "20261001"
+        };
+        var nightly = new RenoDXTagInfo(new DateOnly(2026, 10, 1), RenoDX.Branch.Nightly,
+            new Uri("https://restalltests.com/releases/"),
+            new[] { AddonFilename }.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
+        var match = new RenoDXModMatch(s_gameMod, null, null,
+            RenoDXModMatch.MatchKind.Exact, []);
+
+        var actual = RenoDXEntryBuilder.Build(installedRenoDX, Game.Engine.Unknown, Architecture.X64,
+            match, true, s_snapshot, [nightly]);
+
+        Assert.False(actual.BranchVersions[RenoDX.Branch.Snapshot].UpdateAvailable);
+        Assert.False(Assert.Single(actual.BranchReleaseNotes[RenoDX.Branch.Nightly]).IsInstalled);
     }
 
     private static RenoDXEntry BuildRenoDXEntry(RenoDX? installedRenoDX, Game.Engine engine, RenoDXModMatch match) =>

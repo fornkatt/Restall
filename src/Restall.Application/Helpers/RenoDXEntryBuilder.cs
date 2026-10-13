@@ -22,9 +22,10 @@ public static partial class RenoDXEntryBuilder
     {
         var availability = RenoDXAvailabilityResolver.Resolve(installedRenoDX, engine, architecture, match,
             isGameModListLoaded, snapshot, nightlies);
-        var branchVersions = RenoDXBranchVersionsResolver.Resolve(installedRenoDX,
+        var installedFile = availability.DownloadOptions?.IsInstalledFile == true ? installedRenoDX : null;
+        var branchVersions = RenoDXBranchVersionsResolver.Resolve(installedFile,
             availability.DownloadOptions);
-        var branchReleaseNotes = RenoDXReleaseNotesResolver.Resolve(installedRenoDX,
+        var branchReleaseNotes = RenoDXReleaseNotesResolver.Resolve(installedFile,
             availability.DownloadOptions);
 
         return new RenoDXEntry(
@@ -33,7 +34,9 @@ public static partial class RenoDXEntryBuilder
             ManualSource: availability.ManualSource,
             BranchVersions: branchVersions,
             BranchReleaseNotes: branchReleaseNotes,
-            HeadingText: GetHeadingText(match.ModName, availability.GenericAddonInfo?.HeadingText),
+            HeadingText: match.ModName is { } modName
+                ? RenoDXTexts.GetListedAsText(modName)
+                : availability.GenericAddonInfo?.HeadingText,
             StatusText: match.ModStatus is { } status ? RenoDXTexts.GetStatusText(status) : null,
             IsDone: match.ModStatus is RenoDXModStatus.Done,
             IsWorkInProgress: match.ModStatus is RenoDXModStatus.Wip,
@@ -47,9 +50,6 @@ public static partial class RenoDXEntryBuilder
             Notices: [.. availability.Notices.Select(RenoDXTexts.GetNoticeText)],
             GenericAddonInfo: availability.GenericAddonInfo);
     }
-
-    private static string? GetHeadingText(string? listedName, string? genericHeadingText) =>
-        listedName is not null ? $"Listed as {listedName}" : genericHeadingText;
 
     private static ImmutableArray<string> SplitUpgradeTokens(string? upgrades)
     {

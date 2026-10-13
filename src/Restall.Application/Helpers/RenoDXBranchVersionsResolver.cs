@@ -17,23 +17,20 @@ public static class RenoDXBranchVersionsResolver
         if (downloadOptions is null)
             return FrozenDictionary<RenoDX.Branch, UpdateAvailability>.Empty;
 
-        var installedFile = downloadOptions.IsInstalledFile ? installedRenoDX : null;
-
         return downloadOptions.Branches.ToFrozenDictionary(branch => branch,
-            branch => CreateUpdateAvailability(branch, installedFile, downloadOptions));
+            branch => CreateUpdateAvailability(branch, installedRenoDX, downloadOptions));
     }
 
-    private static UpdateAvailability CreateUpdateAvailability(RenoDX.Branch branch, RenoDX? installedFile,
+    private static UpdateAvailability CreateUpdateAvailability(RenoDX.Branch branch, RenoDX? installedRenoDX,
         RenoDXDownloadOptions downloadOptions) => branch switch
         {
-            RenoDX.Branch.Snapshot => CompareWithLatest(installedFile, downloadOptions.Snapshot!),
-            RenoDX.Branch.Nightly => CompareWithLatest(installedFile,
+            RenoDX.Branch.Snapshot => CompareWithLatest(installedRenoDX, downloadOptions.Snapshot!),
+            RenoDX.Branch.Nightly => CompareWithLatest(installedRenoDX,
                 downloadOptions.LatestNightly!),
-            RenoDX.Branch.Direct => new UpdateAvailability(false, installedFile?.Version, null,
-                false),
+            RenoDX.Branch.Direct => new UpdateAvailability(false, null, false),
             _ => throw new UnreachableException($"No version source for branch \"{branch}\"")
         };
 
     private static UpdateAvailability CompareWithLatest(RenoDX? installedFile, RenoDXTagInfo latest) =>
-        new(installedFile?.BuildDate < latest.Date, installedFile?.Version, latest.Version);
+        new(installedFile?.BuildDate < latest.Date, latest.Version);
 }

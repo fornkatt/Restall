@@ -58,7 +58,19 @@ public class RenoDXDownloadOptionsTests
     }
 
     [Fact]
-    public void LatestNightly_NightliesInMixedDateOrder_ResturnsNewestNightly()
+    public void Nightlies_NightliesInMixedDateOrder_ReturnsNewestFirst()
+    {
+        var newestNightly = CreateNightly(new DateOnly(2026, 10, 7));
+        var olderNightly = CreateNightly(new DateOnly(2026, 10, 6));
+        var oldestNightly = CreateNightly(new DateOnly(2026, 10, 5));
+
+        var actual = CreateOptions(nightlies: [oldestNightly, newestNightly, olderNightly]);
+
+        Assert.Equal([newestNightly, olderNightly, oldestNightly], actual.Nightlies);
+    }
+
+    [Fact]
+    public void LatestNightly_NightliesInMixedDateOrder_ReturnsNewestNightly()
     {
         var newestNightly = CreateNightly(new DateOnly(2026, 10, 7));
         var olderNightly = CreateNightly(new DateOnly(2026, 10, 6));

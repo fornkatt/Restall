@@ -29,7 +29,7 @@ public static class RenoDXAvailabilityResolver
         var addonFilename = installedAddonFilename
                             ?? match.GetAddonFilename(architecture)
                             ?? engineFallbackAddonFilename;
-        var isSupported = installedRenoDX is not null || HasMod(match) || engineFallbackAddonFilename is not null;
+        var isSupported = installedRenoDX is not null || match.HasMod || engineFallbackAddonFilename is not null;
 
         if (!isSupported)
             return RenoDXAvailability.NotSupported with { Notices = notices.ToImmutable() };
@@ -80,9 +80,6 @@ public static class RenoDXAvailabilityResolver
             Game.Engine.Unity => RenoDXGenericAddons.GetUnityGenericAddonFilename(architecture),
             _ => null
         };
-
-    private static bool HasMod(RenoDXModMatch match) =>
-        match.GameMod is not null || match.UnrealGenericMod is not null || match.UnityGenericMod is not null;
 
     private static bool HasBuildForOtherArchitecture(RenoDXModMatch match, Architecture architecture)
     {

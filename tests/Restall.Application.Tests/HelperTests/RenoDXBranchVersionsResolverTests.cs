@@ -4,6 +4,7 @@
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.Helpers;
 using Restall.Domain.Entities;
+using System.Collections.Frozen;
 
 namespace Restall.Application.Tests.HelperTests;
 
@@ -28,12 +29,11 @@ public class RenoDXBranchVersionsResolverTests
         var installedRenoDX = new RenoDX { OriginalName = AddonFilename, Version = "20261006" };
 
         var actual = RenoDXBranchVersionsResolver.Resolve(installedRenoDX,
-            CreateOptions(true));
+            CreateOptions());
 
         Assert.Equivalent(new[] { RenoDX.Branch.Snapshot, RenoDX.Branch.Nightly, RenoDX.Branch.Direct },
             actual.Keys, strict: true);
         Assert.True(actual[RenoDX.Branch.Snapshot].UpdateAvailable);
-        Assert.Equal("20261006", actual[RenoDX.Branch.Snapshot].InstalledVersion);
         Assert.Equal("20261007", actual[RenoDX.Branch.Snapshot].LatestVersion);
         Assert.False(actual[RenoDX.Branch.Nightly].UpdateAvailable);
         Assert.Equal("20261006", actual[RenoDX.Branch.Nightly].LatestVersion);
@@ -45,22 +45,9 @@ public class RenoDXBranchVersionsResolverTests
         var installedRenoDX = new RenoDX { OriginalName = AddonFilename, Version = "20261007" };
 
         var actual = RenoDXBranchVersionsResolver.Resolve(installedRenoDX,
-            CreateOptions(true));
+            CreateOptions());
 
         Assert.False(actual[RenoDX.Branch.Snapshot].UpdateAvailable);
-    }
-
-    [Fact]
-    public void Resolve_OptionsForOtherFileThanInstalled_ReturnsNoInstalledVersion()
-    {
-        var installedRenoDX = new RenoDX { OriginalName = "renodx-game.addon32", Version = "20261001" };
-
-        var actual = RenoDXBranchVersionsResolver.Resolve(installedRenoDX,
-            CreateOptions(false));
-
-        Assert.Null(actual[RenoDX.Branch.Snapshot].InstalledVersion);
-        Assert.False(actual[RenoDX.Branch.Snapshot].UpdateAvailable);
-        Assert.False(actual[RenoDX.Branch.Nightly].UpdateAvailable);
     }
 
     [Fact]
@@ -69,34 +56,34 @@ public class RenoDXBranchVersionsResolverTests
         var installedRenoDX = new RenoDX { OriginalName = AddonFilename, Version = "1.2.3" };
 
         var actual = RenoDXBranchVersionsResolver.Resolve(installedRenoDX,
-            CreateOptions(true));
+            CreateOptions());
 
-        Assert.Equal("1.2.3", actual[RenoDX.Branch.Snapshot].InstalledVersion);
         Assert.False(actual[RenoDX.Branch.Snapshot].UpdateAvailable);
     }
 
     [Fact]
-    public void Resolve_DirectBranch_ReturnsUpdateCheckNotSupported()
+    public void Resolve_DirectBranch_ReturnsUpdateCheckUnavailable()
     {
         var installedRenoDX = new RenoDX { OriginalName = AddonFilename, Version = "20261001" };
 
         var actual = RenoDXBranchVersionsResolver.Resolve(installedRenoDX,
-            CreateOptions(true));
+            CreateOptions());
 
-        Assert.False(actual[RenoDX.Branch.Direct].IsSupported);
+        Assert.False(actual[RenoDX.Branch.Direct].IsUpdateCheckAvailable);
+        Assert.True(actual[RenoDX.Branch.Snapshot].UpdateAvailable);
         Assert.False(actual[RenoDX.Branch.Direct].UpdateAvailable);
         Assert.Null(actual[RenoDX.Branch.Direct].LatestVersion);
-        Assert.Equal("20261001", actual[RenoDX.Branch.Direct].InstalledVersion);
     }
 
-    private static RenoDXDownloadOptions CreateOptions(bool isInstalledFile) =>
+    private static RenoDXDownloadOptions CreateOptions() =>
         new(AddonFilename, new Uri("https://restalltests.com/releases/renodx-game.addon64"),
             CreateTag(new DateOnly(2026, 10, 7), RenoDX.Branch.Snapshot),
             [
                 CreateTag(new DateOnly(2026, 10, 6), RenoDX.Branch.Nightly),
                 CreateTag(new DateOnly(2026, 10, 5), RenoDX.Branch.Nightly)
-            ], isInstalledFile);
+            ]);
 
     private static RenoDXTagInfo CreateTag(DateOnly date, RenoDX.Branch branch) =>
-        new(date, branch, new Uri("https://restalltests.com/releases/"), [AddonFilename], []);
+        new(date, branch, new Uri("https://restalltests.com/releases/"),
+            new[] { AddonFilename }.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 }
