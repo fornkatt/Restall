@@ -284,7 +284,7 @@
                                     Margin="0, 5, 5, 5"
                                     ToolTip.Tip="Notices">
                                 <Button.Flyout>
-                                    <Flyout>
+                                    <Flyout Placement="Top">
                                         <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Notices}"
                                                       MaxWidth="380">
                                             <ItemsControl.ItemTemplate>
@@ -387,7 +387,7 @@
                                         IsVisible="{Binding HasSelectedRenoDXReleaseNotes}"
                                         ToolTip.Tip="Release notes">
                                     <Button.Flyout>
-                                        <Flyout>
+                                        <Flyout Placement="Top">
                                             <ScrollViewer MaxWidth="400" MaxHeight="300">
                                                 <ItemsControl ItemsSource="{Binding SelectedRenoDXReleaseNotes}">
                                                     <ItemsControl.ItemTemplate>
@@ -454,7 +454,7 @@
                         ClipToBounds="True"
                         VerticalAlignment="Top"
                         MaxHeight="150"
-                        IsVisible="{Binding SelectedGame.IsRenoDXSupported}">
+                        IsVisible="{Binding SelectedGame.IsRenoDXInfoBoxVisible}">
                     <Grid>
                         <Grid ColumnDefinitions="*, Auto"
                               IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
@@ -485,7 +485,7 @@
                                             ToolTip.Tip="About this generic mod"
                                             VerticalAlignment="Center">
                                             <Button.Flyout>
-                                                <Flyout>
+                                                <Flyout Placement="Top">
                                                     <StackPanel
                                                         MaxWidth="420"
                                                         Spacing="6"

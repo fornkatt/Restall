@@ -54,16 +54,14 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
         if (gameEntry.RenoDXEntry.DownloadOptions is not { } downloadOptions)
         {
-            LogRenoDXDownloadNotFound(gameName, request.Branch);
-            return new RenoDXInstallResponse(false, game, null,
-                GetNoDownloadMessage(gameEntry.RenoDXEntry.ManualSource));
+            LogRenoDXDownloadNotFound(gameName);
+            return new RenoDXInstallResponse(false, GetNoDownloadMessage(gameEntry.RenoDXEntry.ManualSource));
         }
 
         if (GetDownloadSource(downloadOptions, request) is not { } downloadSource)
         {
-            LogRenoDXDownloadNotFound(gameName, request.Branch);
-            return new RenoDXInstallResponse(false, game, null,
-                GetReleaseUnavailableMessage(request));
+            LogRenoDXReleaseNotFound(request.Branch, request.NightlyVersion, gameName);
+            return new RenoDXInstallResponse(false, GetReleaseUnavailableMessage(request));
         }
 
         var filename = downloadOptions.Filename;
@@ -84,7 +82,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 _logger.ModDownloadFailure("RenoDX", downloadSource.DestinationPath,
                     downloadResult.Message, downloadResult.Exception);
 
-                return new RenoDXInstallResponse(false, game, null,
+                return new RenoDXInstallResponse(false,
                     GetFailureMessage(downloadResult.ErrorType, "download", filename));
             }
         }
@@ -104,6 +102,8 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             Version = renoDXVersion.Value
         };
 
+        var isReplacingInstalledFile = game.RenoDX is not null;
+
         if (game.RenoDX is { } installedRenoDX)
         {
             var installedFilename = installedRenoDX.SelectedName ?? filename;
@@ -116,7 +116,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
                 _logger.ExistingModFileDeletionFailure("RenoDX", gameName,
                     deleteResult.Message, deleteResult.Exception);
 
-                return new RenoDXInstallResponse(false, game, null,
+                return new RenoDXInstallResponse(false,
                     GetFailureMessage(deleteResult.ErrorType, "remove", installedFilename));
             }
         }
@@ -128,14 +128,20 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             _logger.ModInstallationFailure("RenoDX", gameName, installResult.Message,
                 installResult.Exception);
 
-            return new RenoDXInstallResponse(false, game, null,
-                GetFailureMessage(installResult.ErrorType, "install", filename));
+            if (!isReplacingInstalledFile)
+                return new RenoDXInstallResponse(false,
+                    GetFailureMessage(installResult.ErrorType, "install", filename));
+
+            game.RenoDX = null;
+
+            return new RenoDXInstallResponse(false,
+                GetFailureAfterRemovalMessage(installResult.ErrorType, filename));
         }
 
         _logger.ModInstallationComplete("RenoDX", filename, renoDX.Arch.ToString(), gameName);
 
-        return new RenoDXInstallResponse(true, game, _gameEntryAssembler.Assemble(game),
-            GetSuccessMessage(filename, renoDX.Version));
+        return new RenoDXInstallResponse(true,
+            GetSuccessMessage(filename, renoDX.Version), _gameEntryAssembler.Assemble(game));
     }
 
     private DownloadSource? GetDownloadSource(RenoDXDownloadOptions downloadOptions, RenoDXInstallRequest request) =>
@@ -164,7 +170,8 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
 
     private static string GetNoDownloadMessage(RenoDXModLink? manualSource) => manualSource switch
     {
-        { } link => $"Restall is not able to download this game's RenoDX mod. Get it from {link.Label} instead.",
+        not null =>
+            $"Restall is not able to download this game's RenoDX mod. Get it from {manualSource.Label} instead.",
         null => "There's no RenoDX download for this game."
     };
 
@@ -186,6 +193,10 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             ErrorType.DownloadFailed => "The server may be unavailable or the file may no longer exist.",
             _ => "Check the log for details."
         };
+
+    private static string GetFailureAfterRemovalMessage(ErrorType errorType, string filename) =>
+        GetFailureMessage(errorType, "install", filename) +
+        "\n\nThe old RenoDX file is no longer in the game folder, so this game will now show RenoDX as not installed.";
 
     private static string GetSuccessMessage(string filename, string? version) => version switch
     {

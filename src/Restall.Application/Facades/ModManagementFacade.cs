@@ -14,6 +14,8 @@ namespace Restall.Application.Facades;
 // TODO: combine with UseCases, add global exception handler instead
 public sealed partial class ModManagementFacade : IModManagementFacade
 {
+    private const string GamePathNotFoundMessage = "Game path could not be found.\n\nPlease perform a rescan.";
+
     private readonly ILogger<ModManagementFacade> _logger;
     private readonly IInstallReShadeUseCase _installReShadeUseCase;
     private readonly IUninstallReShadeUseCase _uninstallReShadeUseCase;
@@ -39,9 +41,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         IProgress<DownloadProgressReport>? progress = null)
     {
         if (IsGamePathInvalid(request.Game))
-            return new ModOperationResponse(false, request.Game,
-                "Game path could not be found.\n\n" +
-                "Please perform a rescan.");
+            return new ModOperationResponse(false, request.Game, GamePathNotFoundMessage);
 
         if (HasStaleReShadeRecord(request.Game, out var staleError))
             return staleError;
@@ -63,9 +63,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
     public async Task<ModOperationResponse> UninstallReShadeAsync(Game game)
     {
         if (IsGamePathInvalid(game))
-            return new ModOperationResponse(false, game,
-                "Game path could not be found.\n\n" +
-                "Please perform a rescan.");
+            return new ModOperationResponse(false, game, GamePathNotFoundMessage);
 
         if (game.ReShade is null)
             return new ModOperationResponse(false, game,
@@ -87,9 +85,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         IProgress<DownloadProgressReport>? progress = null)
     {
         if (IsGamePathInvalid(request.Game))
-            return new RenoDXInstallResponse(false, request.Game, null,
-                "Game path could not be found.\n\n" +
-                "Please perform a rescan.");
+            return new RenoDXInstallResponse(false, GamePathNotFoundMessage);
 
         try
         {
@@ -101,7 +97,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         {
             const string message = "Unexpected error occured while installing RenoDX.";
             LogError(message, ex);
-            return new RenoDXInstallResponse(false, request.Game, null,
+            return new RenoDXInstallResponse(false,
                 message + " Check logs for more information.");
         }
     }
@@ -110,12 +106,10 @@ public sealed partial class ModManagementFacade : IModManagementFacade
     public async Task<RenoDXUninstallResponse> UninstallRenoDXAsync(Game game)
     {
         if (IsGamePathInvalid(game))
-            return new RenoDXUninstallResponse(false, game, null,
-                "Game path could not be found.\n\n" +
-                "Please perform a rescan.");
+            return new RenoDXUninstallResponse(false, GamePathNotFoundMessage);
 
         if (game.RenoDX is null)
-            return new RenoDXUninstallResponse(false, game, null,
+            return new RenoDXUninstallResponse(false,
                 "No RenoDX installation detected for this game. Please perform a full rescan.");
 
         try
@@ -126,8 +120,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         {
             const string message = "An unexpected error occured uninstalling RenoDX.";
             LogError(message, ex);
-            return new RenoDXUninstallResponse(false, game, null,
-                message + " Check the logs for more details.");
+            return new RenoDXUninstallResponse(false, message + " Check the logs for more details.");
         }
     }
 
@@ -151,13 +144,6 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         return false;
     }
 
-    private static bool IsGamePathInvalid(Game game)
-    {
-        if (!string.IsNullOrWhiteSpace(game.ExecutablePath) && Directory.Exists(game.ExecutablePath))
-        {
-            return false;
-        }
-
-        return true;
-    }
+    private static bool IsGamePathInvalid(Game game) =>
+        string.IsNullOrWhiteSpace(game.ExecutablePath) || !Directory.Exists(game.ExecutablePath);
 }

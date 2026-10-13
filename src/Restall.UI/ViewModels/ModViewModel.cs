@@ -312,7 +312,7 @@ public sealed partial class ModViewModel : ViewModelBase
                 : $"Downloading {report.Filename}";
         });
 
-    private void ShowRenoDXResponse(GameModViewModel game, string? message, GameEntry? gameEntry,
+    private void ShowRenoDXResponse(GameModViewModel game, string message, GameEntry? gameEntry,
         CancellationToken messageToken)
     {
         if (gameEntry is not null)
@@ -366,7 +366,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     partial void OnSelectedRenoDXBranchChanged(RenoDX.Branch? value)
     {
-        if (!_isAdjustingRenoDXBranchSelection && value is { } branch && SelectedGame is { } game)
+        if (!_isAdjustingRenoDXBranchSelection && value is not null && SelectedGame is { } game)
             game.LastSelectedRenoDXBranch = value;
     }
 

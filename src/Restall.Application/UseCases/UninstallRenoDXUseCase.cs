@@ -46,16 +46,15 @@ public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
         {
             _logger.ModUninstallFailure("RenoDX", gameName, deleteResult.Message, deleteResult.Exception);
 
-            return new RenoDXUninstallResponse(false, game, null,
-                GetFailureMessage(deleteResult.ErrorType, gameName));
+            return new RenoDXUninstallResponse(false, GetFailureMessage(deleteResult.ErrorType, gameName));
         }
 
         game.RenoDX = null;
 
         _logger.ModUninstallationComplete("RenoDX", gameName);
 
-        return new RenoDXUninstallResponse(true, game, _gameEntryAssembler.Assemble(game),
-            GetSuccessMessage(wasAlreadyRemoved));
+        return new RenoDXUninstallResponse(true, GetSuccessMessage(wasAlreadyRemoved),
+            _gameEntryAssembler.Assemble(game));
     }
 
     private static string GetFailureMessage(ErrorType errorType, string gameName) => errorType switch

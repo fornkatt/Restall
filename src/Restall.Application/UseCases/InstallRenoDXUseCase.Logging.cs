@@ -10,8 +10,8 @@ namespace Restall.Application.UseCases;
 public sealed partial class InstallRenoDXUseCase
 {
     [LoggerMessage(EventId = 1300, Level = LogLevel.Error,
-        Message = "Could not find a RenoDX download for \"{GameName}\" on the {Branch} branch")]
-    private partial void LogRenoDXDownloadNotFound(string gameName, RenoDX.Branch branch);
+        Message = "Could not find a RenoDX download for \"{GameName}\"")]
+    private partial void LogRenoDXDownloadNotFound(string gameName);
 
     [LoggerMessage(EventId = 1301, Level = LogLevel.Warning,
         Message =
@@ -19,4 +19,9 @@ public sealed partial class InstallRenoDXUseCase
             " — Service returned: \"{ErrorMessage}\"")]
     private partial void LogRenoDXVersionReadFailure(string filename, string gameName, string? errorMessage,
         Exception? ex);
+
+    [LoggerMessage(EventId = 1302, Level = LogLevel.Error,
+        Message = "Could not find the RenoDX {Branch} release (requested nightly: \"{NightlyVersion}\")" +
+                  " for \"{GameName}\"")]
+    private partial void LogRenoDXReleaseNotFound(RenoDX.Branch branch, string? nightlyVersion, string gameName);
 }

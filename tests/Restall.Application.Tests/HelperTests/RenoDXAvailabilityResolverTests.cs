@@ -186,6 +186,17 @@ public class RenoDXAvailabilityResolverTests
         Assert.Empty(actual.Notices);
     }
 
+    [Fact]
+    public void Resolve_InstalledRenoDXWithRecommendedArchitecture_ReturnsSupported()
+    {
+        var installedRenoDX = new RenoDX { Arch = Architecture.X64, OriginalName = AddonFilename };
+
+        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, Game.Engine.Unknown,
+            Architecture.X64, RenoDXModMatch.None, true, s_snapshotWithFile, []);
+
+        Assert.True(actual.IsSupported);
+    }
+
     private static RenoDXModMatch CreateMatch(RenoDXGameMod gameMod) =>
         new(gameMod, null, null, RenoDXModMatch.MatchKind.Exact, []);
 

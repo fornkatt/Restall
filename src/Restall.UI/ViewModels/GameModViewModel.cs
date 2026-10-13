@@ -49,6 +49,7 @@ public sealed partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasRenoDXGenericAddonInfo))]
     [NotifyPropertyChangedFor(nameof(IsRenoDXStatusDone))]
     [NotifyPropertyChangedFor(nameof(IsRenoDXStatusWorkInProgress))]
+    [NotifyPropertyChangedFor(nameof(IsRenoDXInfoBoxVisible))]
     [NotifyPropertyChangedFor(nameof(ReShadeUpdateCheck))]
     public partial GameEntry GameEntry { get; set; }
 
@@ -159,7 +160,10 @@ public sealed partial class GameModViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsShowingRenoDXActionMessage))]
+    [NotifyPropertyChangedFor(nameof(IsRenoDXInfoBoxVisible))]
     public partial string? RenoDXModActionStatus { get; set; }
+
+    public bool IsRenoDXInfoBoxVisible => IsRenoDXSupported || IsShowingRenoDXActionMessage;
 
     public bool IsShowingRenoDXActionMessage => RenoDXModActionStatus is not null;
 
