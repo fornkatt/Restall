@@ -85,7 +85,7 @@ internal sealed partial class ModDetectionService : IModDetectionService
 
         try
         {
-            await ScanFilesAsync(executableDirectory, [$"*{RenoDX.AddonExtension}", $"*{RenoDX.AddonExtension32}"],
+            await ScanFilesAsync(executableDirectory, [$"*{RenoDX.AddonExtension64}", $"*{RenoDX.AddonExtension32}"],
                 long.MaxValue,
                 async (file, versionInfo) =>
                 {

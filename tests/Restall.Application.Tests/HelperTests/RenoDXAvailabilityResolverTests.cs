@@ -110,7 +110,7 @@ public class RenoDXAvailabilityResolverTests
     }
 
     [Fact]
-    public void Resolve_UnrealGameWithoutMatch_ReturnsEngineFallback()
+    public void Resolve_UnrealGameWithoutModMatch_ReturnsEngineFallback()
     {
         var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unreal,
             Architecture.X64, RenoDXModMatch.None, true, s_snapshotWithFile, []);

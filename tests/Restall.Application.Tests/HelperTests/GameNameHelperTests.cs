@@ -40,7 +40,7 @@ public class GameNameHelperTests
     [InlineData("무서움", "무서움")]
     [InlineData("サイコブレイク", "サイコブレイク")]
     [InlineData("パン", "パン")]
-    public void RemoveLatinAccents_KoreanAndJapaneseLetters_ReturnsNameUnchanged(string letters, string expected)
+    public void RemoveLatinAccents_AsianLanguageLetters_ReturnsNameUnchanged(string letters, string expected)
     {
         var actual = GameNameHelper.RemoveLatinAccents(letters);
 

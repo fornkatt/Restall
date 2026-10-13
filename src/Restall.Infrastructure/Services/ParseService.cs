@@ -317,7 +317,7 @@ internal sealed partial class ParseService : IParseService
             var href = HtmlEntity.DeEntitize(linkNode.GetAttributeValue("href", string.Empty));
             var filename = Uri.UnescapeDataString(href[downloadPath.Length..]);
 
-            if (filename.EndsWith(RenoDX.AddonExtension, StringComparison.OrdinalIgnoreCase) ||
+            if (filename.EndsWith(RenoDX.AddonExtension64, StringComparison.OrdinalIgnoreCase) ||
                 filename.EndsWith(RenoDX.AddonExtension32, StringComparison.OrdinalIgnoreCase))
                 addonFilenames.Add(filename);
         }

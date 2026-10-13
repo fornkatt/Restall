@@ -31,7 +31,7 @@ public sealed record RenoDXGameMod(
         return null;
     }
 
-    private string? AddonFilename => ExtractAddonFilename(SnapshotUrl, RenoDX.AddonExtension);
+    private string? AddonFilename => ExtractAddonFilename(SnapshotUrl, RenoDX.AddonExtension64);
     private string? AddonFilename32 => ExtractAddonFilename(SnapshotUrl32, RenoDX.AddonExtension32);
 
     private static string? ExtractAddonFilename(string? url, string extension)

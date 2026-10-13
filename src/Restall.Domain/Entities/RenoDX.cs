@@ -11,7 +11,7 @@ public sealed class RenoDX
     public enum Branch { Unknown, Direct, Snapshot, Nightly }
 
     public const string VersionFormat = "yyyyMMdd";
-    public const string AddonExtension = ".addon64";
+    public const string AddonExtension64 = ".addon64";
     public const string AddonExtension32 = ".addon32";
     public const string OriginalFilenameStart = "renodx-";
     public const string NightlyTagPrefix = "nightly-";

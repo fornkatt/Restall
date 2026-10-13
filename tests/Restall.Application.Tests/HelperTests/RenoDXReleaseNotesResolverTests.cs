@@ -26,7 +26,7 @@ public class RenoDXReleaseNotesResolverTests
     }
 
     [Fact]
-    public void Resolve_OlderNightlyInstalled_ReturnsNightliesFromLatestDownToInstalled()
+    public void Resolve_OlderNightlyInstalled_ReturnsNightlyCommitNotesFromLatestToCurrentlyInstalled()
     {
         var installedRenoDX = new RenoDX { OriginalName = AddonFilename, Version = "20261005" };
 

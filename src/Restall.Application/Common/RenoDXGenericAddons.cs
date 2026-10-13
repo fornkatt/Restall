@@ -11,8 +11,8 @@ public static class RenoDXGenericAddons
 {
     private const string UnityAddonDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
 
-    private const string UnrealExtendedAddonFilename = "renodx-ue-extended" + RenoDX.AddonExtension;
-    private const string UnityAddonFilename = "renodx-unityengine" + RenoDX.AddonExtension;
+    private const string UnrealExtendedAddonFilename = "renodx-ue-extended" + RenoDX.AddonExtension64;
+    private const string UnityAddonFilename = "renodx-unityengine" + RenoDX.AddonExtension64;
     private const string UnityAddonFilename32 = "renodx-unityengine" + RenoDX.AddonExtension32;
 
     public static string? GetUnrealExtendedAddonFilename(Architecture architecture) =>

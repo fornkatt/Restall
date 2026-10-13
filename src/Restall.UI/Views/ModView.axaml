@@ -24,6 +24,8 @@
         </Flyout>
     </UserControl.Resources>
 
+    <!-- TODO(UI improvement branch): extract magic hex code values and add as DynamicResource or similar -->
+
     <Grid ColumnDefinitions="*"
           RowDefinitions="Auto,*">
 

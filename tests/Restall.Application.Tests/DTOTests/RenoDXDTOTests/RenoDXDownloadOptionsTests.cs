@@ -18,7 +18,7 @@ public class RenoDXDownloadOptionsTests
     private static readonly Uri s_directUrl = new("https://restalltests.com/renodx-game.addon64");
 
     [Fact]
-    public void Branches_AllSources_ReturnsSnapshotNightlyDirectInThatOrder()
+    public void Branches_AllBranchSourcesAvailable_ReturnsSnapshotNightlyDirectInExactOrder()
     {
         var actual = CreateOptions(s_snapshot, [s_nightly], s_directUrl);
 
@@ -26,7 +26,7 @@ public class RenoDXDownloadOptionsTests
     }
 
     [Fact]
-    public void Branches_OnlySnapshot_ReturnsOnlySnapshot()
+    public void Branches_OnlySnapshotDownloadOptionAvailable_ReturnsOnlySnapshotBranchInBranchList()
     {
         var actual = CreateOptions(s_snapshot);
 
@@ -58,15 +58,15 @@ public class RenoDXDownloadOptionsTests
     }
 
     [Fact]
-    public void Nightlies_NightliesInMixedDateOrder_ReturnsNewestFirst()
+    public void Nightlies_NightliesInMixedDateOrder_ReturnsLatestFirst()
     {
-        var newestNightly = CreateNightly(new DateOnly(2026, 10, 7));
+        var latestNightly = CreateNightly(new DateOnly(2026, 10, 7));
         var olderNightly = CreateNightly(new DateOnly(2026, 10, 6));
         var oldestNightly = CreateNightly(new DateOnly(2026, 10, 5));
 
-        var actual = CreateOptions(nightlies: [oldestNightly, newestNightly, olderNightly]);
+        var actual = CreateOptions(nightlies: [oldestNightly, latestNightly, olderNightly]);
 
-        Assert.Equal([newestNightly, olderNightly, oldestNightly], actual.Nightlies);
+        Assert.Equal([latestNightly, olderNightly, oldestNightly], actual.Nightlies);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class RenoDXDownloadOptionsTests
     }
 
     [Fact]
-    public void LatestNightly_NoNightlies_ReturnsNothing()
+    public void LatestNightly_NoNightlies_ReturnsNull()
     {
         var actual = CreateOptions(s_snapshot);
 
@@ -104,7 +104,7 @@ public class RenoDXDownloadOptionsTests
     }
 
     [Fact]
-    public void GetNightly_VersionNotListed_ReturnsNothing()
+    public void GetNightly_VersionNotListed_ReturnsNull()
     {
         var actual = CreateOptions(nightlies: [CreateNightly(new DateOnly(2026, 10, 7))]);
 

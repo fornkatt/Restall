@@ -9,7 +9,7 @@ namespace Restall.Application.Tests.DTOTests.RenoDXDTOTests;
 public class RenoDXModDatabaseTests
 {
     [Fact]
-    public void IsGameModListLoaded_GameModsPresent_ReturnsTrue()
+    public void IsGameModListLoaded_GameModsPresentInDatabase_ReturnsTrue()
     {
         var database = RenoDXModDatabase.Empty with
         {

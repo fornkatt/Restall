@@ -72,7 +72,7 @@ public class RenoDXGameModTests
     }
 
     [Fact]
-    public void GetAddonFilename_AfterWithExpression64_FollowsNewUri()
+    public void GetAddonFilename_CopyDtoWithNewUri64_FollowsNewUri()
     {
         var original = CreateMod(snapshotUrl: "https://restalltest.com/renodx-old.addon64");
         var copy = original with { SnapshotUrl = "https://restalltest.com/renodx-new.addon64" };
@@ -137,7 +137,7 @@ public class RenoDXGameModTests
     }
 
     [Fact]
-    public void GetAddonFilename_AfterWithExpression32_FollowsNewUri()
+    public void GetAddonFilename_CopyDtoWithNewUri32_FollowsNewUri()
     {
         var original = CreateMod(snapshotUrl32: "https://restalltest.com/renodx-old.addon32");
         var copy = original with { SnapshotUrl32 = "https://restalltest.com/renodx-new.addon32" };
@@ -160,7 +160,7 @@ public class RenoDXGameModTests
     // Download URL tests
 
     [Fact]
-    public void GetDownloadUrl_64BitAddonFilename_Returns64BitUrl()
+    public void GetDownloadUrl_AddonFilename64_Returns64BitUrl()
     {
         var mod = CreateMod("https://restalltests.com/renodx-game.addon64",
             "https://restalltests.com/renodx-game.addon32");
@@ -170,7 +170,7 @@ public class RenoDXGameModTests
     }
 
     [Fact]
-    public void GetDownloadUrl_32BitAddonFilename_Returns32BitUrl()
+    public void GetDownloadUrl_AddonFilename32_Returns32BitUrl()
     {
         var mod = CreateMod("https://restalltests.com/renodx-game.addon64",
             "https://restalltests.com/renodx-game.addon32");

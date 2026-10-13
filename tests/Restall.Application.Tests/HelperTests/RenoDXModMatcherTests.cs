@@ -37,7 +37,8 @@ public class RenoDXModMatcherTests
     [Theory]
     [InlineData("Middle-earth™: Shadow of War™", "Middle Earth: Shadow of War")]
     [InlineData("Watch_Dogs", "Watch Dogs")]
-    public void Match_InWordSeparatorInGameName_ReturnsExactGameModWithSpace(string gameName, string modName)
+    public void Match_InWordSeparatorInGameName_ReturnsExactGameModMatchWithWhiteSpace(string gameName,
+        string modName)
     {
         var gameMod = CreateGameMod(modName);
         var database = new RenoDXModDatabase([gameMod], [], []);
