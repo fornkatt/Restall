@@ -53,7 +53,8 @@ public sealed partial class GameEntryAssembler
                 LogRenoDXModMatchFound(gameName, match.ModName, match.Kind);
                 break;
             case RenoDXModMatch.MatchKind.Tie:
-                LogRenoDXModMatchTie(gameName, string.Join(", ", match.TiedNames.Select(n => $"\"{n}\"")));
+                LogRenoDXModMatchTie(gameName, string.Join('\n', match.TiedNames
+                    .Select(n => $"\"{n}\"")));
                 break;
             default:
                 LogRenoDXModMatchNotFound(gameName);

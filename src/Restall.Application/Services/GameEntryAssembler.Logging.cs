@@ -18,6 +18,6 @@ public sealed partial class GameEntryAssembler
     private partial void LogRenoDXModMatchNotFound(string gameName);
 
     [LoggerMessage(EventId = 2102, Level = LogLevel.Warning,
-        Message = "Could not pick a RenoDX mod for \"{GameName}\" — tied entries: {TiedNames}")]
+        Message = "Could not pick a RenoDX mod for \"{GameName}\" — tied entries:\n{TiedNames}")]
     private partial void LogRenoDXModMatchTie(string gameName, string tiedNames);
 }
