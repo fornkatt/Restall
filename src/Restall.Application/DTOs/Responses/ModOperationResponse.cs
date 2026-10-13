@@ -5,7 +5,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.DTOs.Responses;
 
-public record ModOperationResponse(
+public sealed record ModOperationResponse(
     bool IsSuccess,
     Game UpdatedGame,
     string? Message = null,

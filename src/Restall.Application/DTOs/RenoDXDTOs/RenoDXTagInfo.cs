@@ -8,7 +8,7 @@ using System.Globalization;
 
 namespace Restall.Application.DTOs.RenoDXDTOs;
 
-public record RenoDXTagInfo(
+public sealed record RenoDXTagInfo(
     DateOnly Date,
     RenoDX.Branch Branch,
     Uri DownloadBaseUrl,

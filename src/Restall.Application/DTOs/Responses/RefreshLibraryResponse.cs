@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 
 namespace Restall.Application.DTOs.Responses;
 
-public record RefreshLibraryResponse(
+public sealed record RefreshLibraryResponse(
     ImmutableArray<GameEntry> GameEntries,
     bool IsSuccess,
     ImmutableArray<string> Warnings,

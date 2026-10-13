@@ -3,6 +3,6 @@
 
 namespace Restall.Application.DTOs;
 
-public record DownloadProgressReport(
+public sealed record DownloadProgressReport(
     string Filename,
     int PercentComplete);

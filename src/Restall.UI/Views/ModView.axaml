@@ -245,7 +245,7 @@
                                FontSize="28"
                                Foreground="{DynamicResource GameCardText}"
                                Margin="10, 10, 0, 0" />
-                    <Button Grid.Row="0" Grid.Column="2" Classes="game-card-btn notice-btn"
+                    <Button Classes="game-card-btn notice-btn"
                             Classes.unseen="{Binding SelectedGame.HasUnseenRenoDXNotices}"
                             IsVisible="{Binding !SelectedGame.RenoDXEntry.Notices.IsEmpty}"
                             Command="{Binding SelectedGame.MarkRenoDXNoticesSeenCommand}"

@@ -5,7 +5,7 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.DTOs.Requests;
 
-public record RenoDXInstallRequest(
+public sealed record RenoDXInstallRequest(
     Game Game,
     RenoDX.Branch Branch,
     string? NightlyVersion = null);
