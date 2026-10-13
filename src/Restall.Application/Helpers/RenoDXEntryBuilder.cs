@@ -40,7 +40,7 @@ public static partial class RenoDXEntryBuilder
             StatusText: match.ModStatus is { } status ? RenoDXTexts.GetStatusText(status) : null,
             IsDone: match.ModStatus is RenoDXModStatus.Done,
             IsWorkInProgress: match.ModStatus is RenoDXModStatus.Wip,
-            Author: match.GameMod?.Author ?? availability.GenericAddonInfo?.Author,
+            Author: match.GameMod?.Author,
             DatabaseNotes: match.GameMod?.Notes ?? match.UnrealGenericMod?.Comments ?? match.UnityGenericMod?.Comments,
             UnrealMethodText: match.UnrealGenericMod is { } unrealGenericMod
                 ? RenoDXTexts.GetUnrealMethodText(unrealGenericMod.Method)

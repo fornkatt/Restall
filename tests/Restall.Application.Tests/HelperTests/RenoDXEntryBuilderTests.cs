@@ -42,7 +42,7 @@ public class RenoDXEntryBuilderTests
     }
 
     [Fact]
-    public void Build_UnrealGenericMatch_ReturnsMethodTextUpgradeTokensAndGenericAuthor()
+    public void Build_UnrealGenericMatch_ReturnsMethodTextUpgradeTokens()
     {
         var unrealGenericMod = new RenoDXUnrealGenericMod("Test Unreal Game", RenoDXModStatus.Wip,
             RenoDXUnrealGenericMod.UnrealModMethod.Upgrade, "`B8G8R8A8_TYPELESS` `Output Size`",
@@ -51,12 +51,24 @@ public class RenoDXEntryBuilderTests
             RenoDXModMatch.MatchKind.Exact, []);
         var actual = BuildRenoDXEntry(null, Game.Engine.Unreal, match);
 
-        Assert.NotNull(actual.GenericAddonInfo);
         Assert.Equal(RenoDXTexts.GetUnrealMethodText(RenoDXUnrealGenericMod.UnrealModMethod.Upgrade),
             actual.UnrealMethodText);
         Assert.Equal(["B8G8R8A8_TYPELESS", "Output Size"], actual.Upgrades);
         Assert.Equal("Test comments", actual.DatabaseNotes);
-        Assert.Equal(actual.GenericAddonInfo.Author, actual.Author);
+    }
+
+    [Fact]
+    public void Build_UnrealGenericMatch_ReturnsNoAuthor()
+    {
+        var unrealGenericMod = new RenoDXUnrealGenericMod("Test Unreal Game", RenoDXModStatus.Done,
+            RenoDXUnrealGenericMod.UnrealModMethod.Native, null, null);
+        var match = new RenoDXModMatch(null, unrealGenericMod, null,
+            RenoDXModMatch.MatchKind.Exact, []);
+
+        var actual = BuildRenoDXEntry(null, Game.Engine.Unreal, match);
+
+        Assert.NotNull(actual.GenericAddonInfo);
+        Assert.Null(actual.Author);
     }
 
     [Fact]
