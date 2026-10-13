@@ -135,7 +135,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
             game.RenoDX = null;
 
             return new RenoDXInstallResponse(false,
-                GetFailureAfterRemovalMessage(installResult.ErrorType, filename));
+                GetFailureAfterRemovalMessage(installResult.ErrorType, filename), _gameEntryAssembler.Assemble(game));
         }
 
         _logger.ModInstallationComplete("RenoDX", filename, renoDX.Arch.ToString(), gameName);
