@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Restall.UI.ViewModels"
              xmlns:renodx="clr-namespace:Restall.Application.DTOs.RenoDXDTOs;assembly=Restall.Application"
-             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Restall.UI.Views.ModView"
              x:DataType="vm:ModViewModel">
@@ -237,13 +236,37 @@
                 </Border>
 
                 <!-- RENODX -->
-                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                           IsVisible="{Binding !SelectedGame.RenoDXEntry.IsSupported}"
-                           Text="RenoDX not supported"
-                           FontWeight="Bold"
-                           FontSize="28"
-                           Foreground="{DynamicResource GameCardText}"
-                           Margin="10, 10, 0, 0" />
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Top"
+                            IsVisible="{Binding !SelectedGame.RenoDXEntry.IsSupported}">
+                    <TextBlock Text="RenoDX not supported"
+                               FontWeight="Bold"
+                               FontSize="28"
+                               Foreground="{DynamicResource GameCardText}"
+                               Margin="10, 10, 0, 0" />
+                    <Button Grid.Row="0" Grid.Column="2" Classes="game-card-btn notice-btn"
+                            Classes.unseen="{Binding SelectedGame.HasUnseenRenoDXNotices}"
+                            IsVisible="{Binding !SelectedGame.RenoDXEntry.Notices.IsEmpty}"
+                            Command="{Binding SelectedGame.MarkRenoDXNoticesSeenCommand}"
+                            Flyout="{StaticResource RenoDXNoticesFlyout}"
+                            CornerRadius="6"
+                            Padding="6, 2"
+                            Margin="0, 5, 5, 5"
+                            ToolTip.Tip="Notices">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
+                                       FontSize="16"
+                                       Text="&#xE4E0;"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding SelectedGame.RenoDXEntry.Notices.Length}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       IsVisible="{Binding SelectedGame.HasUnseenRenoDXNotices}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
                 <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                       ColumnDefinitions="0.5*, 0.5*"
                       RowDefinitions="Auto, Auto, Auto, Auto, Auto"
