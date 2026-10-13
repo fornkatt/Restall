@@ -119,6 +119,8 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
             return GetRefreshFailureMessage(modListName);
         }
 
+        _renoDXCatalog.LoadModDatabase(databaseResult.Value!);
+
         if (!gameModsResult.IsSuccess || !unrealGenericModsResult.IsSuccess || !unityGenericModsResult.IsSuccess)
             return GetRefreshFailureMessage(modListName);
 
