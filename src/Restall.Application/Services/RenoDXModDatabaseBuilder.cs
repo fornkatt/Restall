@@ -38,8 +38,9 @@ public sealed partial class RenoDXModDatabaseBuilder
         var unityModsDroppedCount = unityGenericMods.Length - database.UnityGenericMods.Length;
         var totalDroppedCount = gameModsDroppedCount + unrealModsDroppedCount + unityModsDroppedCount;
 
-        LogRenoDXDatabaseBuildComplete(database.GameMods.Length, database.UnrealGenericMods.Length,
-            database.UnityGenericMods.Length);
+        LogRenoDXDatabaseBuildComplete(database.GameMods.Length, gameModsDroppedCount,
+            database.UnrealGenericMods.Length, unrealModsDroppedCount,
+            database.UnityGenericMods.Length, unityModsDroppedCount);
 
         if (database.GameMods.IsEmpty && database.UnrealGenericMods.IsEmpty && database.UnityGenericMods.IsEmpty)
             return Result<RenoDXModDatabase>.Error("No 'RenoDX' mods available from database files",
@@ -49,10 +50,7 @@ public sealed partial class RenoDXModDatabaseBuilder
             || database.GameMods.IsEmpty
             || database.UnrealGenericMods.IsEmpty
             || database.UnityGenericMods.IsEmpty)
-            return Result<RenoDXModDatabase>.Partial(database,
-                $"Some entries were dropped from the RenoDX mod database. Game mods: {gameModsDroppedCount}, " +
-                $"Unreal generic mods: {unrealModsDroppedCount}, Unity generic mods: {unityModsDroppedCount}",
-                WarningType.RenoDXModDatabaseIncomplete);
+            return Result<RenoDXModDatabase>.Partial(database, warningType: WarningType.RenoDXModDatabaseIncomplete);
 
         return Result<RenoDXModDatabase>.Success(database);
     }

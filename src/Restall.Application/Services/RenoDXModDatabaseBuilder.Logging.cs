@@ -13,10 +13,12 @@ public sealed partial class RenoDXModDatabaseBuilder
     private partial void LogRenoDXDatabaseBuildStart();
 
     [LoggerMessage(EventId = 2001, Level = LogLevel.Information,
-        Message = "Finished building RenoDX mod database. Game mods {GameModCount}," +
-                  " Unreal generic mods: {UnrealGenericModCount}, Unity generic mods: {UnityGenericModCount}")]
-    private partial void LogRenoDXDatabaseBuildComplete(int gameModCount, int unrealGenericModCount,
-        int unityGenericModCount);
+        Message = "Finished building RenoDX mod database — game mods {GameModCount} ({GameModsDroppedCount} dropped)," +
+                  " Unreal generic mods: {UnrealGenericModCount} ({UnrealGenericModsDroppedCount} dropped)," +
+                  " Unity generic mod: {UnityGenericModCount} ({UnityGenericModsDroppedCount} dropped)")]
+    private partial void LogRenoDXDatabaseBuildComplete(int gameModCount, int gameModsDroppedCount,
+        int unrealGenericModCount, int unrealGenericModsDroppedCount, int unityGenericModCount,
+        int unityGenericModsDroppedCount);
 
     [LoggerMessage(EventId = 2002, Level = LogLevel.Warning,
         Message = "Could not use RenoDX mod entry due to: {DropReason} — entry dropped: \"{Entry}\"")]
