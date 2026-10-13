@@ -46,19 +46,6 @@ public sealed partial class ModViewModel : ViewModelBase
     }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(InstallReShadeButtonText))]
-    [NotifyPropertyChangedFor(nameof(UpdateReShadeButtonText))]
-    [NotifyPropertyChangedFor(nameof(UninstallReShadeButtonText))]
-    [NotifyPropertyChangedFor(nameof(ReShadeVersionTextColor))]
-    [NotifyPropertyChangedFor(nameof(CanShowReShadeUpdate))]
-    [NotifyPropertyChangedFor(nameof(CanShowRenoDXBranchSelector))]
-    [NotifyPropertyChangedFor(nameof(AvailableRenoDXBranches))]
-    [NotifyPropertyChangedFor(nameof(CanShowRenoDXUpdate))]
-    [NotifyPropertyChangedFor(nameof(RenoDXVersionTextColor))]
-    [NotifyPropertyChangedFor(nameof(RenoDXLatestVersionForBranch))]
-    [NotifyPropertyChangedFor(nameof(IsRenoDXUpdateCheckUnavailable))]
-    [NotifyPropertyChangedFor(nameof(SelectedRenoDXReleaseNotes))]
-    [NotifyPropertyChangedFor(nameof(HasSelectedRenoDXReleaseNotes))]
     public partial GameModViewModel? SelectedGame { get; set; }
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
@@ -414,7 +401,7 @@ public sealed partial class ModViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanClickRenoDXInstallButton))]
     private async Task RenoDXInstallButtonClickAsync()
     {
-        if (SelectedGame?.RenoDXEntry is { DownloadOptions: null, ManualSource: { } manualSource })
+        if (SelectedGame?.RenoDXEntry is { ManualSource: { } manualSource })
         {
             OpenUrl(manualSource.Url.AbsoluteUri);
 

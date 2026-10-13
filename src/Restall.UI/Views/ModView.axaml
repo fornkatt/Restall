@@ -9,6 +9,22 @@
              x:Class="Restall.UI.Views.ModView"
              x:DataType="vm:ModViewModel">
 
+    <UserControl.Resources>
+        <Flyout x:Key="RenoDXNoticesFlyout" Placement="Top">
+            <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Notices}"
+                          MaxWidth="380">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <TextBlock Text="{Binding}"
+                                   TextWrapping="Wrap"
+                                   FontSize="12"
+                                   Margin="0, 4" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Flyout>
+    </UserControl.Resources>
+
     <Grid ColumnDefinitions="*"
           RowDefinitions="Auto,*">
 
@@ -222,7 +238,7 @@
 
                 <!-- RENODX -->
                 <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                           IsVisible="{Binding !SelectedGame.IsRenoDXSupported}"
+                           IsVisible="{Binding !SelectedGame.RenoDXEntry.IsSupported}"
                            Text="RenoDX not supported"
                            FontWeight="Bold"
                            FontSize="28"
@@ -232,7 +248,7 @@
                       ColumnDefinitions="0.5*, 0.5*"
                       RowDefinitions="Auto, Auto, Auto, Auto, Auto"
                       Margin="10"
-                      IsVisible="{Binding SelectedGame.IsRenoDXSupported}">
+                      IsVisible="{Binding SelectedGame.RenoDXEntry.IsSupported}">
                     <Grid Grid.Row="0" Grid.Column="0"
                           ColumnDefinitions="0.75*, 0.25*">
                         <Grid Grid.Column="0"
@@ -277,33 +293,19 @@
 
                             <Button Grid.Row="0" Grid.Column="2" Classes="game-card-btn notice-btn"
                                     Classes.unseen="{Binding SelectedGame.HasUnseenRenoDXNotices}"
-                                    IsVisible="{Binding SelectedGame.HasRenoDXNotices}"
+                                    IsVisible="{Binding !SelectedGame.RenoDXEntry.Notices.IsEmpty}"
                                     Command="{Binding SelectedGame.MarkRenoDXNoticesSeenCommand}"
+                                    Flyout="{StaticResource RenoDXNoticesFlyout}"
                                     CornerRadius="6"
                                     Padding="6, 2"
                                     Margin="0, 5, 5, 5"
                                     ToolTip.Tip="Notices">
-                                <Button.Flyout>
-                                    <Flyout Placement="Top">
-                                        <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Notices}"
-                                                      MaxWidth="380">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="sys:String">
-                                                    <TextBlock Text="{Binding}"
-                                                               TextWrapping="Wrap"
-                                                               FontSize="12"
-                                                               Margin="0, 4" />
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </Flyout>
-                                </Button.Flyout>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
                                                FontSize="16"
                                                Text="&#xE4E0;"
                                                VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding SelectedGame.RenoDXNoticeCount}"
+                                    <TextBlock Text="{Binding SelectedGame.RenoDXEntry.Notices.Length}"
                                                FontSize="12"
                                                FontWeight="SemiBold"
                                                VerticalAlignment="Center"
@@ -412,7 +414,7 @@
                                                                            IsVisible="{Binding Lines.IsEmpty}" />
                                                                 <ItemsControl ItemsSource="{Binding Lines}">
                                                                     <ItemsControl.ItemTemplate>
-                                                                        <DataTemplate x:DataType="sys:String">
+                                                                        <DataTemplate x:DataType="x:String">
                                                                             <TextBlock Text="{Binding}"
                                                                                     FontSize="11"
                                                                                     TextWrapping="Wrap" />
@@ -429,7 +431,7 @@
                                     <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
                                                FontSize="16"
                                                Text="&#xE63E;"
-                                               VerticalAlignment="Center"/>
+                                               VerticalAlignment="Center" />
                                 </Button>
                                 <TextBlock Grid.Column="2"
                                            HorizontalAlignment="Center"
@@ -478,7 +480,8 @@
                                         <Button
                                             Grid.Column="1"
                                             Classes="game-card-btn"
-                                            IsVisible="{Binding SelectedGame.HasRenoDXGenericAddonInfo}"
+                                            IsVisible="{Binding SelectedGame.RenoDXEntry.GenericAddonInfo,
+                                            Converter={x:Static ObjectConverters.IsNotNull}}"
                                             CornerRadius="6"
                                             Margin="4, 0, 0, 0"
                                             Padding="6, 2"
@@ -557,7 +560,7 @@
                                                 </ItemsPanelTemplate>
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="sys:String">
+                                                <DataTemplate x:DataType="x:String">
                                                     <Border Background="{DynamicResource AppBackground}"
                                                             CornerRadius="4"
                                                             Padding="6, 2"
@@ -589,12 +592,12 @@
                                                    FontSize="30"
                                                    Text="&#xE184;"
                                                    Foreground="#1ab652"
-                                                   IsVisible="{Binding SelectedGame.IsRenoDXStatusDone}" />
+                                                   IsVisible="{Binding SelectedGame.RenoDXEntry.IsDone}" />
                                         <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
                                                    FontSize="30"
                                                    Text="&#xE948;"
                                                    Foreground="#eb5a2f"
-                                                   IsVisible="{Binding SelectedGame.IsRenoDXStatusWorkInProgress}" />
+                                                   IsVisible="{Binding SelectedGame.RenoDXEntry.IsWorkInProgress}" />
                                     </Panel>
                                 </StackPanel>
                                 <ItemsControl ItemsSource="{Binding SelectedGame.RenoDXEntry.Links}">

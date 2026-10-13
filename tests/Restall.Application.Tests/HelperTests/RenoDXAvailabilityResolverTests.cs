@@ -197,6 +197,17 @@ public class RenoDXAvailabilityResolverTests
         Assert.True(actual.IsSupported);
     }
 
+    [Fact]
+    public void Resolve_GameModWithDownloadAndModPage_ReturnsNoManualSource()
+    {
+        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
+            Architecture.X64, CreateMatch(s_gameMod with { NexusUrl = NexusUrl }), true,
+            s_snapshotWithFile, []);
+
+        Assert.NotNull(actual.DownloadOptions);
+        Assert.Null(actual.ManualSource);
+    }
+
     private static RenoDXModMatch CreateMatch(RenoDXGameMod gameMod) =>
         new(gameMod, null, null, RenoDXModMatch.MatchKind.Exact, []);
 

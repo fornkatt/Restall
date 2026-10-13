@@ -19,8 +19,6 @@ namespace Restall.UI.ViewModels;
 
 public sealed partial class GameModViewModel : ObservableObject
 {
-    private readonly Game _game;
-
     private const int CoverTargetWidth = 600;
     private const int ThumbnailTargetWidth = 32;
 
@@ -31,42 +29,36 @@ public sealed partial class GameModViewModel : ObservableObject
 
     public GameModViewModel(GameEntry gameEntry)
     {
-        _game = gameEntry.Game;
         GameEntry = gameEntry;
 
-        CoverPathString = _game.GameCoverPathString;
-        ThumbnailPathString = _game.ThumbnailPathString;
+        CoverPathString = Game.GameCoverPathString;
+        ThumbnailPathString = Game.ThumbnailPathString;
     }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(RenoDXEntry))]
-    [NotifyPropertyChangedFor(nameof(IsRenoDXSupported))]
     [NotifyPropertyChangedFor(nameof(InstallRenoDXButtonText))]
     [NotifyPropertyChangedFor(nameof(CanUseRenoDXInstallButton))]
-    [NotifyPropertyChangedFor(nameof(HasRenoDXNotices))]
-    [NotifyPropertyChangedFor(nameof(RenoDXNoticeCount))]
     [NotifyPropertyChangedFor(nameof(HasUnseenRenoDXNotices))]
-    [NotifyPropertyChangedFor(nameof(HasRenoDXGenericAddonInfo))]
-    [NotifyPropertyChangedFor(nameof(IsRenoDXStatusDone))]
-    [NotifyPropertyChangedFor(nameof(IsRenoDXStatusWorkInProgress))]
     [NotifyPropertyChangedFor(nameof(IsRenoDXInfoBoxVisible))]
     [NotifyPropertyChangedFor(nameof(ReShadeUpdateCheck))]
     public partial GameEntry GameEntry { get; set; }
 
     public UpdateAvailability? ReShadeUpdateCheck => GameEntry.ReShadeUpdate;
 
-    public string? Name => _game.Name;
-    internal Game GetGame() => _game;
-    public bool HasReShade => _game.HasReShade;
-    public Game.Platform PlatformName => _game.PlatformName;
-    public Game.Engine EngineName => _game.EngineName;
-    public string? ExecutablePath => _game.ExecutablePath;
+    public string? Name => Game.Name;
+    private Game Game => GameEntry.Game;
+    internal Game GetGame() => Game;
+    public bool HasReShade => Game.HasReShade;
+    public Game.Platform PlatformName => Game.PlatformName;
+    public Game.Engine EngineName => Game.EngineName;
+    public string? ExecutablePath => Game.ExecutablePath;
 
     public string? ExecutablePathDisplay => OperatingSystem.IsWindows()
         ? ExecutablePath?.Replace(@"\", "\\\u200B")
         : ExecutablePath?.Replace("/", "/\u200B");
 
-    public string? InstallFolder => _game.InstallFolder;
+    public string? InstallFolder => Game.InstallFolder;
 
     public string? InstallFolderDisplay => OperatingSystem.IsWindows()
         ? InstallFolder?.Replace(@"\", "\\\u200B")
@@ -84,49 +76,39 @@ public sealed partial class GameModViewModel : ObservableObject
         OnPropertyChanged(nameof(RenoDXVersion));
         OnPropertyChanged(nameof(RenoDXBranch));
         OnPropertyChanged(nameof(RenoDXBranchName));
-        OnPropertyChanged(nameof(RenoDXArch));
         OnPropertyChanged(nameof(HasRenoDX));
         OnPropertyChanged(nameof(HasReShade));
-        OnPropertyChanged(nameof(IsRenoDXSupported));
         OnPropertyChanged(nameof(CanUseRenoDXInstallButton));
     }
 
     // ReShade -------------------------------------------------------------------------------
 
-    public string? ReShadeVersion => _game.ReShade?.Version;
-    public string? ReShadeBranch => _game.ReShade?.BranchName.ToString();
-    public ReShade.Branch? ReShadeBranchName => _game.ReShade?.BranchName;
-    public string? ReShadeArch => _game.ReShade?.Arch.ToString();
-    public string? ReShadeFilename => _game.ReShade?.SelectedFilename;
+    public string? ReShadeVersion => Game.ReShade?.Version;
+    public string? ReShadeBranch => Game.ReShade?.BranchName.ToString();
+    public ReShade.Branch? ReShadeBranchName => Game.ReShade?.BranchName;
+    public string? ReShadeArch => Game.ReShade?.Arch.ToString();
+    public string? ReShadeFilename => Game.ReShade?.SelectedFilename;
 
     // RenoDX --------------------------------------------------------------------------------
 
     public RenoDXEntry RenoDXEntry => GameEntry.RenoDXEntry;
 
-    public bool IsRenoDXSupported => RenoDXEntry.IsSupported;
-
     public bool CanUseRenoDXInstallButton =>
         HasReShade && RenoDXEntry is { DownloadOptions: not null } or { ManualSource: not null };
 
-    public bool HasRenoDXGenericAddonInfo => RenoDXEntry.GenericAddonInfo is not null;
-    public bool IsRenoDXStatusDone => RenoDXEntry.IsDone;
-    public bool IsRenoDXStatusWorkInProgress => RenoDXEntry.IsWorkInProgress;
     public RenoDX.Branch? LastSelectedRenoDXBranch { get; set; }
-    public bool HasRenoDXNotices => !RenoDXEntry.Notices.IsEmpty;
-    public int RenoDXNoticeCount => RenoDXEntry.Notices.Length;
 
     public bool HasUnseenRenoDXNotices => RenoDXEntry.Notices.Except(_seenRenoDXNotices).Any();
 
-    public bool HasRenoDX => _game.HasRenoDX;
-    public string? RenoDXName => _game.RenoDX?.SelectedName;
-    public string? RenoDXVersion => _game.RenoDX?.Version;
-    public string? RenoDXBranch => _game.RenoDX?.BranchName.ToString();
-    public RenoDX.Branch? RenoDXBranchName => _game.RenoDX?.BranchName;
-    public string? RenoDXArch => _game.RenoDX?.Arch.ToString();
+    public bool HasRenoDX => Game.HasRenoDX;
+    public string? RenoDXName => Game.RenoDX?.SelectedName;
+    public string? RenoDXVersion => Game.RenoDX?.Version;
+    public string? RenoDXBranch => Game.RenoDX?.BranchName.ToString();
+    public RenoDX.Branch? RenoDXBranchName => Game.RenoDX?.BranchName;
 
     public string InstallRenoDXButtonText => RenoDXEntry switch
     {
-        { DownloadOptions: null, ManualSource: { } manualSource } => $"Get from {manualSource.Label}",
+        { ManualSource: { } manualSource } => $"Get from {manualSource.Label}",
         { DownloadOptions.IsInstalledFile: true, GenericAddonInfo: not null, } => "Reinstall generic mod",
         { DownloadOptions.IsInstalledFile: true } => "Reinstall",
         { DownloadOptions: not null } when HasRenoDX => $"Replace with {GetBitnessText()} build",
@@ -163,7 +145,7 @@ public sealed partial class GameModViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsRenoDXInfoBoxVisible))]
     public partial string? RenoDXModActionStatus { get; set; }
 
-    public bool IsRenoDXInfoBoxVisible => IsRenoDXSupported || IsShowingRenoDXActionMessage;
+    public bool IsRenoDXInfoBoxVisible => RenoDXEntry.IsSupported || IsShowingRenoDXActionMessage;
 
     public bool IsShowingRenoDXActionMessage => RenoDXModActionStatus is not null;
 

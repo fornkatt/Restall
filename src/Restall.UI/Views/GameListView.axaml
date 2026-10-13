@@ -77,7 +77,7 @@
                                     <ItemsControl ItemsSource="{Binding RefreshWarnings}"
                                                   MaxWidth="380">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="sys:String">
+                                            <DataTemplate x:DataType="x:String">
                                                 <TextBlock Text="{Binding}"
                                                            TextWrapping="Wrap"
                                                            FontSize="12"
