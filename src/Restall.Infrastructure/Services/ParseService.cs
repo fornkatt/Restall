@@ -140,14 +140,15 @@ internal sealed partial class ParseService : IParseService
         var nightlyTags = FetchRenoDXNightlyTagNames(document);
 
         if (nightlyTags.IsEmpty)
-            return Result<ImmutableArray<RenoDXTagInfo>>.Error($"Could not find any 'RenoDX' on \"{RenoDXTagsUrl}\"");
+            return Result<ImmutableArray<RenoDXTagInfo>>.Error(
+                $"Could not find any 'RenoDX' Nightly tags on \"{RenoDXTagsUrl}\"");
 
         var nightlyResults = await Task.WhenAll(
             nightlyTags.Select(nightlyTag => FetchRenoDXNightlyAsync(nightlyTag, cancellationToken)));
         var nightlies = nightlyResults.OfType<RenoDXTagInfo>().ToImmutableArray();
 
         LogRenoDXNightliesFetchComplete(nightlies.Length, nightlyTags.Length,
-            nightlies.FirstOrDefault()?.Version);
+            nightlies.MaxBy(n => n.Date)?.Version);
 
         if (nightlies.IsEmpty)
             return Result<ImmutableArray<RenoDXTagInfo>>
@@ -237,7 +238,7 @@ internal sealed partial class ParseService : IParseService
     {
         LogRenoDXNightlyTagParsingStart(nightlyTag);
 
-        var dateText = nightlyTag["nightly-".Length..];
+        var dateText = nightlyTag[RenoDX.NightlyTagPrefix.Length..];
 
         if (!DateOnly.TryParseExact(dateText, RenoDX.VersionFormat, CultureInfo.InvariantCulture,
                 DateTimeStyles.None, out var date))
@@ -333,7 +334,7 @@ internal sealed partial class ParseService : IParseService
     private static ImmutableArray<string> FetchRenoDXNightlyTagNames(HtmlDocument document)
     {
         var tagNodes = document.DocumentNode
-            .SelectNodes("//a[contains(@href, 'clshortfuse/renodx/releases/tag/nightly-')]");
+            .SelectNodes($"//a[contains(@href, 'clshortfuse/renodx/releases/tag/{RenoDX.NightlyTagPrefix}')]");
 
         if (tagNodes is null)
             return [];
@@ -344,7 +345,9 @@ internal sealed partial class ParseService : IParseService
         {
             var tag = node.GetAttributeValue("href", string.Empty).Split('/').LastOrDefault();
 
-            if (string.IsNullOrWhiteSpace(tag) || !tag.StartsWith("nightly-") || tags.Contains(tag))
+            if (string.IsNullOrWhiteSpace(tag)
+                || !tag.StartsWith(RenoDX.NightlyTagPrefix, StringComparison.Ordinal)
+                || tags.Contains(tag))
                 continue;
 
             tags.Add(tag);

@@ -7,7 +7,7 @@ using Restall.Application.DTOs.RenoDXDTOs;
 
 namespace Restall.Application.Tests.CommonTests;
 
-public class RenoDXTextsTest
+public class RenoDXTextsTests
 {
     [Fact]
     public void GetStatusText_EveryStatus_ReturnsText()

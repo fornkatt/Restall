@@ -15,6 +15,9 @@ public class RenoDXModSourceServiceTests
 {
     private const string GameModsUrl = "https://raw.githubusercontent.com/RankFTW/rhi-repo/main/database/RenoDXdb.json";
 
+    private const string UnrealGenericModsUrl =
+        "https://raw.githubusercontent.com/RankFTW/rhi-repo/main/database/RenoDXdb-unreal.json";
+
     private const string ValidGameModEntry =
         """
         {
@@ -108,30 +111,31 @@ public class RenoDXModSourceServiceTests
     }
 
     [Fact]
-    public async Task FetchGameModsAsync_OutOfRangeModStatusEntry_ReturnsPartialWithoutEntry()
+    public async Task FetchUnrealGenericModsAsync_EntryWithLiveSpellings_ReturnsSuccessWithEveryField()
     {
-        const string validGameModWithUnknownStatus = """
-                                                     {
-                                                        "name": "Test Game",
-                                                        "status": "Unknown",
-                                                        "author": "Tester",
-                                                        "snapshotUrl": "https://restalltests.com/renodx-game.addon64",
-                                                        "snapshotUrl32": "https://restalltests.com/renodx-game.addon32",
-                                                        "nexusUrl": null,
-                                                        "discordUrl": null,
-                                                        "discussionUrl": null,
-                                                        "notes": "test game"
-                                                     }
-                                                     """;
+        const string unrealGenericModEntry = """
+                                             {
+                                                "Name": "Unreal Test Game",
+                                                "Status": "WIP",
+                                                "Method": "upgrade",
+                                                "Upgrades": "`R10G10B10A2_UNORM`",
+                                                "Comments": "test comment"
+                                             }
+                                             """;
         var handler = new FakeHttpMessageHandler();
-        handler.RespondWith(GameModsUrl, JsonResponse($"[{validGameModWithUnknownStatus}, {ValidGameModEntry}]"));
+        handler.RespondWith(UnrealGenericModsUrl, JsonResponse($"[{unrealGenericModEntry}]"));
         var sut = CreateService(handler);
+        var result = await sut.FetchUnrealGenericModsAsync(TestContext.Current.CancellationToken);
 
-        var result = await sut.FetchGameModsAsync(TestContext.Current.CancellationToken);
+        var actual = Assert.Single(result.Value);
 
-        Assert.True(result.IsPartial);
         Assert.True(result.IsSuccess);
-        Assert.Single(result.Value);
+        Assert.False(result.IsPartial);
+        Assert.Equal(new RenoDXUnrealGenericMod("Unreal Test Game",
+            RenoDXModStatus.Wip,
+            RenoDXUnrealGenericMod.UnrealModMethod.Upgrade,
+            "`R10G10B10A2_UNORM`",
+            "test comment"), actual);
     }
 
     private static RenoDXModSourceService CreateService(FakeHttpMessageHandler handler) =>

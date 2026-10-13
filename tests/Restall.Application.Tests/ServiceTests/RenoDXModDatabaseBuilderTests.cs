@@ -8,7 +8,7 @@ using Restall.Application.Services;
 
 namespace Restall.Application.Tests.ServiceTests;
 
-public class RenoDXDatabaseBuilderTests
+public class RenoDXModDatabaseBuilderTests
 {
     private static readonly RenoDXGameMod s_validGameMod =
         new("Test Game", RenoDXModStatus.Done, null, null, null, null,

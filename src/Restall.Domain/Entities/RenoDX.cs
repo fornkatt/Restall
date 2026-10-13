@@ -14,6 +14,7 @@ public sealed class RenoDX
     public const string AddonExtension = ".addon64";
     public const string AddonExtension32 = ".addon32";
     public const string OriginalFilenameStart = "renodx-";
+    public const string NightlyTagPrefix = "nightly-";
 
     public string? SelectedName { get; set; }
     public string? OriginalName { get; set; }

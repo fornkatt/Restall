@@ -12,7 +12,8 @@ namespace Restall.Infrastructure.Tests.ServiceTests;
 
 public class ParseServiceTests
 {
-    private const string RenoDXSnapshotPageUrl = "https://github.com/clshortfuse/renodx/releases/tag/snapshot";
+    private const string RenoDXReleaseTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/";
+    private const string RenoDXSnapshotPageUrl = RenoDXReleaseTagUrl + "snapshot";
     private const string RenoDXAssetsUrl = "https://github.com/clshortfuse/renodx/releases/expanded_assets/";
 
     private const string RenoDXSnapshotPage =
@@ -67,6 +68,7 @@ public class ParseServiceTests
         Assert.Equal(["renodx-game.addon64", "renodx-game.addon32"], actual.Value.AddonFilenames);
         Assert.Equal(new Uri("https://github.com/clshortfuse/renodx/releases/download/snapshot/renodx-game.addon64"),
             actual.Value.GetDownloadUrl("renodx-game.addon64"));
+        Assert.Equal(["[Changes] Fix test game"], actual.Value.CommitNotes);
     }
 
     [Fact]
@@ -114,6 +116,7 @@ public class ParseServiceTests
         Assert.False(actual.IsPartial);
         Assert.Equal(["20261002", "20261003"], actual.Value.Select(n => n.Version));
         Assert.Equal(["renodx-game.addon64", "renodx-game.addon32"], actual.Value[0].AddonFilenames);
+        Assert.Equal(["Fix test game"], actual.Value[0].CommitNotes);
     }
 
     [Fact]
@@ -139,10 +142,8 @@ public class ParseServiceTests
 
         foreach (var tag in new[] { "nightly-20261002", "nightly-20261003" })
         {
-            handler.RespondWith("https://github.com/clshortfuse/renodx/releases/tag/" + tag,
-                HtmlResponse(RenoDXNightlyPage));
-            handler.RespondWith($"https://github.com/clshortfuse/renodx/releases/expanded_assets/{tag}",
-                HtmlResponse(AssetsPage(tag)));
+            handler.RespondWith(RenoDXReleaseTagUrl + tag, HtmlResponse(RenoDXNightlyPage));
+            handler.RespondWith(RenoDXAssetsUrl + tag, HtmlResponse(AssetsPage(tag)));
         }
 
         return handler;

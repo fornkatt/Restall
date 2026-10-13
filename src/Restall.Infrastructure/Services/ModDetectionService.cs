@@ -85,11 +85,13 @@ internal sealed partial class ModDetectionService : IModDetectionService
 
         try
         {
-            await ScanFilesAsync(executableDirectory, ["*.addon64", "*.addon32"], long.MaxValue,
+            await ScanFilesAsync(executableDirectory, [$"*{RenoDX.AddonExtension}", $"*{RenoDX.AddonExtension32}"],
+                long.MaxValue,
                 async (file, versionInfo) =>
                 {
                     if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
-                        versionInfo.OriginalFilename.StartsWith(RenoDX.OriginalFilenameStart, StringComparison.OrdinalIgnoreCase) &&
+                        versionInfo.OriginalFilename.StartsWith(RenoDX.OriginalFilenameStart,
+                            StringComparison.OrdinalIgnoreCase) &&
                         !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
                     {
                         var filename = Path.GetFileName(file);
