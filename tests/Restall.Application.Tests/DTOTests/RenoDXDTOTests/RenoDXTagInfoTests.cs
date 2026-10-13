@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.DTOs.RenoDXDTOs;
-using Restall.Domain.Entities;
 using System.Collections.Frozen;
 
 namespace Restall.Application.Tests.DTOTests.RenoDXDTOTests;
@@ -37,6 +36,6 @@ public class RenoDXTagInfoTests
     }
 
     private static RenoDXTagInfo CreateTag(DateOnly date, params string[] addonFilenames) =>
-        new(date, RenoDX.Branch.Snapshot, new Uri("https://restalltests.com/releases/"),
+        new(date, new Uri("https://restalltests.com/releases/"),
             addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 }

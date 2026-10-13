@@ -4,7 +4,6 @@
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.Stores;
-using Restall.Domain.Entities;
 
 namespace Restall.Application.Tests.StoreTests;
 
@@ -31,7 +30,7 @@ public class RenoDXCatalogTests
                     null, null, null, null)
             ]
         };
-        var snapshot = new RenoDXTagInfo(new DateOnly(2026, 10, 5), RenoDX.Branch.Snapshot,
+        var snapshot = new RenoDXTagInfo(new DateOnly(2026, 10, 5),
             new Uri("https://restalltests.com/snapshot/"), [], []);
         var sut = new RenoDXCatalog();
 

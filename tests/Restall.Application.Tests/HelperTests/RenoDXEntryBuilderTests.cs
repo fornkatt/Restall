@@ -21,8 +21,7 @@ public class RenoDXEntryBuilderTests
             "https://www.nexusmods.com/testgame/mods/1", "https://discord.com/channels/1/2",
             "https://github.com/clshortfuse/renodx/discussions/1", "Test notes");
 
-    private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 10, 7),
-        RenoDX.Branch.Snapshot, new Uri("https://restalltests.com/releases/"),
+    private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 10, 7), new Uri("https://restalltests.com/releases/"),
         new[] { AddonFilename }.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 
     [Fact]
@@ -121,7 +120,7 @@ public class RenoDXEntryBuilderTests
             Arch = Architecture.X32,
             Version = "20261001"
         };
-        var nightly = new RenoDXTagInfo(new DateOnly(2026, 10, 1), RenoDX.Branch.Nightly,
+        var nightly = new RenoDXTagInfo(new DateOnly(2026, 10, 1),
             new Uri("https://restalltests.com/releases/"),
             new[] { AddonFilename }.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
         var match = new RenoDXModMatch(s_gameMod, null, null,

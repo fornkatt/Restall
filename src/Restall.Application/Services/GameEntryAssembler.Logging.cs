@@ -7,7 +7,7 @@ using Restall.Application.DTOs.RenoDXDTOs;
 namespace Restall.Application.Services;
 
 // RenoDX Game Entry Assembler — EventId range: 2100 - 2149
-public partial class GameEntryAssembler
+public sealed partial class GameEntryAssembler
 {
     [LoggerMessage(EventId = 2100, Level = LogLevel.Debug,
         Message = "Matched \"{GameName}\" to RenoDX mod \"{ModName}\" ({MatchKind})")]

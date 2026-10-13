@@ -10,10 +10,10 @@ namespace Restall.Application.Tests.DTOTests.RenoDXDTOTests;
 public class RenoDXDownloadOptionsTests
 {
     private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 9, 28),
-        RenoDX.Branch.Snapshot, new Uri("https://restalltests.com/snapshot/"), [], []);
+        new Uri("https://restalltests.com/snapshot/"), [], []);
 
     private static readonly RenoDXTagInfo s_nightly = new(new DateOnly(2026, 9, 28),
-        RenoDX.Branch.Nightly, new Uri("https://restalltests.com/nightly/"), [], []);
+        new Uri("https://restalltests.com/nightly/"), [], []);
 
     private static readonly Uri s_directUrl = new("https://restalltests.com/renodx-game.addon64");
 
@@ -112,7 +112,7 @@ public class RenoDXDownloadOptionsTests
     }
 
     private static RenoDXTagInfo CreateNightly(DateOnly date) =>
-        new(date, RenoDX.Branch.Nightly, new Uri("https://restalltests.com/nightly/"), [], []);
+        new(date, new Uri("https://restalltests.com/nightly/"), [], []);
 
     private static RenoDXDownloadOptions CreateOptions(RenoDXTagInfo? snapshot = null,
         ImmutableArray<RenoDXTagInfo>? nightlies = null, Uri? directUrl = null) =>

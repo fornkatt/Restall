@@ -92,9 +92,7 @@ public sealed partial class RenoDXModDatabaseBuilder
         if (nameOrStatusDropReason is not null)
             return nameOrStatusDropReason;
 
-        if (mod.Method is not (RenoDXUnrealGenericMod.UnrealModMethod.Native
-            or RenoDXUnrealGenericMod.UnrealModMethod.Upgrade
-            or RenoDXUnrealGenericMod.UnrealModMethod.Ini))
+        if (!Enum.IsDefined(mod.Method))
             return $"Unknown Unreal mod method \"{mod.Method}\"";
 
         return null;
@@ -108,7 +106,7 @@ public sealed partial class RenoDXModDatabaseBuilder
         if (string.IsNullOrWhiteSpace(name))
             return "Missing name";
 
-        if (status is not (RenoDXModStatus.Done or RenoDXModStatus.Wip))
+        if (!Enum.IsDefined(status))
             return $"Unknown status \"{status}\"";
 
         return null;

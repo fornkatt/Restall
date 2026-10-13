@@ -3,7 +3,7 @@
 
 using Restall.Domain.Entities;
 
-namespace Restall.Application.DTOs.Responses;
+namespace Restall.Application.DTOs;
 
 public sealed record GameScanResultDto(
     Game.Platform Platform,

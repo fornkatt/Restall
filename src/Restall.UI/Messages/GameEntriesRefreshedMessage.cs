@@ -3,4 +3,4 @@
 
 namespace Restall.UI.Messages;
 
-public record GameEntriesRefreshedMessage;
+public sealed record GameEntriesRefreshedMessage;

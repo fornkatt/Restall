@@ -212,7 +212,7 @@ public class RenoDXAvailabilityResolverTests
         new(gameMod, null, null, RenoDXModMatch.MatchKind.Exact, []);
 
     private static RenoDXTagInfo CreateSnapshot(params string[] addonFilenames) =>
-        new(new DateOnly(2026, 10, 7), RenoDX.Branch.Snapshot,
+        new(new DateOnly(2026, 10, 7),
             new Uri("https://restalltests.com/releases/"),
             addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 }

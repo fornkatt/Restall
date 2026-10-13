@@ -77,13 +77,13 @@ public class RenoDXBranchVersionsResolverTests
 
     private static RenoDXDownloadOptions CreateOptions() =>
         new(AddonFilename, new Uri("https://restalltests.com/releases/renodx-game.addon64"),
-            CreateTag(new DateOnly(2026, 10, 7), RenoDX.Branch.Snapshot),
+            CreateTag(new DateOnly(2026, 10, 7)),
             [
-                CreateTag(new DateOnly(2026, 10, 6), RenoDX.Branch.Nightly),
-                CreateTag(new DateOnly(2026, 10, 5), RenoDX.Branch.Nightly)
+                CreateTag(new DateOnly(2026, 10, 6)),
+                CreateTag(new DateOnly(2026, 10, 5))
             ]);
 
-    private static RenoDXTagInfo CreateTag(DateOnly date, RenoDX.Branch branch) =>
-        new(date, branch, new Uri("https://restalltests.com/releases/"),
+    private static RenoDXTagInfo CreateTag(DateOnly date) =>
+        new(date, new Uri("https://restalltests.com/releases/"),
             new[] { AddonFilename }.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 }

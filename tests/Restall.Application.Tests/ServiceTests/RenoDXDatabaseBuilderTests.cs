@@ -93,6 +93,24 @@ public class RenoDXDatabaseBuilderTests
         Assert.Equal(s_validGameMod, Assert.Single(actual.Value.GameMods));
     }
 
+    [Fact]
+    public void Build_UnrealGenericModWithCombinedMethods_ReturnsPartialWithoutIt()
+    {
+        var combinedMethodsMod = s_validUnrealGenericMod with
+        {
+            Method = RenoDXUnrealGenericMod.UnrealModMethod.Upgrade | RenoDXUnrealGenericMod.UnrealModMethod.Ini
+        };
+        var sut = CreateBuilder();
+
+        var actual = sut.Build([s_validGameMod], [s_validUnrealGenericMod, combinedMethodsMod],
+            [s_validUnityGenericMod]);
+
+        Assert.True(actual.IsPartial);
+        Assert.Equal(WarningType.RenoDXModDatabaseIncomplete, actual.WarningType);
+        Assert.NotNull(actual.Value);
+        Assert.Equal(s_validUnrealGenericMod, Assert.Single(actual.Value.UnrealGenericMods));
+    }
+
     private static RenoDXModDatabaseBuilder CreateBuilder() =>
         new(NullLogger<RenoDXModDatabaseBuilder>.Instance);
 }

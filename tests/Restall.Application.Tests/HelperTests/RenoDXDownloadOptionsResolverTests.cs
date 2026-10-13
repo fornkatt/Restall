@@ -17,8 +17,8 @@ public class RenoDXDownloadOptionsResolverTests
     [Fact]
     public void Resolve_FileOnSnapshotAndNightlyWithDirectUrl_ReturnsAllBranches()
     {
-        var snapshot = CreateTag(7, RenoDX.Branch.Snapshot, AddonFilename);
-        var nightly = CreateTag(6, RenoDX.Branch.Nightly, AddonFilename);
+        var snapshot = CreateTag(7, AddonFilename);
+        var nightly = CreateTag(6, AddonFilename);
 
         var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, s_directUrl, snapshot,
             [nightly]);
@@ -34,8 +34,8 @@ public class RenoDXDownloadOptionsResolverTests
     [Fact]
     public void Resolve_FileOnOneOfTwoNightlies_ReturnsOnlyNightlyWithFile()
     {
-        var nightlyWithFile = CreateTag(7, RenoDX.Branch.Nightly, AddonFilename);
-        var nightlyWithoutFile = CreateTag(6, RenoDX.Branch.Nightly,
+        var nightlyWithFile = CreateTag(7, AddonFilename);
+        var nightlyWithoutFile = CreateTag(6,
             "renodx-other.addon64");
 
         var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, null, null,
@@ -49,7 +49,7 @@ public class RenoDXDownloadOptionsResolverTests
     [Fact]
     public void Resolve_FileMissingFromSnapshotList_ReturnsNoSnapshot()
     {
-        var snapshot = CreateTag(7, RenoDX.Branch.Snapshot, "renodx-other.addon64");
+        var snapshot = CreateTag(7, "renodx-other.addon64");
 
         var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, s_directUrl, snapshot, []);
 
@@ -61,7 +61,7 @@ public class RenoDXDownloadOptionsResolverTests
     [Fact]
     public void Resolve_SnapshotFileListUnavailable_ReturnsSnapshot()
     {
-        var snapshotWithoutFileList = CreateTag(7, RenoDX.Branch.Snapshot);
+        var snapshotWithoutFileList = CreateTag(7);
 
         var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, null, snapshotWithoutFileList,
             []);
@@ -74,8 +74,8 @@ public class RenoDXDownloadOptionsResolverTests
     [Fact]
     public void Resolve_FileOnNoListAndNoDirectUrl_ReturnsNothing()
     {
-        var snapshot = CreateTag(7, RenoDX.Branch.Snapshot, "renodx-other.addon64");
-        var nightly = CreateTag(6, RenoDX.Branch.Nightly, "renodx-other.addon64");
+        var snapshot = CreateTag(7, "renodx-other.addon64");
+        var nightly = CreateTag(6, "renodx-other.addon64");
 
         var actual = RenoDXDownloadOptionsResolver.Resolve(AddonFilename, null, snapshot,
             [nightly]);
@@ -87,7 +87,7 @@ public class RenoDXDownloadOptionsResolverTests
     public void Resolve_GenericAddonWithSnapshotFileListUnavailable_ReturnsNoSnapshot()
     {
         const string genericAddonFilename = "renodx-ue-extended.addon64";
-        var snapshotWithoutFileList = CreateTag(7, RenoDX.Branch.Snapshot);
+        var snapshotWithoutFileList = CreateTag(7);
 
         var actual = RenoDXDownloadOptionsResolver.Resolve(genericAddonFilename, s_directUrl,
             snapshotWithoutFileList, []);
@@ -97,7 +97,7 @@ public class RenoDXDownloadOptionsResolverTests
         Assert.Equal([RenoDX.Branch.Direct], actual.Branches);
     }
 
-    private static RenoDXTagInfo CreateTag(int day, RenoDX.Branch branch, params string[] addonFilenames) =>
-        new(new DateOnly(2026, 10, day), branch, new Uri("https://restalltests.com/releases/"),
+    private static RenoDXTagInfo CreateTag(int day, params string[] addonFilenames) =>
+        new(new DateOnly(2026, 10, day), new Uri("https://restalltests.com/releases/"),
             addonFilenames.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 }

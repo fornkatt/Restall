@@ -111,16 +111,16 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
             GetModsOrLastLoaded(unrealGenericModsResult, lastLoaded.UnrealGenericMods),
             GetModsOrLastLoaded(unityGenericModsResult, lastLoaded.UnityGenericMods));
 
-        if (databaseResult.IsSuccess)
-            _renoDXCatalog.LoadModDatabase(databaseResult.Value!);
-        else
-            LogRenoDXModDatabaseBuildFailure(databaseResult.Message);
+        const string modListName = "the RenoDX mod list";
 
-        if (!databaseResult.IsSuccess
-            || !gameModsResult.IsSuccess
-            || !unrealGenericModsResult.IsSuccess
-            || !unityGenericModsResult.IsSuccess)
-            return GetRefreshFailureMessage("the RenoDX mod list");
+        if (!databaseResult.IsSuccess)
+        {
+            LogRenoDXModDatabaseBuildFailure(databaseResult.Message);
+            return GetRefreshFailureMessage(modListName);
+        }
+
+        if (!gameModsResult.IsSuccess || !unrealGenericModsResult.IsSuccess || !unityGenericModsResult.IsSuccess)
+            return GetRefreshFailureMessage(modListName);
 
         return databaseResult.IsPartial ? GetWarningMessage(databaseResult.WarningType) : null;
     }

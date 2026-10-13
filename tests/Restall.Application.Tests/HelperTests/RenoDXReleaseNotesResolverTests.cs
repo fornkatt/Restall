@@ -72,13 +72,13 @@ public class RenoDXReleaseNotesResolverTests
 
     private static RenoDXDownloadOptions CreateOptions() =>
         new(AddonFilename, new Uri("https://restalltests.com/releases/renodx-game.addon64"),
-            CreateTag(new DateOnly(2026, 10, 7), RenoDX.Branch.Snapshot, "Snapshot change"),
+            CreateTag(new DateOnly(2026, 10, 7), "Snapshot change"),
             [
-                CreateTag(new DateOnly(2026, 10, 5), RenoDX.Branch.Nightly, "Older nightly change"),
-                CreateTag(new DateOnly(2026, 10, 6), RenoDX.Branch.Nightly, "Latest nightly change"),
-                CreateTag(new DateOnly(2026, 10, 4), RenoDX.Branch.Nightly, "Oldest nightly change")
+                CreateTag(new DateOnly(2026, 10, 5), "Older nightly change"),
+                CreateTag(new DateOnly(2026, 10, 6), "Latest nightly change"),
+                CreateTag(new DateOnly(2026, 10, 4), "Oldest nightly change")
             ]);
 
-    private static RenoDXTagInfo CreateTag(DateOnly date, RenoDX.Branch branch, string commitNote) =>
-        new(date, branch, new Uri("https://restalltests.com/releases/"), [AddonFilename], [commitNote]);
+    private static RenoDXTagInfo CreateTag(DateOnly date, string commitNote) =>
+        new(date, new Uri("https://restalltests.com/releases/"), [AddonFilename], [commitNote]);
 }

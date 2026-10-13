@@ -10,7 +10,6 @@ namespace Restall.Application.DTOs.RenoDXDTOs;
 
 public sealed record RenoDXTagInfo(
     DateOnly Date,
-    RenoDX.Branch Branch,
     Uri DownloadBaseUrl,
     FrozenSet<string> AddonFilenames,
     ImmutableArray<string> CommitNotes)
