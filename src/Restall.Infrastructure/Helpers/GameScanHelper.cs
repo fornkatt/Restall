@@ -134,7 +134,8 @@ internal static class GameScanHelper
             "_CommonRedist",
             "UE_",
             "Lossless Scaling",
-            "SteamVR"
+            "SteamVR",
+            "DigitalCompanion"
         };
         if (nonGameArray.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase)))
             return true;
