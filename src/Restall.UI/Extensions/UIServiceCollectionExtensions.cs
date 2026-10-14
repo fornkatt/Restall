@@ -18,7 +18,9 @@ public static class UIServiceCollectionExtensions
             .AddSingleton<IIconConverterService, IconConverterService>();
 
         services
-            .AddSingleton<IModSelectionDialogService, ModSelectionDialogService>()
+            .AddSingleton<IModSelectionDialogService, ModSelectionDialogService>();
+
+        services
             .AddSingleton<IFolderPickerService, FolderPickerService>()
             .AddSingleton<IFileExplorerService, FileExplorerService>();
 

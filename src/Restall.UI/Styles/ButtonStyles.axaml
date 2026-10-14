@@ -18,7 +18,7 @@
     </Style>
 
     <!-- ModView Game Card buttons -->
-    <Style Selector="Button.toolbar-btn TextBlock.spinning">
+    <Style Selector="Button.toolbar-btn TextBlock.spinning-animation">
         <Style.Animations>
             <Animation Duration="0:0:1" IterationCount="Infinite">
                 <KeyFrame Cue="0%">
