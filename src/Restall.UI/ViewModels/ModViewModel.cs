@@ -38,9 +38,8 @@ public sealed partial class ModViewModel : ViewModelBase
     public ModViewModel(
         IModManagementFacade modManagementFacade,
         IModSelectionDialogService modSelectionDialogService,
-        IVersionCatalog versionCatalog
-        IFileExplorerService fileExplorerService,
-        IVersionCatalog versionCatalog
+        IVersionCatalog versionCatalog,
+        IFileExplorerService fileExplorerService
     )
     {
         _modManagementFacade = modManagementFacade;
