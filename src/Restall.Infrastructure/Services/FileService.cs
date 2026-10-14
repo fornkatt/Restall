@@ -10,6 +10,9 @@ namespace Restall.Infrastructure.Services;
 
 internal sealed class FileService : IFileService
 {
+    public bool FileExists(string filePath) =>
+        File.Exists(filePath);
+
     public Result TryDeleteFile(string path, string? verifyOriginalFilename = null)
     {
         if (!File.Exists(path))

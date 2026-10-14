@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
-using Restall.Application.UseCases.Requests;
+using Restall.Application.DTOs.Requests;
+using Restall.Application.DTOs.Responses;
 
 namespace Restall.Application.Interfaces.Driving;
 
 public interface IInstallRenoDXUseCase
 {
-    Task<ModOperationResultDto> ExecuteAsync(InstallRenoDXRequest request,
-        IProgress<DownloadProgressReportDto>? progress = null);
+    Task<RenoDXInstallResponse> ExecuteAsync(RenoDXInstallRequest request,
+        IProgress<DownloadProgressReport>? progress = null);
 }

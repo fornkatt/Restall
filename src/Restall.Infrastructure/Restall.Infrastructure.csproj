@@ -29,17 +29,14 @@
       <Compile Update="Services\GameIconService.Logging.cs">
         <DependentUpon>GameIconService.cs</DependentUpon>
       </Compile>
-      <Compile Update="Services\Log.GameIconService.cs">
-        <DependentUpon>GameIconService.cs</DependentUpon>
-      </Compile>
       <Compile Update="Services\ModDetectionService.Logging.cs">
         <DependentUpon>ModDetectionService.cs</DependentUpon>
       </Compile>
       <Compile Update="Services\ParseService.Logging.cs">
         <DependentUpon>ParseService.cs</DependentUpon>
       </Compile>
-      <Compile Update="Services\ModDownloadService.Logging.cs">
-        <DependentUpon>ModDownloadService.cs</DependentUpon>
+      <Compile Update="Services\DownloadService.Logging.cs">
+        <DependentUpon>DownloadService.cs</DependentUpon>
       </Compile>
       <Compile Update="Services\GameCoverService.Logging.cs">
         <DependentUpon>GameCoverService.cs</DependentUpon>
@@ -70,6 +67,9 @@
       </Compile>
       <Compile Update="Scanners\XboxScanner.Logging.cs">
         <DependentUpon>XboxScanner.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\RenoDXModSourceService.Logging.cs">
+        <DependentUpon>RenoDXModSourceService.cs</DependentUpon>
       </Compile>
       <Compile Update="Scanners\CustomFolderScanner.Logging.cs">
         <DependentUpon>CustomFolderScanner.cs</DependentUpon>

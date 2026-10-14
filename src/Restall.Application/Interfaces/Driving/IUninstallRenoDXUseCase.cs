@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.Interfaces.Driving;
 
 public interface IUninstallRenoDXUseCase
 {
-    ModOperationResultDto Execute(Game game);
+    RenoDXUninstallResponse Execute(Game game);
 }

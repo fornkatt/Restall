@@ -1,16 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Restall.Application.Interfaces.Driven;
-using Restall.UI.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
+using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
+using Restall.UI.Interfaces;
 using Restall.UI.Messages;
 using System;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -32,7 +33,6 @@ public sealed partial class GameListViewModel : ViewModelBase
         IGameRefreshUseCase gameRefresh,
         IFolderPickerService folderPicker,
         ICustomGameFolderStore customGameFolderStore
-
     )
     {
         _logger = logger;
@@ -44,14 +44,24 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     private CancellationTokenSource _messageCts = new();
 
-    [ObservableProperty]
-    public partial ObservableCollection<GameModViewModel> Games { get; set; } = [];
+    [ObservableProperty] public partial ObservableCollection<GameModViewModel> Games { get; set; } = [];
+
+    [ObservableProperty] public partial GameModViewModel? SelectedGame { get; set; }
+
+    [ObservableProperty] public partial string? ScanMessage { get; set; }
 
     [ObservableProperty]
-    public partial GameModViewModel? SelectedGame { get; set; }
+    [NotifyPropertyChangedFor(nameof(HasRefreshWarnings))]
+    [NotifyPropertyChangedFor(nameof(RefreshWarningCount))]
+    public partial ImmutableArray<string> RefreshWarnings { get; set; } = [];
 
-    [ObservableProperty]
-    public partial string? ScanMessage { get; set; }
+    [ObservableProperty] public partial bool HasUnseenRefreshWarnings { get; set; }
+
+    public bool HasRefreshWarnings => !RefreshWarnings.IsEmpty;
+    public int RefreshWarningCount => RefreshWarnings.Length;
+
+    [RelayCommand]
+    private void MarkRefreshWarningsSeen() => HasUnseenRefreshWarnings = false;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FullRefreshLibraryCommand))]
@@ -64,21 +74,17 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     public void ApplySelectedGame(GameModViewModel? value) => SelectedGame = value;
 
-    public void LoadGames(RefreshLibraryResultDto result)
+    public void LoadGames(RefreshLibraryResponse result)
     {
         Games.Clear();
-        foreach (var item in result.Games)
+        foreach (var gameEntry in result.GameEntries)
         {
-            Games.Add(new GameModViewModel(item.Game)
-            {
-                CompatibleRenoDXMod = item.CompatibleMod,
-                CompatibleRenoDXGenericMod = item.CompatibleGenericMod,
-                ReShadeUpdateCheck = item.ReShadeUpdateResult,
-                RenoDXUpdateCheck = item.RenoDXUpdateResult
-            });
+            Games.Add(new GameModViewModel(gameEntry));
         }
 
         SelectedGame = Games.FirstOrDefault();
+        RefreshWarnings = result.Warnings;
+        HasUnseenRefreshWarnings = !result.Warnings.IsEmpty;
     }
 
     [RelayCommand(CanExecute = nameof(CanRefresh))]
@@ -88,7 +94,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _fullLibraryRefresh.ExecuteAsync();
+            var result = await Task.Run(() => _fullLibraryRefresh.ExecuteAsync());
             LoadGames(result);
 
             // TODO: this doesn't actually produce warnings, it stops the whole process. Redo and yield return messages?
@@ -139,22 +145,21 @@ public sealed partial class GameListViewModel : ViewModelBase
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
     }
 
-    private void UpdateModCompatibility(RefreshLibraryResultDto result)
+    private void UpdateModCompatibility(RefreshLibraryResponse result)
     {
-        var lookup = result.Games.ToDictionary(r => r.Game);
+        var lookup = result.GameEntries.ToDictionary(ge => ge.Game);
 
         foreach (var gameVm in Games)
         {
-            if (!lookup.TryGetValue(gameVm.GetGame(), out var item)) continue;
+            if (!lookup.TryGetValue(gameVm.GetGame(), out var gameEntry))
+                continue;
 
-            gameVm.CompatibleRenoDXMod = item.CompatibleMod;
-            gameVm.CompatibleRenoDXGenericMod = item.CompatibleGenericMod;
-            gameVm.ReShadeUpdateCheck = item.ReShadeUpdateResult;
-            gameVm.RenoDXUpdateCheck = item.RenoDXUpdateResult;
+            gameVm.GameEntry = gameEntry;
+
             gameVm.NotifyGameStateChanged();
         }
 
-        Messenger.Send(new WikiRefreshedMessage());
+        Messenger.Send(new GameEntriesRefreshedMessage());
     }
 
     private async Task ExecuteWithDelayedMessageAsync(Func<Task<bool>> work)

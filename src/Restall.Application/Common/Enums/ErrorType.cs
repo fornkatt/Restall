@@ -19,7 +19,11 @@ public enum ErrorType
     //Network
     DownloadFailed,
     NetworkTimeout,
+    PageLoadFailure,
 
     // Install
     FileNotFound,
+
+    // RenoDX mod source
+    RenoDXModDatabaseUnavailable
 }

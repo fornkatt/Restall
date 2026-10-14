@@ -3,9 +3,10 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Restall.Application.DTOs;
+using Restall.Application.DTOs.RenoDXDTOs;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Restall.UI.ViewModels.Dialogs;
@@ -13,7 +14,7 @@ namespace Restall.UI.ViewModels.Dialogs;
 public sealed partial class RenoDXInstallDialogViewModel : ObservableObject
 {
     public RenoDXInstallDialogViewModel(
-        IReadOnlyList<RenoDXTagInfoDto> availableVersions
+        IReadOnlyList<RenoDXTagInfo> availableVersions
     )
     {
         AvailableVersions = availableVersions;
@@ -22,22 +23,22 @@ public sealed partial class RenoDXInstallDialogViewModel : ObservableObject
 
     public event EventHandler? CloseRequested;
 
-    public IReadOnlyList<RenoDXTagInfoDto> AvailableVersions { get; }
+    public IReadOnlyList<RenoDXTagInfo> AvailableVersions { get; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CommitNotes))]
     [NotifyPropertyChangedFor(nameof(HasCommitNotes))]
     [NotifyPropertyChangedFor(nameof(CanConfirm))]
     [NotifyCanExecuteChangedFor(nameof(ConfirmCommand))]
-    private RenoDXTagInfoDto? _selectedVersion;
+    private RenoDXTagInfo? _selectedVersion;
 
-    public List<string>? CommitNotes => SelectedVersion?.CommitNotes;
-    public bool HasCommitNotes => CommitNotes?.Count > 0;
+    public ImmutableArray<string> CommitNotes => SelectedVersion?.CommitNotes ?? [];
+    public bool HasCommitNotes => CommitNotes.Length > 0;
 
     public bool CanConfirm => SelectedVersion is not null;
     public bool WasConfirmed { get; private set; }
 
-    public RenoDXTagInfoDto? BuildResult() => CanConfirm ? SelectedVersion : null;
+    public RenoDXTagInfo? BuildResult() => CanConfirm ? SelectedVersion : null;
 
     [RelayCommand(CanExecute = nameof(CanConfirm))]
     private void Confirm()

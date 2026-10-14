@@ -1,0 +1,22 @@
+// SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+using Microsoft.Extensions.Logging;
+
+namespace Restall.Infrastructure.Services;
+
+// Mod Download Logging — EventId range: 1150 - 1199
+internal sealed partial class DownloadService
+{
+    [LoggerMessage(EventId = 1150, Level = LogLevel.Information,
+        Message = "Beginning download of \"{Filename}\" to \"{DestinationDirectory}\" from \"{Url}\"")]
+    private partial void LogFileDownloadStart(string filename, string? destinationDirectory, string url);
+
+    [LoggerMessage(EventId = 1151, Level = LogLevel.Information,
+        Message = "Successfully downloaded \"{Filename}\" to \"{DestinationDirectory}\"")]
+    private partial void LogFileDownloadSuccess(string filename, string? destinationDirectory);
+
+    [LoggerMessage(EventId = 1152, Level = LogLevel.Warning,
+        Message = "Failed to delete the temporary download file \"{TempPath}\"")]
+    private partial void LogTempFileCleanupFailure(string tempPath, Exception ex);
+}

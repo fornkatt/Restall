@@ -1,12 +1,20 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Domain.Common.Enums;
+using System.Globalization;
+
 namespace Restall.Domain.Entities;
 
 public sealed class RenoDX
 {
-    public enum Branch { Unknown, Wiki, Snapshot, Nightly, Discord, Nexus }
-    public enum Architecture { X32 = 32, X64 = 64 }
+    public enum Branch { Unknown, Direct, Snapshot, Nightly }
+
+    public const string VersionFormat = "yyyyMMdd";
+    public const string AddonExtension64 = ".addon64";
+    public const string AddonExtension32 = ".addon32";
+    public const string OriginalFilenameStart = "renodx-";
+    public const string NightlyTagPrefix = "nightly-";
 
     public string? SelectedName { get; set; }
     public string? OriginalName { get; set; }
@@ -14,8 +22,9 @@ public sealed class RenoDX
     public Architecture Arch { get; set; } = Architecture.X64;
     public string? Version { get; set; }
 
-    public bool IsUpdateCheckSupported =>
-        OriginalName is null ||
-        (!OriginalName.StartsWith("renodx-unityengine", StringComparison.OrdinalIgnoreCase) &&
-         !OriginalName.StartsWith("renodx-ue-extended", StringComparison.OrdinalIgnoreCase));
+    public DateOnly? BuildDate =>
+        DateOnly.TryParseExact(Version, VersionFormat, CultureInfo.InvariantCulture, DateTimeStyles.None,
+            out var buildDate)
+            ? buildDate
+            : null;
 }

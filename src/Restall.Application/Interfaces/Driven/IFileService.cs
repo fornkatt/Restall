@@ -9,6 +9,13 @@ namespace Restall.Application.Interfaces.Driven;
 public interface IFileService
 {
     /// <summary>
+    /// Abstraction of File.Exists.
+    /// </summary>
+    /// <param name="filePath">The path of the file to check.</param>
+    /// <returns></returns>
+    bool FileExists(string filePath);
+
+    /// <summary>
     /// Tries to delete a file in the given path.
     /// <br/>
     /// <para>

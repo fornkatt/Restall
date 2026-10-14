@@ -49,4 +49,13 @@
         <Setter Property="Opacity" Value="0.35" />
     </Style>
 
+    <!-- Notice buttons -->
+    <Style Selector="Button.notice-btn">
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+    <Style Selector="Button.notice-btn.unseen">
+        <Setter Property="Foreground" Value="#eb5a2f" />
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+
 </Styles>

@@ -3,7 +3,7 @@
 
 namespace Restall.Application.DTOs;
 
-public record GameScanProgressReportDto(
+public sealed record GameScanProgressReportDto(
     string CompletedPlatform,
     int ScannersCompleted,
     int TotalScanners,
