@@ -158,6 +158,7 @@ internal static class GameScanHelper
         Path.Combine("bin", "x64_dx12"),
         Path.Combine("bin", "x64"),
         Path.Combine("bin", "x86"),
-        Path.Combine("bin", "win64")
+        Path.Combine("bin", "win64"),
+        Path.Combine("bin","Win64_Shipping_Client")
     ];
 }
