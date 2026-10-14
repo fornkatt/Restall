@@ -25,8 +25,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IUpdateCheckService, UpdateCheckService>();
 
         services
-            .AddSingleton<IVersionCatalog, VersionCatalog>()
-            .AddSingleton<IModCatalog, ModCatalog>();
+            .AddSingleton<IVersionCatalog, VersionCatalog>();
 
         services
             .AddPlatformScanners()
@@ -44,12 +43,28 @@ public static class InfrastructureServiceCollectionExtensions
             .AddSingleton<IFileService, FileService>();
 
         services.AddHttpClient(ParseService.HttpClientName, c => c.DefaultRequestHeaders.UserAgent
-            .ParseAdd("Restall"));
+                .ParseAdd("Restall"))
+            .ConfigurePrimaryHttpMessageHandler(() =>
+                OperatingSystem.IsWindows()
+                    ? new WinHttpHandler
+                    {
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                    }
+                    : new SocketsHttpHandler
+                    {
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate |
+                                                 DecompressionMethods.Brotli
+                    });
         services.AddSingleton<IParseService, ParseService>();
 
-        services.AddHttpClient(ModDownloadService.HttpClientName, c => c.DefaultRequestHeaders
+        services.AddHttpClient(RenoDXModSourceService.HttpClientName,
+            c => c.DefaultRequestHeaders.UserAgent
+                .ParseAdd("Restall"));
+        services.AddSingleton<IRenoDXModSourceService, RenoDXModSourceService>();
+
+        services.AddHttpClient(DownloadService.HttpClientName, c => c.DefaultRequestHeaders
             .UserAgent.ParseAdd("Restall"));
-        services.AddSingleton<IModDownloadService, ModDownloadService>();
+        services.AddSingleton<IDownloadService, DownloadService>();
 
         services.AddHttpClient(GameCoverService.HttpClientName, c => c.DefaultRequestHeaders
                 .UserAgent.ParseAdd("Restall"))

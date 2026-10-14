@@ -3,7 +3,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driving;
 using System;
 using System.Threading.Tasks;
@@ -16,7 +16,7 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 {
     private readonly IFullLibraryRefreshUseCase _fullLibraryRefresh;
 
-    public event Action<RefreshLibraryResultDto>? InitializationCompleted;
+    public event Action<RefreshLibraryResponse>? InitializationCompleted;
 
     [ObservableProperty]
     public partial string StatusMessage { get; set; } = "Loading...";
@@ -38,7 +38,7 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
         StatusMessage = "Scanning for games...";
 
-        var result = await _fullLibraryRefresh.ExecuteAsync(progress);
+        var result = await Task.Run(() => _fullLibraryRefresh.ExecuteAsync(progress));
 
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, blocking: true);
 

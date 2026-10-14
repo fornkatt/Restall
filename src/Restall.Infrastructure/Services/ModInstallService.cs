@@ -5,7 +5,6 @@ using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
-using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
@@ -66,73 +65,6 @@ internal sealed class ModInstallService : IModInstallService
             return Result<Game>.Error(deleted.Message, deleted.ErrorType, deleted.Exception);
 
         game.ReShade = null;
-        return Result<Game>.Success(game);
-    }
-
-    public Result<Game> UninstallRenoDX(Game game)
-    {
-        var expectedPath = Path.Combine(game.ExecutablePath!, game.RenoDX!.SelectedName!);
-        var deleted = _fileService.TryDeleteFile(expectedPath, verifyOriginalFilename: "renodx-");
-
-        if (!deleted.IsSuccess)
-            return Result<Game>.Error(deleted.Message, deleted.ErrorType, deleted.Exception);
-
-        game.RenoDX = null;
-        return Result<Game>.Success(game);
-    }
-
-    // TODO: implement remove all functionality, implement log methods
-    public async Task<Result<Game>> RemoveAllReShadeFilesAsync(Game game)
-    {
-        var files = Directory.GetFiles(game.ExecutablePath!, "*.dll")
-            .Concat(Directory.GetFiles(game.ExecutablePath!, "*.asi"));
-
-        var removedCount = 0;
-
-        foreach (var file in files)
-        {
-            var versionInfo = PeVersionHelper.GetVersionInfo(file);
-
-            if (versionInfo is null)
-                continue;
-
-            if (versionInfo.ProductName?.Equals("ReShade", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                var deleted = _fileService.TryDeleteFile(file);
-
-                if (deleted.IsSuccess)
-                    removedCount++;
-            }
-        }
-
-        game.ReShade = null;
-        return Result<Game>.Success(game);
-    }
-
-    public async Task<Result<Game>> RemoveAllRenoDXFilesAsync(Game game)
-    {
-        var files = Directory.GetFiles(game.ExecutablePath!, "*.addon32")
-            .Concat(Directory.GetFiles(game.ExecutablePath!, "*.addon64"));
-
-        var removedCount = 0;
-
-        foreach (var file in files)
-        {
-            var versionInfo = PeVersionHelper.GetVersionInfo(file);
-
-            if (versionInfo is null)
-                continue;
-
-            if (versionInfo.OriginalFilename?.StartsWith("renodx-", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                var deleted = _fileService.TryDeleteFile(file);
-
-                if (deleted.IsSuccess)
-                    removedCount++;
-            }
-        }
-
-        game.RenoDX = null;
         return Result<Game>.Success(game);
     }
 }

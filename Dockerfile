@@ -3,10 +3,10 @@ WORKDIR /build
 
 COPY global.json .
 COPY Restall.slnx .
-COPY src/Restall.Domain/Restall.Domain.csproj             src/Restall.Domain/
-COPY src/Restall.Application/Restall.Application.csproj   src/Restall.Application/
-COPY src/Restall.Infrastructure/Restall.Infrastructure.csproj src/Restall.Infrastructure/
-COPY src/Restall.UI/Restall.UI.csproj                     src/Restall.UI/
+COPY src/Restall.Domain/Restall.Domain.csproj                   src/Restall.Domain/
+COPY src/Restall.Application/Restall.Application.csproj         src/Restall.Application/
+COPY src/Restall.Infrastructure/Restall.Infrastructure.csproj   src/Restall.Infrastructure/
+COPY src/Restall.UI/Restall.UI.csproj                           src/Restall.UI/
 
 FROM base AS restore-linux
 RUN dotnet restore src/Restall.UI/Restall.UI.csproj -r linux-x64 --locked-mode
@@ -40,10 +40,12 @@ COPY --from=windows /out /
 
 FROM base AS ci-restore
 COPY Directory.Build.props .
-COPY src/Restall.Domain/packages.lock.json         src/Restall.Domain/
-COPY src/Restall.Application/packages.lock.json    src/Restall.Application/
-COPY src/Restall.Infrastructure/packages.lock.json src/Restall.Infrastructure/
-COPY src/Restall.UI/packages.lock.json             src/Restall.UI/
+COPY src/Restall.Domain/packages.lock.json                                  src/Restall.Domain/
+COPY src/Restall.Application/packages.lock.json                             src/Restall.Application/
+COPY src/Restall.Infrastructure/packages.lock.json                          src/Restall.Infrastructure/
+COPY src/Restall.UI/packages.lock.json                                      src/Restall.UI/
+COPY tests/Restall.Domain.Tests/Restall.Domain.Tests.csproj                 tests/Restall.Domain.Tests/
+COPY tests/Restall.Domain.Tests/packages.lock.json                          tests/Restall.Domain.Tests/
 COPY tests/Restall.Application.Tests/Restall.Application.Tests.csproj       tests/Restall.Application.Tests/
 COPY tests/Restall.Application.Tests/packages.lock.json                     tests/Restall.Application.Tests/
 COPY tests/Restall.Infrastructure.Tests/Restall.Infrastructure.Tests.csproj tests/Restall.Infrastructure.Tests/

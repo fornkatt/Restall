@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Avalonia.Controls.ApplicationLifetimes;
-using Restall.Application.DTOs;
+using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.Interfaces.Driven;
 using Restall.Domain.Entities;
 using Restall.UI.DTOs;
 using Restall.UI.Interfaces;
 using Restall.UI.ViewModels.Dialogs;
 using Restall.UI.Views.Dialogs;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Restall.UI.Services;
@@ -46,21 +47,18 @@ public sealed class ModSelectionDialogService : IModSelectionDialogService
         return vm.WasConfirmed ? vm.BuildResult() : null;
     }
 
-    public async Task<RenoDXTagInfoDto?> ShowRenoDXInstallDialogAsync()
+    public async Task<RenoDXTagInfo?> ShowRenoDXInstallDialogAsync(IReadOnlyList<RenoDXTagInfo> nightlies)
     {
         var mainWindow = (Avalonia.Application.Current?.ApplicationLifetime
             as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
 
-        if (mainWindow is null) return null;
-
-        var versions = _versionCatalog.GetAllRenoDXNightlies();
-
-        if (versions.Length == 0)
-        {
+        if (mainWindow is null)
             return null;
-        }
 
-        var vm = new RenoDXInstallDialogViewModel(versions);
+        if (nightlies.Count == 0)
+            return null;
+
+        var vm = new RenoDXInstallDialogViewModel(nightlies);
         var dialog = new RenoDXInstallDialog { DataContext = vm };
 
         await dialog.ShowDialog(mainWindow);

@@ -29,14 +29,13 @@ internal sealed partial class ParseService
     private partial void LogRenoDXSnapshotFetchStart(string renoDXSnapshotUrl);
 
     [LoggerMessage(EventId = 1104, Level = LogLevel.Warning,
-        Message =
-            "Could not parse snapshot release date. Snapshot will be unavailable. Value from site:" +
-            " \"{OriginalValue}\"")]
-    private partial void LogRenoDXSnapshotReleaseDateParseFailure(string originalValue);
+        Message = "Failed to fetch RenoDX nightly \"{NightlyTag}\" from \"{Url}\"")]
+    private partial void LogRenoDXNightlyTagFetchFailure(string nightlyTag, string url, Exception ex);
 
     [LoggerMessage(EventId = 1105, Level = LogLevel.Information,
-        Message = "Successfully fetched RenoDX snapshot: {SnapshotVersion}")]
-    private partial void LogRenoDXSnapshotFetchSuccess(DateOnly snapshotVersion);
+        Message = "Successfully fetched RenoDX snapshot: {SnapshotVersion} — " +
+                  "number of addon files listed: {AddonFileCount}")]
+    private partial void LogRenoDXSnapshotFetchSuccess(DateOnly snapshotVersion, int addonFileCount);
 
     /// <summary>
     ///     Must be guarded at the call site with ILogger.IsEnabled(LogLevel.Debug)
@@ -56,35 +55,17 @@ internal sealed partial class ParseService
 
     [LoggerMessage(EventId = 1109, Level = LogLevel.Information,
         Message = "Fetching latest RenoDX nightly versions from \"{RenoDXTagsUrl}\"")]
-    private partial void LogRenoDXNightlyVersionsFetchStart(string renoDXTagsUrl);
+    private partial void LogRenoDXNightliesFetchStart(string renoDXTagsUrl);
 
     [LoggerMessage(EventId = 1110, Level = LogLevel.Warning,
-        Message = "No RenoDX nightly versions found. Nightly versions will be unavailable")]
-    private partial void LogRenoDXNightlyVersionsNotFound();
+        Message = "Failed to fetch the RenoDX addon file list from \"{Url}\"")]
+    private partial void LogRenoDXAddonFileListFetchFailure(string url, Exception ex);
 
     [LoggerMessage(EventId = 1111, Level = LogLevel.Information,
-        Message = "Fetched {NightlyCount} nightly RenoDX versions. Latest: \"{LatestVersion}\"")]
-    private partial void LogRenoDXNightlyVersionsFetchComplete(int nightlyCount, string? latestVersion);
-
-    [LoggerMessage(EventId = 1112, Level = LogLevel.Information,
-        Message = "Fetching available RenoDX mods from main wiki page: \"{Url}\"")]
-    private partial void LogRenoDXWikiModsFetchStart(string url);
-
-    [LoggerMessage(EventId = 1113, Level = LogLevel.Warning,
-        Message = "Skipping malformed RenoDX wiki mod row. " +
-                  "Expected cell count: \"{ExpectedCount}\" || Was: {ActualCount}\n" +
-                  "Raw line: \"{Line}\"")]
-    private partial void LogRenoDXMalformedWikiModRowSkipped(string expectedCount, int actualCount, string line);
-
-    [LoggerMessage(EventId = 1114, Level = LogLevel.Warning,
-        Message = "Skipping malformed RenoDX row. No mod name available.\n" +
-                  "Raw line: \"{Line}\"")]
-    private partial void LogRenoDXModNameUnavailable(string line);
-
-    [LoggerMessage(EventId = 1115, Level = LogLevel.Information,
-        Message = "Successfully fetched {RenoDXModCount} RenoDX mods and {RenoDXGenericModCount} generic RenoDX mods." +
-                  " Skipped due to malformed rows: {SkippedCount}")]
-    private partial void LogRenoDXModsFetchComplete(int renoDXModCount, int renoDXGenericModCount, int skippedCount);
+        Message =
+            "Fetched {NightlyCount} of {TotalNightlyCount} nightly RenoDX versions — latest: \"{LatestVersion}\"")]
+    private partial void LogRenoDXNightliesFetchComplete(int nightlyCount, int totalNightlyCount,
+        string? latestVersion);
 
     [LoggerMessage(EventId = 1116, Level = LogLevel.Information,
         Message = "Successfully fetched latest ReShade version from \"{ReShadeSiteUrl}\"")]
@@ -115,4 +96,8 @@ internal sealed partial class ParseService
                   "Commit notes:\n" +
                   "\"{CommitNotes}\"")]
     private partial void LogRenoDXNightlyTagParseComplete(string nightlyTag, string commitNotes);
+
+    [LoggerMessage(EventId = 1122, Level = LogLevel.Warning,
+        Message = "Could not find any RenoDX files on \"{Url}\"")]
+    private partial void LogRenoDXAddonFileListEmpty(string url);
 }

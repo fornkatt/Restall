@@ -3,10 +3,11 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common.Enums;
-using Restall.Application.DTOs.Results;
+using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Interfaces.Driving;
 using Restall.Application.Logging;
+using Restall.Application.Services;
 using Restall.Domain.Entities;
 
 namespace Restall.Application.UseCases;
@@ -15,17 +16,20 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 {
     private readonly ILogger<UninstallReShadeUseCase> _logger;
     private readonly IModInstallService _modInstallService;
+    private readonly GameEntryAssembler _gameEntryAssembler;
 
     public UninstallReShadeUseCase(
         ILogger<UninstallReShadeUseCase> logger,
-        IModInstallService modInstallService
+        IModInstallService modInstallService,
+        GameEntryAssembler gameEntryAssembler
     )
     {
         _logger = logger;
         _modInstallService = modInstallService;
+        _gameEntryAssembler = gameEntryAssembler;
     }
 
-    public ModOperationResultDto Execute(Game game)
+    public ModOperationResponse Execute(Game game)
     {
         _logger.ModUninstallationStart("ReShade", game.Name ?? "Unknown", game.ExecutablePath ?? "Unknown");
 
@@ -51,11 +55,12 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 
             _logger.ModUninstallFailure("ReShade", gameName, result.Message, result.Exception);
 
-            return new ModOperationResultDto(false, game, userMessage);
+            return new ModOperationResponse(false, game, userMessage);
         }
 
         _logger.ModUninstallationComplete("ReShade", game.Name ?? "Unknown");
 
-        return new ModOperationResultDto(true, result.Value!, "Successfully uninstalled ReShade!");
+        return new ModOperationResponse(true, result.Value!, "Successfully uninstalled ReShade!",
+            GameEntry: _gameEntryAssembler.Assemble(result.Value!));
     }
 }

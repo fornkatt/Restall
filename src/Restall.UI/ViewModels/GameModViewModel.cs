@@ -3,184 +3,153 @@
 
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
-using Restall.Application.DTOs.Results;
-using Restall.Application.Helpers;
+using Restall.Application.DTOs.RenoDXDTOs;
+using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
 using System;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Restall.UI.ViewModels;
 
 public sealed partial class GameModViewModel : ObservableObject
 {
-    private readonly Game _game;
-
-
     private const int CoverTargetWidth = 600;
     private const int ThumbnailTargetWidth = 32;
-
 
     private Lazy<Bitmap?> _coverBitMap = CreateLazyBitmap(null, CoverTargetWidth);
     private Lazy<Bitmap?> _thumbnailBitmap = CreateLazyBitmap(null, ThumbnailTargetWidth);
 
-    public GameModViewModel(Game game)
-    {
-        _game = game;
-        NormalizedName = GameNameHelper.NormalizeName(game.Name!);
+    private ImmutableArray<string> _seenRenoDXNotices = [];
 
-        CoverPathString = game.GameCoverPathString;
-        ThumbnailPathString = game.ThumbnailPathString;
+    public GameModViewModel(GameEntry gameEntry)
+    {
+        GameEntry = gameEntry;
+
+        CoverPathString = Game.GameCoverPathString;
+        ThumbnailPathString = Game.ThumbnailPathString;
     }
 
     [ObservableProperty]
-    public partial UpdateCheckResultDto? ReShadeUpdateCheck { get; set; }
+    [NotifyPropertyChangedFor(nameof(RenoDXEntry))]
+    [NotifyPropertyChangedFor(nameof(InstallRenoDXButtonText))]
+    [NotifyPropertyChangedFor(nameof(CanUseRenoDXInstallButton))]
+    [NotifyPropertyChangedFor(nameof(HasUnseenRenoDXNotices))]
+    [NotifyPropertyChangedFor(nameof(IsRenoDXInfoBoxVisible))]
+    [NotifyPropertyChangedFor(nameof(ReShadeUpdateCheck))]
+    public partial GameEntry GameEntry { get; set; }
 
-    [ObservableProperty]
-    public partial UpdateCheckResultDto? RenoDXUpdateCheck { get; set; }
-    public string NormalizedName { get; }
-    public string? Name => _game.Name;
-    public Game.Platform PlatformName => _game.PlatformName;
-    public Game.Engine EngineName => _game.EngineName;
-    public string? ExecutablePath => _game.ExecutablePath;
+    public UpdateAvailability? ReShadeUpdateCheck => GameEntry.ReShadeUpdate;
+
+    public string? Name => Game.Name;
+    private Game Game => GameEntry.Game;
+    internal Game GetGame() => Game;
+    public bool HasReShade => Game.HasReShade;
+    public Game.Platform PlatformName => Game.PlatformName;
+    public Game.Engine EngineName => Game.EngineName;
+    public string? ExecutablePath => Game.ExecutablePath;
 
     public string? ExecutablePathDisplay => OperatingSystem.IsWindows()
         ? ExecutablePath?.Replace(@"\", "\\\u200B")
         : ExecutablePath?.Replace("/", "/\u200B");
 
-    public string? InstallFolder => _game.InstallFolder;
+    public string? InstallFolder => Game.InstallFolder;
 
     public string? InstallFolderDisplay => OperatingSystem.IsWindows()
         ? InstallFolder?.Replace(@"\", "\\\u200B")
         : InstallFolder?.Replace("/", "/\u200B");
 
-    public bool HasRenoDX => _game.HasRenoDX;
-    public bool HasReShade => _game.HasReShade;
-
-    public bool IsRenoDXSupported =>
-        (CompatibleRenoDXMod is not null ||
-         CompatibleRenoDXGenericMod is not null) ||
-        RenoDXWikiModTypeHelper.GetFallbackModTypeFromEngine(EngineName) is not null ||
-        HasRenoDX;
-
-    public string? ReShadeVersion => _game.ReShade?.Version;
-    public string? ReShadeBranch => _game.ReShade?.BranchName.ToString();
-    public ReShade.Branch? ReShadeBranchName => _game.ReShade?.BranchName;
-    public string? ReShadeArch => _game.ReShade?.Arch.ToString();
-    public string? ReShadeFilename => _game.ReShade?.SelectedFilename;
-
-    public bool IsUsingGenericModWhenSpecificAvailable =>
-        HasRenoDX &&
-        CompatibleRenoDXMod is { HasWikiFilename: true } mod &&
-        _game.RenoDX?.OriginalName is { } installedName &&
-        installedName != mod.AddonFilename64 &&
-        installedName != mod.AddonFilename32;
-
-    internal Game GetGame() => _game;
-
     internal void NotifyGameStateChanged()
     {
-        OnPropertyChanged(nameof(RenoDXBranchName));
         OnPropertyChanged(nameof(ReShadeBranchName));
-        OnPropertyChanged(nameof(HasRenoDX));
-        OnPropertyChanged(nameof(HasReShade));
-        OnPropertyChanged(nameof(IsRenoDXSupported));
-        OnPropertyChanged(nameof(IsUsingGenericModWhenSpecificAvailable));
         OnPropertyChanged(nameof(ReShadeVersion));
         OnPropertyChanged(nameof(ReShadeBranch));
         OnPropertyChanged(nameof(ReShadeArch));
         OnPropertyChanged(nameof(ReShadeFilename));
+
         OnPropertyChanged(nameof(RenoDXName));
         OnPropertyChanged(nameof(RenoDXVersion));
         OnPropertyChanged(nameof(RenoDXBranch));
-        OnPropertyChanged(nameof(RenoDXArch));
+        OnPropertyChanged(nameof(RenoDXBranchName));
+        OnPropertyChanged(nameof(HasRenoDX));
+        OnPropertyChanged(nameof(HasReShade));
+        OnPropertyChanged(nameof(CanUseRenoDXInstallButton));
     }
 
-    public string? RenoDXName => _game.RenoDX?.SelectedName;
-    public string? RenoDXVersion => _game.RenoDX?.Version;
-    public string? RenoDXBranch => _game.RenoDX?.BranchName.ToString();
-    public RenoDX.Branch? RenoDXBranchName => _game.RenoDX?.BranchName;
-    public string? RenoDXArch => _game.RenoDX?.Arch.ToString();
+    // ReShade -------------------------------------------------------------------------------
 
-    public bool RenoDXSupportsX64 =>
-        CompatibleRenoDXMod?.SupportsX64 ?? CompatibleRenoDXGenericMod?.SupportsX64 ?? false;
+    public string? ReShadeVersion => Game.ReShade?.Version;
+    public string? ReShadeBranch => Game.ReShade?.BranchName.ToString();
+    public ReShade.Branch? ReShadeBranchName => Game.ReShade?.BranchName;
+    public string? ReShadeArch => Game.ReShade?.Arch.ToString();
+    public string? ReShadeFilename => Game.ReShade?.SelectedFilename;
 
-    public bool RenoDXSupportsX32 =>
-        CompatibleRenoDXMod?.SupportsX32 ?? CompatibleRenoDXGenericMod?.SupportsX32 ?? false;
+    // RenoDX --------------------------------------------------------------------------------
 
-    public bool RenoDXIsDualArch => CompatibleRenoDXMod?.IsDualArch ?? false;
+    public RenoDXEntry RenoDXEntry => GameEntry.RenoDXEntry;
 
-    public string? RenoDXAddonFilename64 => CompatibleRenoDXMod?.AddonFilename64;
-    public string? RenoDXAddonFilename32 => CompatibleRenoDXMod?.AddonFilename32;
+    public bool CanUseRenoDXInstallButton =>
+        HasReShade && RenoDXEntry is { DownloadOptions: not null } or { ManualSource: not null };
 
-    public bool HasDiscordLink => CompatibleRenoDXMod?.DiscordUrl is not null;
-    public bool HasNexusLink => CompatibleRenoDXMod?.NexusUrl is not null;
+    public RenoDX.Branch? LastSelectedRenoDXBranch { get; set; }
+
+    public bool HasUnseenRenoDXNotices => RenoDXEntry.Notices.Except(_seenRenoDXNotices).Any();
+
+    public bool HasRenoDX => Game.HasRenoDX;
+    public string? RenoDXName => Game.RenoDX?.SelectedName;
+    public string? RenoDXVersion => Game.RenoDX?.Version;
+    public string? RenoDXBranch => Game.RenoDX?.BranchName.ToString();
+    public RenoDX.Branch? RenoDXBranchName => Game.RenoDX?.BranchName;
+
+    public string InstallRenoDXButtonText => RenoDXEntry switch
+    {
+        { ManualSource: { } manualSource } => $"Get from {manualSource.Label}",
+        { DownloadOptions.IsInstalledFile: true, GenericAddonInfo: not null, } => "Reinstall generic mod",
+        { DownloadOptions.IsInstalledFile: true } => "Reinstall",
+        { DownloadOptions: not null } when HasRenoDX => $"Replace with {GetBitnessText()} build",
+        { GenericAddonInfo: not null } => "Install generic mod",
+        _ => "Install"
+    };
+
+    public string UpdateRenoDXButtonText => "Update";
+
+    public string UninstallRenoDXButtonText => "Uninstall";
+
+    private string GetBitnessText() => GameEntry.RecommendedArchitecture switch
+    {
+        Architecture.X64 => "64-bit",
+        Architecture.X32 => "32-bit",
+        _ => throw new UnreachableException($"No text for bitness \"{GameEntry.RecommendedArchitecture}\"")
+    };
+
+    [RelayCommand]
+    private void MarkRenoDXNoticesSeen()
+    {
+        _seenRenoDXNotices = RenoDXEntry.Notices;
+        OnPropertyChanged(nameof(HasUnseenRenoDXNotices));
+    }
+
+    // Action messages -----------------------------------------------------------------------
+
+    [ObservableProperty] public partial string? ReShadeModActionStatus { get; set; }
+    [ObservableProperty] public partial bool IsShowingReShadeActionMessage { get; set; }
+    internal CancellationTokenSource? ReShadeMessageCts { get; set; }
 
     [ObservableProperty]
-    public partial string? ReShadeModActionStatus { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsShowingReShadeActionMessage { get; set; }
-
-    internal CancellationTokenSource? _reShadeMessageCts;
-
-    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsShowingRenoDXActionMessage))]
+    [NotifyPropertyChangedFor(nameof(IsRenoDXInfoBoxVisible))]
     public partial string? RenoDXModActionStatus { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsShowingRenoDXActionMessage { get; set; }
+    public bool IsRenoDXInfoBoxVisible => RenoDXEntry.IsSupported || IsShowingRenoDXActionMessage;
 
-    internal CancellationTokenSource? _renoDXMessageCts;
+    public bool IsShowingRenoDXActionMessage => RenoDXModActionStatus is not null;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
-    [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
-    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl64))]
-    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl32))]
-    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename64))]
-    public partial RenoDX.Architecture? ArchOverride { get; set; }
-
-    public RenoDX.Architecture SelectedRenoDXInstallArch =>
-        ArchOverride ?? (
-            (CompatibleRenoDXMod is not null
-                ? CompatibleRenoDXMod.SupportsX32 && !CompatibleRenoDXMod.SupportsX64
-                : CompatibleRenoDXGenericMod?.SupportsX32 == true)
-                ? RenoDX.Architecture.X32
-                : RenoDX.Architecture.X64);
-
-    public ReShade.Architecture SelectedReShadeInstallArch =>
-        SelectedRenoDXInstallArch == RenoDX.Architecture.X32
-            ? ReShade.Architecture.X32
-            : ReShade.Architecture.X64;
-
-    public string? RenoDXWikiDownloadUrl64 => CompatibleRenoDXMod?.SnapshotUrl64;
-    public string? RenoDXWikiDownloadUrl32 => CompatibleRenoDXMod?.SnapshotUrl32;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsRenoDXSupported))]
-    [NotifyPropertyChangedFor(nameof(IsUsingGenericModWhenSpecificAvailable))]
-    [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
-    [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
-    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl64))]
-    [NotifyPropertyChangedFor(nameof(RenoDXWikiDownloadUrl32))]
-    [NotifyPropertyChangedFor(nameof(RenoDXSupportsX64))]
-    [NotifyPropertyChangedFor(nameof(RenoDXSupportsX32))]
-    [NotifyPropertyChangedFor(nameof(RenoDXIsDualArch))]
-    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename64))]
-    [NotifyPropertyChangedFor(nameof(RenoDXAddonFilename32))]
-    public partial RenoDXModInfoDto? CompatibleRenoDXMod { get; set; }
-
-    partial void OnCompatibleRenoDXModChanged(RenoDXModInfoDto? value) => ArchOverride = null;
-    partial void OnCompatibleRenoDXGenericModChanged(RenoDXGenericModInfoDto? value) => ArchOverride = null;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsRenoDXSupported))]
-    [NotifyPropertyChangedFor(nameof(SelectedRenoDXInstallArch))]
-    [NotifyPropertyChangedFor(nameof(SelectedReShadeInstallArch))]
-    [NotifyPropertyChangedFor(nameof(RenoDXSupportsX64))]
-    [NotifyPropertyChangedFor(nameof(RenoDXSupportsX32))]
-    public partial RenoDXGenericModInfoDto? CompatibleRenoDXGenericMod { get; set; }
+    internal CancellationTokenSource? RenoDXMessageCts { get; set; }
 
     // Bitmaps -------------------------------------------------------------------------------
 
