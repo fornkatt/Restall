@@ -18,6 +18,18 @@
     </Style>
 
     <!-- ModView Game Card buttons -->
+    <Style Selector="Button.toolbar-btn TextBlock.spinning-animation">
+        <Style.Animations>
+            <Animation Duration="0:0:1" IterationCount="Infinite">
+                <KeyFrame Cue="0%">
+                    <Setter Property="RotateTransform.Angle" Value="0" />
+                </KeyFrame>
+                <KeyFrame Cue="100%">
+                    <Setter Property="RotateTransform.Angle" Value="360" />
+                </KeyFrame>
+            </Animation>
+        </Style.Animations>
+    </Style>
     <Style Selector="Button.game-card-btn">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{DynamicResource ModCardButton}" />
