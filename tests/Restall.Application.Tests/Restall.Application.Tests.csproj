@@ -28,8 +28,4 @@
       <ProjectReference Include="..\..\src\Restall.Application\Restall.Application.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="UseCaseTests\" />
-    </ItemGroup>
-
 </Project>
