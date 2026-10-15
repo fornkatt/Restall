@@ -109,11 +109,12 @@ internal sealed partial class EngineDetectionService : IEngineDetectionService
             if (maxDepth > 0)
                 foreach (var sub in Directory.GetDirectories(folder))
                 {
+                    if (GameScanHelper.NonGame(Path.GetFileName(sub)))
+                        continue;
+
                     var filePath = FindFileShallow(sub, pattern, maxDepth - 1);
                     if (filePath is not null)
-                    {
                         return filePath;
-                    }
                 }
         }
         catch (Exception ex)
