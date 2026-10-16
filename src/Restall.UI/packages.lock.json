@@ -466,8 +466,8 @@
       },
       "System.Security.Cryptography.Pkcs": {
         "type": "Transitive",
-        "resolved": "10.0.7",
-        "contentHash": "dbdKfF3eA5l+CXiAbDxiCxdezoxeanbue1ck8m49ih1L9uZG6ry8Ul8On6vpragyMDJJP4rQHUY/SWgk66tCYA=="
+        "resolved": "10.0.13",
+        "contentHash": "a+EovgC1fBnwdlQ6cn3j4JFBfKqiFaFvoAhjisOoSvazLAcIznaBzPQP0oYnvccmeXfqUH1KebVZOxSeH6rMaw=="
       },
       "Tmds.DBus.Protocol": {
         "type": "Transitive",
@@ -499,7 +499,8 @@
           "Serilog.Extensions.Logging": "[10.0.0, )",
           "Serilog.Sinks.Async": "[2.1.0, )",
           "Serilog.Sinks.File": "[7.0.0, )",
-          "System.Net.Http.WinHttpHandler": "[10.0.11, )"
+          "System.Net.Http.WinHttpHandler": "[10.0.11, )",
+          "System.Security.Cryptography.Pkcs": "[10.0.13, )"
         }
       }
     }
