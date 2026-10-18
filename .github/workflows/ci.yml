@@ -42,7 +42,7 @@ jobs:
         with:
           global-json-file: global.json
       - name: Restore
-        run: dotnet restore Restall.slnx
+        run: dotnet restore Restall.slnx --locked-mode
       - name: Build
         run: dotnet build Restall.slnx -c Release --no-restore
       - name: Test
