@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging;
+using Restall.Application.Common;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Requests;
 using Restall.Application.DTOs.Responses;
@@ -40,6 +41,8 @@ public sealed partial class ModManagementFacade : IModManagementFacade
     public async Task<ModOperationResponse> InstallOrUpdateReShadeAsync(InstallReShadeRequest request,
         IProgress<DownloadProgressReport>? progress = null)
     {
+        UiThreadGuard.AssertNotOnUiThread();
+
         if (IsGamePathInvalid(request.Game))
             return new ModOperationResponse(false, request.Game, GamePathNotFoundMessage);
 
@@ -62,6 +65,8 @@ public sealed partial class ModManagementFacade : IModManagementFacade
 
     public async Task<ModOperationResponse> UninstallReShadeAsync(Game game)
     {
+        UiThreadGuard.AssertNotOnUiThread();
+
         if (IsGamePathInvalid(game))
             return new ModOperationResponse(false, game, GamePathNotFoundMessage);
 
@@ -84,6 +89,8 @@ public sealed partial class ModManagementFacade : IModManagementFacade
     public async Task<RenoDXInstallResponse> InstallOrUpdateRenoDXAsync(RenoDXInstallRequest request,
         IProgress<DownloadProgressReport>? progress = null)
     {
+        UiThreadGuard.AssertNotOnUiThread();
+
         if (IsGamePathInvalid(request.Game))
             return new RenoDXInstallResponse(false, GamePathNotFoundMessage);
 
@@ -105,6 +112,8 @@ public sealed partial class ModManagementFacade : IModManagementFacade
 
     public async Task<RenoDXUninstallResponse> UninstallRenoDXAsync(Game game)
     {
+        UiThreadGuard.AssertNotOnUiThread();
+
         if (IsGamePathInvalid(game))
             return new RenoDXUninstallResponse(false, GamePathNotFoundMessage);
 

@@ -58,6 +58,8 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
     public async Task<RefreshLibraryResponse> ExecuteAsync(
         IProgress<GameScanProgressReportDto>? progress = null)
     {
+        UiThreadGuard.AssertNotOnUiThread();
+
         var gameTask = _gameDetectionService.FindGamesAsync(progress);
         var reShadeVersionsTask = _parseService.FetchReShadeVersionsAsync();
         var renoDXGameModsTask = _renoDXModSourceService.FetchGameModsAsync();

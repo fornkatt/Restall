@@ -118,7 +118,7 @@ public sealed partial class GameListViewModel : ViewModelBase
     {
         var folder = await _folderPicker.PickFolderAsync();
         if (folder is null) return;
-        _customGameFolderStore.AddFolder(folder);
+        await Task.Run(() => _customGameFolderStore.AddFolder(folder));
         await FullRefreshLibraryAsync();
     }
 
@@ -134,7 +134,7 @@ public sealed partial class GameListViewModel : ViewModelBase
 
         await ExecuteWithDelayedMessageAsync(async () =>
         {
-            var result = await _gameRefresh.ExecuteAsync(existingGames);
+            var result = await Task.Run(() => _gameRefresh.ExecuteAsync(existingGames));
             UpdateModCompatibility(result);
 
             return false;

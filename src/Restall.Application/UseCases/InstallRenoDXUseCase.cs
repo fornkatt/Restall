@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging;
+using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.RenoDXDTOs;
@@ -48,6 +49,8 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
     public async Task<RenoDXInstallResponse> ExecuteAsync(RenoDXInstallRequest request,
         IProgress<DownloadProgressReport>? progress = null)
     {
+        UiThreadGuard.AssertNotOnUiThread();
+
         var game = request.Game;
         var gameName = game.Name ?? "Unknown";
         var gameEntry = _gameEntryAssembler.Assemble(game);

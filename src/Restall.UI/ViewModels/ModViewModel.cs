@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -98,8 +97,10 @@ public sealed partial class ModViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenInExplorer(string? folder)
     {
-        if (!Directory.Exists(folder)) return;
-        await _fileExplorerService.OpenFolderAsync(folder);
+        if (string.IsNullOrWhiteSpace(folder))
+            return;
+
+        await Task.Run(() => _fileExplorerService.OpenFolderAsync(folder));
     }
 
     /* ---RESHADE-------------------------------------------------------------------------------------------------------------- */
