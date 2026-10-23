@@ -32,7 +32,7 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 
     public ModOperationResponse Execute(Game game)
     {
-        UiThreadGuard.AssertNotOnUiThread();
+        UIThreadGuard.AssertNotOnUIThread();
 
         _logger.ModUninstallationStart("ReShade", game.Name ?? "Unknown", game.ExecutablePath ?? "Unknown");
 

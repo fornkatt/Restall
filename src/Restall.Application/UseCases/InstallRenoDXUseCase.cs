@@ -49,7 +49,7 @@ public sealed partial class InstallRenoDXUseCase : IInstallRenoDXUseCase
     public async Task<RenoDXInstallResponse> ExecuteAsync(RenoDXInstallRequest request,
         IProgress<DownloadProgressReport>? progress = null)
     {
-        UiThreadGuard.AssertNotOnUiThread();
+        UIThreadGuard.AssertNotOnUIThread();
 
         var game = request.Game;
         var gameName = game.Name ?? "Unknown";

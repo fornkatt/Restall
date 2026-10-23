@@ -5,12 +5,12 @@ using System.Diagnostics;
 
 namespace Restall.Application.Common;
 
-internal static class UiThreadGuard
+internal static class UIThreadGuard
 {
-    private const string CalledOnUiThreadMessage =
+    private const string CalledOnUIThreadMessage =
         "Use case called on the UI thread. Wrap the call in Task.Run in the ViewModel.";
 
     [Conditional("DEBUG")]
-    internal static void AssertNotOnUiThread() =>
-        Debug.Assert(SynchronizationContext.Current is null, CalledOnUiThreadMessage);
+    internal static void AssertNotOnUIThread() =>
+        Debug.Assert(SynchronizationContext.Current is null, CalledOnUIThreadMessage);
 }

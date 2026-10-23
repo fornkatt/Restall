@@ -15,7 +15,6 @@ using Restall.UI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +24,7 @@ namespace Restall.UI.ViewModels;
 public sealed partial class ModViewModel : ViewModelBase
 {
     private readonly IModManagementFacade _modManagementFacade;
+    private readonly IOpenWebLinkUseCase _openWebLinkUseCase;
     private readonly IModSelectionDialogService _modSelectionDialogService;
     private readonly IFileExplorerService _fileExplorerService;
     private readonly IVersionCatalog _versionCatalog;
@@ -36,19 +36,20 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public ModViewModel(
         IModManagementFacade modManagementFacade,
+        IOpenWebLinkUseCase openWebLinkUseCase,
         IModSelectionDialogService modSelectionDialogService,
         IVersionCatalog versionCatalog,
         IFileExplorerService fileExplorerService
     )
     {
         _modManagementFacade = modManagementFacade;
+        _openWebLinkUseCase = openWebLinkUseCase;
         _modSelectionDialogService = modSelectionDialogService;
         _fileExplorerService = fileExplorerService;
         _versionCatalog = versionCatalog;
     }
 
-    [ObservableProperty]
-    public partial GameModViewModel? SelectedGame { get; set; }
+    [ObservableProperty] public partial GameModViewModel? SelectedGame { get; set; }
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
@@ -88,10 +89,26 @@ public sealed partial class ModViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasSelectedRenoDXReleaseNotes));
     }
 
-    private void OpenUrl(string url)
+    [RelayCommand]
+    private async Task OpenWebLinkAsync(Uri? url)
     {
-        Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
+        if (url is null)
+            return;
+
+        var game = SelectedGame;
+        var response = await Task.Run(() => _openWebLinkUseCase.Execute(url));
+
+        if (game is not null && response is { IsSuccess: false, Message: { } message })
+            ShowRenoDXInfoBoxMessage(game, message);
     }
+
+    private static string GetDownloadProgressText(DownloadProgressReport report) =>
+        report.PercentComplete >= 0
+            ? $"""
+               Downloading {report.Filename}
+               {report.PercentComplete}%
+               """
+            : $"Downloading {report.Filename}";
 
     /* ---GAME CARD-------------------------------------------------------------------------------------------------------------- */
     [RelayCommand]
@@ -259,34 +276,16 @@ public sealed partial class ModViewModel : ViewModelBase
 
     private async Task RunRenoDXInstallAsync(GameModViewModel game, RenoDXInstallRequest request)
     {
-        var messageToken = BeginRenoDXAction(game);
         var progress = CreateRenoDXDownloadProgress(game);
         var response = await Task.Run(() => _modManagementFacade.InstallOrUpdateRenoDXAsync(request, progress));
 
-        ShowRenoDXResponse(game, response.Message, response.GameEntry, messageToken);
-    }
-
-    private static CancellationToken BeginRenoDXAction(GameModViewModel game)
-    {
-        game.RenoDXMessageCts?.Cancel();
-        game.RenoDXMessageCts = new CancellationTokenSource();
-
-        return game.RenoDXMessageCts.Token;
+        ShowRenoDXResponse(game, response.Message, response.GameEntry);
     }
 
     private static Progress<DownloadProgressReport> CreateRenoDXDownloadProgress(GameModViewModel game) =>
-        new(report =>
-        {
-            game.RenoDXModActionStatus = report.PercentComplete >= 0
-                ? $"""
-                   Downloading {report.Filename}
-                   {report.PercentComplete}%
-                   """
-                : $"Downloading {report.Filename}";
-        });
+        new(report => ShowRenoDXInstallProgress(game, GetDownloadProgressText(report)));
 
-    private void ShowRenoDXResponse(GameModViewModel game, string message, GameEntry? gameEntry,
-        CancellationToken messageToken)
+    private void ShowRenoDXResponse(GameModViewModel game, string message, GameEntry? gameEntry)
     {
         if (gameEntry is not null)
             game.GameEntry = gameEntry;
@@ -294,11 +293,27 @@ public sealed partial class ModViewModel : ViewModelBase
         game.NotifyGameStateChanged();
         RefreshAvailableRenoDXBranches(SelectedGame);
         NotifyAllCommandsChanged();
-        game.RenoDXModActionStatus = message;
-        _ = DismissRenoDXActionMessageAsync(game, messageToken);
+        ShowRenoDXInfoBoxMessage(game, message);
     }
 
-    private static async Task DismissRenoDXActionMessageAsync(GameModViewModel game, CancellationToken messageToken)
+    private static void ShowRenoDXInstallProgress(GameModViewModel game, string progressText)
+    {
+        game.RenoDXMessageCts?.Cancel();
+        game.RenoDXMessage = progressText;
+    }
+
+    private static void ShowRenoDXInfoBoxMessage(GameModViewModel game, string message)
+    {
+        game.RenoDXMessageCts?.Cancel();
+        var dismissal = new CancellationTokenSource();
+
+        game.RenoDXMessageCts = dismissal;
+        game.RenoDXMessage = message;
+
+        _ = DismissRenoDXInfoBoxMessageAsync(game, dismissal.Token);
+    }
+
+    private static async Task DismissRenoDXInfoBoxMessageAsync(GameModViewModel game, CancellationToken messageToken)
     {
         try
         {
@@ -309,7 +324,7 @@ public sealed partial class ModViewModel : ViewModelBase
             return;
         }
 
-        game.RenoDXModActionStatus = null;
+        game.RenoDXMessage = null;
     }
 
     private bool _isAdjustingRenoDXBranchSelection;
@@ -389,7 +404,7 @@ public sealed partial class ModViewModel : ViewModelBase
     {
         if (SelectedGame?.RenoDXEntry is { ManualSource: { } manualSource })
         {
-            OpenUrl(manualSource.Url.AbsoluteUri);
+            await OpenWebLinkAsync(manualSource.Url);
 
             return;
         }
@@ -419,10 +434,9 @@ public sealed partial class ModViewModel : ViewModelBase
     {
         var game = SelectedGame!;
         var gameModel = game.GetGame();
-        var messageToken = BeginRenoDXAction(game);
         var response = await Task.Run(() => _modManagementFacade.UninstallRenoDXAsync(gameModel));
 
-        ShowRenoDXResponse(game, response.Message, response.GameEntry, messageToken);
+        ShowRenoDXResponse(game, response.Message, response.GameEntry);
     }
 
     public bool CanShowRenoDXUpdate =>

@@ -32,7 +32,7 @@ public sealed class UninstallRenoDXUseCase : IUninstallRenoDXUseCase
 
     public RenoDXUninstallResponse Execute(Game game)
     {
-        UiThreadGuard.AssertNotOnUiThread();
+        UIThreadGuard.AssertNotOnUIThread();
 
         var gameName = game.Name ?? "Unknown";
 

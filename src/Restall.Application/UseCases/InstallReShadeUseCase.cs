@@ -47,7 +47,7 @@ public sealed class InstallReShadeUseCase : IInstallReShadeUseCase
     public async Task<ModOperationResponse> ExecuteAsync(InstallReShadeRequest request,
         IProgress<DownloadProgressReport>? progress = null)
     {
-        UiThreadGuard.AssertNotOnUiThread();
+        UIThreadGuard.AssertNotOnUIThread();
 
         _logger.ModInstallationStart("ReShade", request.SelectedFilename, request.Arch.ToString(),
             request.Game.Name ?? "Unknown", request.Game.ExecutablePath ?? "Unknown");

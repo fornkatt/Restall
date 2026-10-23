@@ -31,7 +31,7 @@ public sealed class GameRefreshUseCase : IGameRefreshUseCase
     public Task<RefreshLibraryResponse> ExecuteAsync(IReadOnlyList<Game> existingGames,
         IProgress<GameScanProgressReportDto>? progress = null)
     {
-        UiThreadGuard.AssertNotOnUiThread();
+        UIThreadGuard.AssertNotOnUIThread();
 
         return BuildResultAsync(existingGames.OrderBy(g => g.Name), true, null);
     }
