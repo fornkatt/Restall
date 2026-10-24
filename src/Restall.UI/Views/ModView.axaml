@@ -484,7 +484,7 @@
                         IsVisible="{Binding SelectedGame.IsRenoDXInfoBoxVisible}">
                     <Grid>
                         <Grid ColumnDefinitions="*, Auto"
-                              IsVisible="{Binding !SelectedGame.IsShowingRenoDXActionMessage}">
+                              IsVisible="{Binding !SelectedGame.IsShowingRenoDXMessage}">
                             <Grid Grid.Column="0" RowDefinitions="Auto, *">
                                 <StackPanel Grid.Row="0" Margin="10" Spacing="6">
                                     <Grid ColumnDefinitions="*, Auto"
@@ -629,7 +629,8 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="renodx:RenoDXModLink">
                                             <HyperlinkButton Content="{Binding Label}"
-                                                             NavigateUri="{Binding Url}"
+                                                             Command="{Binding $parent[ItemsControl].((vm:ModViewModel)DataContext).OpenWebLinkCommand}"
+                                                             CommandParameter="{Binding Url}"
                                                              ToolTip.Tip="{Binding Url}"
                                                              FontSize="12"
                                                              Padding="0"
@@ -646,8 +647,8 @@
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Top"
                                    Foreground="{DynamicResource GameCardText}"
-                                   IsVisible="{Binding SelectedGame.IsShowingRenoDXActionMessage}"
-                                   Text="{Binding SelectedGame.RenoDXModActionStatus}" />
+                                   IsVisible="{Binding SelectedGame.IsShowingRenoDXMessage}"
+                                   Text="{Binding SelectedGame.RenoDXMessage}" />
                     </Grid>
                 </Border>
             </Grid>

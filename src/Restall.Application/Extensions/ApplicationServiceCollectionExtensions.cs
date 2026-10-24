@@ -21,6 +21,7 @@ public static class ApplicationServiceCollectionExtensions
             .AddSingleton<IUninstallRenoDXUseCase, UninstallRenoDXUseCase>()
             .AddSingleton<IGameRefreshUseCase, GameRefreshUseCase>()
             .AddSingleton<IFullLibraryRefreshUseCase, FullLibraryRefreshUseCase>()
+            .AddSingleton<IOpenWebLinkUseCase, OpenWebLinkUseCase>()
             .AddSingleton<RenoDXModDatabaseBuilder>()
             .AddSingleton<RenoDXCatalog>()
             .AddSingleton<GameEntryAssembler>();

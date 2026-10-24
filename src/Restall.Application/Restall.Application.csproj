@@ -30,6 +30,9 @@
       <Compile Update="Services\GameEntryAssembler.Logging.cs">
         <DependentUpon>GameEntryAssembler.cs</DependentUpon>
       </Compile>
+      <Compile Update="UseCases\OpenWebLinkUseCase.Logging.cs">
+        <DependentUpon>OpenWebLinkUseCase.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Application.Common;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
@@ -28,8 +29,12 @@ public sealed class GameRefreshUseCase : IGameRefreshUseCase
     }
 
     public Task<RefreshLibraryResponse> ExecuteAsync(IReadOnlyList<Game> existingGames,
-        IProgress<GameScanProgressReportDto>? progress = null) =>
-        BuildResultAsync(existingGames.OrderBy(g => g.Name), true, null);
+        IProgress<GameScanProgressReportDto>? progress = null)
+    {
+        UIThreadGuard.AssertNotOnUIThread();
+
+        return BuildResultAsync(existingGames.OrderBy(g => g.Name), true, null);
+    }
 
     private async Task<RefreshLibraryResponse> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success,
         string? errorMessage)
