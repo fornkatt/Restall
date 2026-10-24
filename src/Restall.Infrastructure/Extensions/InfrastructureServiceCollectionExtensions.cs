@@ -40,7 +40,8 @@ public static class InfrastructureServiceCollectionExtensions
         services
             .AddSingleton<IModInstallService, ModInstallService>()
             .AddSingleton<IFileExtractionService, FileExtractionService>()
-            .AddSingleton<IFileService, FileService>();
+            .AddSingleton<IFileService, FileService>()
+            .AddSingleton<IWebLinkLauncher, WebLinkLauncher>();
 
         services.AddHttpClient(ParseService.HttpClientName, c => c.DefaultRequestHeaders.UserAgent
                 .ParseAdd("Restall"))

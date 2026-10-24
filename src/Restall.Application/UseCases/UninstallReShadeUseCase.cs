@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging;
+using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.Responses;
 using Restall.Application.Interfaces.Driven;
@@ -31,6 +32,8 @@ public sealed class UninstallReShadeUseCase : IUninstallReShadeUseCase
 
     public ModOperationResponse Execute(Game game)
     {
+        UIThreadGuard.AssertNotOnUIThread();
+
         _logger.ModUninstallationStart("ReShade", game.Name ?? "Unknown", game.ExecutablePath ?? "Unknown");
 
         var result = _modInstallService.UninstallReShade(game);

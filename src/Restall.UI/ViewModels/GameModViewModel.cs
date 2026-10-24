@@ -141,13 +141,13 @@ public sealed partial class GameModViewModel : ObservableObject
     internal CancellationTokenSource? ReShadeMessageCts { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsShowingRenoDXActionMessage))]
+    [NotifyPropertyChangedFor(nameof(IsShowingRenoDXMessage))]
     [NotifyPropertyChangedFor(nameof(IsRenoDXInfoBoxVisible))]
-    public partial string? RenoDXModActionStatus { get; set; }
+    public partial string? RenoDXMessage { get; set; }
 
-    public bool IsRenoDXInfoBoxVisible => RenoDXEntry.IsSupported || IsShowingRenoDXActionMessage;
+    public bool IsRenoDXInfoBoxVisible => RenoDXEntry.IsSupported || IsShowingRenoDXMessage;
 
-    public bool IsShowingRenoDXActionMessage => RenoDXModActionStatus is not null;
+    public bool IsShowingRenoDXMessage => RenoDXMessage is not null;
 
     internal CancellationTokenSource? RenoDXMessageCts { get; set; }
 
