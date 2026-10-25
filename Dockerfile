@@ -52,7 +52,6 @@ COPY tests/Restall.Infrastructure.Tests/Restall.Infrastructure.Tests.csproj test
 COPY tests/Restall.Infrastructure.Tests/packages.lock.json                  tests/Restall.Infrastructure.Tests/
 COPY tests/Restall.UI.Tests/Restall.UI.Tests.csproj                         tests/Restall.UI.Tests/
 COPY tests/Restall.UI.Tests/packages.lock.json                              tests/Restall.UI.Tests/
-
 RUN dotnet restore Restall.slnx --locked-mode
 
 FROM ci-restore AS ci-source

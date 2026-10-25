@@ -13,7 +13,7 @@ internal sealed class UnhandledExceptionTriage
     private static readonly TimeSpan s_stormWindow = TimeSpan.FromSeconds(10);
 
     private readonly TimeProvider _timeProvider;
-    private readonly Queue<DateTimeOffset> _recentExceptionTimes = new();
+    private readonly Queue<long> _recentExceptionTimestamps = new();
 
     public UnhandledExceptionTriage(
         TimeProvider timeProvider
@@ -39,13 +39,13 @@ internal sealed class UnhandledExceptionTriage
 
     private void RecordException()
     {
-        var now = _timeProvider.GetUtcNow();
+        var now = _timeProvider.GetTimestamp();
 
-        _recentExceptionTimes.Enqueue(now);
+        _recentExceptionTimestamps.Enqueue(now);
 
-        while (now - _recentExceptionTimes.Peek() > s_stormWindow)
-            _recentExceptionTimes.Dequeue();
+        while (_timeProvider.GetElapsedTime(_recentExceptionTimestamps.Peek(), now) > s_stormWindow)
+            _recentExceptionTimestamps.Dequeue();
     }
 
-    private bool IsExceptionStorm() => _recentExceptionTimes.Count > MaxExceptionsInStormWindow;
+    private bool IsExceptionStorm() => _recentExceptionTimestamps.Count > MaxExceptionsInStormWindow;
 }
