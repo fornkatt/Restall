@@ -77,7 +77,7 @@ public class App : Avalonia.Application
                 startupWindow.Close();
             };
 
-            RunStartup(startupVm, desktop, serviceProvider.GetRequiredService<ErrorDialogPresenter>());
+            RunStartup(startupVm, desktop, serviceProvider.GetRequiredService<ErrorDialogHost>());
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -90,7 +90,7 @@ public class App : Avalonia.Application
     }
 
     private static async void RunStartup(StartupWindowViewModel vm, IClassicDesktopStyleApplicationLifetime desktop,
-        ErrorDialogPresenter errorDialogPresenter)
+        ErrorDialogHost errorDialogHost)
     {
         try
         {
@@ -102,7 +102,7 @@ public class App : Avalonia.Application
 
             try
             {
-                await errorDialogPresenter.ShowStartupFailureAsync(ex);
+                await errorDialogHost.ShowStartupFailureAsync(ex);
             }
             finally
             {

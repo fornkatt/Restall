@@ -31,7 +31,7 @@ public static class UIServiceCollectionExtensions
         // the log path + IFileExplorerService
         services
             .AddSingleton(TimeProvider.System)
-            .AddSingleton(sp => new ErrorDialogPresenter(
+            .AddSingleton(sp => new ErrorDialogHost(
                 sp.GetRequiredService<IOpenWebLinkUseCase>(),
                 sp.GetRequiredService<IFileExplorerService>(),
                 sp.GetRequiredService<TimeProvider>(),

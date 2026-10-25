@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Restall.UI.ErrorHandling;
 
-internal sealed class ErrorDialogPresenter
+internal sealed class ErrorDialogHost
 {
     private const string UnexpectedErrorTitle = "Something went wrong";
 
@@ -30,7 +30,7 @@ internal sealed class ErrorDialogPresenter
     private ErrorDialogViewModel? _openDialog;
     private Task? _openDialogClosed;
 
-    public ErrorDialogPresenter(
+    public ErrorDialogHost(
         IOpenWebLinkUseCase openWebLinkUseCase,
         IFileExplorerService fileExplorerService,
         TimeProvider timeProvider,

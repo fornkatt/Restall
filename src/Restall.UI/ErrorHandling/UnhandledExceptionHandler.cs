@@ -14,17 +14,17 @@ internal sealed partial class UnhandledExceptionHandler
 
     private readonly ILogger<UnhandledExceptionHandler> _logger;
     private readonly UnhandledExceptionTriage _triage;
-    private readonly ErrorDialogPresenter _errorDialogPresenter;
+    private readonly ErrorDialogHost _errorDialogHost;
 
     public UnhandledExceptionHandler(
         ILogger<UnhandledExceptionHandler> logger,
         UnhandledExceptionTriage triage,
-        ErrorDialogPresenter errorDialogPresenter
+        ErrorDialogHost errorDialogHost
     )
     {
         _logger = logger;
         _triage = triage;
-        _errorDialogPresenter = errorDialogPresenter;
+        _errorDialogHost = errorDialogHost;
     }
 
     public void Register() => Dispatcher.UIThread.UnhandledException += OnUnhandledException;
@@ -71,5 +71,5 @@ internal sealed partial class UnhandledExceptionHandler
     }
 
     private async void ShowErrorDialog(Exception exception) =>
-        await _errorDialogPresenter.ShowUnexpectedErrorAsync(exception);
+        await _errorDialogHost.ShowUnexpectedErrorAsync(exception);
 }
