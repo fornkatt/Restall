@@ -47,17 +47,6 @@
           "Avalonia": "12.1.2"
         }
       },
-      "Avalonia.Wayland": {
-        "type": "Direct",
-        "requested": "[12.1.2, )",
-        "resolved": "12.1.2",
-        "contentHash": "hozgNqbRLqzkVpH4KOpfJRDeevN7inhtG3/poUu3Ie1RRWQE1hTAt5OJp+vvyOBeKp/aPTBa2rW6NJ5tIuKcqw==",
-        "dependencies": {
-          "Avalonia": "12.1.2",
-          "Avalonia.FreeDesktop": "12.1.2",
-          "NWayland": "0.11.0"
-        }
-      },
       "CommunityToolkit.Mvvm": {
         "type": "Direct",
         "requested": "[8.4.2, )",
@@ -378,11 +367,6 @@
         "type": "Transitive",
         "resolved": "10.0.11",
         "contentHash": "SXcz+kF+4Oo9b1+55zntpJFYfwb1jw66ioxptyNOOTDc8g2FHnBFWjZpsWfCvZIhzr0x+4e2trVTs4OKwQfBtw=="
-      },
-      "NWayland": {
-        "type": "Transitive",
-        "resolved": "0.11.0",
-        "contentHash": "sTqw0WWcFd/UsF9JoWDn76+2CrCMrNZgR9jgTCqx2WTaSc/UmQ0pgo9Cbn/CRoEyXv+lIHhMygzFexv5p9ve8g=="
       },
       "PeNet": {
         "type": "Transitive",

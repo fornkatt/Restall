@@ -69,11 +69,6 @@ sealed class Program
                         .Debug("{AvaloniaMessage}", message),
                 Avalonia.Logging.LogEventLevel.Warning);
 
-        if (OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") is not null)
-        {
-            builder = builder.UseWayland();
-        }
-
         return builder;
     }
 

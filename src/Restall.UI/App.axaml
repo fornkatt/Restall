@@ -12,6 +12,7 @@
         <FluentTheme />
         <StyleInclude Source="avares://Restall/Styles/ButtonStyles.axaml" />
         <StyleInclude Source="avares://Restall/Styles/ListBoxStyles.axaml" />
+        <StyleInclude Source="avares://Restall/Styles/MenuStyles.axaml" />
     </Application.Styles>
 
     <Application.Resources>

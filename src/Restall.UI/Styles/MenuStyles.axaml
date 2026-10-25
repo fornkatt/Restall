@@ -1,0 +1,30 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <!-- SelectableTextBlock context menu -->
+    <Style Selector="MenuFlyoutPresenter">
+        <Setter Property="Cursor" Value="Arrow" />
+        <Setter Property="Background" Value="{DynamicResource GameCardBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource GameCardNotesBorder}" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+    <Style Selector="MenuFlyoutPresenter MenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource GameCardText}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Margin" Value="4, 0" />
+    </Style>
+    <Style Selector="MenuFlyoutPresenter MenuItem:selected /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource GameListHover}" />
+    </Style>
+    <Style Selector="MenuFlyoutPresenter MenuItem:selected /template/ ContentPresenter#PART_HeaderPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource GameCardText}" />
+    </Style>
+    <Style Selector="MenuFlyoutPresenter MenuItem:pressed /template/ Border#PART_LayoutRoot:pointerover">
+        <Setter Property="Background" Value="{DynamicResource GameListSelection}" />
+    </Style>
+</Styles>

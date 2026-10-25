@@ -20,8 +20,11 @@
     Contact us on our GitHub repository:  https://github.com/fornkatt/Restall
 */
 
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Extensions;
 using Restall.Infrastructure.Extensions;
@@ -38,6 +41,7 @@ public class App : Avalonia.Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+        TemplatedControl.TemplateAppliedEvent.AddClassHandler<TopLevel>(ApplyGreyscaleTextOptions);
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -74,6 +78,12 @@ public class App : Avalonia.Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void ApplyGreyscaleTextOptions(TopLevel topLevel, TemplateAppliedEventArgs e)
+    {
+        TextOptions.SetTextRenderingMode(topLevel, TextRenderingMode.Antialias);
+        TextOptions.SetTextHintingMode(topLevel, TextHintingMode.None);
     }
 
     private static async void RunStartup(StartupWindowViewModel vm, IClassicDesktopStyleApplicationLifetime desktop)
