@@ -11,8 +11,6 @@
         WindowDecorations="None"
         CanResize="False"
         Background="Transparent"
-        TextOptions.TextRenderingMode="Antialias"
-        TextOptions.TextHintingMode="None"
         TransparencyLevelHint="Transparent"
         ClipToBounds="True">
 
@@ -91,7 +89,8 @@
                 </StackPanel>
             </Border>
 
-            <Button Grid.Row="3"
+            <Button Classes="mod-card-btn"
+                    Grid.Row="3"
                     Grid.Column="0"
                     Margin="10"
                     Content="Confirm"
@@ -104,7 +103,8 @@
                     CornerRadius="5"
                     Background="{DynamicResource ModCardButton}"
                     Foreground="{DynamicResource ModCardButtonText}" />
-            <Button Grid.Row="3"
+            <Button Classes="mod-card-btn"
+                    Grid.Row="3"
                     Grid.Column="1"
                     Margin="10"
                     Content="Cancel"

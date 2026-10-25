@@ -9,11 +9,10 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="Restall"
         Width="1000"
-        Height="750"
-        MinHeight="750"
+        MinWidth="1000"
+        Height="760"
+        MinHeight="760"
         Background="{DynamicResource AppBackground}"
-        TextOptions.TextRenderingMode="Antialias"
-        TextOptions.TextHintingMode="None"
         WindowStartupLocation="CenterScreen">
 
     <Grid>

@@ -12,6 +12,7 @@
     </Style>
     <Style Selector="Button.toolbar-btn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource GameListHover}" />
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
     <Style Selector="Button.toolbar-btn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource GameListSelection}" />
@@ -31,9 +32,11 @@
         </Style.Animations>
     </Style>
     <Style Selector="Button.game-card-btn">
-        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Background" Value="{DynamicResource ModCardButton}" />
         <Setter Property="Foreground" Value="{DynamicResource ModCardButtonText}" />
+    </Style>
+    <Style Selector="Button.game-card-btn /template/ ContentPresenter">
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
     <Style Selector="Button.game-card-btn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource ModCardButtonHover}" />
@@ -45,7 +48,6 @@
         <Setter Property="Opacity" Value="0.35" />
     </Style>
 
-
     <!-- ModView Mod buttons -->
     <Style Selector="Button.mod-card-btn">
         <Setter Property="Background" Value="{DynamicResource ModCardButton}" />
@@ -53,6 +55,7 @@
     </Style>
     <Style Selector="Button.mod-card-btn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource ModCardButtonHover}" />
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
     <Style Selector="Button.mod-card-btn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource GameListSelection}" />
