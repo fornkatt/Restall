@@ -141,7 +141,17 @@ public sealed partial class ModViewModel : ViewModelBase
             game.IsShowingReShadeActionMessage = true;
         });
 
-        var result = await Task.Run(() => work(progress));
+        ModOperationResponse result;
+
+        try
+        {
+            result = await Task.Run(() => work(progress));
+        }
+        catch (Exception)
+        {
+            ClearReShadeActionMessage(game);
+            throw;
+        }
 
         if (result.GameEntry is not null)
             game.GameEntry = result.GameEntry;
@@ -152,21 +162,28 @@ public sealed partial class ModViewModel : ViewModelBase
         game.ReShadeModActionStatus = result.Message;
         game.IsShowingReShadeActionMessage = true;
 
-        _ = DismissAsync();
+        DismissReShadeActionMessage(game, cts.Token);
+    }
 
-        async Task DismissAsync()
+    private static void ClearReShadeActionMessage(GameModViewModel game)
+    {
+        game.ReShadeMessageCts?.Cancel();
+        game.ReShadeModActionStatus = null;
+        game.IsShowingReShadeActionMessage = false;
+    }
+
+    private static async void DismissReShadeActionMessage(GameModViewModel game, CancellationToken messageToken)
+    {
+        try
         {
-            try
-            {
-                await Task.Delay(ActionMessageDurationMs, cts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-
-            game.ReShadeModActionStatus = null;
-            game.IsShowingReShadeActionMessage = false;
+            await Task.Delay(ActionMessageDurationMs, messageToken);
         }
+        catch (OperationCanceledException)
+        {
+        }
+
+        game.ReShadeModActionStatus = null;
+        game.IsShowingReShadeActionMessage = false;
     }
 
     [ObservableProperty]
@@ -277,9 +294,18 @@ public sealed partial class ModViewModel : ViewModelBase
     private async Task RunRenoDXInstallAsync(GameModViewModel game, RenoDXInstallRequest request)
     {
         var progress = CreateRenoDXDownloadProgress(game);
-        var response = await Task.Run(() => _modManagementFacade.InstallOrUpdateRenoDXAsync(request, progress));
 
-        ShowRenoDXResponse(game, response.Message, response.GameEntry);
+        try
+        {
+            var response = await Task.Run(() => _modManagementFacade.InstallOrUpdateRenoDXAsync(request, progress));
+
+            ShowRenoDXResponse(game, response.Message, response.GameEntry);
+        }
+        catch (Exception)
+        {
+            ClearRenoDXInfoBoxMessage(game);
+            throw;
+        }
     }
 
     private static Progress<DownloadProgressReport> CreateRenoDXDownloadProgress(GameModViewModel game) =>
@@ -310,10 +336,16 @@ public sealed partial class ModViewModel : ViewModelBase
         game.RenoDXMessageCts = dismissal;
         game.RenoDXMessage = message;
 
-        _ = DismissRenoDXInfoBoxMessageAsync(game, dismissal.Token);
+        DismissRenoDXInfoBoxMessage(game, dismissal.Token);
     }
 
-    private static async Task DismissRenoDXInfoBoxMessageAsync(GameModViewModel game, CancellationToken messageToken)
+    private static void ClearRenoDXInfoBoxMessage(GameModViewModel game)
+    {
+        game.RenoDXMessageCts?.Cancel();
+        game.RenoDXMessage = null;
+    }
+
+    private static async void DismissRenoDXInfoBoxMessage(GameModViewModel game, CancellationToken messageToken)
     {
         try
         {

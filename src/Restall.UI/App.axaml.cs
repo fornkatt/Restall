@@ -28,6 +28,7 @@ using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Extensions;
 using Restall.Infrastructure.Extensions;
+using Restall.UI.ErrorHandling;
 using Restall.UI.Extensions;
 using Restall.UI.ViewModels;
 using Restall.UI.Views;
@@ -54,6 +55,8 @@ public class App : Avalonia.Application
             ValidateScopes = true
         });
 
+        serviceProvider.GetRequiredService<UnhandledExceptionHandler>().Register();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.Exit += (_, _) => serviceProvider.Dispose();
@@ -74,7 +77,7 @@ public class App : Avalonia.Application
                 startupWindow.Close();
             };
 
-            RunStartup(startupVm, desktop);
+            RunStartup(startupVm, desktop, serviceProvider.GetRequiredService<ErrorDialogPresenter>());
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -86,7 +89,8 @@ public class App : Avalonia.Application
         TextOptions.SetTextHintingMode(topLevel, TextHintingMode.None);
     }
 
-    private static async void RunStartup(StartupWindowViewModel vm, IClassicDesktopStyleApplicationLifetime desktop)
+    private static async void RunStartup(StartupWindowViewModel vm, IClassicDesktopStyleApplicationLifetime desktop,
+        ErrorDialogPresenter errorDialogPresenter)
     {
         try
         {
@@ -95,7 +99,15 @@ public class App : Avalonia.Application
         catch (Exception ex)
         {
             Log.ForContext<App>().Fatal(ex, "Fatal error occurred during startup");
-            desktop.Shutdown(1);
+
+            try
+            {
+                await errorDialogPresenter.ShowStartupFailureAsync(ex);
+            }
+            finally
+            {
+                desktop.Shutdown(1);
+            }
         }
     }
 

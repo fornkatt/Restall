@@ -21,9 +21,6 @@
       <Compile Update="UseCases\InstallRenoDXUseCase.Logging.cs">
         <DependentUpon>InstallRenoDXUseCase.cs</DependentUpon>
       </Compile>
-      <Compile Update="Facades\ModManagementFacade.Logging.cs">
-        <DependentUpon>ModManagementFacade.cs</DependentUpon>
-      </Compile>
       <Compile Update="Services\RenoDXModDatabaseBuilder.Logging.cs">
         <DependentUpon>RenoDXModDatabaseBuilder.cs</DependentUpon>
       </Compile>

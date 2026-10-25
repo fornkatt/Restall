@@ -32,8 +32,4 @@ public sealed partial class GameListViewModel
     [LoggerMessage(EventId = 1205, Level = LogLevel.Information,
         Message = "Refresh cancelled by user")]
     private partial void LogRefreshCancelled(Exception ex);
-
-    [LoggerMessage(EventId = 1206, Level = LogLevel.Error,
-        Message = "An unexpected error occurred during refresh")]
-    private partial void LogRefreshFailure(Exception ex);
 }

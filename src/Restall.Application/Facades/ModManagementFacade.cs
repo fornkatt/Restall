@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
 using Restall.Application.DTOs;
 using Restall.Application.DTOs.Requests;
@@ -12,26 +11,23 @@ using Restall.Domain.Entities;
 
 namespace Restall.Application.Facades;
 
-// TODO: combine with UseCases, add global exception handler instead
-public sealed partial class ModManagementFacade : IModManagementFacade
+// TODO: combine with UseCases
+public sealed class ModManagementFacade : IModManagementFacade
 {
     private const string GamePathNotFoundMessage = "Game path could not be found.\n\nPlease perform a rescan.";
 
-    private readonly ILogger<ModManagementFacade> _logger;
     private readonly IInstallReShadeUseCase _installReShadeUseCase;
     private readonly IUninstallReShadeUseCase _uninstallReShadeUseCase;
     private readonly IInstallRenoDXUseCase _installRenoDXUseCase;
     private readonly IUninstallRenoDXUseCase _uninstallRenoDXUseCase;
 
     public ModManagementFacade(
-        ILogger<ModManagementFacade> logger,
         IInstallReShadeUseCase installReShadeUseCase,
         IUninstallReShadeUseCase uninstallReShadeUseCase,
         IInstallRenoDXUseCase installRenoDXUseCase,
         IUninstallRenoDXUseCase uninstallRenoDXUseCase
     )
     {
-        _logger = logger;
         _installReShadeUseCase = installReShadeUseCase;
         _uninstallReShadeUseCase = uninstallReShadeUseCase;
         _installRenoDXUseCase = installRenoDXUseCase;
@@ -49,17 +45,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         if (HasStaleReShadeRecord(request.Game, out var staleError))
             return staleError;
 
-        try
-        {
-            return await _installReShadeUseCase.ExecuteAsync(request, progress);
-        }
-        catch (Exception ex)
-        {
-            const string message = "Unexpected error occured while installing ReShade.";
-            LogError(message, ex);
-            return new ModOperationResponse(false, request.Game,
-                message + " Check logs for more information.");
-        }
+        return await _installReShadeUseCase.ExecuteAsync(request, progress);
     }
 
 
@@ -74,16 +60,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
             return new ModOperationResponse(false, game,
                 "No ReShade installation detected for this game. Please perform a full rescan.");
 
-        try
-        {
-            return _uninstallReShadeUseCase.Execute(game);
-        }
-        catch (Exception ex)
-        {
-            const string message = "An unexpected error occured uninstalling ReShade.";
-            LogError(message, ex);
-            return new ModOperationResponse(false, game, message + " Check the logs for more details.");
-        }
+        return _uninstallReShadeUseCase.Execute(game);
     }
 
     public async Task<RenoDXInstallResponse> InstallOrUpdateRenoDXAsync(RenoDXInstallRequest request,
@@ -94,19 +71,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
         if (IsGamePathInvalid(request.Game))
             return new RenoDXInstallResponse(false, GamePathNotFoundMessage);
 
-        try
-        {
-            var result = await _installRenoDXUseCase.ExecuteAsync(request, progress);
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            const string message = "Unexpected error occured while installing RenoDX.";
-            LogError(message, ex);
-            return new RenoDXInstallResponse(false,
-                message + " Check logs for more information.");
-        }
+        return await _installRenoDXUseCase.ExecuteAsync(request, progress);
     }
 
 
@@ -121,16 +86,7 @@ public sealed partial class ModManagementFacade : IModManagementFacade
             return new RenoDXUninstallResponse(false,
                 "No RenoDX installation detected for this game. Please perform a full rescan.");
 
-        try
-        {
-            return _uninstallRenoDXUseCase.Execute(game);
-        }
-        catch (Exception ex)
-        {
-            const string message = "An unexpected error occured uninstalling RenoDX.";
-            LogError(message, ex);
-            return new RenoDXUninstallResponse(false, message + " Check the logs for more details.");
-        }
+        return _uninstallRenoDXUseCase.Execute(game);
     }
 
     private static bool HasStaleReShadeRecord(Game game, out ModOperationResponse result)

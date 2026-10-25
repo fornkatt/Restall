@@ -3,9 +3,12 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Restall.Application.Interfaces.Driven;
+using Restall.Application.Interfaces.Driving;
+using Restall.UI.ErrorHandling;
 using Restall.UI.Interfaces;
 using Restall.UI.Services;
 using Restall.UI.ViewModels;
+using System;
 
 namespace Restall.UI.Extensions;
 
@@ -24,7 +27,17 @@ public static class UIServiceCollectionExtensions
             .AddSingleton<IFolderPickerService, FolderPickerService>()
             .AddSingleton<IFileExplorerService, FileExplorerService>();
 
-
+        // TODO: Once the folder launcher port lands, give ErrorDialogViewModel an OpenLogFolderUseCase instead of
+        // the log path + IFileExplorerService
+        services
+            .AddSingleton(TimeProvider.System)
+            .AddSingleton(sp => new ErrorDialogPresenter(
+                sp.GetRequiredService<IOpenWebLinkUseCase>(),
+                sp.GetRequiredService<IFileExplorerService>(),
+                sp.GetRequiredService<TimeProvider>(),
+                sp.GetRequiredService<IPathService>().GetDefaultLogPath()))
+            .AddSingleton<UnhandledExceptionTriage>()
+            .AddSingleton<UnhandledExceptionHandler>();
 
         services
             .AddSingleton<GameListViewModel>()
