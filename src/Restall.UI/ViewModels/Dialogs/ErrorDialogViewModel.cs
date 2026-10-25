@@ -55,8 +55,8 @@ internal sealed partial class ErrorDialogViewModel : ObservableObject
     public bool HasAdditionalErrors => AdditionalErrorCount > 0;
 
     public string AdditionalErrorsText => AdditionalErrorCount == 1
-        ? "1 more error happened. The log has the details."
-        : $"{AdditionalErrorCount} more errors happened. The log has the details.";
+        ? "1 more error happened. Please check the log for details."
+        : $"{AdditionalErrorCount} more errors happened. Please check the log for details.";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasActionStatus))]

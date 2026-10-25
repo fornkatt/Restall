@@ -94,8 +94,8 @@ public class ErrorDialogViewModelTests
     }
 
     [Theory]
-    [InlineData(1, "1 more error happened. The log has the details.")]
-    [InlineData(2, "2 more errors happened. The log has the details.")]
+    [InlineData(1, "1 more error happened. Please check the log for details.")]
+    [InlineData(2, "2 more errors happened. Please check the log for details.")]
     public void AddAdditionalError_CalledRepeatedly_TextShowsErrorCount(int errorCount, string expected)
     {
         for (var i = 0; i < errorCount; i++)

@@ -16,11 +16,11 @@ internal sealed class ErrorDialogHost
     private const string UnexpectedErrorTitle = "Something went wrong";
 
     private const string UnexpectedErrorMessage =
-        "What you tried didn't finish. You can keep using Restall; a rescan refreshes everything. " +
+        "What you tried didn't finish. You can keep using Restall, you can do a rescan to refresh everything. " +
         "If the window stops updating, please restart Restall.";
 
     private const string StartupFailureTitle = "Restall couldn't start";
-    private const string StartupFailureMessage = "Restall has to close. The log has the details.";
+    private const string StartupFailureMessage = "Restall has to close. Please check the log for details.";
 
     private readonly IOpenWebLinkUseCase _openWebLinkUseCase;
     private readonly IFileExplorerService _fileExplorerService;
