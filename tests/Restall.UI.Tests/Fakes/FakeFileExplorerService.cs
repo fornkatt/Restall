@@ -5,7 +5,7 @@ using Restall.UI.Interfaces;
 
 namespace Restall.UI.Tests.Fakes;
 
-public class FakeFileExplorerService : IFileExplorerService
+public sealed class FakeFileExplorerService : IFileExplorerService
 {
     private readonly List<string> _openedFolders = [];
 

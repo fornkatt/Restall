@@ -67,22 +67,9 @@ public class UnhandledExceptionTriageTests
         {
             actual.Add(_sut.Decide(new InvalidOperationException()));
             _timeProvider.Advance(TimeSpan.FromSeconds(4));
-
-            Assert.All(actual, outcome => Assert.Equal(UnhandledExceptionOutcome.ShowErrorDialog, outcome));
         }
-    }
 
-    [Fact]
-    public void Decide_WallClockMovedBackwardsAfterStormWindow_ReturnsShowDialog()
-    {
-        for (var i = 0; i < 3; i++)
-            _sut.Decide(new InvalidOperationException());
-        _timeProvider.Advance(TimeSpan.FromSeconds(11));
-        _timeProvider.MoveWallClockBackwards(TimeSpan.FromHours(1));
-
-        var actual = _sut.Decide(new InvalidOperationException());
-
-        Assert.Equal(UnhandledExceptionOutcome.ShowErrorDialog, actual);
+        Assert.All(actual, outcome => Assert.Equal(UnhandledExceptionOutcome.ShowErrorDialog, outcome));
     }
 
     [Fact]

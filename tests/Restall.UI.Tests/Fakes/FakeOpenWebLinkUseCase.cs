@@ -6,7 +6,7 @@ using Restall.Application.Interfaces.Driving;
 
 namespace Restall.UI.Tests.Fakes;
 
-public class FakeOpenWebLinkUseCase : IOpenWebLinkUseCase
+public sealed class FakeOpenWebLinkUseCase : IOpenWebLinkUseCase
 {
     private readonly List<Uri> _openedUrls = [];
 
