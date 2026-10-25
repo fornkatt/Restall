@@ -69,7 +69,7 @@
         <Setter Property="Opacity" Value="0.6" />
     </Style>
     <Style Selector="Button.notice-btn.unseen">
-        <Setter Property="Foreground" Value="#eb5a2f" />
+        <Setter Property="Foreground" Value="{DynamicResource Warning}" />
         <Setter Property="Opacity" Value="1" />
     </Style>
 

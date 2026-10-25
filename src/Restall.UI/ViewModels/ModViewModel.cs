@@ -428,7 +428,7 @@ public sealed partial class ModViewModel : ViewModelBase
 
     public string? RenoDXVersionTextColor =>
         SelectedGame?.HasRenoDX == true
-            ? (CanShowRenoDXUpdate ? OutdatedTextColor : LatestUpdateTextColor)
+            ? CanShowRenoDXUpdate ? OutdatedTextColor : LatestUpdateTextColor
             : null;
 
     [RelayCommand(CanExecute = nameof(CanClickRenoDXInstallButton))]
