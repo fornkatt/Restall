@@ -69,4 +69,39 @@ public class ErrorDialogViewModelTests
         Assert.True(copyDetailsRequested);
         Assert.False(closeRequested);
     }
+
+    [Fact]
+    public async Task ReportIssueCommand_OpenWebLinkFails_ShowsFailureMessage()
+    {
+        _openWebLinkUseCase.ReturnFailure("Couldn't open the browser.");
+
+        await _sut.ReportIssueCommand.ExecuteAsync(null);
+
+        Assert.Equal("Couldn't open the browser.", _sut.ActionStatus);
+        Assert.True(_sut.HasActionStatus);
+    }
+
+    [Fact]
+    public async Task ReportIssueCommand_SucceedsAfterFailure_ClearsFailureMessage()
+    {
+        _openWebLinkUseCase.ReturnFailure("Couldn't open the browser.");
+        await _sut.ReportIssueCommand.ExecuteAsync(null);
+        _openWebLinkUseCase.ReturnSuccess();
+        await _sut.ReportIssueCommand.ExecuteAsync(null);
+
+        Assert.Null(_sut.ActionStatus);
+        Assert.False(_sut.HasActionStatus);
+    }
+
+    [Theory]
+    [InlineData(1, "1 more error happened. The log has the details.")]
+    [InlineData(2, "2 more errors happened. The log has the details.")]
+    public void AddAdditionalError_CalledRepeatedly_TextShowsErrorCount(int errorCount, string expected)
+    {
+        for (var i = 0; i < errorCount; i++)
+            _sut.AddAdditionalError();
+
+        Assert.True(_sut.HasAdditionalErrors);
+        Assert.Equal(expected, _sut.AdditionalErrorsText);
+    }
 }

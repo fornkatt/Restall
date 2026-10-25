@@ -95,4 +95,28 @@ public class UnhandledExceptionTriageTests
 
         Assert.Equal(UnhandledExceptionOutcome.ShowErrorDialog, actual);
     }
+
+    [Fact]
+    public void Decide_FourthExceptionExactlyTenSecondsAfterFirst_ReturnsExitApp()
+    {
+        for (var i = 0; i < 3; i++)
+            _sut.Decide(new InvalidOperationException());
+        _timeProvider.Advance(TimeSpan.FromSeconds(10));
+
+        var actual = _sut.Decide(new InvalidOperationException());
+
+        Assert.Equal(UnhandledExceptionOutcome.ExitApp, actual);
+    }
+
+    [Fact]
+    public void Decide_FourthExceptionJustOverTenSecondsAfterFirst_ReturnsShowErrorDialog()
+    {
+        for (var i = 0; i < 3; i++)
+            _sut.Decide(new InvalidOperationException());
+        _timeProvider.Advance(TimeSpan.FromSeconds(10) + TimeSpan.FromTicks(1));
+
+        var actual = _sut.Decide(new InvalidOperationException());
+
+        Assert.Equal(UnhandledExceptionOutcome.ShowErrorDialog, actual);
+    }
 }

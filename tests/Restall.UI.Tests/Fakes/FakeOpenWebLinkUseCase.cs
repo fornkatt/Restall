@@ -9,13 +9,18 @@ namespace Restall.UI.Tests.Fakes;
 public sealed class FakeOpenWebLinkUseCase : IOpenWebLinkUseCase
 {
     private readonly List<Uri> _openedUrls = [];
+    private OpenWebLinkResponse _response = new(true);
 
     public IReadOnlyList<Uri> OpenedUrls => _openedUrls;
+
+    public void ReturnFailure(string message) => _response = new OpenWebLinkResponse(false, message);
+
+    public void ReturnSuccess() => _response = new OpenWebLinkResponse(true);
 
     public OpenWebLinkResponse Execute(Uri url)
     {
         _openedUrls.Add(url);
 
-        return new OpenWebLinkResponse(true);
+        return _response;
     }
 }
