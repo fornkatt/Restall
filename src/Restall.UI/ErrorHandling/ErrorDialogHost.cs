@@ -58,12 +58,12 @@ internal sealed class ErrorDialogHost
             return;
         }
 
-        var vm = new ErrorDialogViewModel(title, message, dismissButtonText,
+        var errorDialogVm = new ErrorDialogViewModel(title, message, dismissButtonText,
             ErrorDetails.Build(exception, _logFolderPath, _timeProvider.GetUtcNow()),
             _logFolderPath, _openWebLinkUseCase, _fileExplorerService);
-        var dialog = new ErrorDialog { DataContext = vm };
+        var dialog = new ErrorDialog { DataContext = errorDialogVm };
 
-        _openDialog = vm;
+        _openDialog = errorDialogVm;
         _openDialogClosed = ShowWithOwnerIfVisibleAsync(dialog);
 
         try
