@@ -13,17 +13,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="12.1.2" />
-        <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.11" />
+        <PackageReference Include="Avalonia" Version="12.1.2"/>
+        <PackageReference Include="Avalonia.Desktop" Version="12.1.2"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.11"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Include="Avalonia.Diagnostics" Version="11.3.20">
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -33,17 +33,24 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Assets\Fonts\" />
+        <Folder Include="Assets\Fonts\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="ViewModels\GameListViewModel.Logging.cs">
-        <DependentUpon>GameListViewModel.cs</DependentUpon>
-      </Compile>
+        <Compile Update="ViewModels\GameListViewModel.Logging.cs">
+            <DependentUpon>GameListViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ErrorHandling\UnhandledExceptionHandler.Logging.cs">
+            <DependentUpon>UnhandledExceptionHandler.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\..\LICENSE" CopyToOutputDirectory="PreserveNewest" Link="LICENSE" />
-        <Content Include="..\..\THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" Link="THIRD-PARTY-NOTICES.md" />
+        <InternalsVisibleTo Include="Restall.UI.Tests"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\LICENSE" CopyToOutputDirectory="PreserveNewest" Link="LICENSE"/>
+        <Content Include="..\..\THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" Link="THIRD-PARTY-NOTICES.md"/>
     </ItemGroup>
 </Project>

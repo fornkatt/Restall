@@ -622,7 +622,7 @@
                                         <TextBlock FontFamily="{StaticResource Phosphor-Fill}"
                                                    FontSize="30"
                                                    Text="&#xE948;"
-                                                   Foreground="#eb5a2f"
+                                                   Foreground="{DynamicResource Warning}"
                                                    IsVisible="{Binding SelectedGame.RenoDXEntry.IsWorkInProgress}" />
                                     </Panel>
                                 </StackPanel>

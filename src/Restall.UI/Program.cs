@@ -22,6 +22,7 @@
 
 using Avalonia;
 using Restall.Infrastructure.Startup;
+using Restall.UI.ErrorHandling;
 using Serilog;
 using System;
 using System.Linq;
@@ -82,7 +83,7 @@ sealed class Program
 
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
-            if (e.Exception.InnerExceptions.All(ex => ex is TaskCanceledException or OperationCanceledException))
+            if (e.Exception.InnerExceptions.All(IsCancellationOrAlreadyHandled))
             {
                 e.SetObserved();
                 return;
@@ -91,4 +92,8 @@ sealed class Program
             Log.ForContext<Program>().Error(e.Exception, "Unobserved task exception");
         };
     }
+
+    private static bool IsCancellationOrAlreadyHandled(Exception exception) =>
+        exception is OperationCanceledException ||
+        exception.Data.Contains(UnhandledExceptionHandler.HandledByDispatcherKey);
 }

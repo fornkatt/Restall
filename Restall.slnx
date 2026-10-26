@@ -9,5 +9,6 @@
     <Project Path="tests/Restall.Application.Tests/Restall.Application.Tests.csproj" />
     <Project Path="tests/Restall.Domain.Tests/Restall.Domain.Tests.csproj" />
     <Project Path="tests/Restall.Infrastructure.Tests/Restall.Infrastructure.Tests.csproj" />
+    <Project Path="tests/Restall.UI.Tests/Restall.UI.Tests.csproj" />
   </Folder>
 </Solution>

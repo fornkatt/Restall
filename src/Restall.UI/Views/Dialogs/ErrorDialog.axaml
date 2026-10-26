@@ -1,0 +1,92 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Restall.UI.ViewModels.Dialogs"
+        x:Class="Restall.UI.Views.Dialogs.ErrorDialog"
+        x:DataType="vm:ErrorDialogViewModel"
+        Title="{Binding Title}"
+        Width="480"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        WindowDecorations="None"
+        CanResize="False"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        ClipToBounds="True">
+
+    <Border Background="{DynamicResource AppBackground}"
+            CornerRadius="10"
+            BorderBrush="{DynamicResource DialogBorder}"
+            BorderThickness="1"
+            Padding="16"
+            ClipToBounds="True">
+        <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Title}"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource GameCardText}" />
+            <TextBlock Text="{Binding Message}"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource GameCardText}" />
+            <TextBlock Text="{Binding AdditionalErrorsText}"
+                       IsVisible="{Binding HasAdditionalErrors}"
+                       TextWrapping="Wrap"
+                       FontWeight="Medium"
+                       Foreground="{DynamicResource Warning}" />
+            <Expander Header="Details"
+                      HorizontalAlignment="Stretch">
+                <StackPanel Spacing="4">
+                    <TextBox Text="{Binding Details, Mode=OneWay}"
+                             IsReadOnly="True"
+                             TextWrapping="Wrap"
+                             FontFamily="monospace"
+                             FontSize="11"
+                             MaxHeight="220" />
+                    <TextBlock Text="The details may include file paths from your computer."
+                               FontSize="11"
+                               Opacity="0.7"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Expander>
+            <TextBlock Text="{Binding ActionStatus}"
+                       IsVisible="{Binding HasActionStatus}"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource Warning}" />
+            <Grid ColumnDefinitions="Auto, Auto, Auto, Auto"
+                  ColumnSpacing="4"
+                  HorizontalAlignment="Center">
+                <Button Grid.Column="0"
+                        Content="Open log folder"
+                        Command="{Binding OpenLogFolderCommand}"
+                        Classes="mod-card-btn"
+                        CornerRadius="5"
+                        Margin="4"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center" />
+                <Button Grid.Column="1"
+                        Content="Report issue"
+                        Command="{Binding ReportIssueCommand}"
+                        Classes="mod-card-btn"
+                        CornerRadius="5"
+                        Margin="4"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center" />
+                <Button Grid.Column="2"
+                        Content="Copy details"
+                        Command="{Binding CopyDetailsCommand}"
+                        Classes="mod-card-btn"
+                        CornerRadius="5"
+                        Margin="4"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center" />
+                <Button Grid.Column="3"
+                        Content="{Binding DismissButtonText}"
+                        Command="{Binding DismissCommand}"
+                        Classes="mod-card-btn"
+                        CornerRadius="5"
+                        Margin="4"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center" />
+            </Grid>
+        </StackPanel>
+    </Border>
+</Window>

@@ -181,9 +181,10 @@ public sealed partial class GameListViewModel : ViewModelBase
         {
             LogRefreshCancelled(ex);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            LogRefreshFailure(ex);
+            ScanMessage = "Refresh failed.";
+            throw;
         }
         finally
         {
