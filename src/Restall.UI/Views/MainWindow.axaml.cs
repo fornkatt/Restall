@@ -20,7 +20,7 @@ public sealed partial class MainWindow : Window
 #if DEBUG
         KeyBindings.Add(new KeyBinding
         {
-            Gesture = new KeyGesture(Key.F12, KeyModifiers.Control | KeyModifiers.Shift),
+            Gesture = new KeyGesture(Key.Y, KeyModifiers.Control | KeyModifiers.Shift),
             Command = new AsyncRelayCommand(ThrowTestExceptionAsync)
         });
 #endif
@@ -30,6 +30,6 @@ public sealed partial class MainWindow : Window
     private static Task ThrowTestExceptionAsync() => Task.Run(ThrowTestException);
 
     private static void ThrowTestException() =>
-        throw new InvalidOperationException("Test exception from the debug trigger (Ctrl+Shift+F12).");
+        throw new InvalidOperationException("Test exception from the debug trigger (Ctrl+Shift+Y).");
 #endif
 }
