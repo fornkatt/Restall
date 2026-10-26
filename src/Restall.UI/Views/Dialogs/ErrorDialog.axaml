@@ -51,37 +51,42 @@
                        IsVisible="{Binding HasActionStatus}"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource Warning}" />
-            <WrapPanel>
-                <Button Content="Open log folder"
+            <Grid ColumnDefinitions="Auto, Auto, Auto, Auto"
+                  ColumnSpacing="4"
+                  HorizontalAlignment="Center">
+                <Button Grid.Column="0"
+                        Content="Open log folder"
                         Command="{Binding OpenLogFolderCommand}"
                         Classes="mod-card-btn"
                         CornerRadius="5"
                         Margin="4"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center" />
-                <Button Content="Report issue"
+                <Button Grid.Column="1"
+                        Content="Report issue"
                         Command="{Binding ReportIssueCommand}"
                         Classes="mod-card-btn"
                         CornerRadius="5"
                         Margin="4"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center" />
-                <Button Content="Copy details"
+                <Button Grid.Column="2"
+                        Content="Copy details"
                         Command="{Binding CopyDetailsCommand}"
                         Classes="mod-card-btn"
                         CornerRadius="5"
                         Margin="4"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center" />
-                <Button Content="{Binding DismissButtonText}"
+                <Button Grid.Column="3"
+                        Content="{Binding DismissButtonText}"
                         Command="{Binding DismissCommand}"
                         Classes="mod-card-btn"
                         CornerRadius="5"
-                        MinWidth="80"
                         Margin="4"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center" />
-            </WrapPanel>
+            </Grid>
         </StackPanel>
     </Border>
 </Window>
