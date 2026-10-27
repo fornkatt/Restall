@@ -12,6 +12,7 @@ using Restall.Infrastructure.Helpers;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Restall.Infrastructure.Services;
 
@@ -30,6 +31,10 @@ internal sealed partial class ParseService : IParseService
 
     private const string RenoDXExpandedAssetsUrl = "https://github.com/clshortfuse/renodx/releases/expanded_assets/";
     private const string RenoDXDownloadUrl = "https://github.com/clshortfuse/renodx/releases/download/";
+
+    [GeneratedRegex("""(?<=\s)href\s*=\s*(?:"(?<value>[^"]*)"|'(?<value>[^']*)'|(?<value>[^\s"'=<>`]+))""",
+        RegexOptions.IgnoreCase)]
+    private static partial Regex HrefAttributeRegex();
 
     private readonly IHttpClientFactory _clientFactory;
     private readonly ILogger<ParseService> _logger;
@@ -210,11 +215,13 @@ internal sealed partial class ParseService : IParseService
                 var href = node.GetAttributeValue("href", string.Empty);
                 var tag = href.Split('/').LastOrDefault();
 
-                if (string.IsNullOrWhiteSpace(tag)) continue;
+                if (string.IsNullOrWhiteSpace(tag))
+                    continue;
 
                 var version = tag.TrimStart('v');
 
-                if (string.IsNullOrWhiteSpace(version) || versions.Contains(version)) continue;
+                if (string.IsNullOrWhiteSpace(version) || versions.Contains(version))
+                    continue;
 
                 versions.Add(version);
                 LogReShadeVersionFound(version, ReShadeTagsUrl);
@@ -283,11 +290,11 @@ internal sealed partial class ParseService : IParseService
         CancellationToken cancellationToken = default)
     {
         var assetUrl = RenoDXExpandedAssetsUrl + tag;
-        HtmlDocument document;
+        string html;
 
         try
         {
-            document = await LoadHtmlDocumentAsync(assetUrl, cancellationToken);
+            html = await LoadHtmlAsync(assetUrl, cancellationToken);
         }
         catch (HttpRequestException ex)
         {
@@ -301,20 +308,16 @@ internal sealed partial class ParseService : IParseService
         }
 
         var downloadPath = $"/clshortfuse/renodx/releases/download/{tag}/";
-        var linkNodes = document.DocumentNode
-            .SelectNodes($"//a[starts-with(@href, '{downloadPath}')]");
+        var addonFilenames = new List<string>();
 
-        if (linkNodes is null)
+        foreach (Match hrefMatch in HrefAttributeRegex().Matches(html))
         {
-            LogRenoDXAddonFileListEmpty(assetUrl);
-            return [];
-        }
+            var rawHref = hrefMatch.Groups["value"].Value;
 
-        List<string> addonFilenames = [];
+            if (!rawHref.StartsWith(downloadPath, StringComparison.Ordinal))
+                continue;
 
-        foreach (var linkNode in linkNodes)
-        {
-            var href = HtmlEntity.DeEntitize(linkNode.GetAttributeValue("href", string.Empty));
+            var href = HtmlEntity.DeEntitize(rawHref);
             var filename = Uri.UnescapeDataString(href[downloadPath.Length..]);
 
             if (filename.EndsWith(RenoDX.AddonExtension64, StringComparison.OrdinalIgnoreCase) ||
@@ -405,10 +408,16 @@ internal sealed partial class ParseService : IParseService
 
     private async Task<HtmlDocument> LoadHtmlDocumentAsync(string url, CancellationToken cancellationToken = default)
     {
-        var httpClient = _clientFactory.CreateClient(HttpClientName);
-        var html = await httpClient.GetStringAsync(url, cancellationToken);
+        var html = await LoadHtmlAsync(url, cancellationToken);
         var document = new HtmlDocument();
         document.LoadHtml(html);
         return document;
+    }
+
+    private Task<string> LoadHtmlAsync(string url, CancellationToken cancellationToken = default)
+    {
+        var httpClient = _clientFactory.CreateClient(HttpClientName);
+
+        return httpClient.GetStringAsync(url, cancellationToken);
     }
 }
