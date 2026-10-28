@@ -29,6 +29,8 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
     private readonly RenoDXCatalog _renoDXCatalog;
     private readonly GameEntryAssembler _gameEntryAssembler;
 
+    private static readonly ParallelOptions s_artworkParallelOptions = new() { MaxDegreeOfParallelism = 4 };
+
 
     public FullLibraryRefreshUseCase(
         ILogger<FullLibraryRefreshUseCase> logger,
@@ -184,27 +186,24 @@ public sealed partial class FullLibraryRefreshUseCase : IFullLibraryRefreshUseCa
     private async Task<RefreshLibraryResponse> BuildResultAsync(IOrderedEnumerable<Game> sortedGames, bool success,
         string? errorMessage, ImmutableArray<string> warnings)
     {
-        HashSet<Task> artworkTasks = [];
-        List<GameEntry> gameEntries = [];
+        var namedGames = sortedGames.Where(game => !string.IsNullOrWhiteSpace(game.Name)).ToList();
+        var artworkTask = Parallel.ForEachAsync(namedGames, s_artworkParallelOptions,
+            (game, _) => new ValueTask(_gameArtworkService.EnrichGameArtworkAsync(game)));
+        var gameEntries = new List<GameEntry>();
 
-        foreach (var game in sortedGames)
+        foreach (var game in namedGames)
         {
-            if (string.IsNullOrWhiteSpace(game.Name))
-                continue;
-
             var reShade = await _modDetectionService.DetectInstalledReShadeAsync(game.ExecutablePath!);
-            var renoDx = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
+            var renoDX = await _modDetectionService.DetectInstalledRenoDXAsync(game.ExecutablePath!);
 
-            // TODO(): handle multiple mods found with user choice
+            // TODO: handle multiple mods found with user choice
             game.ReShade = reShade.Value?.FirstOrDefault();
-            game.RenoDX = renoDx.Value?.FirstOrDefault();
-
-            artworkTasks.Add(_gameArtworkService.EnrichGameArtworkAsync(game));
+            game.RenoDX = renoDX.Value?.FirstOrDefault();
 
             gameEntries.Add(_gameEntryAssembler.Assemble(game));
         }
 
-        await Task.WhenAll(artworkTasks);
+        await artworkTask;
 
         return new RefreshLibraryResponse([.. gameEntries], success, warnings, errorMessage);
     }

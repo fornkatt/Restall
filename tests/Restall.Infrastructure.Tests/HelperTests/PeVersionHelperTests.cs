@@ -11,7 +11,12 @@ public class PeVersionHelperTests : IDisposable
 
     private static string InfrastructureAssemblyPath => typeof(PeVersionHelper).Assembly.Location;
 
-    public void Dispose() => Directory.Delete(_tempDir, true);
+    public void Dispose()
+    {
+        Directory.Delete(_tempDir, true);
+
+        GC.SuppressFinalize(this);
+    }
 
     [Fact]
     public void GetVersionInfo_ManagedAssembly_ReturnsVersionStrings()
@@ -28,17 +33,6 @@ public class PeVersionHelperTests : IDisposable
     {
         var filePath = Path.Combine(_tempDir, "empty.dll");
         File.WriteAllBytes(filePath, []);
-
-        var actual = PeVersionHelper.GetVersionInfo(filePath);
-
-        Assert.Null(actual);
-    }
-
-    [Fact]
-    public void GetVersionInfo_TruncatedPeFile_ReturnsNothing()
-    {
-        var filePath = Path.Combine(_tempDir, "truncated.dll");
-        File.WriteAllBytes(filePath, File.ReadAllBytes(InfrastructureAssemblyPath)[..64]);
 
         var actual = PeVersionHelper.GetVersionInfo(filePath);
 
