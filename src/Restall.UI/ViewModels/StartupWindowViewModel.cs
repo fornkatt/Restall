@@ -40,6 +40,8 @@ public sealed partial class StartupWindowViewModel : ObservableObject
 
         var result = await Task.Run(() => _fullLibraryRefresh.ExecuteAsync(progress));
 
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true);
+
         InitializationCompleted?.Invoke(result);
     }
 }

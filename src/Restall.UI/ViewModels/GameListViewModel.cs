@@ -115,6 +115,8 @@ public sealed partial class GameListViewModel : ViewModelBase
         });
 
         LogFullLibraryRefreshComplete();
+
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true);
     }
 
     [RelayCommand(CanExecute = nameof(CanRefresh))]
