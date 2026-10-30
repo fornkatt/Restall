@@ -76,7 +76,10 @@ public sealed partial class GameListViewModel : ViewModelBase
 
     public void LoadGames(RefreshLibraryResponse result)
     {
+        var previousGames = Games.ToList();
+
         Games.Clear();
+
         foreach (var gameEntry in result.GameEntries)
         {
             Games.Add(new GameModViewModel(gameEntry));
@@ -85,6 +88,9 @@ public sealed partial class GameListViewModel : ViewModelBase
         SelectedGame = Games.FirstOrDefault();
         RefreshWarnings = result.Warnings;
         HasUnseenRefreshWarnings = !result.Warnings.IsEmpty;
+
+        foreach (var previousGame in previousGames)
+            previousGame.Dispose();
     }
 
     [RelayCommand(CanExecute = nameof(CanRefresh))]

@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Restall.Application.DTOs;
@@ -11,19 +10,14 @@ using Restall.Domain.Entities;
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading;
 
 namespace Restall.UI.ViewModels;
 
-public sealed partial class GameModViewModel : ObservableObject
+public sealed partial class GameModViewModel : ObservableObject, IDisposable
 {
-    private const int CoverTargetWidth = 600;
     private const int ThumbnailTargetWidth = 32;
-
-    private Lazy<Bitmap?> _coverBitMap = CreateLazyBitmap(null, CoverTargetWidth);
-    private Lazy<Bitmap?> _thumbnailBitmap = CreateLazyBitmap(null, ThumbnailTargetWidth);
 
     private ImmutableArray<string> _seenRenoDXNotices = [];
 
@@ -31,8 +25,7 @@ public sealed partial class GameModViewModel : ObservableObject
     {
         GameEntry = gameEntry;
 
-        CoverPathString = Game.GameCoverPathString;
-        ThumbnailPathString = Game.ThumbnailPathString;
+        Thumbnail = new AsyncBitmap(Game.ThumbnailPathString, ThumbnailTargetWidth);
     }
 
     [ObservableProperty]
@@ -153,41 +146,8 @@ public sealed partial class GameModViewModel : ObservableObject
 
     // Bitmaps -------------------------------------------------------------------------------
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CoverBitmap))]
-    public partial string? CoverPathString { get; set; }
+    public string? CoverPath => Game.GameCoverPathString;
+    public AsyncBitmap Thumbnail { get; }
 
-    partial void OnCoverPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _coverBitMap, value, CoverTargetWidth);
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ThumbnailBitmap))]
-    public partial string? ThumbnailPathString { get; set; }
-
-    partial void OnThumbnailPathStringChanged(string? value) =>
-        ResetLazyBitmap(ref _thumbnailBitmap, value, ThumbnailTargetWidth);
-
-    public Bitmap? CoverBitmap => _coverBitMap.Value;
-    public Bitmap? ThumbnailBitmap => _thumbnailBitmap.Value;
-
-    private static Lazy<Bitmap?> CreateLazyBitmap(string? path, int targetWidth) =>
-        new(() => DecodeBitmap(path, targetWidth), LazyThreadSafetyMode.None);
-
-    private static Bitmap? DecodeBitmap(string? path, int targetWidth)
-    {
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-            return null;
-
-        using var stream = File.OpenRead(path);
-
-        return Bitmap.DecodeToWidth(stream, targetWidth);
-    }
-
-    private void ResetLazyBitmap(ref Lazy<Bitmap?> lazy, string? newPath, int targetWidth)
-    {
-        if (lazy.IsValueCreated)
-            lazy.Value?.Dispose();
-
-        lazy = CreateLazyBitmap(newPath, targetWidth);
-    }
+    public void Dispose() => Thumbnail.Dispose();
 }

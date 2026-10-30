@@ -115,11 +115,6 @@
                  Background="{DynamicResource GameCardBackground}"
                  Foreground="{DynamicResource GameCardText}"
                  FontWeight="SemiBold">
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border Classes="game-list-card"
@@ -135,7 +130,7 @@
                                     Height="24"
                                     CornerRadius="4"
                                     ClipToBounds="True">
-                                <Image Source="{Binding ThumbnailBitmap}"
+                                <Image Source="{Binding Thumbnail.Value}"
                                        Stretch="UniformToFill" />
                             </Border>
                             <TextBlock Text="{Binding Name}"
