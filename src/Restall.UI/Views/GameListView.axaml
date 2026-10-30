@@ -135,7 +135,7 @@
                                     Height="24"
                                     CornerRadius="4"
                                     ClipToBounds="True">
-                                <Image Source="{Binding ThumbnailBitmap}"
+                                <Image Source="{Binding Thumbnail.Value}"
                                        Stretch="UniformToFill" />
                             </Border>
                             <TextBlock Text="{Binding Name}"

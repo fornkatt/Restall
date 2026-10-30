@@ -7,7 +7,6 @@ using System.Text;
 namespace Restall.Infrastructure.Helpers;
 
 // TODO: wrap every return null path in Result to get meaningful information up to caller for the log
-//TODO: LOOK UP HOW I CAN BYPASS ICONHELPER WITH TRY/CATCH DUE TO PENET STANDARD
 internal static class PeIconHelper
 {
     private const int RtIcon = 3;
@@ -37,15 +36,21 @@ internal static class PeIconHelper
 
     internal static byte[]? ExtractLargestIconAsPng(string executablePath)
     {
-        var fileBytes = File.ReadAllBytes(executablePath);
-        var pe = new PeFile(fileBytes);
+        using var stream = File.OpenRead(executablePath);
+        var pe = PeFileParser.Parse(stream);
 
-        var groupBytes = ReadResource(pe, fileBytes, typeId: RtGroupIcon, resourceId: null);
-        if (groupBytes is null || groupBytes.Length < GrpHeaderSize) return null;
+        if (pe is null)
+            return null;
+
+        var groupBytes = ReadResource(pe, RtGroupIcon, null);
+
+        if (groupBytes is null || groupBytes.Length < GrpHeaderSize)
+            return null;
 
         int count = BitConverter.ToUInt16(groupBytes, GrpCountOffset);
 
-        if (count == 0) return null;
+        if (count == 0)
+            return null;
 
         var bestId = Enumerable.Range(0, count)
             .Select(i => GrpHeaderSize + i * GrpEntrySize)
@@ -58,38 +63,47 @@ internal static class PeIconHelper
             .OrderByDescending(e => e.Area)
             .ThenByDescending(e => e.BitCount)
             .FirstOrDefault().Id;
-        if (bestId == 0) return null;
 
-        var iconBytes = ReadResource(pe, fileBytes, typeId: RtIcon, resourceId: bestId);
-        if (iconBytes is null) return null;
+        if (bestId == 0)
+            return null;
 
-        return IsPng(iconBytes) ? iconBytes : WrapInIco(iconBytes);
+        var iconBytes = ReadResource(pe, RtIcon, bestId);
+
+        if (iconBytes is null)
+            return null;
+
+        return IsPng(iconBytes)
+            ? iconBytes
+            : WrapInIco(iconBytes);
     }
 
-    private static byte[]? ReadResource(PeFile pe, byte[] fileBytes, int typeId, ushort? resourceId)
+    private static byte[]? ReadResource(PeFile pe, int typeId, ushort? resourceId)
     {
         var resourceType = pe.ImageResourceDirectory?.DirectoryEntries?
             .FirstOrDefault(e => e?.ID == typeId)?
             .ResourceDirectory;
-
         var resourceEntry = resourceId is null
             ? resourceType?.DirectoryEntries?.FirstOrDefault()
             : resourceType?.DirectoryEntries?.FirstOrDefault(e => e!.ID == resourceId);
-
         var languageData = resourceEntry?.ResourceDirectory?.DirectoryEntries?.FirstOrDefault()?.ResourceDataEntry;
-        if (languageData is null) return null;
+
+        if (languageData is null)
+            return null;
 
         var resourceSection = pe.ImageSectionHeaders?.FirstOrDefault(s =>
             languageData.OffsetToData >= s.VirtualAddress &&
             languageData.OffsetToData < s.VirtualAddress + s.SizeOfRawData);
 
-        if (resourceSection is null) return null;
+        if (resourceSection is null)
+            return null;
 
         var offset =
-            (int)(languageData.OffsetToData - resourceSection.VirtualAddress + resourceSection.PointerToRawData);
-        var size = (int)languageData.Size1;
+            (long)languageData.OffsetToData - resourceSection.VirtualAddress + resourceSection.PointerToRawData;
+        long size = languageData.Size1;
 
-        return offset + size <= fileBytes.Length ? fileBytes[offset..(offset + size)] : null;
+        return offset + size <= pe.RawFile.Length
+            ? [.. pe.RawFile.AsSpan(offset, size)]
+            : null;
     }
 
     internal static bool IsPng(byte[] data) =>

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Application.DTOs;
 using Restall.Application.Helpers;
 
 namespace Restall.Application.Tests.HelperTests;
@@ -68,10 +69,31 @@ public class GameNameHelperTests
     }
 
     [Fact]
+    public void IsLikelySameGame_ExpansionWithSubtitle_ReturnsFalse()
+    {
+        var actual = GameNameHelper.IsLikelySameGame(
+            "RoboCop: Rogue City - Unfinished Business",
+            "RoboCop: Rogue City");
+
+        Assert.False(actual);
+    }
+
+    [Fact]
+    public void IsLikelySameGame_PreparedExpansionWithSubtitle_ReturnsFalse()
+    {
+        var actual = GameNameHelper.IsLikelySameGame(
+            PreparedName.Create("RoboCop: Rogue City - Unfinished Business"),
+            PreparedName.Create("RoboCop: Rogue City"));
+
+        Assert.False(actual);
+    }
+
+    [Fact]
     public void CountSharedWords_NamesWithCommonWords_ReturnsSharedWordCount()
     {
-        var actual = GameNameHelper.CountSharedWords("Shadow of the Tomb Raider: Definitive Edition",
-            "Shadow of the Tomb Raider");
+        var actual = GameNameHelper.CountSharedWords(
+            PreparedName.Create("Shadow of the Tomb Raider: Definitive Edition"),
+            PreparedName.Create("Shadow of the Tomb Raider"));
 
         Assert.Equal(5, actual);
     }
@@ -79,7 +101,9 @@ public class GameNameHelperTests
     [Fact]
     public void CountSharedWords_NoCommonWords_ReturnsZero()
     {
-        var actual = GameNameHelper.CountSharedWords("SILENT HILL: Townfall", "CONTROL Resonant");
+        var actual = GameNameHelper.CountSharedWords(
+            PreparedName.Create("SILENT HILL: Townfall"),
+            PreparedName.Create("CONTROL Resonant"));
 
         Assert.Equal(0, actual);
     }

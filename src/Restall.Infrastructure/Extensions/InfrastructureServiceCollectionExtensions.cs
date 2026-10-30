@@ -18,6 +18,8 @@ namespace Restall.Infrastructure.Extensions;
 
 public static class InfrastructureServiceCollectionExtensions
 {
+    private static readonly TimeSpan s_requestTimeout = TimeSpan.FromSeconds(30);
+
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.ConfigureLogging();
@@ -43,43 +45,19 @@ public static class InfrastructureServiceCollectionExtensions
             .AddSingleton<IFileService, FileService>()
             .AddSingleton<IWebLinkLauncher, WebLinkLauncher>();
 
-        services.AddHttpClient(ParseService.HttpClientName, c => c.DefaultRequestHeaders.UserAgent
-                .ParseAdd("Restall"))
-            .ConfigurePrimaryHttpMessageHandler(() =>
-                OperatingSystem.IsWindows()
-                    ? new WinHttpHandler
-                    {
-                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-                    }
-                    : new SocketsHttpHandler
-                    {
-                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate |
-                                                 DecompressionMethods.Brotli
-                    });
+        services.AddHttpClient(ParseService.HttpClientName, ConfigureUserAgentAndTimeout)
+            .ConfigurePrimaryHttpMessageHandler(CreateDecompressingHandler);
         services.AddSingleton<IParseService, ParseService>();
 
-        services.AddHttpClient(RenoDXModSourceService.HttpClientName,
-            c => c.DefaultRequestHeaders.UserAgent
-                .ParseAdd("Restall"));
+        services.AddHttpClient(RenoDXModSourceService.HttpClientName, ConfigureUserAgentAndTimeout)
+            .ConfigurePrimaryHttpMessageHandler(CreateDecompressingHandler);
         services.AddSingleton<IRenoDXModSourceService, RenoDXModSourceService>();
 
-        services.AddHttpClient(DownloadService.HttpClientName, c => c.DefaultRequestHeaders
-            .UserAgent.ParseAdd("Restall"));
+        services.AddHttpClient(DownloadService.HttpClientName, ConfigureUserAgentAndTimeout);
         services.AddSingleton<IDownloadService, DownloadService>();
 
-        services.AddHttpClient(GameCoverService.HttpClientName, c => c.DefaultRequestHeaders
-                .UserAgent.ParseAdd("Restall"))
-            .ConfigurePrimaryHttpMessageHandler(() =>
-                OperatingSystem.IsWindows()
-                    ? new WinHttpHandler
-                    {
-                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-                    }
-                    : new SocketsHttpHandler
-                    {
-                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate |
-                                                 DecompressionMethods.Brotli
-                    });
+        services.AddHttpClient(GameCoverService.HttpClientName, ConfigureUserAgentAndTimeout)
+            .ConfigurePrimaryHttpMessageHandler(CreateDecompressingHandler);
         services.AddSingleton<IGameCoverService, GameCoverService>();
 
 
@@ -114,4 +92,19 @@ public static class InfrastructureServiceCollectionExtensions
 
         return services;
     }
+
+    private static void ConfigureUserAgentAndTimeout(HttpClient client)
+    {
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Restall");
+        client.Timeout = s_requestTimeout;
+    }
+
+    private static HttpMessageHandler CreateDecompressingHandler() =>
+        OperatingSystem.IsWindows()
+            ? new WinHttpHandler { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate }
+            : new SocketsHttpHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate |
+                                         DecompressionMethods.Brotli
+            };
 }
