@@ -115,6 +115,11 @@
                  Background="{DynamicResource GameCardBackground}"
                  Foreground="{DynamicResource GameCardText}"
                  FontWeight="SemiBold">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border Classes="game-list-card"
