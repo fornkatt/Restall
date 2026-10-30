@@ -14,7 +14,7 @@ public class RenoDXCatalogTests
     {
         var sut = new RenoDXCatalog();
 
-        Assert.Equal(RenoDXModDatabase.Empty, sut.ModDatabase);
+        Assert.Same(RenoDXModDatabase.Empty, sut.ModDatabase);
         Assert.Null(sut.Snapshot);
         Assert.Empty(sut.Nightlies);
     }
@@ -22,14 +22,11 @@ public class RenoDXCatalogTests
     [Fact]
     public void LoadModDatabase_SnapshotAlreadyLoaded_ReturnsNewDatabaseAndKeepsSnapshot()
     {
-        var database = RenoDXModDatabase.Empty with
-        {
-            GameMods =
-            [
-                new RenoDXGameMod("Test Game", RenoDXModStatus.Done, null, null, null,
-                    null, null, null, null)
-            ]
-        };
+        var database = new RenoDXModDatabase(
+        [
+            new RenoDXGameMod("Test Game", RenoDXModStatus.Done, null, null, null,
+                null, null, null, null)
+        ], [], []);
         var snapshot = new RenoDXTagInfo(new DateOnly(2026, 10, 5),
             new Uri("https://restalltests.com/snapshot/"), [], []);
         var sut = new RenoDXCatalog();

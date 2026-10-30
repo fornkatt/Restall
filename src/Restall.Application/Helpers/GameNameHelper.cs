@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Application.DTOs;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -121,10 +122,10 @@ public static partial class GameNameHelper
     public static string SplitInWordSeparators(string name) =>
         InWordHyphenRegex().Replace(name, " ").Replace('_', ' ');
 
-    public static int CountSharedWords(string a, string b)
+    public static int CountSharedWords(PreparedName a, PreparedName b)
     {
-        var aWords = NormalizeName(a).Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var bWords = NormalizeName(b).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var aWords = a.NormalizedName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var bWords = b.NormalizedName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         return aWords.Intersect(bWords).Count();
     }
@@ -165,9 +166,19 @@ public static partial class GameNameHelper
         if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b))
             return false;
 
-        var normA = NormalizeName(a);
-        var normB = NormalizeName(b);
+        return IsLikelySameGame(a, NormalizeName(a), b, NormalizeName(b));
+    }
 
+    public static bool IsLikelySameGame(PreparedName a, PreparedName b)
+    {
+        if (string.IsNullOrWhiteSpace(a.WordSplitName) || string.IsNullOrWhiteSpace(b.WordSplitName))
+            return false;
+
+        return IsLikelySameGame(a.WordSplitName, a.NormalizedName, b.WordSplitName, b.NormalizedName);
+    }
+
+    private static bool IsLikelySameGame(string a, string normA, string b, string normB)
+    {
         if (normA == normB)
             return true;
 
