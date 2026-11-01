@@ -24,7 +24,7 @@ public class RenoDXAvailabilityResolverTests
     [Fact]
     public void Resolve_GameModWithSnapshot_ReturnsGameModFile()
     {
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unknown,
             Architecture.X64, CreateMatch(s_gameMod), true, s_snapshotWithFile, []);
 
         Assert.True(actual.IsSupported);
@@ -41,7 +41,7 @@ public class RenoDXAvailabilityResolverTests
         var installedRenoDX = new RenoDX { Arch = Architecture.X64, OriginalName = userPickedAddonFilename };
         var snapshot = CreateSnapshot(AddonFilename, userPickedAddonFilename);
 
-        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, true, Game.Engine.Unknown,
             Architecture.X64, CreateMatch(s_gameMod), true, snapshot, []);
 
         Assert.NotNull(actual.DownloadOptions);
@@ -55,7 +55,7 @@ public class RenoDXAvailabilityResolverTests
     {
         var installedRenoDX = new RenoDX { Arch = Architecture.X32, OriginalName = "renodx-game.addon32" };
 
-        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, true, Game.Engine.Unknown,
             Architecture.X64, CreateMatch(s_gameMod), true, s_snapshotWithFile, []);
 
         Assert.NotNull(actual.DownloadOptions);
@@ -67,7 +67,7 @@ public class RenoDXAvailabilityResolverTests
     [Fact]
     public void Resolve_GameModWithoutBuildForArchitecture_ReturnsNoBuildNotice()
     {
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unknown,
             Architecture.X32, CreateMatch(s_gameMod), true, s_snapshotWithFile, []);
 
         Assert.True(actual.IsSupported);
@@ -86,7 +86,7 @@ public class RenoDXAvailabilityResolverTests
             DiscordUrl = "https://discord.com/channels/1/2"
         };
 
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unknown,
             Architecture.X64, CreateMatch(gameMod), true, s_snapshotWithFile, []);
 
         Assert.Null(actual.DownloadOptions);
@@ -100,7 +100,7 @@ public class RenoDXAvailabilityResolverTests
     {
         var gameMod = s_gameMod with { SnapshotUrl = null };
 
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unknown,
             Architecture.X64, CreateMatch(gameMod), true, s_snapshotWithFile, []);
 
         Assert.True(actual.IsSupported);
@@ -112,7 +112,7 @@ public class RenoDXAvailabilityResolverTests
     [Fact]
     public void Resolve_UnrealGameWithoutModMatch_ReturnsEngineFallback()
     {
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unreal,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unreal,
             Architecture.X64, RenoDXModMatch.None, true, s_snapshotWithFile, []);
 
         Assert.True(actual.IsSupported);
@@ -124,7 +124,7 @@ public class RenoDXAvailabilityResolverTests
     [Fact]
     public void Resolve_UnityGameWithGameModListNotLoaded_ReturnsNotSupported()
     {
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unity,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unity,
             Architecture.X64, RenoDXModMatch.None, false, s_snapshotWithFile, []);
 
         Assert.False(actual.IsSupported);
@@ -138,7 +138,7 @@ public class RenoDXAvailabilityResolverTests
         var tie = new RenoDXModMatch(null, null, null, RenoDXModMatch.MatchKind.Tie,
             ["Test Game Part One", "Test Game Part Two"]);
 
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unreal,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unreal,
             Architecture.X64, tie, true, s_snapshotWithFile, []);
 
         Assert.False(actual.IsSupported);
@@ -151,7 +151,7 @@ public class RenoDXAvailabilityResolverTests
     {
         var installedRenoDX = new RenoDX { Arch = Architecture.X64, OriginalName = "renodx-ue-extended.addon64" };
 
-        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, Game.Engine.Unreal,
+        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, true, Game.Engine.Unreal,
             Architecture.X64, CreateMatch(s_gameMod), true, s_snapshotWithFile, []);
 
         Assert.NotNull(actual.DownloadOptions);
@@ -163,7 +163,7 @@ public class RenoDXAvailabilityResolverTests
     {
         var snapshotWithoutFileList = CreateSnapshot();
 
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unknown,
             Architecture.X64, CreateMatch(s_gameMod), true, snapshotWithoutFileList, []);
 
         Assert.NotNull(actual.DownloadOptions);
@@ -178,7 +178,7 @@ public class RenoDXAvailabilityResolverTests
             SnapshotUrl = "https://restalltests.com/releases/renodx-ue-extended.addon64"
         };
 
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unreal,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unreal,
             Architecture.X64, CreateMatch(gameModWithGenericAddon), true,
             s_snapshotWithFile, []);
 
@@ -191,7 +191,7 @@ public class RenoDXAvailabilityResolverTests
     {
         var installedRenoDX = new RenoDX { Arch = Architecture.X64, OriginalName = AddonFilename };
 
-        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, true, Game.Engine.Unknown,
             Architecture.X64, RenoDXModMatch.None, true, s_snapshotWithFile, []);
 
         Assert.True(actual.IsSupported);
@@ -200,12 +200,35 @@ public class RenoDXAvailabilityResolverTests
     [Fact]
     public void Resolve_GameModWithDownloadAndModPage_ReturnsNoManualSource()
     {
-        var actual = RenoDXAvailabilityResolver.Resolve(null, Game.Engine.Unknown,
+        var actual = RenoDXAvailabilityResolver.Resolve(null, true, Game.Engine.Unknown,
             Architecture.X64, CreateMatch(s_gameMod with { NexusUrl = NexusUrl }), true,
             s_snapshotWithFile, []);
 
         Assert.NotNull(actual.DownloadOptions);
         Assert.Null(actual.ManualSource);
+    }
+
+    [Fact]
+    public void Resolve_SupportedGameWithoutReShadeAndRenoDXInstalled_ReturnsReShadeNotFoundNotice()
+    {
+        var installedRenoDX = new RenoDX { Arch = Architecture.X64, OriginalName = AddonFilename };
+
+        var actual = RenoDXAvailabilityResolver.Resolve(installedRenoDX, false, Game.Engine.Unknown,
+            Architecture.X64, CreateMatch(s_gameMod), true, s_snapshotWithFile, []);
+
+        Assert.True(actual.IsSupported);
+        Assert.NotNull(actual.DownloadOptions);
+        Assert.Equal([RenoDXAvailability.Notice.ReShadeNotFoundInGameFolder], actual.Notices);
+    }
+
+    [Fact]
+    public void Resolve_SupportedGameWithoutReShadeAndRenoDXNotInstalled_ReturnsNotSupportedWithoutNotices()
+    {
+        var actual = RenoDXAvailabilityResolver.Resolve(null, false, Game.Engine.Unknown,
+            Architecture.X64, CreateMatch(s_gameMod), true, s_snapshotWithFile, []);
+
+        Assert.True(actual.IsSupported);
+        Assert.Empty(actual.Notices);
     }
 
     private static RenoDXModMatch CreateMatch(RenoDXGameMod gameMod) =>

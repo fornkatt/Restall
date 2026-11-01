@@ -50,6 +50,10 @@ public static class RenoDXTexts
         RenoDXAvailability.Notice.AmbiguousMatch =>
             "This game matches more than one entry on the RenoDX mod list, so Restall can't tell which one to use. " +
             "Please report it with the logs so the list can be fixed.",
+        RenoDXAvailability.Notice.ReShadeNotFoundInGameFolder =>
+            "No ReShade installation was found in the game folder. RenoDX only works when ReShade with full add-on " +
+            "support is loaded. Install ReShade unless you load it some other way (for example through an ASI loader " +
+            "or similar, or through the Vulkan layer).",
         _ => throw new UnreachableException($"No text for RenoDX notice \"{notice}\"")
     };
 }

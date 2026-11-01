@@ -21,7 +21,8 @@ public class RenoDXEntryBuilderTests
             "https://www.nexusmods.com/testgame/mods/1", "https://discord.com/channels/1/2",
             "https://github.com/clshortfuse/renodx/discussions/1", "Test notes");
 
-    private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 10, 7), new Uri("https://restalltests.com/releases/"),
+    private static readonly RenoDXTagInfo s_snapshot = new(new DateOnly(2026, 10, 7),
+        new Uri("https://restalltests.com/releases/"),
         new[] { AddonFilename }.ToFrozenSet(StringComparer.OrdinalIgnoreCase), []);
 
     [Fact]
@@ -126,14 +127,14 @@ public class RenoDXEntryBuilderTests
         var match = new RenoDXModMatch(s_gameMod, null, null,
             RenoDXModMatch.MatchKind.Exact, []);
 
-        var actual = RenoDXEntryBuilder.Build(installedRenoDX, Game.Engine.Unknown, Architecture.X64,
-            match, true, s_snapshot, [nightly]);
+        var actual = RenoDXEntryBuilder.Build(installedRenoDX, true, Game.Engine.Unknown,
+            Architecture.X64, match, true, s_snapshot, [nightly]);
 
         Assert.False(actual.BranchVersions[RenoDX.Branch.Snapshot].UpdateAvailable);
         Assert.False(Assert.Single(actual.BranchReleaseNotes[RenoDX.Branch.Nightly]).IsInstalled);
     }
 
     private static RenoDXEntry BuildRenoDXEntry(RenoDX? installedRenoDX, Game.Engine engine, RenoDXModMatch match) =>
-        RenoDXEntryBuilder.Build(installedRenoDX, engine, Architecture.X64, match, true,
+        RenoDXEntryBuilder.Build(installedRenoDX, true, engine, Architecture.X64, match, true,
             s_snapshot, []);
 }

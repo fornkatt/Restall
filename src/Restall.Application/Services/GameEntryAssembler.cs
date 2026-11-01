@@ -38,8 +38,8 @@ public sealed partial class GameEntryAssembler
         LogRenoDXModMatch(game.Name ?? "Unknown", match);
 
         var architecture = ArchitectureRecommender.Recommend(game.ReShade, game.RenoDX, match);
-        var renoDXEntry = RenoDXEntryBuilder.Build(game.RenoDX, game.EngineName, architecture, match,
-            renoDXModDatabase.IsGameModListLoaded, snapshot, nightlies);
+        var renoDXEntry = RenoDXEntryBuilder.Build(game.RenoDX, game.HasReShade, game.EngineName, architecture,
+            match, renoDXModDatabase.IsGameModListLoaded, snapshot, nightlies);
         var reShadeUpdate = game.ReShade is null ? null : _updateCheckService.CheckReShadeUpdate(game.ReShade);
 
         return new GameEntry(game, architecture, renoDXEntry, reShadeUpdate);

@@ -16,11 +16,11 @@ public static partial class RenoDXEntryBuilder
     [GeneratedRegex("`([^`]+)`")]
     private static partial Regex UpgradeTokenRegex();
 
-    public static RenoDXEntry Build(RenoDX? installedRenoDX, Game.Engine engine, Architecture architecture,
-        RenoDXModMatch match, bool isGameModListLoaded, RenoDXTagInfo? snapshot,
+    public static RenoDXEntry Build(RenoDX? installedRenoDX, bool hasReShade, Game.Engine engine,
+        Architecture architecture, RenoDXModMatch match, bool isGameModListLoaded, RenoDXTagInfo? snapshot,
         ImmutableArray<RenoDXTagInfo> nightlies)
     {
-        var availability = RenoDXAvailabilityResolver.Resolve(installedRenoDX, engine, architecture, match,
+        var availability = RenoDXAvailabilityResolver.Resolve(installedRenoDX, hasReShade, engine, architecture, match,
             isGameModListLoaded, snapshot, nightlies);
         var installedFile = availability.DownloadOptions?.IsInstalledFile == true ? installedRenoDX : null;
         var branchVersions = RenoDXBranchVersionsResolver.Resolve(installedFile,

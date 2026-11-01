@@ -11,8 +11,8 @@ namespace Restall.Application.Helpers;
 
 public static class RenoDXAvailabilityResolver
 {
-    public static RenoDXAvailability Resolve(RenoDX? installedRenoDX, Game.Engine engine, Architecture architecture,
-        RenoDXModMatch match, bool isGameModListLoaded, RenoDXTagInfo? snapshot,
+    public static RenoDXAvailability Resolve(RenoDX? installedRenoDX, bool hasReShade, Game.Engine engine,
+        Architecture architecture, RenoDXModMatch match, bool isGameModListLoaded, RenoDXTagInfo? snapshot,
         ImmutableArray<RenoDXTagInfo> nightlies)
     {
         var notices = ImmutableArray.CreateBuilder<RenoDXAvailability.Notice>();
@@ -33,6 +33,8 @@ public static class RenoDXAvailabilityResolver
 
         if (!isSupported)
             return RenoDXAvailability.NotSupported with { Notices = notices.ToImmutable() };
+        if (!hasReShade && installedRenoDX is not null)
+            notices.Add(RenoDXAvailability.Notice.ReShadeNotFoundInGameFolder);
         if (installedAddonFilename is null && engineFallbackAddonFilename is not null)
             notices.Add(RenoDXAvailability.Notice.EngineFallback);
 

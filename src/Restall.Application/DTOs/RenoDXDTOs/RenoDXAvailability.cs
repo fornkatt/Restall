@@ -23,6 +23,7 @@ public sealed record RenoDXAvailability(
         InstalledArchitectureMismatch,
         NoDownloadListed,
         SnapshotFileUnconfirmed,
-        AmbiguousMatch
+        AmbiguousMatch,
+        ReShadeNotFoundInGameFolder
     }
 }
