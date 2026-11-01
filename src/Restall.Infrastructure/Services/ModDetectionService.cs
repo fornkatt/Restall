@@ -2,21 +2,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using Microsoft.Extensions.Logging;
-using PeNet.Header.Resource;
 using Restall.Application.Common;
 using Restall.Application.Common.Enums;
 using Restall.Application.Interfaces.Driven;
 using Restall.Application.Logging;
 using Restall.Domain.Common.Enums;
 using Restall.Domain.Entities;
+using Restall.Infrastructure.DTOs;
 using Restall.Infrastructure.Helpers;
 
 namespace Restall.Infrastructure.Services;
 
 internal sealed partial class ModDetectionService : IModDetectionService
 {
-    private const long DllScanMaxBytes = 10 * 1024 * 1024;
-
     private readonly ILogger<ModDetectionService> _logger;
 
     public ModDetectionService(
@@ -27,35 +25,54 @@ internal sealed partial class ModDetectionService : IModDetectionService
     }
 
     // TODO: swap actual mod classes to DTO
-    public async Task<Result<HashSet<ReShade>>> DetectInstalledReShadeAsync(string executableDirectory)
+
+    public Task<Result<HashSet<ReShade>>> DetectInstalledReShadeAsync(string executableDirectory) =>
+        Task.FromResult(DetectInstalledReShade(executableDirectory));
+
+    public Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executableDirectory) =>
+        Task.FromResult(DetectInstalledRenoDX(executableDirectory));
+
+    public Result<string?> GetRenoDXFileVersion(string filePath)
+    {
+        var versionInfo = PeVersionHelper.GetVersionInfo(filePath);
+
+        if (versionInfo is null)
+            return Result<string?>.Error($"Could not read file {filePath}", ErrorType.FileSystemError);
+
+        return Result<string?>.Success(ParseRenoDXVersion(versionInfo.FileVersion));
+    }
+
+    private Result<HashSet<ReShade>> DetectInstalledReShade(string executableDirectory)
     {
         LogModDetectionStart("ReShade", executableDirectory);
 
-        HashSet<ReShade> fileList = [];
+        var fileList = new HashSet<ReShade>();
 
         try
         {
-            await ScanFilesAsync(executableDirectory, ["*.dll", "*.asi"], DllScanMaxBytes,
-                async (file, versionInfo) =>
-                {
-                    if (!string.IsNullOrWhiteSpace(versionInfo.ProductName) &&
-                        versionInfo.ProductName.Equals("ReShade", StringComparison.OrdinalIgnoreCase) &&
-                        !string.IsNullOrWhiteSpace(versionInfo.ProductVersion))
-                    {
-                        var filename = Path.GetFileName(file);
+            foreach (var scannedFile in ScanFiles(executableDirectory, ["*.dll", "*.asi"]))
+            {
+                var versionInfo = scannedFile.VersionInfo;
 
-                        fileList.Add(new ReShade
-                        {
-                            SelectedFilename = filename,
-                            Version = versionInfo.ProductVersion,
-                            BranchName = ReShade.Branch.Stable,
-                            Arch = versionInfo.OriginalFilename?.Contains("64") == true
-                                ? Architecture.X64
-                                : Architecture.X32
-                        });
-                        LogModFound("ReShade", filename, executableDirectory);
-                    }
-                });
+                if (!string.IsNullOrWhiteSpace(versionInfo.ProductName)
+                    && versionInfo.ProductName.Equals("ReShade", StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(versionInfo.ProductVersion))
+                {
+                    var filename = Path.GetFileName(scannedFile.FilePath);
+
+                    fileList.Add(new ReShade
+                    {
+                        SelectedFilename = filename,
+                        Version = versionInfo.ProductVersion,
+                        BranchName = ReShade.Branch.Stable,
+                        Arch = versionInfo.OriginalFilename?.Contains("64") == true
+                            ? Architecture.X64
+                            : Architecture.X32
+                    });
+
+                    LogModFound("ReShade", filename, executableDirectory);
+                }
+            }
 
             // TODO: multiple of the same mod is usually an anomaly. Redo later when handling for this lands
             LogModDetectionComplete("ReShade", executableDirectory, fileList.Count);
@@ -77,39 +94,40 @@ internal sealed partial class ModDetectionService : IModDetectionService
         }
     }
 
-    public async Task<Result<HashSet<RenoDX>>> DetectInstalledRenoDXAsync(string executableDirectory)
+    private Result<HashSet<RenoDX>> DetectInstalledRenoDX(string executableDirectory)
     {
         LogModDetectionStart("RenoDX", executableDirectory);
 
-        HashSet<RenoDX> fileList = [];
+        var fileList = new HashSet<RenoDX>();
 
         try
         {
-            await ScanFilesAsync(executableDirectory, [$"*{RenoDX.AddonExtension64}", $"*{RenoDX.AddonExtension32}"],
-                long.MaxValue,
-                async (file, versionInfo) =>
-                {
-                    if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename) &&
-                        versionInfo.OriginalFilename.StartsWith(RenoDX.OriginalFilenameStart,
-                            StringComparison.OrdinalIgnoreCase) &&
-                        !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
-                    {
-                        var filename = Path.GetFileName(file);
+            foreach (var scannedFile in ScanFiles(executableDirectory,
+                         [$"*{RenoDX.AddonExtension64}", $"*{RenoDX.AddonExtension32}"]))
+            {
+                var versionInfo = scannedFile.VersionInfo;
 
-                        fileList.Add(new RenoDX
-                        {
-                            SelectedName = filename,
-                            OriginalName = versionInfo.OriginalFilename,
-                            BranchName =
-                                RenoDX.Branch.Snapshot, // Assume Snapshot for detected mods not installed by this app
-                            Version = ParseRenoDXVersion(versionInfo.FileVersion),
-                            Arch = versionInfo.OriginalFilename.Contains("64")
-                                ? Architecture.X64
-                                : Architecture.X32
-                        });
-                        LogModFound("RenoDX", filename, executableDirectory);
-                    }
-                });
+                if (!string.IsNullOrWhiteSpace(versionInfo.OriginalFilename)
+                    && versionInfo.OriginalFilename.StartsWith(RenoDX.OriginalFilenameStart,
+                        StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(versionInfo.FileVersion))
+                {
+                    var filename = Path.GetFileName(scannedFile.FilePath);
+
+                    fileList.Add(new RenoDX
+                    {
+                        SelectedName = filename,
+                        OriginalName = versionInfo.OriginalFilename,
+                        BranchName = RenoDX.Branch.Snapshot,
+                        Version = ParseRenoDXVersion(versionInfo.FileVersion),
+                        Arch = versionInfo.OriginalFilename.Contains("64")
+                            ? Architecture.X64
+                            : Architecture.X32
+                    });
+
+                    LogModFound("RenoDX", filename, executableDirectory);
+                }
+            }
 
             // TODO: multiple of the same mod is usually an anomaly. Redo later when handling for this lands
             LogModDetectionComplete("RenoDX", executableDirectory, fileList.Count);
@@ -131,48 +149,42 @@ internal sealed partial class ModDetectionService : IModDetectionService
         }
     }
 
-    public Result<string?> GetRenoDXFileVersion(string filePath)
-    {
-        var versionInfo = PeVersionHelper.GetVersionInfo(filePath);
-
-        if (versionInfo is null)
-            return Result<string?>.Error($"Could not read file {filePath}", ErrorType.FileSystemError);
-
-        return Result<string?>.Success(ParseRenoDXVersion(versionInfo.FileVersion));
-    }
-
-    // TODO: make synchronous
-    private async Task ScanFilesAsync(
-        string path,
-        string[] patterns,
-        long maxScanBytes,
-        Func<string, StringTable, Task> handler)
+    private List<ScannedFile> ScanFiles(string path, string[] patterns)
     {
         var files = patterns
             .SelectMany(p => Directory.GetFiles(path, p))
             .ToArray();
 
+        var scannedFiles = new List<ScannedFile>();
+
         foreach (var file in files)
+        {
             try
             {
-                var versionInfo = PeVersionHelper.GetVersionInfo(file, maxScanBytes);
+                var versionInfo = PeVersionHelper.GetVersionInfo(file);
 
-                if (versionInfo is null)
-                    continue;
-
-                await handler(file, versionInfo);
+                if (versionInfo is not null)
+                    scannedFiles.Add(new ScannedFile(file, versionInfo));
             }
             catch (Exception ex)
             {
                 _logger.PeFileReadFailure(file, ex);
                 // Protect the scanner
             }
+        }
+
+        return scannedFiles;
     }
 
     private static string? ParseRenoDXVersion(string? fileVersion)
     {
-        if (string.IsNullOrWhiteSpace(fileVersion)) return null;
+        if (string.IsNullOrWhiteSpace(fileVersion))
+            return null;
+
         var match = RegexHelper.RenoDXVersionRegex.Match(fileVersion);
+
         return match.Success ? match.Groups[1].Value + match.Groups[2].Value : null;
     }
+
+    private sealed record ScannedFile(string FilePath, PeVersionInfo VersionInfo);
 }

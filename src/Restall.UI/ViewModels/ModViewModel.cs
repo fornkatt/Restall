@@ -33,6 +33,7 @@ public sealed partial class ModViewModel : ViewModelBase
     private const string LatestUpdateTextColor = "#1ab652";
 
     private const int ActionMessageDurationMs = 5000;
+    private const int CoverTargetWidth = 400;
 
     public ModViewModel(
         IModManagementFacade modManagementFacade,
@@ -50,9 +51,11 @@ public sealed partial class ModViewModel : ViewModelBase
     }
 
     [ObservableProperty] public partial GameModViewModel? SelectedGame { get; set; }
+    [ObservableProperty] public partial AsyncBitmap? SelectedGameCover { get; private set; }
 
     partial void OnSelectedGameChanged(GameModViewModel? value)
     {
+        ReplaceSelectedGameCover(value);
         RefreshAvailableRenoDXBranches(value);
         NotifyAllCommandsChanged();
     }
@@ -64,6 +67,17 @@ public sealed partial class ModViewModel : ViewModelBase
     }
 
     public void ApplySelectedGame(GameModViewModel? value) => SelectedGame = value;
+
+    private void ReplaceSelectedGameCover(GameModViewModel? selectedGame)
+    {
+        var previousCover = SelectedGameCover;
+
+        SelectedGameCover = selectedGame is null
+            ? null
+            : new AsyncBitmap(selectedGame.CoverPath, CoverTargetWidth);
+
+        previousCover?.Dispose();
+    }
 
     private void NotifyAllCommandsChanged()
     {

@@ -15,6 +15,7 @@ public class ParseServiceTests
     private const string RenoDXReleaseTagUrl = "https://github.com/clshortfuse/renodx/releases/tag/";
     private const string RenoDXSnapshotPageUrl = RenoDXReleaseTagUrl + "snapshot";
     private const string RenoDXAssetsUrl = "https://github.com/clshortfuse/renodx/releases/expanded_assets/";
+    private const string RenoDXAssetsSnapshotUrl = RenoDXAssetsUrl + "snapshot";
 
     private const string RenoDXSnapshotPage =
         """
@@ -56,7 +57,7 @@ public class ParseServiceTests
     {
         var handler = new FakeHttpMessageHandler();
         handler.RespondWith(RenoDXSnapshotPageUrl, HtmlResponse(RenoDXSnapshotPage));
-        handler.RespondWith(RenoDXAssetsUrl + "snapshot", HtmlResponse(AssetsPage("snapshot")));
+        handler.RespondWith(RenoDXAssetsSnapshotUrl, HtmlResponse(AssetsPage("snapshot")));
         var sut = CreateService(handler);
 
         var actual = await sut.FetchRenoDXSnapshotAsync(TestContext.Current.CancellationToken);
@@ -76,7 +77,7 @@ public class ParseServiceTests
     {
         var handler = new FakeHttpMessageHandler();
         handler.RespondWith(RenoDXSnapshotPageUrl, HtmlResponse(RenoDXSnapshotPage));
-        handler.RespondWith(RenoDXAssetsUrl + "snapshot", new HttpResponseMessage(HttpStatusCode.NotFound));
+        handler.RespondWith(RenoDXAssetsSnapshotUrl, new HttpResponseMessage(HttpStatusCode.NotFound));
         var sut = CreateService(handler);
 
         var actual = await sut.FetchRenoDXSnapshotAsync(TestContext.Current.CancellationToken);
@@ -133,6 +134,89 @@ public class ParseServiceTests
         Assert.True(actual.IsPartial);
         Assert.Equal(WarningType.RenoDXNightliesIncomplete, actual.WarningType);
         Assert.Equal("20261003", Assert.Single(actual.Value).Version);
+    }
+
+    [Fact]
+    public async Task FetchRenoDXSnapshotAsync_AssetLinkForOtherTag_ReturnsOnlySnapshotAddonFilenames()
+    {
+        var handler = new FakeHttpMessageHandler();
+        handler.RespondWith(RenoDXSnapshotPageUrl, HtmlResponse(RenoDXSnapshotPage));
+        handler.RespondWith(RenoDXAssetsSnapshotUrl, HtmlResponse(
+            """
+            <a href="/clshortfuse/renodx/releases/download/snapshot/renodx-game.addon64">renodx-game.addon64</a>
+            <a href="/clshortfuse/renodx/releases/download/nightly-20261002/renodx-other.addon64">other</a>
+            """));
+        var sut = CreateService(handler);
+
+        var actual = await sut.FetchRenoDXSnapshotAsync(TestContext.Current.CancellationToken);
+
+        Assert.NotNull(actual.Value);
+        Assert.Equal(["renodx-game.addon64"], actual.Value.AddonFilenames);
+    }
+
+    [Fact]
+    public async Task FetchRenoDXSnapshotAsync_EncodedAssetLink_ReturnsDecodedAddonFilename()
+    {
+        var handler = new FakeHttpMessageHandler();
+        handler.RespondWith(RenoDXSnapshotPageUrl, HtmlResponse(RenoDXSnapshotPage));
+        handler.RespondWith(RenoDXAssetsSnapshotUrl, HtmlResponse(
+            """
+            <a href="/clshortfuse/renodx/releases/download/snapshot/renodx-some%20game&amp;co.addon64">x</a>
+            """));
+        var sut = CreateService(handler);
+
+        var actual = await sut.FetchRenoDXSnapshotAsync(TestContext.Current.CancellationToken);
+
+        Assert.NotNull(actual.Value);
+        Assert.Equal(["renodx-some game&co.addon64"], actual.Value.AddonFilenames);
+    }
+
+    [Fact]
+    public async Task FetchRenoDXSnapshotAsync_SingleQuotedAssetLink_ReturnsAddonFilename()
+    {
+        var handler = new FakeHttpMessageHandler();
+        handler.RespondWith(RenoDXSnapshotPageUrl, HtmlResponse(RenoDXSnapshotPage));
+        handler.RespondWith(RenoDXAssetsSnapshotUrl, HtmlResponse(
+            "<a href='/clshortfuse/renodx/releases/download/snapshot/renodx-game.addon64'>renodx-game.addon64</a>"));
+        var sut = CreateService(handler);
+
+        var actual = await sut.FetchRenoDXSnapshotAsync(TestContext.Current.CancellationToken);
+
+        Assert.NotNull(actual.Value);
+        Assert.Equal(["renodx-game.addon64"], actual.Value.AddonFilenames);
+    }
+
+    [Fact]
+    public async Task FetchRenoDXSnapshotAsync_UnquotedAssetLink_ReturnsAddonFilename()
+    {
+        var handler = new FakeHttpMessageHandler();
+        handler.RespondWith(RenoDXSnapshotPageUrl, HtmlResponse(RenoDXSnapshotPage));
+        handler.RespondWith(RenoDXAssetsSnapshotUrl, HtmlResponse(
+            "<a href=/clshortfuse/renodx/releases/download/snapshot/renodx-game.addon64>renodx-game.addon64</a>"));
+        var sut = CreateService(handler);
+
+        var actual = await sut.FetchRenoDXSnapshotAsync(TestContext.Current.CancellationToken);
+
+        Assert.NotNull(actual.Value);
+        Assert.Equal(["renodx-game.addon64"], actual.Value.AddonFilenames);
+    }
+
+    [Fact]
+    public async Task FetchRenoDXSnapshotAsync_DataHrefAttribute_ReturnsOnlyRealLinkAddonFilenames()
+    {
+        var handler = new FakeHttpMessageHandler();
+        handler.RespondWith(RenoDXSnapshotPageUrl, HtmlResponse(RenoDXSnapshotPage));
+        handler.RespondWith(RenoDXAssetsSnapshotUrl, HtmlResponse(
+            """
+            <a href="/clshortfuse/renodx/releases/download/snapshot/renodx-game.addon64">renodx-game.addon64</a>
+            <div data-href="/clshortfuse/renodx/releases/download/snapshot/renodx-hidden.addon64"></div>
+            """));
+        var sut = CreateService(handler);
+
+        var actual = await sut.FetchRenoDXSnapshotAsync(TestContext.Current.CancellationToken);
+
+        Assert.NotNull(actual.Value);
+        Assert.Equal(["renodx-game.addon64"], actual.Value.AddonFilenames);
     }
 
     private static FakeHttpMessageHandler CreateNightlyHandler()

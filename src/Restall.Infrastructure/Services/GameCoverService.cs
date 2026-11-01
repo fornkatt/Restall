@@ -64,13 +64,13 @@ internal sealed partial class GameCoverService : IGameCoverService
         {
             if (source.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
-                await TryDownloadCoverAsync(gameName, coverPath, source);
                 LogGameCoverDownloadStart(gameName ?? "Unknown", source);
+                await TryDownloadCoverAsync(gameName, coverPath, source);
             }
             else if (File.Exists(source))
             {
-                File.Copy(source, coverPath, overwrite: true);
                 LogGameCoverCopyStart(gameName ?? "Unknown", source);
+                File.Copy(source, coverPath, overwrite: true);
             }
         }
         catch (Exception ex)
@@ -280,13 +280,13 @@ internal sealed partial class GameCoverService : IGameCoverService
     // PCGamingWiki (fallback) -------------------------------------------------------------
     private async Task<string?> ResolvePcgwBySearchAsync(string gameName)
     {
-        var exactUrl =
-            await TryPcgwCargoAsync(string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName)));
-        if (exactUrl is null)
-        {
-            LogPCGamingWikiExactUrlLookupFailure(gameName, exactUrl ?? "Unknown");
+        var exactLookupUrl = string.Format(PcgwCargoByPageNameUrl, Uri.EscapeDataString(gameName));
+        var exactUrl = await TryPcgwCargoAsync(exactLookupUrl);
+
+        if (exactUrl is not null)
             return exactUrl;
-        }
+
+        LogPCGamingWikiExactUrlLookupFailure(gameName, exactLookupUrl);
 
         try
         {
@@ -363,7 +363,7 @@ internal sealed partial class GameCoverService : IGameCoverService
         {
             byte[] bytes = [];
             var httpClient = _clientFactory.CreateClient(HttpClientName);
-            var response = await httpClient.GetAsync(url);
+            using var response = await httpClient.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
             {

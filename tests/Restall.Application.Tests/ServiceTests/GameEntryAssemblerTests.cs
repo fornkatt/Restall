@@ -20,14 +20,11 @@ public class GameEntryAssemblerTests
     public void Assemble_GameWithReShadeAndListedMod_ReturnsEntryFromCatalogAndReShadeUpdate()
     {
         var catalog = new RenoDXCatalog();
-        catalog.LoadModDatabase(RenoDXModDatabase.Empty with
-        {
-            GameMods =
-            [
-                new RenoDXGameMod("Test Game", RenoDXModStatus.Done, null, null,
-                    null, null, null, null, null)
-            ]
-        });
+        catalog.LoadModDatabase(new RenoDXModDatabase(
+        [
+            new RenoDXGameMod("Test Game", RenoDXModStatus.Done, null, null, null,
+                null, null, null, null)
+        ], [], []));
         var reShadeUpdate = new UpdateAvailability(true, "6.4.1");
         var updateCheckService = new FakeUpdateCheckService();
         updateCheckService.ReturnForReShade(reShadeUpdate);

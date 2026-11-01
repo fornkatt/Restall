@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Johan Lager & Kristofer Sell & Filip Klaic
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using Restall.Application.DTOs;
 using Restall.Application.DTOs.RenoDXDTOs;
 using System.Collections.Immutable;
 
@@ -13,29 +14,21 @@ public static class RenoDXModMatcher
         if (string.IsNullOrWhiteSpace(gameName))
             return RenoDXModMatch.None;
 
-        var preparedGameName = PrepareName(GameNameHelper.StripCollectionPartSuffix(gameName));
+        var preparedGameName = PreparedName.Create(GameNameHelper.StripCollectionPartSuffix(gameName));
 
-        var gameModNames = PrepareNames(database.GameMods.Select(m => m.Name));
-
-        if (FindExactMatch(preparedGameName, gameModNames) is { } gameModIndex)
+        if (FindExactMatch(preparedGameName, database.GameModNames) is { } gameModIndex)
             return new RenoDXModMatch(database.GameMods[gameModIndex], null, null,
                 RenoDXModMatch.MatchKind.Exact, []);
 
-        var unrealModNames = PrepareNames(database.UnrealGenericMods
-            .Select(m => m.Name));
-
-        if (FindExactMatch(preparedGameName, unrealModNames) is { } unrealModIndex)
+        if (FindExactMatch(preparedGameName, database.UnrealGenericModNames) is { } unrealModIndex)
             return new RenoDXModMatch(null, database.UnrealGenericMods[unrealModIndex],
                 null, RenoDXModMatch.MatchKind.Exact, []);
 
-        var unityModNames = PrepareNames(database.UnityGenericMods
-            .Select(m => m.Name));
-
-        if (FindExactMatch(preparedGameName, unityModNames) is { } unityModIndex)
+        if (FindExactMatch(preparedGameName, database.UnityGenericModNames) is { } unityModIndex)
             return new RenoDXModMatch(null, null, database.UnityGenericMods[unityModIndex],
                 RenoDXModMatch.MatchKind.Exact, []);
 
-        var gameModCandidates = FindClosestFuzzyMatches(preparedGameName, gameModNames);
+        var gameModCandidates = FindClosestFuzzyMatches(preparedGameName, database.GameModNames);
 
         switch (gameModCandidates.Length)
         {
@@ -46,7 +39,7 @@ public static class RenoDXModMatcher
                 return CreateTie([.. gameModCandidates.Select(index => database.GameMods[index].Name)]);
         }
 
-        var unrealModCandidates = FindClosestFuzzyMatches(preparedGameName, unrealModNames);
+        var unrealModCandidates = FindClosestFuzzyMatches(preparedGameName, database.UnrealGenericModNames);
 
         switch (unrealModCandidates.Length)
         {
@@ -57,7 +50,7 @@ public static class RenoDXModMatcher
                 return CreateTie([.. unrealModCandidates.Select(index => database.UnrealGenericMods[index].Name)]);
         }
 
-        var unityModCandidates = FindClosestFuzzyMatches(preparedGameName, unityModNames);
+        var unityModCandidates = FindClosestFuzzyMatches(preparedGameName, database.UnityGenericModNames);
 
         return unityModCandidates.Length switch
         {
@@ -68,28 +61,29 @@ public static class RenoDXModMatcher
         };
     }
 
-    private static int? FindExactMatch(string preparedGameName, ImmutableArray<string> preparedModNames)
+    private static int? FindExactMatch(PreparedName gameName, ImmutableArray<PreparedName> modNames)
     {
-        var normalizedModNames = preparedModNames.Select(GameNameHelper.NormalizeName)
-            .ToImmutableArray();
+        for (var i = 0; i < modNames.Length; i++)
+        {
+            if (modNames[i].NormalizedName == gameName.NormalizedName)
+                return i;
+        }
 
-        var index = normalizedModNames.IndexOf(GameNameHelper.NormalizeName(preparedGameName));
-
-        return index == -1 ? null : index;
+        return null;
     }
 
-    private static ImmutableArray<int> FindClosestFuzzyMatches(string preparedGameName,
-        ImmutableArray<string> preparedModNames)
+    private static ImmutableArray<int> FindClosestFuzzyMatches(PreparedName gameName,
+        ImmutableArray<PreparedName> modNames)
     {
         var closestMatches = ImmutableArray.CreateBuilder<int>();
         var highestOverlap = 0;
 
-        for (var index = 0; index < preparedModNames.Length; index++)
+        for (var i = 0; i < modNames.Length; i++)
         {
-            if (!GameNameHelper.IsLikelySameGame(preparedGameName, preparedModNames[index]))
+            if (!GameNameHelper.IsLikelySameGame(gameName, modNames[i]))
                 continue;
 
-            var overlap = GameNameHelper.CountSharedWords(preparedGameName, preparedModNames[index]);
+            var overlap = GameNameHelper.CountSharedWords(gameName, modNames[i]);
 
             if (overlap > highestOverlap)
             {
@@ -98,7 +92,7 @@ public static class RenoDXModMatcher
             }
 
             if (overlap == highestOverlap)
-                closestMatches.Add(index);
+                closestMatches.Add(i);
         }
 
         return closestMatches.ToImmutable();
@@ -106,10 +100,4 @@ public static class RenoDXModMatcher
 
     private static RenoDXModMatch CreateTie(ImmutableArray<string> tiedNames) =>
         new(null, null, null, RenoDXModMatch.MatchKind.Tie, tiedNames);
-
-    private static ImmutableArray<string> PrepareNames(IEnumerable<string> names) =>
-        [.. names.Select(PrepareName)];
-
-    private static string PrepareName(string name) =>
-        GameNameHelper.SplitInWordSeparators(GameNameHelper.RemoveLatinAccents(name));
 }

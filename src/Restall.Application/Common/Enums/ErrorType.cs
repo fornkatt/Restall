@@ -25,5 +25,9 @@ public enum ErrorType
     FileNotFound,
 
     // RenoDX mod source
-    RenoDXModDatabaseUnavailable
+    RenoDXModDatabaseUnavailable,
+
+    //JSON
+    JsonParseFailure,
+    JsonArrayNotFound
 }

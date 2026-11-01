@@ -37,7 +37,7 @@
                 <Border Grid.Column="0" CornerRadius="6" Margin="10" ClipToBounds="True"
                         Width="200" Height="280"
                         VerticalAlignment="Top">
-                    <Image Source="{Binding SelectedGame.CoverBitmap}"
+                    <Image Source="{Binding SelectedGameCover.Value}"
                            Stretch="UniformToFill"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center" />

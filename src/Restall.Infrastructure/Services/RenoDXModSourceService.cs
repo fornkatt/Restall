@@ -3,6 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 using Restall.Application.Common;
+using Restall.Application.Common.Enums;
 using Restall.Application.DTOs.RenoDXDTOs;
 using Restall.Application.Interfaces.Driven;
 using System.Collections.Immutable;
@@ -65,22 +66,23 @@ internal sealed partial class RenoDXModSourceService : IRenoDXModSourceService
         catch (HttpRequestException ex)
         {
             return Result<ImmutableArray<T>>.Error($"Could not download 'RenoDX' mod database file from \"{url}\"",
-                exception: ex);
+                ErrorType.DownloadFailed, ex);
         }
         catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
-            return Result<ImmutableArray<T>>.Error($"Request to \"{url}\" timed out", exception: ex);
+            return Result<ImmutableArray<T>>.Error($"Request to \"{url}\" timed out", ErrorType.NetworkTimeout,
+                ex);
         }
         catch (JsonException ex)
         {
             return Result<ImmutableArray<T>>.Error($"Could not parse 'RenoDX' mod database file \"{url}\" as a JSON " +
-                                                   $"array", exception: ex);
+                                                   $"array", ErrorType.JsonParseFailure, ex);
         }
 
         if (elements is null)
         {
             return Result<ImmutableArray<T>>.Error($"Could not find a JSON array in 'RenoDX' mod database file" +
-                                                   $" \"{url}\"");
+                                                   $" \"{url}\"", ErrorType.JsonArrayNotFound);
         }
 
         var entries = ImmutableArray.CreateBuilder<T>(elements.Length);
