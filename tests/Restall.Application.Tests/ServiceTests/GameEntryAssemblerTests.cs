@@ -19,12 +19,7 @@ public class GameEntryAssemblerTests
     [Fact]
     public void Assemble_GameWithReShadeAndListedMod_ReturnsEntryFromCatalogAndReShadeUpdate()
     {
-        var catalog = new RenoDXCatalog();
-        catalog.LoadModDatabase(new RenoDXModDatabase(
-        [
-            new RenoDXGameMod("Test Game", RenoDXModStatus.Done, null, null, null,
-                null, null, null, null)
-        ], [], []));
+        var catalog = CreateCatalogWithListedTestGame();
         var reShadeUpdate = new UpdateAvailability(true, "6.4.1");
         var updateCheckService = new FakeUpdateCheckService();
         updateCheckService.ReturnForReShade(reShadeUpdate);
@@ -50,6 +45,31 @@ public class GameEntryAssemblerTests
         var actual = sut.Assemble(game);
 
         Assert.Null(actual.ReShadeUpdate);
+    }
+
+    [Fact]
+    public void Assemble_ListedGameWithoutReShadeAndRenoDXInstalled_ReturnsReShadeNotFoundNotice()
+    {
+        var sut = CreateAssembler(CreateCatalogWithListedTestGame(), new FakeUpdateCheckService());
+        var renoDX = new RenoDX { Arch = Architecture.X64, OriginalName = "renodx-game.addon64" };
+        var game = new Game { Name = "Test Game", RenoDX = renoDX };
+
+        var actual = sut.Assemble(game);
+
+        Assert.Contains(RenoDXTexts.GetNoticeText(RenoDXAvailability.Notice.ReShadeNotFoundInGameFolder),
+            actual.RenoDXEntry.Notices);
+    }
+
+    private static RenoDXCatalog CreateCatalogWithListedTestGame()
+    {
+        var catalog = new RenoDXCatalog();
+        catalog.LoadModDatabase(new RenoDXModDatabase(
+        [
+            new RenoDXGameMod("Test Game", RenoDXModStatus.Done, null, null, null,
+                null, null, null, null)
+        ], [], []));
+
+        return catalog;
     }
 
     private static GameEntryAssembler

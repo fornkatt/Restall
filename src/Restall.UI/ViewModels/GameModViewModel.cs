@@ -42,7 +42,6 @@ public sealed partial class GameModViewModel : ObservableObject, IDisposable
     public string? Name => Game.Name;
     private Game Game => GameEntry.Game;
     internal Game GetGame() => Game;
-    public bool HasReShade => Game.HasReShade;
     public Game.Platform PlatformName => Game.PlatformName;
     public Game.Engine EngineName => Game.EngineName;
     public string? ExecutablePath => Game.ExecutablePath;
@@ -71,23 +70,25 @@ public sealed partial class GameModViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(RenoDXBranchName));
         OnPropertyChanged(nameof(HasRenoDX));
         OnPropertyChanged(nameof(HasReShade));
-        OnPropertyChanged(nameof(CanUseRenoDXInstallButton));
     }
 
-    // ReShade -------------------------------------------------------------------------------
+    #region ReShade
 
+    public bool HasReShade => Game.HasReShade;
     public string? ReShadeVersion => Game.ReShade?.Version;
     public string? ReShadeBranch => Game.ReShade?.BranchName.ToString();
     public ReShade.Branch? ReShadeBranchName => Game.ReShade?.BranchName;
     public string? ReShadeArch => Game.ReShade?.Arch.ToString();
     public string? ReShadeFilename => Game.ReShade?.SelectedFilename;
 
-    // RenoDX --------------------------------------------------------------------------------
+    #endregion
+
+    #region RenoDX
 
     public RenoDXEntry RenoDXEntry => GameEntry.RenoDXEntry;
 
     public bool CanUseRenoDXInstallButton =>
-        HasReShade && RenoDXEntry is { DownloadOptions: not null } or { ManualSource: not null };
+        RenoDXEntry is { DownloadOptions: not null } or { ManualSource: not null };
 
     public RenoDX.Branch? LastSelectedRenoDXBranch { get; set; }
 
@@ -127,10 +128,15 @@ public sealed partial class GameModViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(HasUnseenRenoDXNotices));
     }
 
-    // Action messages -----------------------------------------------------------------------
+    #endregion
 
-    [ObservableProperty] public partial string? ReShadeModActionStatus { get; set; }
-    [ObservableProperty] public partial bool IsShowingReShadeActionMessage { get; set; }
+    #region Action messages
+
+    [ObservableProperty]
+    public partial string? ReShadeModActionStatus { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsShowingReShadeActionMessage { get; set; }
     internal CancellationTokenSource? ReShadeMessageCts { get; set; }
 
     [ObservableProperty]
@@ -144,10 +150,14 @@ public sealed partial class GameModViewModel : ObservableObject, IDisposable
 
     internal CancellationTokenSource? RenoDXMessageCts { get; set; }
 
-    // Bitmaps -------------------------------------------------------------------------------
+    #endregion
+
+    #region Bitmaps
 
     public string? CoverPath => Game.GameCoverPathString;
     public AsyncBitmap Thumbnail { get; }
 
     public void Dispose() => Thumbnail.Dispose();
+
+    #endregion
 }

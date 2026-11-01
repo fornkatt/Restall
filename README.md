@@ -24,6 +24,13 @@ It automates the detection of game installations across multiple launchers and s
 ---
 
 ## How to use Restall
+
+> [!NOTE]
+> RenoDX is a ReShade add-on, so it only works when ReShade with full add-on support is loaded into
+> the game. Restall installs that version for you. If you load ReShade any other way
+> (through an ASI loader or similar, or through the Vulkan layer),
+> Restall can't see it at this time, but you can still install RenoDX.
+
 ### The general workflows looks like:
 * Launch Restall - it will automatically detect your installed game launchers
     * Select a game from the detected game list
