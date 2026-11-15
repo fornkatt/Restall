@@ -9,7 +9,7 @@ namespace Restall.Application.Common;
 
 public static class RenoDXGenericAddons
 {
-    private const string UnityAddonDownloadBaseUrl = "https://notvoosh.github.io/renodx-unity/";
+    private const string UnityAddonDownloadBaseUrl = "https://notvoosh.github.io/renodx/";
 
     private const string UnrealExtendedAddonFilename = "renodx-ue-extended" + RenoDX.AddonExtension64;
     private const string UnityAddonFilename = "renodx-unityengine" + RenoDX.AddonExtension64;
