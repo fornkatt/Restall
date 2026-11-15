@@ -12,9 +12,9 @@ public class RenoDXGenericAddonsTests
     [InlineData("renodx-ue-extended.addon64",
         "https://marat569.github.io/renodx/renodx-ue-extended.addon64")]
     [InlineData("renodx-unityengine.addon64",
-        "https://notvoosh.github.io/renodx-unity/renodx-unityengine.addon64")]
+        "https://notvoosh.github.io/renodx/renodx-unityengine.addon64")]
     [InlineData("renodx-unityengine.addon32",
-        "https://notvoosh.github.io/renodx-unity/renodx-unityengine.addon32")]
+        "https://notvoosh.github.io/renodx/renodx-unityengine.addon32")]
     public void GetGenericAddonDownloadUrl_GenericAddonFilename_ReturnsHostUrl(string addonFilename, string expectedUrl)
     {
         var actual = RenoDXGenericAddons.GetGenericAddonDownloadUrl(addonFilename);
